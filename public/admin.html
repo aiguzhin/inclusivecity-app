@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>InclusiveCity — модерация отчётов</title>
+<style>
+  :root{--ink:#102a43;--blue:#1769c2;--blue-weak:#eaf3ff;--green:#087c5b;--green-weak:#e3f7ef;--amber-weak:#fff4d9;--line:#d8e3ed;--paper:#f5f8fb;--red:#b42318;--red-weak:#fdeceb}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);background:var(--paper);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,40px)}
+  .brand{font-size:19px;font-weight:850;letter-spacing:-.5px}.brand b{color:var(--blue)}
+  main{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+  .gate{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px}
+  .gate h1{font-size:19px;margin:0 0 12px}
+  input,button{font:inherit}
+  input{width:100%;border:1px solid #b9c9d8;border-radius:9px;padding:10px;margin-bottom:12px}
+  button{border:0;border-radius:9px;padding:10px 14px;font-weight:750;cursor:pointer;background:var(--blue);color:#fff}
+  button.ghost{background:var(--blue-weak);color:#1357a1}
+  button.danger{background:var(--red-weak);color:var(--red)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .tabs{display:flex;gap:8px;margin:18px 0}
+  .tab{padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:#fff;color:#385168;font-size:13px;font-weight:700;cursor:pointer}
+  .tab.active{background:var(--blue-weak);border-color:#7ab1ed;color:#1256a2}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;display:flex;gap:14px}
+  .card img{width:96px;height:96px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#eef2f5}
+  .card .noimg{width:96px;height:96px;border-radius:10px;background:#eef2f5;display:flex;align-items:center;justify-content:center;color:#8ea1b3;font-size:11px;text-align:center;flex-shrink:0}
+  .card .body{flex:1;min-width:0}
+  .card h3{margin:0 0 4px;font-size:15px}
+  .muted{color:#5b6d7e;font-size:13px}
+  .status-pill{display:inline-block;font-size:11px;font-weight:750;padding:3px 8px;border-radius:99px;margin-left:8px}
+  .status-pill.pending{background:var(--amber-weak);color:#7b5700}
+  .status-pill.approved{background:var(--green-weak);color:#06664a}
+  .status-pill.rejected{background:var(--red-weak);color:var(--red)}
+  .actions{display:flex;gap:8px;margin-top:10px}
+  .empty{text-align:center;color:#5b6d7e;padding:40px 0}
+  .err{color:var(--red);font-size:13px;margin-top:-4px;margin-bottom:8px}
+</style>
+</head><body>
+<header><div class="brand">Inclusive<b>City</b> · модерация</div><div><a href="/" style="color:var(--blue);font-size:13px;font-weight:700;text-decoration:none">← на карту</a></div></header>
+<main>
+  <div class="gate" id="gate">
+    <h1>Вход для модератора</h1>
+    <p class="muted">Введите административный токен (задан в переменной окружения ADMIN_TOKEN на сервере).</p>
+    <input id="tokenInput" type="password" placeholder="Токен доступа" autocomplete="off">
+    <div class="err" id="gateErr" style="display:none">Неверный токен</div>
+    <button onclick="login()" style="width:100%">Войти</button>
+  </div>
+
+  <div id="panel" style="display:none">
+    <div class="tabs">
+      <button class="tab active" data-s="pending" onclick="setTab('pending',this)">На проверке</button>
+      <button class="tab" data-s="approved" onclick="setTab('approved',this)">Одобрено</button>
+      <button class="tab" data-s="rejected" onclick="setTab('rejected',this)">Отклонено</button>
+      <button class="tab" data-s="all" onclick="setTab('all',this)">Все</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</main>
+<script>
+  let token=sessionStorage.getItem('ic_admin_token')||'';
+  let reports=[];
+  let tab='pending';
+
+  function text(v){return v?String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])):''}
+
+  async function login(){
+    const t=document.getElementById('tokenInput').value.trim();
+    if(!t)return;
+    const ok=await tryToken(t);
+    if(ok){token=t;sessionStorage.setItem('ic_admin_token',t);showPanel();}
+    else{document.getElementById('gateErr').style.display='block';}
+  }
+
+  async function tryToken(t){
+    try{
+      const r=await fetch('/api/admin/reports',{headers:{'X-Admin-Token':t}});
+      if(!r.ok)return false;
+      reports=await r.json();
+      return true;
+    }catch(e){return false}
+  }
+
+  async function refresh(){
+    const r=await fetch('/api/admin/reports',{headers:{'X-Admin-Token':token}});
+    if(r.status===401){sessionStorage.removeItem('ic_admin_token');location.reload();return}
+    reports=await r.json();
+    render();
+  }
+
+  function showPanel(){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('panel').style.display='block';
+    refresh();
+  }
+
+  function setTab(s,el){tab=s;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');render();}
+
+  function render(){
+    const list=document.getElementById('list');
+    const filtered=tab==='all'?reports:reports.filter(r=>r.status===tab);
+    if(!filtered.length){list.innerHTML='<div class="empty">Здесь пока пусто</div>';return}
+    list.innerHTML=filtered.map(r=>`
+      <div class="card">
+        ${r.photo?`<img src="${text(r.photo)}" alt="">`:'<div class="noimg">нет фото</div>'}
+        <div class="body">
+          <h3>${text(r.type)}<span class="status-pill ${r.status}">${({pending:'на проверке',approved:'одобрено',rejected:'отклонено'})[r.status]||r.status}</span></h3>
+          <div class="muted">${text(r.comment)}</div>
+          <div class="muted">${r.lat.toFixed(5)}, ${r.lng.toFixed(5)} · ${new Date(r.createdAt).toLocaleString('ru-RU')}</div>
+          <div class="actions">
+            ${r.status!=='approved'?`<button onclick="act('${r.id}','approve')">Одобрить</button>`:''}
+            ${r.status!=='rejected'?`<button class="ghost" onclick="act('${r.id}','reject')">Отклонить</button>`:''}
+            <button class="danger" onclick="act('${r.id}','delete')">Удалить</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function act(id,action){
+    const path=action==='delete'?`/api/admin/reports/${id}`:`/api/admin/reports/${id}/${action}`;
+    const method=action==='delete'?'DELETE':'POST';
+    await fetch(path,{method,headers:{'X-Admin-Token':token}});
+    refresh();
+  }
+
+  if(token){showPanel();}
+</script>
+</body></html>
