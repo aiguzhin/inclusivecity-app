@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: inclusivecity
+    env: node
+    plan: free
+    buildCommand: echo "no dependencies to install"
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: ADMIN_TOKEN
+        sync: false
+    # На бесплатном плане Render постоянный диск недоступен — данные и фото
+    # обнуляются при каждом передеплое/перезапуске. Чтобы это исправить,
+    # перейдите на платный план и раскомментируйте блок ниже:
+    # disk:
+    #   name: inclusivecity-data
+    #   mountPath: /opt/render/project/src/data
+    #   sizeGB: 1
