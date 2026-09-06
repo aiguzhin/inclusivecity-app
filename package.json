@@ -1,0 +1,15 @@
+{
+  "name": "inclusivecity",
+  "version": "1.0.0",
+  "description": "InclusiveCity — карта доступности Алматы с бэкендом для модерации отчётов о барьерах",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {},
+  "license": "MIT"
+}
