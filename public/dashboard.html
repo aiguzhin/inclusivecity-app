@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>InclusiveCity — статистика доступности Алматы</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--ink:#102a43;--ink-soft:#51657a;--paper:#f4f7fa;--card:#fff;--blue:#1769c2;--blue-weak:#e8f2ff;
+--green:#0a7350;--green-weak:#e0f5ed;--amber:#8a5300;--amber-weak:#fff2d7;--red:#b42318;--red-weak:#fdeceb;--line:#d5e1ec}
+html[data-theme="dark"]{--ink:#e8eef5;--ink-soft:#a8b8c8;--paper:#0e1720;--card:#17222e;--blue:#5aa9f0;
+--blue-weak:#16334f;--green:#4ecfa0;--green-weak:#123a2e;--amber:#f0b545;--amber-weak:#3b2c0e;
+--red:#f08b82;--red-weak:#3d1a17;--line:#2a3b4d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:14px clamp(14px,4vw,32px);display:flex;
+justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:850;font-size:1.2rem;letter-spacing:-.5px}.brand b{color:var(--blue)}
+a.back{color:var(--blue);font-weight:700;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:22px clamp(14px,4vw,20px) 60px}
+h1{font-size:1.5rem;margin:0 0 6px;letter-spacing:-.5px}
+p.sub{color:var(--ink-soft);margin:0 0 20px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi .n{font-size:2rem;font-weight:850;line-height:1.1;letter-spacing:-1px}
+.kpi .l{font-size:.85rem;color:var(--ink-soft);margin-top:2px}
+.kpi.ok .n{color:var(--green)}.kpi.warn .n{color:var(--amber)}.kpi.bad .n{color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px}
+.card h2{font-size:1.05rem;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
+td.num{text-align:right;font-weight:750;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:var(--blue-weak);overflow:hidden;margin-top:4px}
+.bar span{display:block;height:100%;background:var(--blue)}
+#map{height:420px;border-radius:14px;border:1px solid var(--line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--ink-soft);margin-top:10px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 14px;background:var(--blue-weak);
+color:var(--blue);cursor:pointer;min-height:44px}
+.muted{color:var(--ink-soft)}.small{font-size:.85rem}
+.empty{text-align:center;padding:36px 10px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Inclusive<b>City</b> · дашборд</div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button onclick="toggleTheme()">🌓 Тема</button>
+    <button onclick="exportCsv()">⬇ Экспорт CSV</button>
+    <a class="back" href="/">← К карте</a>
+  </div>
+</header>
+
+<main>
+  <h1>Барьеры доступности в Алматы</h1>
+  <p class="sub">Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.</p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>Карта плотности барьеров</h2>
+    <div id="map"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#b42318"></i>подтверждённые (3+ подтверждения)</span>
+      <span><i class="dot" style="background:#e8890c"></i>на карте</span>
+      <span><i class="dot" style="background:#1769c2"></i>размер круга — число барьеров рядом</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Типы барьеров</h2>
+    <table id="byType"><thead><tr><th>Тип</th><th style="text-align:right">Количество</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Характер барьеров</h2>
+    <table id="bySeason"><thead><tr><th>Характер</th><th style="text-align:right">Количество</th></tr></thead><tbody></tbody></table>
+    <p class="small muted" style="margin-top:10px">Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.</p>
+  </div>
+
+  <div class="card">
+    <h2>Как пользоваться этими данными</h2>
+    <p class="small muted">Выгрузите CSV и приложите его к обращению в акимат или используйте для планирования ремонта тротуаров. Каждая строка содержит координаты, тип барьера, число подтверждений жителей и дату.</p>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+let REPORTS=[], map;
+const SEASON={permanent:"Постоянный",winter:"Зимний (снег, наледь)",temporary:"Временный (ремонт)"};
+
+function toggleTheme(){
+  const h=document.documentElement;
+  const next=h.getAttribute("data-theme")==="dark"?"light":"dark";
+  h.setAttribute("data-theme",next);
+  try{localStorage.setItem("ic_theme",next)}catch(e){}
+}
+try{ const s=localStorage.getItem("ic_theme"); if(s) document.documentElement.setAttribute("data-theme",s); }catch(e){}
+
+function esc(v){return v==null?"":String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+function kpi(n,l,cls){return `<div class="kpi ${cls||''}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`}
+
+function render(){
+  const total=REPORTS.length;
+  const confirmed=REPORTS.filter(r=>(r.verifications||0)>=3).length;
+  const winter=REPORTS.filter(r=>r.season==="winter").length;
+  const withPhoto=REPORTS.filter(r=>r.photo).length;
+  const last30=REPORTS.filter(r=>Date.now()-new Date(r.createdAt).getTime()<30*864e5).length;
+
+  document.getElementById("kpis").innerHTML =
+    kpi(total,"барьеров на карте") +
+    kpi(confirmed,"подтверждены жителями","ok") +
+    kpi(last30,"добавлено за 30 дней","warn") +
+    kpi(winter,"зимних (сезонных)","bad") +
+    kpi(withPhoto,"с фотографией");
+
+  if(!total){
+    document.querySelectorAll("#byType tbody,#bySeason tbody").forEach(b=>b.innerHTML='<tr><td colspan="2" class="empty">Пока нет данных — станьте первым, кто отметит барьер на карте.</td></tr>');
+    return;
+  }
+
+  group("byType", REPORTS.reduce((a,r)=>{a[r.type]=(a[r.type]||0)+1;return a},{}), total);
+  group("bySeason", REPORTS.reduce((a,r)=>{const k=SEASON[r.season]||SEASON.permanent;a[k]=(a[k]||0)+1;return a},{}), total);
+  drawMap();
+}
+function group(id,obj,total){
+  const rows=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
+  document.querySelector("#"+id+" tbody").innerHTML = rows.map(([k,v])=>`
+    <tr><td>${esc(k)}<div class="bar"><span style="width:${Math.round(v/total*100)}%"></span></div></td>
+    <td class="num">${v}</td></tr>`).join("");
+}
+function drawMap(){
+  if(!map){
+    map=L.map("map").setView([43.2383,76.9455],12);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,
+      attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
+  }
+  // сетка ~500 м для оценки плотности
+  const cells={};
+  REPORTS.forEach(r=>{
+    const key=`${(Math.round(r.lat/0.005)*0.005).toFixed(3)}_${(Math.round(r.lng/0.007)*0.007).toFixed(3)}`;
+    (cells[key]=cells[key]||{lat:0,lng:0,n:0,conf:0});
+    cells[key].lat+=r.lat; cells[key].lng+=r.lng; cells[key].n++;
+    if((r.verifications||0)>=3) cells[key].conf++;
+  });
+  Object.values(cells).forEach(c=>{
+    const lat=c.lat/c.n, lng=c.lng/c.n;
+    L.circleMarker([lat,lng],{
+      radius:Math.min(34,8+c.n*4),
+      color:c.conf?"#b42318":"#e8890c", weight:2,
+      fillColor:c.conf?"#b42318":"#e8890c", fillOpacity:.35
+    }).addTo(map).bindPopup(`<b>Барьеров рядом: ${c.n}</b><br>Подтверждённых: ${c.conf}`);
+  });
+}
+function exportCsv(){
+  const head=["id","lat","lng","type","season","comment","verifications","createdAt"];
+  const rows=REPORTS.map(r=>head.map(h=>`"${String(r[h]==null?"":r[h]).replace(/"/g,'""')}"`).join(","));
+  const csv=[head.join(",")].concat(rows).join("\n");
+  const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`inclusivecity-barriers-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+(async function(){
+  try{
+    const r=await fetch("/api/reports");
+    REPORTS=await r.json();
+  }catch(e){ REPORTS=[]; }
+  render();
+})();
+</script>
+</body></html>
