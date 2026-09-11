@@ -1,141 +1,1108 @@
 <!doctype html>
-<html lang="ru"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>InclusiveCity — карта Алматы</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <style>
-    :root{--ink:#102a43;--blue:#1769c2;--blue-weak:#eaf3ff;--green:#087c5b;--green-weak:#e3f7ef;--amber:#965d00;--amber-weak:#fff4d9;--line:#d8e3ed;--paper:#f5f8fb;--red:#b42318}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.top{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,58px);position:relative;z-index:5}.brand{font-size:21px;font-weight:850;letter-spacing:-.5px}.brand b{color:var(--blue)}.badge{background:var(--green-weak);color:#06664a;padding:6px 10px;border-radius:99px;font-size:12px;font-weight:750}.app{height:calc(100vh - 70px);display:grid;grid-template-columns:minmax(335px,410px) 1fr}.side{background:#fff;border-right:1px solid var(--line);padding:20px;overflow:auto;z-index:2}.eyebrow{font-size:12px;color:var(--blue);font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}.side h1{font-size:24px;letter-spacing:-.7px;line-height:1.12;margin:0 0 18px}.field{display:block;font-size:13px;font-weight:700;margin:13px 0 5px}.row{display:flex;gap:8px}.row>*{min-width:0}input,select,button{font:inherit}input,select{width:100%;border:1px solid #b9c9d8;border-radius:9px;padding:10px;background:white;color:var(--ink)}button{border:0;border-radius:9px;padding:10px 12px;font-weight:750;cursor:pointer}button:disabled{opacity:.6;cursor:not-allowed}.primary{background:var(--blue);color:white;flex:1}.secondary{background:var(--blue-weak);color:#1357a1}.locate{width:46px;font-size:18px;padding:6px}.helper{font-size:12px;color:#5a6d7e;margin:7px 0 15px}.filters,.choices{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}.filter,.choice{font-size:12px;background:#fff;border:1px solid var(--line);color:#385168;padding:7px 9px}.filter.active,.choice.active{background:var(--blue-weak);border-color:#7ab1ed;color:#1256a2}.answer{font-size:12px;color:#37546e;background:#f6f9fc;border-radius:8px;padding:8px;margin:0}.status{border-radius:10px;padding:10px 11px;background:var(--amber-weak);color:#765000;font-size:13px;margin:14px 0}.status.ok{background:var(--green-weak);color:#06664a}.result{border:1px solid var(--line);border-radius:12px;padding:13px;margin:12px 0}.result h2{font-size:16px;margin:0}.muted{color:#5b6d7e}.small{font-size:12px}.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.fact{font-size:12px;padding:4px 7px;border-radius:99px;background:#f0f4f7}.fact.good{background:var(--green-weak);color:#06664a}.fact.warn{background:var(--amber-weak);color:#7b5700}.report{width:100%;background:var(--ink);color:white;margin-top:7px}.disclaimer{font-size:11px;color:#6c7d8c;margin:14px 0}.mapwrap{position:relative;min-width:0}#map{height:100%;width:100%;background:#e6eef5}.map-note{position:absolute;z-index:500;right:16px;bottom:25px;max-width:285px;background:#fffffff0;border:1px solid #d7e2eb;border-radius:11px;padding:9px 11px;font-size:12px;box-shadow:0 3px 15px #17324d20}.legend{display:flex;gap:11px;margin-top:5px;font-size:11px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dot.green{background:var(--green)}.dot.amber{background:#df9818}.dot.blue{background:var(--blue)}.pin{background:#fff;border:3px solid var(--blue);border-radius:50%;width:18px;height:18px;box-shadow:0 1px 5px #102a4350}.place-pin{background:var(--green);border:3px solid white;border-radius:50%;width:17px;height:17px;box-shadow:0 1px 5px #102a4350}.barrier-pin{background:#f0a323;border:3px solid white;border-radius:50%;width:17px;height:17px;box-shadow:0 1px 5px #102a4350}.leaflet-popup-content{min-width:190px}.leaflet-popup-content img{border-radius:8px;margin:6px 0;display:block}.modal{display:none;position:fixed;z-index:1000;inset:0;background:#071d3180;padding:16px;align-items:center;justify-content:center}.modal.open{display:flex}.dialog{width:min(480px,100%);max-height:92vh;overflow:auto;background:white;border-radius:15px;padding:21px;box-shadow:0 12px 40px #06182c80}.dialog h2{margin:0 0 5px;font-size:22px}.close{float:right;background:#edf2f7;color:var(--ink);font-size:18px;padding:4px 10px}.dialog .field{margin-top:13px}.ai{display:none;background:var(--green-weak);color:#075f47;border-radius:9px;padding:10px;font-size:13px;margin:9px 0}.toast{position:fixed;z-index:2000;bottom:20px;left:50%;transform:translateX(-50%);background:#113651;color:white;padding:10px 14px;border-radius:10px;box-shadow:0 5px 20px #0003;display:none}.toast.show{display:block}
-    .layerToggles{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}.layerToggle{font-size:12px;background:#fff;border:1px solid var(--line);color:#385168;padding:7px 9px}.layerToggle.active{background:var(--blue-weak);border-color:#7ab1ed;color:#1256a2}
-    .helpline{border:1px solid var(--line);border-radius:12px;padding:13px;margin:12px 0;background:#fff}.helpline h2{font-size:16px;margin:0 0 4px}.helpline .note{font-size:12px;color:#5b6d7e;margin:0 0 10px}.helpline-list{display:flex;flex-direction:column;gap:8px}.helpline-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f6f9fc;border-radius:9px;padding:8px 10px}.helpline-item .who{font-size:13px}.helpline-item .who b{display:block;font-size:12px;color:#5b6d7e;font-weight:600}.helpline-item a.callbtn{background:var(--green);color:white;font-size:12px;font-weight:750;padding:7px 11px;border-radius:8px;text-decoration:none;white-space:nowrap}
-    .extLinkCard{border:1px solid var(--line);border-radius:12px;padding:13px;margin:12px 0;background:#fff}.extLinkCard h2{font-size:16px;margin:0 0 4px}.extLinkCard p{font-size:12px;color:#5b6d7e;margin:0 0 10px}.extLinkCard a.extbtn{display:inline-block;background:var(--blue-weak);color:#1357a1;font-size:13px;font-weight:750;padding:8px 12px;border-radius:9px;text-decoration:none}
-    @media(max-width:790px){.app{grid-template-columns:1fr;grid-template-rows:auto 55vh;height:auto;min-height:calc(100vh - 70px)}.side{border-right:0;border-bottom:1px solid var(--line);overflow:visible}.mapwrap{height:55vh}.map-note{display:none}.side h1{font-size:21px}.badge{display:none}}
-  </style>
-</head><body>
-<header class="top"><div class="brand">Inclusive<b>City</b></div><div class="badge">Карта Алматы · доступность</div></header>
-<main class="app">
-  <aside class="side">
-    <p class="eyebrow">Построение маршрута</p><h1>Передвигайтесь по Алматы увереннее</h1>
-    <label class="field" for="start">Откуда</label><div class="row"><input id="start" value="Площадь Республики"><button class="locate secondary" onclick="locateUser()" title="Определить мою геопозицию" aria-label="Определить мою геопозицию">⌖</button></div>
-    <label class="field" for="destination">Куда</label><input id="destination" value="Парк 28 гвардейцев-панфиловцев">
-    <div class="row" style="margin-top:12px"><button class="primary" onclick="buildRoute()">Построить маршрут</button><button class="secondary" onclick="setPickMode()">Выбрать на карте</button></div>
-    <p class="helper" id="hint">Введите любое место в Алматы, выберите точку на карте или используйте геопозицию.</p>
-    <section class="result"><h2>Что важнее в этой поездке?</h2><div class="choices"><button class="choice active" onclick="setPreference('balanced',this)">Сбалансированно</button><button class="choice" onclick="setPreference('verified',this)">Меньше неизвестности</button><button class="choice" onclick="setPreference('stepfree',this)">Избегать лестниц</button></div><p class="answer" id="answer">Предложим пешеходный путь и покажем, где пока не хватает проверенных данных.</p></section>
-    <div class="filters"><button class="filter active" data-filter="all" onclick="setFilter('all',this)">Все объекты</button><button class="filter" data-filter="yes" onclick="setFilter('yes',this)">Доступно</button><button class="filter" data-filter="limited" onclick="setFilter('limited',this)">Частично</button></div>
-    <p class="field" style="margin-top:18px">Слои карты</p>
-    <div class="layerToggles">
-      <button class="layerToggle active" id="toggleOsm" onclick="toggleLayer('osm',this)">Доступность OSM</button>
-      <button class="layerToggle" id="toggleLight" onclick="toggleLayer('light',this)">Освещённость улиц</button>
+<html lang="ru" data-theme="light" data-font="normal" data-contrast="normal" data-motion="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1769c2">
+<title>InclusiveCity — доступная карта Алматы</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{
+  --ink:#102a43; --ink-soft:#51657a; --paper:#f4f7fa; --card:#ffffff;
+  --blue:#1769c2; --blue-weak:#e8f2ff; --blue-ink:#12538f;
+  --green:#0a7350; --green-weak:#e0f5ed;
+  --amber:#8a5300; --amber-weak:#fff2d7;
+  --red:#b42318; --red-weak:#fdeceb;
+  --line:#d5e1ec; --focus:#0b57d0;
+  --fs:16px; --tap:44px; --radius:12px;
+  --shadow:0 2px 10px rgba(16,42,67,.09);
+}
+html[data-theme="dark"]{
+  --ink:#e8eef5; --ink-soft:#a8b8c8; --paper:#0e1720; --card:#17222e;
+  --blue:#5aa9f0; --blue-weak:#16334f; --blue-ink:#9ccbf7;
+  --green:#4ecfa0; --green-weak:#123a2e;
+  --amber:#f0b545; --amber-weak:#3b2c0e;
+  --red:#f08b82; --red-weak:#3d1a17;
+  --line:#2a3b4d; --focus:#7fb4ff;
+  --shadow:0 2px 12px rgba(0,0,0,.4);
+}
+html[data-contrast="high"]{
+  --ink:#000000; --ink-soft:#1a1a1a; --paper:#ffffff; --card:#ffffff;
+  --blue:#0b3d91; --blue-weak:#dce7ff; --blue-ink:#08306f;
+  --green:#00502f; --green-weak:#d6f2e5;
+  --amber:#6b3f00; --amber-weak:#ffeec4;
+  --red:#8c0d05; --red-weak:#ffe3e0;
+  --line:#000000; --shadow:none;
+}
+html[data-theme="dark"][data-contrast="high"]{
+  --ink:#ffffff; --ink-soft:#f0f0f0; --paper:#000000; --card:#000000;
+  --blue:#8ecbff; --blue-weak:#00203f; --blue-ink:#bfe2ff;
+  --green:#72f5be; --green-weak:#00301f;
+  --amber:#ffd166; --amber-weak:#3a2800;
+  --red:#ff9d94; --red-weak:#3d0d08;
+  --line:#ffffff;
+}
+html[data-font="large"]{--fs:19px; --tap:50px}
+html[data-font="xlarge"]{--fs:23px; --tap:58px}
+html[data-motion="off"] *{transition:none!important; animation:none!important}
+
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); background:var(--paper);
+  font:var(--fs)/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html[data-contrast="high"] body{font-weight:500}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px; border-radius:6px}
+.skip{position:absolute;left:-9999px;top:0;z-index:3000;background:var(--blue);color:#fff;padding:12px 18px;border-radius:0 0 10px 0;font-weight:700}
+.skip:focus{left:0}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+header.top{
+  background:var(--card); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px clamp(12px,3vw,28px); flex-wrap:wrap; position:relative; z-index:600;
+}
+.brand{font-size:1.25rem;font-weight:850;letter-spacing:-.5px;white-space:nowrap}
+.brand b{color:var(--blue)}
+.top-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+button,select,input,textarea{font:inherit;color:inherit}
+button{border:0;border-radius:10px;cursor:pointer;font-weight:700;min-height:var(--tap);padding:10px 14px;background:var(--blue-weak);color:var(--blue-ink);border:1px solid transparent}
+html[data-contrast="high"] button{border:2px solid var(--line)}
+button:hover{filter:brightness(.96)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:var(--blue);color:#fff}
+html[data-theme="dark"] .btn-primary{color:#04121f}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-dark{background:var(--ink);color:var(--paper)}
+.btn-danger{background:var(--red-weak);color:var(--red);border:1px solid var(--red)}
+.btn-sm{min-height:36px;padding:6px 10px;font-size:.82rem;border-radius:8px}
+.icon-btn{min-width:var(--tap);padding:8px 10px}
+
+input[type=text],input[type=search],select,textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;min-height:var(--tap)
+}
+html[data-contrast="high"] input,html[data-contrast="high"] select{border-width:2px}
+label.field{display:block;font-size:.85rem;font-weight:750;margin:14px 0 5px}
+.row{display:flex;gap:8px}
+.row>*{min-width:0}
+.grow{flex:1}
+
+.app{display:grid;grid-template-columns:minmax(330px,420px) 1fr;min-height:calc(100vh - 62px)}
+.side{background:var(--card);border-right:1px solid var(--line);padding:18px;overflow:auto;max-height:calc(100vh - 62px)}
+.stage{position:relative;min-width:0;background:var(--paper)}
+#map{position:absolute;inset:0;background:#dbe5ee}
+html[data-theme="dark"] #map{background:#101b25}
+#listview{position:absolute;inset:0;overflow:auto;padding:18px;background:var(--paper);display:none}
+body[data-view="list"] #listview{display:block}
+body[data-view="list"] .layerbar{display:none}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0}
+.card h2{font-size:1rem;margin:0 0 6px}
+.card h3{font-size:.95rem;margin:0 0 4px}
+.muted{color:var(--ink-soft)}
+.small{font-size:.85rem}
+.eyebrow{font-size:.72rem;color:var(--blue);font-weight:850;letter-spacing:.09em;text-transform:uppercase;margin:0 0 4px}
+h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.chip{font-size:.82rem;background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 11px;border-radius:99px;min-height:38px}
+.chip[aria-pressed="true"]{background:var(--blue-weak);border-color:var(--blue);color:var(--blue-ink);font-weight:800}
+.chip .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+
+.layerbar{
+  position:absolute;z-index:500;top:10px;left:10px;right:10px;
+  display:flex;gap:7px;overflow-x:auto;padding:6px;
+  background:color-mix(in srgb,var(--card) 92%,transparent);
+  border:1px solid var(--line);border-radius:99px;box-shadow:var(--shadow);
+  scrollbar-width:thin;
+}
+.layerbar .chip{white-space:nowrap;flex:0 0 auto;background:transparent}
+.layerbar .chip[aria-pressed="true"]{background:var(--blue-weak)}
+
+.banner{border-radius:10px;padding:10px 12px;font-size:.86rem;margin:12px 0;background:var(--blue-weak);color:var(--blue-ink)}
+.banner.ok{background:var(--green-weak);color:var(--green)}
+.banner.warn{background:var(--amber-weak);color:var(--amber)}
+.banner.err{background:var(--red-weak);color:var(--red)}
+
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fact{font-size:.78rem;padding:4px 9px;border-radius:99px;background:var(--paper);border:1px solid var(--line)}
+.fact.good{background:var(--green-weak);color:var(--green);border-color:var(--green)}
+.fact.warn{background:var(--amber-weak);color:var(--amber);border-color:var(--amber)}
+.fact.bad{background:var(--red-weak);color:var(--red);border-color:var(--red)}
+
+ol.steps{margin:10px 0 0;padding-left:20px}
+ol.steps li{margin-bottom:8px}
+.poi{border-bottom:1px solid var(--line);padding:12px 0}
+.poi:last-child{border-bottom:0}
+.poi h3{margin:0 0 2px;font-size:.95rem}
+.poi .dist{font-weight:700;color:var(--blue-ink)}
+
+.modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(6,22,38,.62);padding:14px;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.dialog{width:min(520px,100%);max-height:92vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 14px 44px rgba(0,0,0,.4)}
+.dialog h2{margin:0 0 4px;font-size:1.2rem}
+.dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.toast{position:fixed;z-index:3000;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 16px;border-radius:10px;max-width:92vw;display:none;box-shadow:var(--shadow)}
+.toast.show{display:block}
+
+.pin-start,.pin-end,.pin-me{border-radius:50%;border:3px solid #fff;box-shadow:0 1px 6px rgba(16,42,67,.5);width:18px;height:18px}
+.pin-start{background:var(--green)}
+.pin-end{background:var(--red)}
+.pin-me{background:var(--blue)}
+.pin-barrier{background:#e8890c;border:3px solid #fff;border-radius:4px;width:17px;height:17px;box-shadow:0 1px 6px rgba(16,42,67,.5)}
+.pin-poi{border:2px solid #fff;border-radius:50%;width:14px;height:14px;box-shadow:0 1px 4px rgba(16,42,67,.45)}
+.leaflet-popup-content{min-width:200px;font-size:.9rem}
+.leaflet-popup-content img{max-width:100%;border-radius:8px;margin:6px 0;display:block}
+
+.settings-grid{display:grid;gap:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px}
+.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
+
+.sos{background:var(--red);color:#fff;width:100%;margin-top:8px}
+.footer-note{font-size:.75rem;color:var(--ink-soft);margin:16px 0 4px}
+
+@media(max-width:860px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 62vh;min-height:auto}
+  .side{border-right:0;border-bottom:1px solid var(--line);max-height:none;overflow:visible}
+  .stage{height:62vh}
+  .brand{font-size:1.05rem}
+}
+</style>
+</head>
+<body data-view="map">
+<a class="skip" href="#main" data-i18n="skip">Перейти к содержимому</a>
+
+<header class="top">
+  <div class="brand">Inclusive<b>City</b></div>
+  <div class="top-tools">
+    <button id="viewToggle" class="btn-ghost btn-sm" onclick="toggleView()" aria-pressed="false">
+      <span data-i18n="viewList">Текстовый режим</span>
+    </button>
+    <select id="langSel" aria-label="Тіл / Язык / Language" onchange="setLang(this.value)" style="width:auto;min-height:38px;padding:6px 10px">
+      <option value="ru">Русский</option>
+      <option value="kk">Қазақша</option>
+      <option value="en">English</option>
+    </select>
+    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" aria-label="Настройки доступности" title="Настройки доступности">⚙</button>
+  </div>
+</header>
+
+<main class="app" id="main">
+  <aside class="side" aria-label="Панель управления">
+    <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
+    <h1 class="title" data-i18n="title">Передвигайтесь по Алматы увереннее</h1>
+
+    <div class="card">
+      <h2 data-i18n="profileTitle">Ваш профиль передвижения</h2>
+      <p class="small muted" data-i18n="profileHelp">От него зависят предупреждения о склонах, ступенях и порогах.</p>
+      <label class="field" for="profileSel"><span data-i18n="profileLabel">Профиль</span></label>
+      <select id="profileSel" onchange="setProfile(this.value)"></select>
+      <p class="small muted" id="profileNote" style="margin-top:8px"></p>
     </div>
-    <div class="status" id="status">Загружаем открытые записи доступности из OpenStreetMap…</div>
-    <div class="status" id="lightStatus" style="display:none">Слой освещённости выключен.</div>
-    <section class="result" id="routeCard"><h2>Маршрут пока не построен</h2><p class="muted small">Воспользуйтесь формой выше. Для настоящей навигации по барьерам потребуется слой верифицированных пешеходных данных.</p></section>
-    <section class="result"><h2>Как читать карту</h2><div class="facts"><span class="fact good">● доступный объект</span><span class="fact warn">● барьер / проверка</span><span class="fact">синие точки — маршрут</span><span class="fact good">— освещённая улица</span><span class="fact warn">— неосвещённая улица</span></div></section>
-    <button class="report" onclick="openReport()">+ Сообщить о барьере</button>
 
-    <section class="helpline">
-      <h2>Служба помощи людям с инвалидностью</h2>
-      <p class="note">Реальные контакты государственных и общественных служб Алматы. Нажмите «Позвонить», чтобы начать вызов.</p>
-      <div class="helpline-list">
-        <div class="helpline-item"><span class="who">Инватакси — взрослые, нарушения опорно-двигательного аппарата<b>Inclusion.KZ</b></span><a class="callbtn" href="tel:+77077106050">Позвонить</a></div>
-        <div class="helpline-item"><span class="who">Инватакси — дети, нарушения опорно-двигательного аппарата<b>ЦРУ «Инватакси»</b></span><a class="callbtn" href="tel:+77273390387">Позвонить</a></div>
-        <div class="helpline-item"><span class="who">Инватакси — дети с нарушением зрения<b>ООИ «Денсаулық зор байлық»</b></span><a class="callbtn" href="tel:+77078782544">Позвонить</a></div>
-        <div class="helpline-item"><span class="who">Единая социальная линия (помощь, консультации)<b>Круглосуточно, бесплатно</b></span><a class="callbtn" href="tel:111">111</a></div>
-        <div class="helpline-item"><span class="who">Единый номер экстренной помощи<b>Полиция · скорая · пожарная</b></span><a class="callbtn" href="tel:112">112</a></div>
-        <div class="helpline-item"><span class="who">Жалобы на работу инватакси<b>Контроль качества услуги</b></span><a class="callbtn" href="tel:+77273383009">Позвонить</a></div>
-      </div>
-      <p class="disclaimer" style="margin:10px 0 0">Инватакси предоставляется по справке об инвалидности и заказывается заранее (обычно за сутки). Источники: официальные порталы open-almaty.kz и almatyzdrav.kz.</p>
-    </section>
+    <label class="field" for="start"><span data-i18n="from">Откуда</span></label>
+    <div class="row">
+      <input type="text" id="start" class="grow" value="Площадь Республики">
+      <button class="btn-ghost icon-btn" onclick="locateUser()" aria-label="Моё местоположение" title="Моё местоположение">⌖</button>
+      <button class="btn-ghost icon-btn" onclick="voiceInput('start')" aria-label="Голосовой ввод откуда" title="Голосовой ввод">🎤</button>
+    </div>
 
-    <section class="extLinkCard">
-      <h2>Уровень преступности по районам</h2>
-      <p>OpenStreetMap не содержит данные о преступности — эта карта использует только официальный государственный источник, без приближений и догадок.</p>
-      <a class="extbtn" href="https://gis.kgp.kz/arcgis/apps/experiencebuilder/experience/?id=c048e1f975084dc1957108c00c9fb4d7&page=%D0%BA%D0%B0%D1%80%D1%82%D0%B0-%D0%BF%D1%80%D0%B5%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%BE%D1%81%D1%82%D0%B8" target="_blank" rel="noopener">Открыть карту преступности КПСиСУ Генпрокуратуры РК ↗</a>
-    </section>
+    <label class="field" for="destination"><span data-i18n="to">Куда</span></label>
+    <div class="row">
+      <input type="text" id="destination" class="grow" value="Парк 28 гвардейцев-панфиловцев">
+      <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" aria-label="Голосовой ввод куда" title="Голосовой ввод">🎤</button>
+    </div>
 
-    <p class="disclaimer">Карта и базовые объекты: © OpenStreetMap contributors. Данные о доступности могут быть неполными. Не используйте их как экспертное заключение о соответствии нормам.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn-primary grow" onclick="buildRoute()" data-i18n="build">Построить маршрут</button>
+      <button class="btn-ghost" onclick="setPickMode('destination')" data-i18n="pick">На карте</button>
+    </div>
+    <p class="small muted" id="hint" data-i18n="hint">Введите место, выберите точку на карте или используйте геопозицию.</p>
+
+    <div id="routeCard" class="card" aria-live="polite">
+      <h2 data-i18n="noRoute">Маршрут не построен</h2>
+      <p class="small muted" data-i18n="noRouteHelp">Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.</p>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="nearbyTitle">Объекты рядом</h2>
+      <p class="small muted" data-i18n="nearbyHelp">Включите слои кнопками на карте — список появится здесь и в текстовом режиме.</p>
+      <div id="nearbyList" aria-live="polite"></div>
+    </div>
+
+    <button class="btn-dark" style="width:100%" onclick="openReport()" data-i18n="reportBtn">+ Сообщить о барьере</button>
+    <button class="sos" onclick="openModal('sosModal')" data-i18n="sosBtn">🆘 Экстренная помощь</button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="openComplaint()" data-i18n="complaintBtn">📨 Обращение в акимат</button>
+    <a href="/dashboard.html" style="display:block;margin-top:8px"><button class="btn-ghost" style="width:100%" data-i18n="dashBtn">📊 Статистика по городу</button></a>
+
+    <p class="footer-note" data-i18n="disclaimer">Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.</p>
   </aside>
-  <section class="mapwrap"><div id="map" aria-label="Интерактивная карта Алматы"></div><div class="map-note"><b>Данные на карте</b><br>Зелёные точки — открытые теги OSM. Оранжевые — отчёты пользователей, прошедшие модерацию.<div class="legend"><span><i class="dot green"></i>OSM</span><span><i class="dot amber"></i>отчёт</span><span><i class="dot blue"></i>маршрут</span></div></div></section>
+
+  <section class="stage">
+    <div class="layerbar" id="layerbar" role="group" aria-label="Слои объектов на карте"></div>
+    <div id="map" role="application" aria-label="Карта Алматы"></div>
+    <div id="listview" tabindex="-1" aria-label="Текстовый режим">
+      <h2 data-i18n="listTitle">Текстовый режим</h2>
+      <p class="small muted" data-i18n="listHelp">Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.</p>
+      <div id="listRoute"></div>
+      <div id="listPois"></div>
+    </div>
+  </section>
 </main>
-<div class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle"><form class="dialog" onsubmit="saveReport(event)"><button class="close" type="button" onclick="closeReport()" aria-label="Закрыть">×</button><h2 id="reportTitle">Сообщить о барьере</h2><p class="muted small">Отчёт будет отправлен на модерацию и появится на карте для всех после проверки.</p><label class="field">Тип препятствия<select id="barrierType"><option>Высокий бордюр</option><option>Сломанный или крутой пандус</option><option>Неработающий лифт / подъёмник</option><option>Узкая дверь или высокий порог</option><option>Ремонт / временное перекрытие</option></select></label><label class="field">Фото<input id="photo" type="file" accept="image/*" onchange="showAiHint()"></label><div class="ai" id="aiHint">🤖 AI-подсказка: распознавание включается после загрузки TFLite-модели. Сейчас отметьте тип вручную — так данные остаются проверяемыми.</div><label class="field">Комментарий<input id="comment" required placeholder="Например: съезд перекрыт автомобилем"></label><label class="field">Метка на карте<input id="reportPlace" readonly value="Нажмите «Выбрать на карте»"></label><div class="row" style="margin-top:15px"><button type="button" class="secondary" onclick="setReportPick()">Выбрать точку</button><button type="submit" class="primary" id="submitReport">Отправить отчёт</button></div></form></div>
-<div class="toast" id="toast"></div>
+
+<!-- Настройки доступности -->
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="setTitle" data-i18n="setTitle">Настройки доступности</h2>
+      <button class="btn-ghost btn-sm" onclick="closeModal('settingsModal')" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="settings-grid">
+      <div>
+        <label class="field" data-i18n="setFont">Размер текста</label>
+        <div class="seg" id="segFont">
+          <button onclick="setFont('normal')" data-v="normal" data-i18n="fontNormal">Обычный</button>
+          <button onclick="setFont('large')" data-v="large" data-i18n="fontLarge">Крупный</button>
+          <button onclick="setFont('xlarge')" data-v="xlarge" data-i18n="fontXlarge">Очень крупный</button>
+        </div>
+      </div>
+      <div>
+        <label class="field" data-i18n="setTheme">Тема</label>
+        <div class="seg" id="segTheme">
+          <button onclick="setTheme('light')" data-v="light" data-i18n="themeLight">Светлая</button>
+          <button onclick="setTheme('dark')" data-v="dark" data-i18n="themeDark">Тёмная</button>
+        </div>
+      </div>
+      <div>
+        <label class="field" data-i18n="setContrast">Контраст</label>
+        <div class="seg" id="segContrast">
+          <button onclick="setContrast('normal')" data-v="normal" data-i18n="contrastNormal">Обычный</button>
+          <button onclick="setContrast('high')" data-v="high" data-i18n="contrastHigh">Высокий</button>
+        </div>
+      </div>
+      <div>
+        <label class="field" data-i18n="setMotion">Анимации</label>
+        <div class="seg" id="segMotion">
+          <button onclick="setMotion('on')" data-v="on" data-i18n="motionOn">Включены</button>
+          <button onclick="setMotion('off')" data-v="off" data-i18n="motionOff">Отключены</button>
+        </div>
+      </div>
+      <div>
+        <label class="field" data-i18n="setVoice">Озвучка маршрута</label>
+        <div class="seg" id="segVoice">
+          <button onclick="setVoice('on')" data-v="on" data-i18n="voiceOn">Включена</button>
+          <button onclick="setVoice('off')" data-v="off" data-i18n="voiceOff">Выключена</button>
+        </div>
+      </div>
+    </div>
+    <p class="small muted" style="margin-top:14px" data-i18n="setSaved">Настройки сохраняются в этом браузере.</p>
+  </div>
+</div>
+
+<!-- Отчёт о барьере -->
+<div class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+  <form class="dialog" onsubmit="saveReport(event)">
+    <div class="dialog-head">
+      <h2 id="repTitle" data-i18n="repTitle">Сообщить о барьере</h2>
+      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('reportModal')" aria-label="Закрыть">✕</button>
+    </div>
+    <p class="small muted" data-i18n="repHelp">Отчёт уходит на модерацию и появляется на карте после проверки.</p>
+    <label class="field" for="barrierType"><span data-i18n="repType">Тип препятствия</span></label>
+    <select id="barrierType"></select>
+    <label class="field" for="season"><span data-i18n="repSeason">Характер</span></label>
+    <select id="season">
+      <option value="permanent" data-i18n="seasonPerm">Постоянный</option>
+      <option value="winter" data-i18n="seasonWinter">Зимний (снег, наледь)</option>
+      <option value="temporary" data-i18n="seasonTemp">Временный (ремонт) — 30 дней</option>
+    </select>
+    <label class="field" for="photo"><span data-i18n="repPhoto">Фото</span></label>
+    <input id="photo" type="file" accept="image/*" capture="environment">
+    <label class="field" for="comment"><span data-i18n="repComment">Комментарий</span></label>
+    <input type="text" id="comment" required placeholder="Например: съезд перекрыт автомобилем">
+    <label class="field" for="reportPlace"><span data-i18n="repPlace">Метка на карте</span></label>
+    <input type="text" id="reportPlace" readonly value="—">
+    <div class="row" style="margin-top:14px">
+      <button type="button" class="btn-ghost" onclick="setReportPick()" data-i18n="repPick">Выбрать точку</button>
+      <button type="submit" class="btn-primary grow" id="submitReport" data-i18n="repSend">Отправить</button>
+    </div>
+  </form>
+</div>
+
+<!-- SOS -->
+<div class="modal" id="sosModal" role="dialog" aria-modal="true" aria-labelledby="sosTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="sosTitle" data-i18n="sosTitle">Экстренная помощь</h2>
+      <button class="btn-ghost btn-sm" onclick="closeModal('sosModal')" aria-label="Закрыть">✕</button>
+    </div>
+    <p class="small muted" data-i18n="sosHelp">Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.</p>
+    <div class="banner" id="sosCoords" data-i18n="sosNoCoords">Координаты ещё не определены.</div>
+    <button class="btn-primary" style="width:100%" onclick="sosLocate()" data-i18n="sosLocate">Определить моё местоположение</button>
+    <div class="row" style="margin-top:10px">
+      <button class="btn-ghost grow" onclick="sosShare()" data-i18n="sosShare">Отправить близким</button>
+      <button class="btn-ghost grow" onclick="sosCopy()" data-i18n="sosCopy">Скопировать текст</button>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3 data-i18n="sosNumbers">Экстренные службы Казахстана</h3>
+      <p class="small" style="margin:4px 0"><a href="tel:112">112</a> — <span data-i18n="sosUnified">единый номер</span></p>
+      <p class="small" style="margin:4px 0"><a href="tel:103">103</a> — <span data-i18n="sosAmbulance">скорая помощь</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- Обращение в акимат -->
+<div class="modal" id="complaintModal" role="dialog" aria-modal="true" aria-labelledby="cmpTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="cmpTitle" data-i18n="cmpTitle">Обращение в акимат</h2>
+      <button class="btn-ghost btn-sm" onclick="closeModal('complaintModal')" aria-label="Закрыть">✕</button>
+    </div>
+    <p class="small muted" data-i18n="cmpHelp">Готовый текст со ссылкой на координаты. Скопируйте и отправьте через портал eOtinish.</p>
+    <label class="field" for="cmpText"><span data-i18n="cmpText">Текст обращения</span></label>
+    <textarea id="cmpText" rows="10"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn-primary grow" onclick="copyComplaint()" data-i18n="cmpCopy">Скопировать</button>
+      <a class="grow" href="https://eotinish.kz" target="_blank" rel="noopener"><button class="btn-ghost" style="width:100%" data-i18n="cmpOpen">Открыть eOtinish</button></a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  const almaty=[43.2383,76.9455], presets={"Площадь Республики":[43.23895,76.94575],"Парк 28 гвардейцев-панфиловцев":[43.26439,76.95311],"Зелёный базар":[43.2602,76.9456],"Достык Плаза":[43.23265,76.95655],"Алматинский метрополитен, Байконур":[43.2338,76.9458]};
-  const map=L.map('map',{zoomControl:false}).setView(almaty,13);L.control.zoom({position:'bottomright'}).addTo(map);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'}).addTo(map);
-  const osmLayer=L.layerGroup().addTo(map), reportLayer=L.layerGroup().addTo(map), routeLayer=L.layerGroup().addTo(map), lightLayer=L.layerGroup();let records=[],filter='all',pickMode=null,reportLatLng=null,userLatLng=null,preference='balanced',lightLoaded=false;
-  const icon=(cls)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
-  function text(v){return v?String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])):''}
-  function tagsHtml(t){let f=[];if(t.wheelchair)f.push(`<span class="fact ${t.wheelchair==='yes'?'good':'warn'}">коляска: ${text(t.wheelchair)}</span>`);if(t.ramp)f.push(`<span class="fact">пандус: ${text(t.ramp)}</span>`);if(t['toilets:wheelchair'])f.push(`<span class="fact">санузел: ${text(t['toilets:wheelchair'])}</span>`);return f.join('')||'<span class="fact">детали не указаны</span>'}
-  function drawOsm(){osmLayer.clearLayers();records.filter(r=>filter==='all'||r.tags.wheelchair===filter).forEach(r=>{L.marker([r.lat,r.lon],{icon:icon('place-pin')}).addTo(osmLayer).bindPopup(`<b>${text(r.tags.name||r.tags.amenity||'Объект')}</b><div class="facts">${tagsHtml(r.tags)}</div><p class="small muted">Открытые данные OpenStreetMap. Проверьте дату и состояние на месте.</p>`)});}
-  async function loadOsm(){const q='[out:json][timeout:25];(nwr[wheelchair](43.185,76.78,43.315,77.10););out center tags;';try{let r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});let d=await r.json();records=d.elements.map(e=>({lat:e.lat||(e.center&&e.center.lat),lon:e.lon||(e.center&&e.center.lon),tags:e.tags||{}})).filter(e=>e.lat&&e.lon);drawOsm();document.getElementById('status').className='status ok';document.getElementById('status').textContent=`Загружено ${records.length} открытых объектов OSM с признаками доступности.`}catch(e){document.getElementById('status').textContent='Открытые записи OSM временно не загрузились. Карта остаётся рабочей; повторите позже.'}}
-  async function loadLighting(){const statusEl=document.getElementById('lightStatus');statusEl.style.display='block';statusEl.className='status';statusEl.textContent='Загружаем данные об освещённости улиц из OpenStreetMap…';
-    const q='[out:json][timeout:25];(way["highway"]["lit"](43.185,76.78,43.315,77.10);node["highway"="street_lamp"](43.185,76.78,43.315,77.10););out body geom;';
+/* ============ i18n ============ */
+const I18N = {
+ru:{
+ skip:"Перейти к содержимому", eyebrow:"Маршрут и доступность", title:"Передвигайтесь по Алматы увереннее",
+ from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
+ hint:"Введите место, выберите точку на карте или используйте геопозицию.",
+ viewList:"Текстовый режим", viewMap:"Карта",
+ profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль",
+ profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
+ noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
+ nearbyTitle:"Объекты рядом", nearbyHelp:"Включите слои кнопками на карте — список появится здесь и в текстовом режиме.",
+ reportBtn:"+ Сообщить о барьере", sosBtn:"🆘 Экстренная помощь", complaintBtn:"📨 Обращение в акимат", dashBtn:"📊 Статистика по городу",
+ disclaimer:"Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.",
+ listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
+ setTitle:"Настройки доступности", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
+ setTheme:"Тема", themeLight:"Светлая", themeDark:"Тёмная", setContrast:"Контраст", contrastNormal:"Обычный", contrastHigh:"Высокий",
+ setMotion:"Анимации", motionOn:"Включены", motionOff:"Отключены", setVoice:"Озвучка маршрута", voiceOn:"Включена", voiceOff:"Выключена",
+ setSaved:"Настройки сохраняются в этом браузере.",
+ repTitle:"Сообщить о барьере", repHelp:"Отчёт уходит на модерацию и появляется на карте после проверки.",
+ repType:"Тип препятствия", repSeason:"Характер", seasonPerm:"Постоянный", seasonWinter:"Зимний (снег, наледь)", seasonTemp:"Временный (ремонт) — 30 дней",
+ repPhoto:"Фото", repComment:"Комментарий", repPlace:"Метка на карте", repPick:"Выбрать точку", repSend:"Отправить",
+ sosTitle:"Экстренная помощь", sosHelp:"Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.",
+ sosNoCoords:"Координаты ещё не определены.", sosLocate:"Определить моё местоположение", sosShare:"Отправить близким", sosCopy:"Скопировать текст",
+ sosNumbers:"Экстренные службы Казахстана", sosUnified:"единый номер", sosAmbulance:"скорая помощь",
+ cmpTitle:"Обращение в акимат", cmpHelp:"Готовый текст со ссылкой на координаты. Скопируйте и отправьте через портал eOtinish.",
+ cmpText:"Текст обращения", cmpCopy:"Скопировать", cmpOpen:"Открыть eOtinish",
+ building:"Строим маршрут…", checking:"Проверяем ступени, переходы и уклон…",
+ routeFail:"Не удалось построить маршрут", routeFailHelp:"Проверьте название места или подключение к интернету.",
+ km:"км", min:"мин", steps:"Шаги маршрута", speak:"Озвучить маршрут", stopSpeak:"Остановить",
+ warnStairs:"На маршруте найдены ступени: ", warnTunnel:"Подземных/надземных переходов: ", warnSlope:"Максимальный уклон ≈ ",
+ okNoStairs:"Ступеней по данным OSM не найдено", noElev:"Данные о высотах недоступны",
+ slopeHard:"Крутой подъём — тяжело на механической коляске", slopeOk:"Уклон приемлемый",
+ loadingLayer:"Загружаем слой…", layerEmpty:"В этом районе объектов не найдено", layerFail:"Слой не загрузился, попробуйте позже",
+ found:"Найдено объектов: ", verify:"Подтвердить", verified:"Подтверждений: ", thanks:"Спасибо!",
+ geoOff:"Геолокация недоступна в этом браузере", geoFail:"Не удалось получить геопозицию",
+ geoOk:"Геопозиция определена", pickDest:"Кликните по карте, чтобы выбрать точку назначения",
+ pickBarrier:"Кликните по карте, чтобы отметить барьер", needPoint:"Сначала выберите точку барьера на карте",
+ sending:"Отправляем…", sent:"Спасибо! Отчёт отправлен на модерацию.", sendFail:"Не удалось отправить отчёт: ",
+ copied:"Скопировано", voiceNo:"Голосовой ввод не поддерживается в этом браузере", listening:"Говорите…",
+ offline:"Нет сети. Показываем сохранённые данные.", meters:"м", away:"в ", north:"на север", south:"на юг", east:"на восток", west:"на запад",
+ you:"Вы здесь", start:"Старт", finish:"Финиш", barrier:"Барьер"
+},
+kk:{
+ skip:"Мазмұнға өту", eyebrow:"Бағыт және қолжетімділік", title:"Алматы бойынша сенімдірек жүріңіз",
+ from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан",
+ hint:"Орынды енгізіңіз, картадан таңдаңыз немесе геопозицияны қосыңыз.",
+ viewList:"Мәтіндік режим", viewMap:"Карта",
+ profileTitle:"Жүріп-тұру профиліңіз", profileLabel:"Профиль",
+ profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты.",
+ noRoute:"Бағыт құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағытты баспалдақ, өткел және еңіске тексереміз.",
+ nearbyTitle:"Маңайдағы нысандар", nearbyHelp:"Картадағы түймелермен қабаттарды қосыңыз — тізім осында шығады.",
+ reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"🆘 Шұғыл көмек", complaintBtn:"📨 Әкімдікке өтініш", dashBtn:"📊 Қала статистикасы",
+ disclaimer:"Карта және нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін.",
+ listTitle:"Мәтіндік режим", listHelp:"Картасыз сол мазмұн: қадамдық бағыт және маңайдағы нысандар.",
+ setTitle:"Қолжетімділік баптаулары", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
+ setTheme:"Тақырып", themeLight:"Ашық", themeDark:"Қараңғы", setContrast:"Контраст", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
+ setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстау", voiceOn:"Қосулы", voiceOff:"Өшірулі",
+ setSaved:"Баптаулар осы браузерде сақталады.",
+ repTitle:"Кедергі туралы хабарлау", repHelp:"Есеп модерацияға жіберіледі.",
+ repType:"Кедергі түрі", repSeason:"Сипаты", seasonPerm:"Тұрақты", seasonWinter:"Қысқы (қар, мұз)", seasonTemp:"Уақытша (жөндеу) — 30 күн",
+ repPhoto:"Фото", repComment:"Пікір", repPlace:"Картадағы белгі", repPick:"Нүкте таңдау", repSend:"Жіберу",
+ sosTitle:"Шұғыл көмек", sosHelp:"Координаттарыңызды анықтап, хабарлама дайындаймыз.",
+ sosNoCoords:"Координаттар анықталмаған.", sosLocate:"Орналасуымды анықтау", sosShare:"Жақындарға жіберу", sosCopy:"Мәтінді көшіру",
+ sosNumbers:"Қазақстанның шұғыл қызметтері", sosUnified:"бірыңғай нөмір", sosAmbulance:"жедел жәрдем",
+ cmpTitle:"Әкімдікке өтініш", cmpHelp:"Дайын мәтін. Көшіріп, eOtinish порталы арқылы жіберіңіз.",
+ cmpText:"Өтініш мәтіні", cmpCopy:"Көшіру", cmpOpen:"eOtinish ашу",
+ building:"Бағыт құрылуда…", checking:"Баспалдақ, өткел және еңіс тексерілуде…",
+ routeFail:"Бағыт құру мүмкін болмады", routeFailHelp:"Орын атауын немесе интернетті тексеріңіз.",
+ km:"км", min:"мин", steps:"Бағыт қадамдары", speak:"Бағытты дауыстау", stopSpeak:"Тоқтату",
+ warnStairs:"Бағытта баспалдақ табылды: ", warnTunnel:"Жерасты/жерүсті өткелдері: ", warnSlope:"Ең үлкен еңіс ≈ ",
+ okNoStairs:"OSM деректері бойынша баспалдақ табылмады", noElev:"Биіктік деректері қолжетімсіз",
+ slopeHard:"Тік көтерілу — механикалық арбамен қиын", slopeOk:"Еңіс қолайлы",
+ loadingLayer:"Қабат жүктелуде…", layerEmpty:"Бұл ауданда нысан табылмады", layerFail:"Қабат жүктелмеді",
+ found:"Табылған нысандар: ", verify:"Растау", verified:"Растаулар: ", thanks:"Рахмет!",
+ geoOff:"Геолокация қолжетімсіз", geoFail:"Геопозиция алынбады", geoOk:"Геопозиция анықталды",
+ pickDest:"Мақсатты таңдау үшін картаны басыңыз", pickBarrier:"Кедергіні белгілеу үшін картаны басыңыз",
+ needPoint:"Алдымен картадан кедергі нүктесін таңдаңыз",
+ sending:"Жіберілуде…", sent:"Рахмет! Есеп модерацияға жіберілді.", sendFail:"Есеп жіберілмеді: ",
+ copied:"Көшірілді", voiceNo:"Дауыстық енгізу қолдау таппайды", listening:"Сөйлеңіз…",
+ offline:"Желі жоқ. Сақталған деректер көрсетілуде.", meters:"м", away:"", north:"солтүстікке", south:"оңтүстікке", east:"шығысқа", west:"батысқа",
+ you:"Сіз осындасыз", start:"Бастау", finish:"Мақсат", barrier:"Кедергі"
+},
+en:{
+ skip:"Skip to content", eyebrow:"Route and accessibility", title:"Move around Almaty with confidence",
+ from:"From", to:"To", build:"Build route", pick:"On map",
+ hint:"Type a place, pick a point on the map or use your location.",
+ viewList:"Text mode", viewMap:"Map",
+ profileTitle:"Your mobility profile", profileLabel:"Profile",
+ profileHelp:"It defines warnings about slopes, steps and thresholds.",
+ noRoute:"No route yet", noRouteHelp:"Fill the fields above. We check the route for steps, underpasses and slope.",
+ nearbyTitle:"Nearby places", nearbyHelp:"Turn on layers with the buttons on the map — the list appears here.",
+ reportBtn:"+ Report a barrier", sosBtn:"🆘 Emergency", complaintBtn:"📨 Complaint to the city", dashBtn:"📊 City statistics",
+ disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete.",
+ listTitle:"Text mode", listHelp:"Same content without the map: step-by-step route and nearby places with distance and direction.",
+ setTitle:"Accessibility settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
+ setTheme:"Theme", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
+ setMotion:"Animations", motionOn:"On", motionOff:"Off", setVoice:"Route voice-over", voiceOn:"On", voiceOff:"Off",
+ setSaved:"Settings are stored in this browser.",
+ repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map after review.",
+ repType:"Barrier type", repSeason:"Nature", seasonPerm:"Permanent", seasonWinter:"Winter (snow, ice)", seasonTemp:"Temporary (works) — 30 days",
+ repPhoto:"Photo", repComment:"Comment", repPlace:"Map marker", repPick:"Pick a point", repSend:"Send",
+ sosTitle:"Emergency", sosHelp:"We'll get your coordinates and prepare a message — you choose who to send it to.",
+ sosNoCoords:"Coordinates not determined yet.", sosLocate:"Find my location", sosShare:"Send to contacts", sosCopy:"Copy text",
+ sosNumbers:"Emergency services in Kazakhstan", sosUnified:"single number", sosAmbulance:"ambulance",
+ cmpTitle:"Complaint to the city", cmpHelp:"Ready-made text with coordinates. Copy and submit via the eOtinish portal.",
+ cmpText:"Complaint text", cmpCopy:"Copy", cmpOpen:"Open eOtinish",
+ building:"Building the route…", checking:"Checking steps, crossings and slope…",
+ routeFail:"Could not build the route", routeFailHelp:"Check the place name or your connection.",
+ km:"km", min:"min", steps:"Route steps", speak:"Read the route", stopSpeak:"Stop",
+ warnStairs:"Steps found on the route: ", warnTunnel:"Under/overpasses: ", warnSlope:"Max slope ≈ ",
+ okNoStairs:"No steps found in OSM data", noElev:"Elevation data unavailable",
+ slopeHard:"Steep climb — hard in a manual wheelchair", slopeOk:"Slope is acceptable",
+ loadingLayer:"Loading layer…", layerEmpty:"No places found in this area", layerFail:"Layer failed to load",
+ found:"Places found: ", verify:"Confirm", verified:"Confirmations: ", thanks:"Thank you!",
+ geoOff:"Geolocation is not available", geoFail:"Could not get your position", geoOk:"Location found",
+ pickDest:"Click the map to choose a destination", pickBarrier:"Click the map to mark a barrier",
+ needPoint:"Pick the barrier point on the map first",
+ sending:"Sending…", sent:"Thank you! The report was sent for moderation.", sendFail:"Could not send the report: ",
+ copied:"Copied", voiceNo:"Voice input is not supported in this browser", listening:"Speak now…",
+ offline:"You are offline. Showing cached data.", meters:"m", away:"", north:"north", south:"south", east:"east", west:"west",
+ you:"You are here", start:"Start", finish:"Finish", barrier:"Barrier"
+}};
+
+/* ============ Профили передвижения ============ */
+const PROFILES = {
+  wheelchair_manual:{ru:"Кресло-коляска (механическая)",kk:"Механикалық арба",en:"Manual wheelchair", maxSlope:5, maxStep:2, avoidStairs:true, speed:0.9},
+  wheelchair_power:{ru:"Кресло-коляска (электрическая)",kk:"Электр арба",en:"Power wheelchair", maxSlope:8, maxStep:4, avoidStairs:true, speed:1.2},
+  crutches:{ru:"Трость, ходунки, костыли",kk:"Таяқ, жүргіш",en:"Cane, walker, crutches", maxSlope:10, maxStep:12, avoidStairs:true, speed:0.7},
+  blind:{ru:"Незрячий / слабовидящий",kk:"Көзі нашар көретін",en:"Blind / low vision", maxSlope:15, maxStep:99, avoidStairs:false, speed:1.0, textFirst:true},
+  deaf:{ru:"Глухой / слабослышащий",kk:"Естімейтін",en:"Deaf / hard of hearing", maxSlope:15, maxStep:99, avoidStairs:false, speed:1.3},
+  stroller:{ru:"С детской коляской",kk:"Бала арбасымен",en:"With a stroller", maxSlope:8, maxStep:5, avoidStairs:true, speed:1.1},
+  temporary:{ru:"Временная травма",kk:"Уақытша жарақат",en:"Temporary injury", maxSlope:8, maxStep:8, avoidStairs:true, speed:0.8}
+};
+
+const BARRIER_TYPES = [
+ {v:"Высокий бордюр", ru:"Высокий бордюр", kk:"Биік бордюр", en:"High curb"},
+ {v:"Сломанный или крутой пандус", ru:"Сломанный или крутой пандус", kk:"Бұзылған немесе тік пандус", en:"Broken or steep ramp"},
+ {v:"Неработающий лифт / подъёмник", ru:"Неработающий лифт / подъёмник", kk:"Істемейтін лифт", en:"Broken elevator / lift"},
+ {v:"Узкая дверь или высокий порог", ru:"Узкая дверь или высокий порог", kk:"Тар есік немесе биік табалдырық", en:"Narrow door or high threshold"},
+ {v:"Ремонт / временное перекрытие", ru:"Ремонт / временное перекрытие", kk:"Жөндеу / уақытша жабу", en:"Construction / temporary closure"},
+ {v:"Лестница без пандуса", ru:"Лестница без пандуса", kk:"Пандуссыз баспалдақ", en:"Stairs without a ramp"},
+ {v:"Снег или наледь", ru:"Снег или наледь", kk:"Қар немесе мұз", en:"Snow or ice"},
+ {v:"Машина на тротуаре/съезде", ru:"Машина на тротуаре/съезде", kk:"Тротуардағы көлік", en:"Car blocking the sidewalk"}
+];
+
+/* ============ Слои (как в 2ГИС — по кнопкам) ============ */
+const BBOX = "43.16,76.75,43.36,77.12";
+const LAYERS = [
+ {key:"ramp",    color:"#0a7350", ru:"Пандусы", kk:"Пандустар", en:"Ramps",
+  q:`nwr["ramp:wheelchair"="yes"](${BBOX});nwr["wheelchair"="yes"]["entrance"](${BBOX});`},
+ {key:"elevator",color:"#1769c2", ru:"Лифты", kk:"Лифттер", en:"Elevators",
+  q:`nwr["highway"="elevator"](${BBOX});nwr["elevator"="yes"](${BBOX});`},
+ {key:"toilet",  color:"#7b4bc9", ru:"Доступные туалеты", kk:"Қолжетімді дәретхана", en:"Accessible toilets",
+  q:`nwr["amenity"="toilets"]["wheelchair"="yes"](${BBOX});nwr["toilets:wheelchair"="yes"](${BBOX});`},
+ {key:"parking", color:"#0f7a8c", ru:"Парковка для инвалидов", kk:"Мүгедектерге тұрақ", en:"Disabled parking",
+  q:`nwr["parking_space"="disabled"](${BBOX});nwr["capacity:disabled"~"^[1-9]"](${BBOX});`},
+ {key:"metro",   color:"#c2410c", ru:"Метро", kk:"Метро", en:"Metro",
+  q:`nwr["station"="subway"](${BBOX});nwr["railway"="subway_entrance"](${BBOX});`},
+ {key:"tactile", color:"#b58900", ru:"Тактильная плитка", kk:"Тактильді плитка", en:"Tactile paving",
+  q:`nwr["tactile_paving"="yes"]["highway"!="footway"](${BBOX});`},
+ {key:"sound",   color:"#8a2be2", ru:"Звуковые светофоры", kk:"Дыбысты бағдаршам", en:"Audible signals",
+  q:`nwr["traffic_signals:sound"="yes"](${BBOX});nwr["crossing:signals:sound"="yes"](${BBOX});`},
+ {key:"place",   color:"#0891b2", ru:"Доступные заведения", kk:"Қолжетімді орындар", en:"Accessible venues",
+  q:`nwr["wheelchair"="yes"]["amenity"~"cafe|restaurant|pharmacy|bank|hospital|clinic|library|theatre"](${BBOX});`}
+];
+
+/* ============ Состояние ============ */
+const S = {
+  lang:"ru", profile:"wheelchair_manual", theme:"light", font:"normal",
+  contrast:"normal", motion:"on", voice:"on", view:"map"
+};
+let map, routeLayer, reportLayer, userMarker;
+const layerState = {};
+let pickMode=null, reportLatLng=null, userLatLng=null, sosLatLng=null;
+let lastRoute=null, lastSteps=[], lastComplaintPoint=null;
+
+const PRESETS = {
+  "Площадь Республики":[43.23895,76.94575],
+  "Парк 28 гвардейцев-панфиловцев":[43.26439,76.95311],
+  "Зелёный базар":[43.2602,76.9456],
+  "Достык Плаза":[43.23265,76.95655],
+  "Алматы, Сайран":[43.2338,76.8760]
+};
+
+function t(k){ return (I18N[S.lang] && I18N[S.lang][k]) || I18N.ru[k] || k; }
+function esc(v){ return v==null?"":String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function store(k,v){ try{ localStorage.setItem("ic_"+k,v);}catch(e){} }
+function read(k,d){ try{ return localStorage.getItem("ic_"+k) || d; }catch(e){ return d; } }
+
+/* ============ Настройки ============ */
+function applyAll(){
+  const h=document.documentElement;
+  h.setAttribute("data-theme",S.theme);
+  h.setAttribute("data-font",S.font);
+  h.setAttribute("data-contrast",S.contrast);
+  h.setAttribute("data-motion",S.motion);
+  h.setAttribute("lang",S.lang);
+  document.body.setAttribute("data-view",S.view);
+  mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
+  mark("segMotion",S.motion); mark("segVoice",S.voice);
+  renderTexts();
+}
+function mark(id,val){
+  const box=document.getElementById(id); if(!box)return;
+  box.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.v===val)));
+}
+function setFont(v){ S.font=v; store("font",v); applyAll(); }
+function setTheme(v){ S.theme=v; store("theme",v); applyAll(); }
+function setContrast(v){ S.contrast=v; store("contrast",v); applyAll(); }
+function setMotion(v){ S.motion=v; store("motion",v); applyAll(); }
+function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") stopSpeak(); }
+function setLang(v){
+  S.lang=v; store("lang",v);
+  document.getElementById("langSel").value=v;
+  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); applyAll(); renderNearby();
+}
+function setProfile(v){
+  S.profile=v; store("profile",v);
+  const p=PROFILES[v];
+  const noLimit = p.maxStep >= 99;
+  document.getElementById("profileNote").textContent =
+    S.lang==="ru" ? `Максимальный уклон ${p.maxSlope}%` + (noLimit? ". Ступени не блокируют маршрут — предупреждаем о них отдельно." : `, порог до ${p.maxStep} см.`) :
+    S.lang==="kk" ? `Ең үлкен еңіс ${p.maxSlope}%` + (noLimit? ". Баспалдақтар бағытты бөгемейді — бөлек ескертеміз." : `, табалдырық ${p.maxStep} см дейін.`) :
+                    `Max slope ${p.maxSlope}%` + (noLimit? ". Steps don't block the route — we warn about them separately." : `, threshold up to ${p.maxStep} cm.`);
+  if(p.textFirst && S.view==="map"){ setView("list"); }
+}
+function renderTexts(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k=el.getAttribute("data-i18n");
+    const val=t(k);
+    if(val) el.textContent=val;
+  });
+  const vt=document.getElementById("viewToggle");
+  vt.querySelector("span").textContent = S.view==="map"? t("viewList") : t("viewMap");
+  vt.setAttribute("aria-pressed", String(S.view==="list"));
+}
+function buildProfileSelect(){
+  const sel=document.getElementById("profileSel"); sel.innerHTML="";
+  Object.entries(PROFILES).forEach(([k,p])=>{
+    const o=document.createElement("option"); o.value=k; o.textContent=p[S.lang]||p.ru; sel.appendChild(o);
+  });
+  sel.value=S.profile; setProfile(S.profile);
+}
+function buildBarrierSelect(){
+  const sel=document.getElementById("barrierType"); sel.innerHTML="";
+  BARRIER_TYPES.forEach(b=>{
+    const o=document.createElement("option"); o.value=b.v; o.textContent=b[S.lang]||b.ru; sel.appendChild(o);
+  });
+}
+
+/* ============ Вид: карта / текст ============ */
+function setView(v){ S.view=v; store("view",v); document.body.setAttribute("data-view",v); renderTexts();
+  if(v==="list"){ renderNearby(); document.getElementById("listview").focus(); }
+  else if(mapReady){ setTimeout(()=>map.invalidateSize(),60); } }
+function toggleView(){ setView(S.view==="map"?"list":"map"); }
+
+/* ============ Карта ============ */
+let mapReady=false;
+function initMap(){
+  if(typeof L==="undefined") throw new Error("leaflet");
+  map=L.map("map",{zoomControl:false}).setView([43.2383,76.9455],13);
+  L.control.zoom({position:"bottomright"}).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,
+    attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
+  routeLayer=L.layerGroup().addTo(map);
+  reportLayer=L.layerGroup().addTo(map);
+  map.on("click",onMapClick);
+  mapReady=true;
+}
+const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
+function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-poi" style="background:${color}"></div>`,iconSize:[16,16],iconAnchor:[8,8]}); }
+
+function onMapClick(e){
+  if(!pickMode) return;
+  if(pickMode==="destination"){
+    PRESETS["Точка на карте"]=[e.latlng.lat,e.latlng.lng];
+    document.getElementById("destination").value="Точка на карте";
+    pickMode=null; toast(t("geoOk"));
+  } else if(pickMode==="report"){
+    reportLatLng=e.latlng;
+    document.getElementById("reportPlace").value=`${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+    pickMode=null; openModal("reportModal");
+  }
+}
+function setPickMode(m){ pickMode=m; setView("map"); toast(t("pickDest")); }
+function setReportPick(){ closeModal("reportModal"); pickMode="report"; setView("map"); toast(t("pickBarrier")); }
+
+/* ============ Панель слоёв ============ */
+function buildLayerBar(){
+  const bar=document.getElementById("layerbar"); bar.innerHTML="";
+  LAYERS.forEach(L0=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.type="button"; b.id="chip-"+L0.key;
+    b.setAttribute("aria-pressed", String(!!(layerState[L0.key] && layerState[L0.key].on)));
+    b.innerHTML=`<span class="sw" style="background:${L0.color}"></span>${esc(L0[S.lang]||L0.ru)}`;
+    b.onclick=()=>toggleLayer(L0.key);
+    bar.appendChild(b);
+  });
+}
+async function toggleLayer(key){
+  const def=LAYERS.find(x=>x.key===key);
+  let st=layerState[key];
+  if(!st){ st=layerState[key]={on:false,loaded:false,items:[],group:mapReady?L.layerGroup():null}; }
+  if(st.on){
+    st.on=false; if(mapReady&&st.group) map.removeLayer(st.group);
+    document.getElementById("chip-"+key).setAttribute("aria-pressed","false");
+    renderNearby(); return;
+  }
+  st.on=true;
+  document.getElementById("chip-"+key).setAttribute("aria-pressed","true");
+  if(!st.loaded){
+    toast(t("loadingLayer"));
     try{
-      let r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});
-      let d=await r.json();
-      lightLayer.clearLayers();
-      let lit=0,unlit=0,lamps=0;
-      d.elements.forEach(e=>{
-        if(e.type==='way'&&e.geometry){
-          const isLit=e.tags.lit==='yes';
-          if(isLit)lit++;else unlit++;
-          L.polyline(e.geometry.map(p=>[p.lat,p.lon]),{color:isLit?'#087c5b':'#b42318',weight:3,opacity:.75}).addTo(lightLayer).bindPopup(`<b>${text(e.tags.name||'Улица')}</b><p class="small">Освещение (OSM тег lit): <b>${isLit?'есть':'нет / не указано'}</b></p>`);
-        }else if(e.type==='node'&&e.tags&&e.tags.highway==='street_lamp'){
-          lamps++;
-          L.circleMarker([e.lat,e.lon],{radius:3,color:'#df9818',fillColor:'#df9818',fillOpacity:1,weight:1}).addTo(lightLayer).bindPopup('Уличный фонарь (OSM)');
-        }
-      });
-      statusEl.className='status ok';
-      statusEl.textContent=`Освещённость по данным OSM: ${lit} освещённых участков, ${unlit} без отметки освещения, ${lamps} фонарей. Покрытие тегов lit в OSM неполное — отсутствие отметки не означает отсутствие освещения.`;
-      lightLoaded=true;
+      const q=`[out:json][timeout:25];(${def.q});out center tags 300;`;
+      const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:q});
+      const d=await r.json();
+      st.items=(d.elements||[]).map(e=>({
+        lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}
+      })).filter(x=>x.lat&&x.lon);
+      st.loaded=true;
+      if(mapReady){
+        st.items.forEach(it=>{
+          L.marker([it.lat,it.lon],{icon:dotIcon(def.color),
+            alt:(it.tags.name||def[S.lang]||def.ru)})
+           .addTo(st.group)
+           .bindPopup(`<b>${esc(it.tags.name||def[S.lang]||def.ru)}</b><div class="facts">${tagFacts(it.tags)}</div>`);
+        });
+      }
+      toast(t("found")+st.items.length);
+      if(!st.items.length) toast(t("layerEmpty"));
     }catch(e){
-      statusEl.className='status';
-      statusEl.textContent='Не удалось загрузить данные освещённости из OSM. Попробуйте включить слой ещё раз позже.';
+      st.on=false; st.loaded=false;
+      document.getElementById("chip-"+key).setAttribute("aria-pressed","false");
+      toast(t("layerFail")); return;
     }
   }
-  function toggleLayer(name,el){
-    if(name==='osm'){
-      if(map.hasLayer(osmLayer)){map.removeLayer(osmLayer);el.classList.remove('active');document.getElementById('status').style.display='none';}
-      else{map.addLayer(osmLayer);el.classList.add('active');document.getElementById('status').style.display='block';}
-    }else if(name==='light'){
-      if(map.hasLayer(lightLayer)){map.removeLayer(lightLayer);el.classList.remove('active');document.getElementById('lightStatus').style.display='none';}
-      else{map.addLayer(lightLayer);el.classList.add('active');if(!lightLoaded)loadLighting();else document.getElementById('lightStatus').style.display='block';}
+  if(mapReady&&st.group) st.group.addTo(map);
+  renderNearby();
+}
+function tagFacts(tg){
+  const f=[];
+  if(tg.wheelchair) f.push(`<span class="fact ${tg.wheelchair==="yes"?"good":"warn"}">wheelchair: ${esc(tg.wheelchair)}</span>`);
+  if(tg["toilets:wheelchair"]) f.push(`<span class="fact good">WC</span>`);
+  if(tg.tactile_paving) f.push(`<span class="fact good">tactile</span>`);
+  if(tg.opening_hours) f.push(`<span class="fact">${esc(tg.opening_hours)}</span>`);
+  if(tg.phone) f.push(`<span class="fact">${esc(tg.phone)}</span>`);
+  return f.join("")||`<span class="fact">—</span>`;
+}
+
+/* ============ Расстояния и список ============ */
+function haversine(a,b){
+  const R=6371000, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b[0]-a[0]), dLon=toRad(b[1]-a[1]);
+  const s=Math.sin(dLat/2)**2+Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function bearingWord(a,b){
+  const dy=b[0]-a[0], dx=b[1]-a[1];
+  if(Math.abs(dy)>Math.abs(dx)) return dy>0?t("north"):t("south");
+  return dx>0?t("east"):t("west");
+}
+function renderNearby(){
+  const center = userLatLng || (mapReady? [map.getCenter().lat,map.getCenter().lng] : [43.2383,76.9455]);
+  const rows=[];
+  LAYERS.forEach(def=>{
+    const st=layerState[def.key];
+    if(!st||!st.on) return;
+    st.items.forEach(it=>{
+      rows.push({name:it.tags.name||def[S.lang]||def.ru, cat:def[S.lang]||def.ru, color:def.color,
+        d:haversine(center,[it.lat,it.lon]), dir:bearingWord(center,[it.lat,it.lon]), tags:it.tags, ll:[it.lat,it.lon]});
+    });
+  });
+  rows.sort((a,b)=>a.d-b.d);
+  const top=rows.slice(0,40);
+  const html = top.length? top.map(r=>`
+    <div class="poi">
+      <h3><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.color};margin-right:6px"></span>${esc(r.name)}</h3>
+      <p class="small muted" style="margin:2px 0">${esc(r.cat)} · <span class="dist">${Math.round(r.d)} ${t("meters")}</span> ${esc(r.dir)}</p>
+      <div class="facts">${tagFacts(r.tags)}</div>
+    </div>`).join("")
+   : `<p class="small muted">${esc(t("nearbyHelp"))}</p>`;
+  document.getElementById("nearbyList").innerHTML=html;
+  document.getElementById("listPois").innerHTML=`<div class="card"><h2>${esc(t("nearbyTitle"))}</h2>${html}</div>`;
+}
+
+/* ============ Геокодирование ============ */
+function presetFor(v){
+  const k=Object.keys(PRESETS).find(x=>x.toLowerCase()===String(v).trim().toLowerCase());
+  return k?PRESETS[k]:null;
+}
+async function findPlace(v){
+  const p=presetFor(v); if(p) return p;
+  const q=encodeURIComponent(`${v}, Алматы, Казахстан`);
+  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=76.75,43.36,77.12,43.16&q=${q}`,
+    {headers:{"Accept-Language":S.lang}});
+  const d=await r.json();
+  if(!d.length) throw new Error("not found");
+  return [Number(d[0].lat),Number(d[0].lon)];
+}
+
+/* ============ Маршрут + анализ ============ */
+async function buildRoute(){
+  if(mapReady) routeLayer.clearLayers();
+  stopSpeak();
+  const card=document.getElementById("routeCard");
+  card.innerHTML=`<h2>${esc(t("building"))}</h2>`;
+  try{
+    const a = userLatLng || await findPlace(document.getElementById("start").value);
+    const b = await findPlace(document.getElementById("destination").value);
+    const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
+    const r=await fetch(url); const d=await r.json();
+    if(d.code!=="Ok"||!d.routes.length) throw new Error("route");
+    const rt=d.routes[0];
+    const pts=rt.geometry.coordinates.map(c=>[c[1],c[0]]);
+    lastRoute={a,b,rt,pts};
+    if(mapReady){
+      L.polyline(pts,{color:"#1769c2",weight:7,opacity:.95}).addTo(routeLayer);
+      L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
+      L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
+      map.fitBounds(L.latLngBounds(pts),{padding:[50,50]});
     }
+
+    lastSteps = (rt.legs&&rt.legs[0]&&rt.legs[0].steps? rt.legs[0].steps:[])
+      .map(s=>({name:s.name||"", dist:Math.round(s.distance), mod:(s.maneuver&&s.maneuver.modifier)||"", type:(s.maneuver&&s.maneuver.type)||""}))
+      .filter(s=>s.dist>0);
+    lastComplaintPoint=b;
+
+    const prof=PROFILES[S.profile];
+    const mins=Math.max(1,Math.round((rt.duration/60)/prof.speed));
+    card.innerHTML=`<h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
+      <p class="small muted">${esc(t("checking"))}</p>`;
+
+    const [obstacles, slope] = await Promise.all([ checkObstacles(pts), checkSlope(pts) ]);
+    renderRouteCard(rt,mins,obstacles,slope);
+    renderRouteList(rt,mins,obstacles,slope);
+    if(S.voice==="on") speakRoute();
+  }catch(e){
+    card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
   }
-  async function showReports(){reportLayer.clearLayers();try{const r=await fetch('/api/reports');const list=await r.json();list.forEach(rep=>L.marker([rep.lat,rep.lng],{icon:icon('barrier-pin')}).addTo(reportLayer).bindPopup(`<b>${text(rep.type)}</b>${rep.photo?`<img src="${text(rep.photo)}" style="max-width:220px">`:''}<p>${text(rep.comment)}</p><small>Проверено модератором · ${new Date(rep.createdAt).toLocaleDateString('ru-RU')}</small>`))}catch(e){/* сервер отчётов недоступен — карта остаётся рабочей */}}
-  function coordFor(value){let key=Object.keys(presets).find(k=>k.toLowerCase()===value.trim().toLowerCase());return key?presets[key]:null}
-  async function findPlace(value){let known=coordFor(value);if(known)return known;let q=encodeURIComponent(`${value}, Алматы, Казахстан`);let r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=76.78,43.315,77.10,43.185&q=${q}`,{headers:{'Accept-Language':'ru'}});let d=await r.json();if(!d.length)throw Error('not found');return [Number(d[0].lat),Number(d[0].lon)]}
-  function setPickMode(){pickMode='destination';document.getElementById('hint').textContent='Кликните по карте, чтобы установить пункт назначения.';toast('Выберите пункт назначения на карте');}
-  function setReportPick(){closeReport();pickMode='report';document.getElementById('hint').textContent='Кликните по карте, чтобы поставить отметку барьера.';toast('Поставьте точку барьера на карте');}
-  map.on('click',e=>{if(!pickMode)return;if(pickMode==='destination'){presets['Точка на карте']=[e.latlng.lat,e.latlng.lng];document.getElementById('destination').value='Точка на карте';pickMode=null;document.getElementById('hint').textContent='Точка назначения выбрана. Нажмите «Построить маршрут».'}else if(pickMode==='report'){reportLatLng=e.latlng;document.getElementById('reportPlace').value=`${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;pickMode=null;openReport();} });
-  async function buildRoute(){routeLayer.clearLayers();document.getElementById('routeCard').innerHTML='<h2>Строим пешеходный маршрут…</h2><p class="muted small">Ищем точки и используем пешеходную сеть OpenStreetMap.</p>';try{let a=userLatLng||await findPlace(document.getElementById('start').value),b=await findPlace(document.getElementById('destination').value);let url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&alternatives=true`;let r=await fetch(url),d=await r.json();if(d.code!=='Ok')throw Error();let routes=d.routes.slice(0,3),rt=routes[0],latlngs=rt.geometry.coordinates.map(c=>[c[1],c[0]]);routes.slice(1).forEach(x=>L.polyline(x.geometry.coordinates.map(c=>[c[1],c[0]]),{color:'#7ab1ed',weight:4,dashArray:'7 8',opacity:.75}).addTo(routeLayer));L.polyline(latlngs,{color:'#1769c2',weight:6,opacity:.9}).addTo(routeLayer);L.marker(a,{icon:icon('pin')}).bindPopup('Старт').addTo(routeLayer);L.marker(b,{icon:icon('pin')}).bindPopup('Финиш').addTo(routeLayer);map.fitBounds(L.latLngBounds(latlngs),{padding:[45,45]});let mins=Math.max(1,Math.round(rt.duration/60)),labels={balanced:'пешеходный маршрут',verified:'маршрут с приоритетом проверяемости',stepfree:'маршрут с приоритетом отсутствия лестниц'};document.getElementById('routeCard').innerHTML=`<h2>Рекомендуем: ${labels[preference]}</h2><p><b>${(rt.distance/1000).toFixed(1)} км</b> · около <b>${mins} мин</b></p><div class="facts"><span class="fact good">основной пешеходный путь</span>${routes.length>1?'<span class="fact">пунктир — альтернатива</span>':''}<span class="fact warn">проверьте барьеры</span></div><p class="small muted">Выбор «избегать лестниц» учитывает только известные отметки. Участки без данных не считаются автоматически доступными.</p>`}catch(e){document.getElementById('routeCard').innerHTML='<h2>Не удалось построить маршрут</h2><p class="muted small">Проверьте название места или подключение к интернету. Попробуйте «Площадь Республики» и «Парк 28 гвардейцев-панфиловцев».</p>'}}
-  function locateUser(){if(!navigator.geolocation){toast('Геолокация недоступна в этом браузере');return}navigator.geolocation.getCurrentPosition(p=>{userLatLng=[p.coords.latitude,p.coords.longitude];document.getElementById('start').value='Моё местоположение';L.marker(userLatLng,{icon:icon('pin')}).addTo(routeLayer).bindPopup('Вы здесь').openPopup();map.setView(userLatLng,16);toast('Геопозиция определена')},()=>toast('Не удалось получить геопозицию. Разрешите доступ или выберите старт вручную.'))}
-  function setFilter(v,el){filter=v;document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));el.classList.add('active');drawOsm()}
-  function setPreference(v,el){preference=v;document.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));el.classList.add('active');const copy={balanced:'Предложим пешеходный путь и покажем, где пока не хватает проверенных данных.',verified:'Предложим путь через зоны с большим числом открытых отметок; участки без данных не будем выдавать за безопасные.',stepfree:'Отфильтруем известные лестницы и отметим неопределённые участки. Пока база Алматы неполная, маршрут требует проверки.'};document.getElementById('answer').textContent=copy[v]}
-  function openReport(){document.getElementById('reportModal').classList.add('open')}function closeReport(){document.getElementById('reportModal').classList.remove('open')}function showAiHint(){document.getElementById('aiHint').style.display='block'}
-  async function saveReport(e){e.preventDefault();if(!reportLatLng){closeReport();setReportPick();toast('Сначала выберите точку барьера на карте');return}
-    const btn=document.getElementById('submitReport');btn.disabled=true;btn.textContent='Отправляем…';
-    try{
-      const fd=new FormData();
-      fd.append('lat',reportLatLng.lat);fd.append('lng',reportLatLng.lng);
-      fd.append('type',document.getElementById('barrierType').value);
-      fd.append('comment',document.getElementById('comment').value);
-      const photoInput=document.getElementById('photo');
-      if(photoInput.files[0])fd.append('photo',photoInput.files[0]);
-      const res=await fetch('/api/reports',{method:'POST',body:fd});
-      if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.error||'Ошибка отправки')}
-      closeReport();
-      document.getElementById('comment').value='';
-      photoInput.value='';
-      document.getElementById('aiHint').style.display='none';
-      document.getElementById('reportPlace').value='Нажмите «Выбрать на карте»';
-      reportLatLng=null;
-      toast('Спасибо! Отчёт отправлен на модерацию и появится на карте после проверки');
-    }catch(err){
-      toast('Не удалось отправить отчёт: '+err.message);
-    }finally{btn.disabled=false;btn.textContent='Отправить отчёт';}
+}
+
+function bboxOf(pts){
+  let s=90,w=180,n=-90,e=-180;
+  pts.forEach(p=>{ s=Math.min(s,p[0]); n=Math.max(n,p[0]); w=Math.min(w,p[1]); e=Math.max(e,p[1]); });
+  const m=0.002;
+  return `${(s-m).toFixed(5)},${(w-m).toFixed(5)},${(n+m).toFixed(5)},${(e+m).toFixed(5)}`;
+}
+function nearRoute(pts,ll,limit){
+  for(let i=0;i<pts.length;i+=2){ if(haversine(pts[i],ll)<limit) return true; }
+  return false;
+}
+async function checkObstacles(pts){
+  const out={stairs:[],tunnels:[],ok:false};
+  try{
+    const bb=bboxOf(pts);
+    const q=`[out:json][timeout:25];(way["highway"="steps"](${bb});way["tunnel"="yes"]["highway"~"footway|path|pedestrian"](${bb});way["bridge"="yes"]["highway"~"footway|path"](${bb}););out center tags 200;`;
+    const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:q});
+    const d=await r.json();
+    (d.elements||[]).forEach(e=>{
+      const ll=[e.lat||(e.center&&e.center.lat), e.lon||(e.center&&e.center.lon)];
+      if(!ll[0]||!ll[1]) return;
+      if(!nearRoute(pts,ll,40)) return;
+      const item={ll, name:(e.tags&&e.tags.name)||"", ramp:!!(e.tags&&(e.tags.ramp==="yes"||e.tags["ramp:wheelchair"]==="yes"))};
+      if(e.tags&&e.tags.highway==="steps") out.stairs.push(item); else out.tunnels.push(item);
+    });
+    out.ok=true;
+    if(mapReady){
+      out.stairs.forEach(s=>{
+        L.circleMarker(s.ll,{radius:8,color:"#b42318",weight:3,fillColor:"#fff",fillOpacity:1})
+         .addTo(routeLayer).bindPopup(`<b>${esc(t("warnStairs"))}</b>${s.ramp?" (ramp)":""}`);
+      });
+    }
+  }catch(e){}
+  return out;
+}
+async function checkSlope(pts){
+  try{
+    const step=Math.max(1,Math.floor(pts.length/40));
+    const sample=pts.filter((_,i)=>i%step===0).slice(0,40);
+    const locs=sample.map(p=>`${p[0].toFixed(5)},${p[1].toFixed(5)}`).join("|");
+    const r=await fetch(`https://api.opentopodata.org/v1/srtm30m?locations=${locs}`);
+    const d=await r.json();
+    if(!d.results) return null;
+    let maxUp=0, gain=0;
+    for(let i=1;i<d.results.length;i++){
+      const e0=d.results[i-1].elevation, e1=d.results[i].elevation;
+      if(e0==null||e1==null) continue;
+      const dist=haversine(sample[i-1],sample[i]);
+      if(dist<5) continue;
+      const g=((e1-e0)/dist)*100;
+      if(e1>e0) gain+=(e1-e0);
+      if(g>maxUp) maxUp=g;
+    }
+    return {maxSlope:maxUp, gain:Math.round(gain)};
+  }catch(e){ return null; }
+}
+function obstacleFacts(ob,slope){
+  const prof=PROFILES[S.profile], f=[];
+  if(ob.ok){
+    if(ob.stairs.length){
+      const noRamp=ob.stairs.filter(s=>!s.ramp).length;
+      f.push(`<span class="fact ${prof.avoidStairs?"bad":"warn"}">${esc(t("warnStairs"))}${ob.stairs.length}${noRamp?" (без пандуса: "+noRamp+")":""}</span>`);
+    } else f.push(`<span class="fact good">${esc(t("okNoStairs"))}</span>`);
+    if(ob.tunnels.length) f.push(`<span class="fact warn">${esc(t("warnTunnel"))}${ob.tunnels.length}</span>`);
   }
-  function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
-  loadOsm();showReports();
-</script></body></html>
+  if(slope){
+    const bad=slope.maxSlope>prof.maxSlope;
+    f.push(`<span class="fact ${bad?"bad":"good"}">${esc(t("warnSlope"))}${slope.maxSlope.toFixed(1)}% — ${esc(bad?t("slopeHard"):t("slopeOk"))}</span>`);
+  } else f.push(`<span class="fact">${esc(t("noElev"))}</span>`);
+  return f.join("");
+}
+function stepText(s,i){
+  const dir={left:"налево",right:"направо",straight:"прямо","slight left":"плавно налево","slight right":"плавно направо"};
+  const dirKk={left:"солға",right:"оңға",straight:"тура"};
+  const dirEn={left:"left",right:"right",straight:"straight"};
+  const m = S.lang==="kk"?dirKk : S.lang==="en"?dirEn : dir;
+  const turn = m[s.mod]||"";
+  const road = s.name? (S.lang==="en"?` along ${s.name}`:S.lang==="kk"?` ${s.name} бойымен`:` по ${s.name}`) : "";
+  const go = S.lang==="en"?`Go ${s.dist} m`: S.lang==="kk"?`${s.dist} м жүріңіз`:`Пройдите ${s.dist} м`;
+  return `${i+1}. ${go}${road}${turn?", "+turn:""}`;
+}
+function renderRouteCard(rt,mins,ob,slope){
+  document.getElementById("routeCard").innerHTML=`
+    <h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
+    <div class="facts">${obstacleFacts(ob,slope)}</div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn-ghost grow" onclick="speakRoute()">🔊 ${esc(t("speak"))}</button>
+      <button class="btn-ghost" onclick="stopSpeak()">■</button>
+    </div>`;
+}
+function renderRouteList(rt,mins,ob,slope){
+  document.getElementById("listRoute").innerHTML=`
+    <div class="card">
+      <h2>${esc(t("steps"))}</h2>
+      <p><b>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))}</b> · ~${mins} ${esc(t("min"))}</p>
+      <div class="facts">${obstacleFacts(ob,slope)}</div>
+      <ol class="steps">${lastSteps.map((s,i)=>`<li>${esc(stepText(s,i))}</li>`).join("")}</ol>
+      <button class="btn-ghost" onclick="speakRoute()">🔊 ${esc(t("speak"))}</button>
+    </div>`;
+}
+
+/* ============ Речь ============ */
+function speakRoute(){
+  if(!("speechSynthesis" in window)) return;
+  stopSpeak();
+  const lines=lastSteps.map((s,i)=>stepText(s,i));
+  if(!lines.length) return;
+  const u=new SpeechSynthesisUtterance(lines.join(". "));
+  u.lang = S.lang==="kk"?"kk-KZ": S.lang==="en"?"en-US":"ru-RU";
+  u.rate=0.95;
+  speechSynthesis.speak(u);
+}
+function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
+function voiceInput(fieldId){
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast(t("voiceNo")); return; }
+  const rec=new SR();
+  rec.lang = S.lang==="kk"?"kk-KZ": S.lang==="en"?"en-US":"ru-RU";
+  rec.interimResults=false; rec.maxAlternatives=1;
+  rec.onresult=e=>{ document.getElementById(fieldId).value=e.results[0][0].transcript; };
+  rec.onerror=()=>toast(t("geoFail"));
+  toast(t("listening"));
+  rec.start();
+}
+
+/* ============ Геолокация ============ */
+function locateUser(){
+  if(!navigator.geolocation){ toast(t("geoOff")); return; }
+  navigator.geolocation.getCurrentPosition(p=>{
+    userLatLng=[p.coords.latitude,p.coords.longitude];
+    document.getElementById("start").value = S.lang==="en"?"My location": S.lang==="kk"?"Менің орным":"Моё местоположение";
+    if(mapReady){
+      if(userMarker) map.removeLayer(userMarker);
+      userMarker=L.marker(userLatLng,{icon:divIcon("pin-me",18),alt:t("you")}).addTo(map).bindPopup(t("you"));
+      map.setView(userLatLng,16);
+    }
+    toast(t("geoOk")); renderNearby();
+  }, ()=>toast(t("geoFail")), {enableHighAccuracy:true,timeout:10000});
+}
+
+/* ============ Отчёты ============ */
+async function showReports(){
+  if(!mapReady) return;
+  reportLayer.clearLayers();
+  try{
+    const r=await fetch("/api/reports");
+    const list=await r.json();
+    list.forEach(rep=>{
+      const badge = rep.verifications>=3 ? `<span class="fact good">${esc(t("verified"))}${rep.verifications}</span>` :
+                    `<span class="fact warn">${esc(t("verified"))}${rep.verifications||0}</span>`;
+      L.marker([rep.lat,rep.lng],{icon:divIcon("pin-barrier",17),alt:t("barrier")})
+       .addTo(reportLayer)
+       .bindPopup(`<b>${esc(rep.type)}</b>
+         ${rep.photo?`<img src="${esc(rep.photo)}" alt="">`:""}
+         <p>${esc(rep.comment)}</p>
+         <div class="facts">${badge}${rep.season==="winter"?'<span class="fact">❄</span>':""}</div>
+         <button class="btn-sm" style="margin-top:8px" onclick="verifyReport('${esc(rep.id)}')">${esc(t("verify"))}</button>
+         <small class="muted">${new Date(rep.createdAt).toLocaleDateString()}</small>`);
+    });
+  }catch(e){}
+}
+async function verifyReport(id){
+  try{ await fetch(`/api/reports/${id}/verify`,{method:"POST"}); toast(t("thanks")); showReports(); }
+  catch(e){ toast(t("sendFail")); }
+}
+function openReport(){ openModal("reportModal"); }
+async function saveReport(e){
+  e.preventDefault();
+  if(!reportLatLng){ setReportPick(); toast(t("needPoint")); return; }
+  const btn=document.getElementById("submitReport");
+  btn.disabled=true; btn.textContent=t("sending");
+  try{
+    const fd=new FormData();
+    fd.append("lat",reportLatLng.lat); fd.append("lng",reportLatLng.lng);
+    fd.append("type",document.getElementById("barrierType").value);
+    fd.append("comment",document.getElementById("comment").value);
+    fd.append("season",document.getElementById("season").value);
+    const ph=document.getElementById("photo");
+    if(ph.files[0]) fd.append("photo",ph.files[0]);
+    const res=await fetch("/api/reports",{method:"POST",body:fd});
+    if(!res.ok){ const d=await res.json().catch(()=>({})); throw new Error(d.error||"error"); }
+    closeModal("reportModal");
+    document.getElementById("comment").value=""; ph.value="";
+    document.getElementById("reportPlace").value="—";
+    lastComplaintPoint=[reportLatLng.lat,reportLatLng.lng];
+    reportLatLng=null;
+    toast(t("sent"));
+  }catch(err){ toast(t("sendFail")+err.message); }
+  finally{ btn.disabled=false; btn.textContent=t("repSend"); }
+}
+
+/* ============ SOS ============ */
+function sosLocate(){
+  if(!navigator.geolocation){ toast(t("geoOff")); return; }
+  navigator.geolocation.getCurrentPosition(p=>{
+    sosLatLng=[p.coords.latitude,p.coords.longitude];
+    document.getElementById("sosCoords").textContent=
+      `${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)}`;
+  }, ()=>toast(t("geoFail")), {enableHighAccuracy:true});
+}
+function sosText(){
+  if(!sosLatLng) return "";
+  const link=`https://www.openstreetmap.org/?mlat=${sosLatLng[0]}&mlon=${sosLatLng[1]}#map=18/${sosLatLng[0]}/${sosLatLng[1]}`;
+  return S.lang==="en"
+    ? `I need help. My location: ${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)} ${link}`
+    : S.lang==="kk"
+    ? `Маған көмек керек. Орналасуым: ${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)} ${link}`
+    : `Мне нужна помощь. Моё местоположение: ${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)} ${link}`;
+}
+async function sosShare(){
+  if(!sosLatLng){ sosLocate(); return; }
+  const text=sosText();
+  if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){} }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank","noopener");
+}
+async function sosCopy(){
+  if(!sosLatLng){ sosLocate(); return; }
+  try{ await navigator.clipboard.writeText(sosText()); toast(t("copied")); }catch(e){ toast(t("sendFail")); }
+}
+
+/* ============ Обращение в акимат ============ */
+function openComplaint(){
+  const p = lastComplaintPoint || userLatLng || [43.2383,76.9455];
+  const link=`https://www.openstreetmap.org/?mlat=${p[0]}&mlon=${p[1]}#map=19/${p[0]}/${p[1]}`;
+  const body = S.lang==="en"
+   ? `To the Akimat of Almaty\n\nI report an accessibility barrier in the public space.\n\nLocation: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${new Date().toLocaleDateString()}`
+   : S.lang==="kk"
+   ? `Алматы қаласының әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
+   : `В акимат города Алматы\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
+  document.getElementById("cmpText").value=body;
+  openModal("complaintModal");
+}
+async function copyComplaint(){
+  try{ await navigator.clipboard.writeText(document.getElementById("cmpText").value); toast(t("copied")); }
+  catch(e){ document.getElementById("cmpText").select(); }
+}
+
+/* ============ Модалки / тост ============ */
+let lastFocus=null;
+function openModal(id){
+  lastFocus=document.activeElement;
+  const m=document.getElementById(id); m.classList.add("open");
+  const f=m.querySelector("button,select,input,textarea"); if(f) f.focus();
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove("open");
+  if(lastFocus) lastFocus.focus();
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));
+});
+document.querySelectorAll(".modal").forEach(m=>{
+  m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("open"); });
+});
+function toast(s){
+  const el=document.getElementById("toast");
+  el.textContent=s; el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),3800);
+}
+
+/* ============ Старт ============ */
+(function init(){
+  S.lang=read("lang","ru"); S.profile=read("profile","wheelchair_manual");
+  S.theme=read("theme", (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
+  S.font=read("font","normal"); S.contrast=read("contrast","normal");
+  S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
+  S.voice=read("voice","on"); S.view=read("view","map");
+  document.getElementById("langSel").value=S.lang;
+  // Карта — не обязательное условие работы приложения: если Leaflet не загрузился
+  // (заблокирован CDN, медленная сеть), приложение продолжает работать в текстовом
+  // режиме, который для незрячих пользователей и так является основным.
+  try{ initMap(); }
+  catch(e){
+    mapReady=false;
+    S.view="list";
+    document.getElementById("map").innerHTML =
+      `<div style="padding:20px"><p class="banner warn">Карта недоступна — работаем в текстовом режиме.</p></div>`;
+  }
+  buildProfileSelect(); buildBarrierSelect(); buildLayerBar();
+  applyAll();
+  showReports(); renderNearby();
+  if(!navigator.onLine) toast(t("offline"));
+  window.addEventListener("offline",()=>toast(t("offline")));
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+  }
+})();
+</script>
+</body></html>
