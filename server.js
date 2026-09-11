@@ -30,7 +30,33 @@ const ALLOWED_TYPES = [
   'Неработающий лифт / подъёмник',
   'Узкая дверь или высокий порог',
   'Ремонт / временное перекрытие',
+  'Лестница без пандуса',
+  'Снег или наледь',
+  'Машина на тротуаре/съезде',
 ];
+
+// Характер барьера. Временные (ремонт) автоматически исчезают через 30 дней,
+// зимние — после окончания зимнего сезона: барьер «снег на пандусе» не должен
+// висеть на карте круглый год, иначе данные перестают отражать реальность.
+const ALLOWED_SEASONS = ['permanent', 'winter', 'temporary'];
+const TEMPORARY_TTL_DAYS = 30;
+
+function expiryFor(season, fromDate) {
+  const now = fromDate ? new Date(fromDate) : new Date();
+  if (season === 'temporary') {
+    return new Date(now.getTime() + TEMPORARY_TTL_DAYS * 864e5).toISOString();
+  }
+  if (season === 'winter') {
+    // действует до 1 апреля ближайшего года
+    const year = now.getMonth() >= 3 ? now.getFullYear() + 1 : now.getFullYear();
+    return new Date(Date.UTC(year, 3, 1)).toISOString();
+  }
+  return null;
+}
+
+function isExpired(r) {
+  return !!(r.expiresAt && new Date(r.expiresAt).getTime() < Date.now());
+}
 
 // --- гарантируем, что папки/файлы существуют ---
 for (const dir of [DATA_DIR, UPLOADS_DIR]) {
@@ -60,8 +86,20 @@ function publicShape(r) {
     type: r.type,
     comment: r.comment,
     photo: r.photo || null,
+    season: r.season || 'permanent',
+    verifications: (r.verifiedBy || []).length,
+    expiresAt: r.expiresAt || null,
     createdAt: r.createdAt,
   };
+}
+
+// Подтверждения жителей. Храним хэш IP, а не сам адрес: этого достаточно,
+// чтобы один человек не накрутил счётчик, и при этом мы не собираем
+// персональные данные.
+function visitorHash(req) {
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || req.socket.remoteAddress || 'unknown';
+  return crypto.createHash('sha256').update(ip + '|inclusivecity').digest('hex').slice(0, 16);
 }
 
 // --- вспомогательные функции HTTP ---
@@ -187,8 +225,43 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/reports' && req.method === 'GET') {
-    const list = readReports().filter((r) => r.status === 'approved');
+    const list = readReports().filter((r) => r.status === 'approved' && !isExpired(r));
     return sendJson(res, 200, list.map(publicShape));
+  }
+
+  // Подтверждение отчёта другим жителем — повышает доверие к данным
+  let vm = pathname.match(/^\/api\/reports\/([^/]+)\/verify$/);
+  if (vm && req.method === 'POST') {
+    const list = readReports();
+    const r = list.find((x) => x.id === vm[1] && x.status === 'approved');
+    if (!r) return sendJson(res, 404, { error: 'not found' });
+    const who = visitorHash(req);
+    r.verifiedBy = r.verifiedBy || [];
+    if (!r.verifiedBy.includes(who)) {
+      r.verifiedBy.push(who);
+      writeReports(list);
+    }
+    return sendJson(res, 200, { ok: true, verifications: r.verifiedBy.length });
+  }
+
+  // Сводка для дашборда города
+  if (pathname === '/api/stats' && req.method === 'GET') {
+    const all = readReports();
+    const active = all.filter((r) => r.status === 'approved' && !isExpired(r));
+    const count = (key) => active.reduce((acc, r) => {
+      const k = r[key] || 'permanent';
+      acc[k] = (acc[k] || 0) + 1;
+      return acc;
+    }, {});
+    return sendJson(res, 200, {
+      total: active.length,
+      pending: all.filter((r) => r.status === 'pending').length,
+      confirmed: active.filter((r) => (r.verifiedBy || []).length >= 3).length,
+      withPhoto: active.filter((r) => r.photo).length,
+      last30days: active.filter((r) => Date.now() - new Date(r.createdAt).getTime() < 30 * 864e5).length,
+      byType: count('type'),
+      bySeason: count('season'),
+    });
   }
 
   if (pathname === '/api/reports' && req.method === 'POST') {
@@ -234,6 +307,8 @@ async function handleApi(req, res, pathname) {
       photoPath = `/uploads/${savedName}`;
     }
 
+    const season = ALLOWED_SEASONS.includes(fields.season) ? fields.season : 'permanent';
+    const createdAt = new Date().toISOString();
     const report = {
       id: crypto.randomUUID(),
       lat: latNum,
@@ -241,8 +316,11 @@ async function handleApi(req, res, pathname) {
       type: fields.type,
       comment: String(fields.comment).trim().slice(0, 500),
       photo: photoPath,
+      season,
+      expiresAt: expiryFor(season, createdAt),
+      verifiedBy: [],
       status: 'pending',
-      createdAt: new Date().toISOString(),
+      createdAt,
     };
     const list = readReports();
     list.unshift(report);
