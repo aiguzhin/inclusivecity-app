@@ -1,0 +1,16 @@
+{
+  "name": "InclusiveCity — доступная карта Алматы",
+  "short_name": "InclusiveCity",
+  "description": "Карта доступности Алматы: маршруты без ступеней, барьеры, пандусы, лифты и доступные объекты.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f7fa",
+  "theme_color": "#1769c2",
+  "lang": "ru",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
