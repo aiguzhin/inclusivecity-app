@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="InclusiveCity">
+  <rect width="512" height="512" rx="96" fill="#1769c2"/>
+  <circle cx="256" cy="132" r="40" fill="#ffffff"/>
+  <path d="M196 196h120c14 0 24 11 24 24s-10 24-24 24h-52v52h76c13 0 23 10 23 23s-10 23-23 23h-99c-13 0-23-10-23-23V244h-22c-14 0-24-11-24-24s10-24 24-24z" fill="#ffffff"/>
+  <path d="M168 268c-34 20-56 57-56 100 0 63 51 114 114 114 48 0 89-29 106-71" fill="none" stroke="#ffffff" stroke-width="30" stroke-linecap="round"/>
+</svg>
