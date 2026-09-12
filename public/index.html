@@ -122,6 +122,29 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
 }
 .layerbar .chip{white-space:nowrap;flex:0 0 auto;background:transparent}
 .layerbar .chip[aria-pressed="true"]{background:var(--blue-weak)}
+.chip[aria-busy="true"]{opacity:.75}
+.chip.loading .sw{animation:pulse 1s infinite alternate}
+@keyframes pulse{from{opacity:.25}to{opacity:1}}
+.search-here{
+  position:absolute;z-index:501;top:64px;left:50%;transform:translateX(-50%);
+  background:var(--card);color:var(--blue-ink);border:1px solid var(--blue);
+  border-radius:99px;padding:9px 16px;box-shadow:var(--shadow);font-size:.85rem;white-space:nowrap;
+}
+.basemap-ctl{position:absolute;z-index:501;left:10px;bottom:16px}
+.basemap-ctl select{
+  width:auto;min-height:40px;padding:8px 12px;border-radius:10px;font-size:.85rem;font-weight:700;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink);
+}
+.ac-wrap{position:relative;flex:1;min-width:0}
+.ac-list{
+  position:absolute;z-index:700;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);
+  max-height:280px;overflow:auto;
+}
+.ac-item{padding:10px;border-radius:8px;cursor:pointer;font-size:.9rem;line-height:1.3}
+.ac-item[aria-selected="true"],.ac-item:hover{background:var(--blue-weak);color:var(--blue-ink)}
+.ac-item .sub{display:block;font-size:.78rem;color:var(--ink-soft);margin-top:2px}
+.ac-empty{padding:10px;font-size:.85rem;color:var(--ink-soft)}
 
 .banner{border-radius:10px;padding:10px 12px;font-size:.86rem;margin:12px 0;background:var(--blue-weak);color:var(--blue-ink)}
 .banner.ok{background:var(--green-weak);color:var(--green)}
@@ -189,7 +212,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <option value="kk">Қазақша</option>
       <option value="en">English</option>
     </select>
-    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" aria-label="Настройки доступности" title="Настройки доступности">⚙</button>
+    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки доступности">⚙</button>
   </div>
 </header>
 
@@ -208,15 +231,23 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 
     <label class="field" for="start"><span data-i18n="from">Откуда</span></label>
     <div class="row">
-      <input type="text" id="start" class="grow" value="Площадь Республики">
-      <button class="btn-ghost icon-btn" onclick="locateUser()" aria-label="Моё местоположение" title="Моё местоположение">⌖</button>
-      <button class="btn-ghost icon-btn" onclick="voiceInput('start')" aria-label="Голосовой ввод откуда" title="Голосовой ввод">🎤</button>
+      <div class="ac-wrap">
+        <input type="text" id="start" value="Площадь Республики" autocomplete="off"
+               role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-start">
+        <ul class="ac-list" id="ac-start" role="listbox" aria-label="Подсказки" hidden></ul>
+      </div>
+      <button class="btn-ghost icon-btn" onclick="locateUser()" data-i18n-aria="myLocation" aria-label="Моё местоположение">⌖</button>
+      <button class="btn-ghost icon-btn" onclick="voiceInput('start')" data-i18n-aria="listening" aria-label="Голосовой ввод">🎤</button>
     </div>
 
     <label class="field" for="destination"><span data-i18n="to">Куда</span></label>
     <div class="row">
-      <input type="text" id="destination" class="grow" value="Парк 28 гвардейцев-панфиловцев">
-      <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" aria-label="Голосовой ввод куда" title="Голосовой ввод">🎤</button>
+      <div class="ac-wrap">
+        <input type="text" id="destination" value="Парк 28 гвардейцев-панфиловцев" autocomplete="off"
+               role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-destination">
+        <ul class="ac-list" id="ac-destination" role="listbox" aria-label="Подсказки" hidden></ul>
+      </div>
+      <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" data-i18n-aria="listening" aria-label="Голосовой ввод">🎤</button>
     </div>
 
     <div class="row" style="margin-top:12px">
@@ -246,6 +277,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 
   <section class="stage">
     <div class="layerbar" id="layerbar" role="group" aria-label="Слои объектов на карте"></div>
+    <button id="searchHere" class="search-here" hidden onclick="searchThisArea()" data-i18n="searchHere">Искать в этой области</button>
+    <div class="basemap-ctl">
+      <label class="sr" for="basemapSel" data-i18n="basemapLabel">Вид карты</label>
+      <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
+    </div>
     <div id="map" role="application" aria-label="Карта Алматы"></div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
@@ -261,7 +297,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   <div class="dialog">
     <div class="dialog-head">
       <h2 id="setTitle" data-i18n="setTitle">Настройки доступности</h2>
-      <button class="btn-ghost btn-sm" onclick="closeModal('settingsModal')" aria-label="Закрыть">✕</button>
+      <button class="btn-ghost btn-sm" onclick="closeModal('settingsModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <div class="settings-grid">
       <div>
@@ -310,7 +346,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   <form class="dialog" onsubmit="saveReport(event)">
     <div class="dialog-head">
       <h2 id="repTitle" data-i18n="repTitle">Сообщить о барьере</h2>
-      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('reportModal')" aria-label="Закрыть">✕</button>
+      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('reportModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <p class="small muted" data-i18n="repHelp">Отчёт уходит на модерацию и появляется на карте после проверки.</p>
     <label class="field" for="barrierType"><span data-i18n="repType">Тип препятствия</span></label>
@@ -324,7 +360,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <label class="field" for="photo"><span data-i18n="repPhoto">Фото</span></label>
     <input id="photo" type="file" accept="image/*" capture="environment">
     <label class="field" for="comment"><span data-i18n="repComment">Комментарий</span></label>
-    <input type="text" id="comment" required placeholder="Например: съезд перекрыт автомобилем">
+    <input type="text" id="comment" required data-i18n-ph="repCommentPh" placeholder="Например: съезд перекрыт автомобилем">
     <label class="field" for="reportPlace"><span data-i18n="repPlace">Метка на карте</span></label>
     <input type="text" id="reportPlace" readonly value="—">
     <div class="row" style="margin-top:14px">
@@ -339,7 +375,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   <div class="dialog">
     <div class="dialog-head">
       <h2 id="sosTitle" data-i18n="sosTitle">Экстренная помощь</h2>
-      <button class="btn-ghost btn-sm" onclick="closeModal('sosModal')" aria-label="Закрыть">✕</button>
+      <button class="btn-ghost btn-sm" onclick="closeModal('sosModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <p class="small muted" data-i18n="sosHelp">Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.</p>
     <div class="banner" id="sosCoords" data-i18n="sosNoCoords">Координаты ещё не определены.</div>
@@ -361,7 +397,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   <div class="dialog">
     <div class="dialog-head">
       <h2 id="cmpTitle" data-i18n="cmpTitle">Обращение в акимат</h2>
-      <button class="btn-ghost btn-sm" onclick="closeModal('complaintModal')" aria-label="Закрыть">✕</button>
+      <button class="btn-ghost btn-sm" onclick="closeModal('complaintModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <p class="small muted" data-i18n="cmpHelp">Готовый текст со ссылкой на координаты. Скопируйте и отправьте через портал eOtinish.</p>
     <label class="field" for="cmpText"><span data-i18n="cmpText">Текст обращения</span></label>
@@ -380,6 +416,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 /* ============ i18n ============ */
 const I18N = {
 ru:{
+ basemapLabel:"Вид карты", acNoResults:"Ничего не найдено",
  skip:"Перейти к содержимому", eyebrow:"Маршрут и доступность", title:"Передвигайтесь по Алматы увереннее",
  from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
@@ -392,12 +429,13 @@ ru:{
  disclaimer:"Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.",
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
  setTitle:"Настройки доступности", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
- setTheme:"Тема", themeLight:"Светлая", themeDark:"Тёмная", setContrast:"Контраст", contrastNormal:"Обычный", contrastHigh:"Высокий",
+ setTheme:"Оформление", themeLight:"Светлое", themeDark:"Тёмное", setContrast:"Контрастность", contrastNormal:"Обычная", contrastHigh:"Повышенная",
  setMotion:"Анимации", motionOn:"Включены", motionOff:"Отключены", setVoice:"Озвучка маршрута", voiceOn:"Включена", voiceOff:"Выключена",
- setSaved:"Настройки сохраняются в этом браузере.",
+ setSaved:"Настройки сохраняются в этом браузере.", close:"Закрыть", settingsBtn:"Настройки доступности",
  repTitle:"Сообщить о барьере", repHelp:"Отчёт уходит на модерацию и появляется на карте после проверки.",
  repType:"Тип препятствия", repSeason:"Характер", seasonPerm:"Постоянный", seasonWinter:"Зимний (снег, наледь)", seasonTemp:"Временный (ремонт) — 30 дней",
- repPhoto:"Фото", repComment:"Комментарий", repPlace:"Метка на карте", repPick:"Выбрать точку", repSend:"Отправить",
+ repPhoto:"Фото", repComment:"Комментарий", repCommentPh:"Например: съезд перекрыт автомобилем",
+ repPlace:"Метка на карте", repPick:"Выбрать точку", repSend:"Отправить",
  sosTitle:"Экстренная помощь", sosHelp:"Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.",
  sosNoCoords:"Координаты ещё не определены.", sosLocate:"Определить моё местоположение", sosShare:"Отправить близким", sosCopy:"Скопировать текст",
  sosNumbers:"Экстренные службы Казахстана", sosUnified:"единый номер", sosAmbulance:"скорая помощь",
@@ -405,99 +443,120 @@ ru:{
  cmpText:"Текст обращения", cmpCopy:"Скопировать", cmpOpen:"Открыть eOtinish",
  building:"Строим маршрут…", checking:"Проверяем ступени, переходы и уклон…",
  routeFail:"Не удалось построить маршрут", routeFailHelp:"Проверьте название места или подключение к интернету.",
- km:"км", min:"мин", steps:"Шаги маршрута", speak:"Озвучить маршрут", stopSpeak:"Остановить",
- warnStairs:"На маршруте найдены ступени: ", warnTunnel:"Подземных/надземных переходов: ", warnSlope:"Максимальный уклон ≈ ",
- okNoStairs:"Ступеней по данным OSM не найдено", noElev:"Данные о высотах недоступны",
- slopeHard:"Крутой подъём — тяжело на механической коляске", slopeOk:"Уклон приемлемый",
- loadingLayer:"Загружаем слой…", layerEmpty:"В этом районе объектов не найдено", layerFail:"Слой не загрузился, попробуйте позже",
+ km:"км", m:"м", min:"мин", steps:"Шаги маршрута", speak:"Озвучить маршрут", stopSpeak:"Остановить",
+ warnStairs:"На маршруте найдены ступени: ", warnTunnel:"Подземных и надземных переходов: ", warnSlope:"Максимальный уклон ≈ ",
+ noRamp:"без пандуса", okNoStairs:"Ступеней по данным OSM не найдено", noElev:"Данные о высотах недоступны",
+ slopeHard:"крутой подъём, тяжело на механической коляске", slopeOk:"уклон приемлемый",
+ layerEmpty:"В видимой области объектов не найдено — сдвиньте или отдалите карту",
+ layerFail:"Серверы OpenStreetMap сейчас перегружены. Нажмите кнопку слоя ещё раз через несколько секунд.",
+ zoomIn:"Приблизьте карту, чтобы загрузить объекты", searchHere:"Искать в этой области",
  found:"Найдено объектов: ", verify:"Подтвердить", verified:"Подтверждений: ", thanks:"Спасибо!",
  geoOff:"Геолокация недоступна в этом браузере", geoFail:"Не удалось получить геопозицию",
- geoOk:"Геопозиция определена", pickDest:"Кликните по карте, чтобы выбрать точку назначения",
- pickBarrier:"Кликните по карте, чтобы отметить барьер", needPoint:"Сначала выберите точку барьера на карте",
+ geoOk:"Геопозиция определена", pickDest:"Нажмите на карту, чтобы выбрать точку назначения",
+ pickBarrier:"Нажмите на карту, чтобы отметить барьер", needPoint:"Сначала выберите точку барьера на карте",
  sending:"Отправляем…", sent:"Спасибо! Отчёт отправлен на модерацию.", sendFail:"Не удалось отправить отчёт: ",
  copied:"Скопировано", voiceNo:"Голосовой ввод не поддерживается в этом браузере", listening:"Говорите…",
- offline:"Нет сети. Показываем сохранённые данные.", meters:"м", away:"в ", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь", start:"Старт", finish:"Финиш", barrier:"Барьер"
+ voiceFallback:"Казахский голос не установлен в системе — читаем русским голосом",
+ voiceMissing:"Голос для этого языка не найден в системе",
+ offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
+ meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
+ you:"Вы здесь", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
- skip:"Мазмұнға өту", eyebrow:"Бағыт және қолжетімділік", title:"Алматы бойынша сенімдірек жүріңіз",
- from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан",
- hint:"Орынды енгізіңіз, картадан таңдаңыз немесе геопозицияны қосыңыз.",
+ basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
+ skip:"Негізгі мазмұнға өту", eyebrow:"Бағыт және қолжетімділік", title:"Алматы қаласында еркін жүріңіз",
+ from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан таңдау",
+ hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
  viewList:"Мәтіндік режим", viewMap:"Карта",
- profileTitle:"Жүріп-тұру профиліңіз", profileLabel:"Профиль",
- profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты.",
- noRoute:"Бағыт құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағытты баспалдақ, өткел және еңіске тексереміз.",
- nearbyTitle:"Маңайдағы нысандар", nearbyHelp:"Картадағы түймелермен қабаттарды қосыңыз — тізім осында шығады.",
- reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"🆘 Шұғыл көмек", complaintBtn:"📨 Әкімдікке өтініш", dashBtn:"📊 Қала статистикасы",
- disclaimer:"Карта және нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін.",
- listTitle:"Мәтіндік режим", listHelp:"Картасыз сол мазмұн: қадамдық бағыт және маңайдағы нысандар.",
+ profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль",
+ profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
+ noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
+ nearbyTitle:"Жақын маңдағы нысандар", nearbyHelp:"Картадағы түймелер арқылы қабаттарды қосыңыз — тізім осы жерде және мәтіндік режимде шығады.",
+ reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"🆘 Шұғыл көмек", complaintBtn:"📨 Әкімдікке өтініш", dashBtn:"📊 Қала бойынша статистика",
+ disclaimer:"Карта мен нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін және қолжетімділік нормаларына сәйкестік туралы сараптамалық қорытынды болып саналмайды.",
+ listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
  setTitle:"Қолжетімділік баптаулары", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
- setTheme:"Тақырып", themeLight:"Ашық", themeDark:"Қараңғы", setContrast:"Контраст", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
- setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстау", voiceOn:"Қосулы", voiceOff:"Өшірулі",
- setSaved:"Баптаулар осы браузерде сақталады.",
- repTitle:"Кедергі туралы хабарлау", repHelp:"Есеп модерацияға жіберіледі.",
+ setTheme:"Безендіру", themeLight:"Ашық", themeDark:"Күңгірт", setContrast:"Айқындық", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
+ setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстап оқу", voiceOn:"Қосулы", voiceOff:"Өшірулі",
+ setSaved:"Баптаулар осы браузерде сақталады.", close:"Жабу", settingsBtn:"Қолжетімділік баптаулары",
+ repTitle:"Кедергі туралы хабарлау", repHelp:"Хабарлама модерацияға жіберіледі және тексерістен кейін картада көрінеді.",
  repType:"Кедергі түрі", repSeason:"Сипаты", seasonPerm:"Тұрақты", seasonWinter:"Қысқы (қар, мұз)", seasonTemp:"Уақытша (жөндеу) — 30 күн",
- repPhoto:"Фото", repComment:"Пікір", repPlace:"Картадағы белгі", repPick:"Нүкте таңдау", repSend:"Жіберу",
- sosTitle:"Шұғыл көмек", sosHelp:"Координаттарыңызды анықтап, хабарлама дайындаймыз.",
- sosNoCoords:"Координаттар анықталмаған.", sosLocate:"Орналасуымды анықтау", sosShare:"Жақындарға жіберу", sosCopy:"Мәтінді көшіру",
+ repPhoto:"Фотосурет", repComment:"Түсініктеме", repCommentPh:"Мысалы: пандусты көлік бөгеп тұр",
+ repPlace:"Картадағы белгі", repPick:"Нүкте таңдау", repSend:"Жіберу",
+ sosTitle:"Шұғыл көмек", sosHelp:"Координаттарыңызды анықтап, хабарлама дайындаймыз — кімге жіберуді өзіңіз шешесіз.",
+ sosNoCoords:"Координаттар әлі анықталмаған.", sosLocate:"Орналасқан жерімді анықтау", sosShare:"Жақындарыма жіберу", sosCopy:"Мәтінді көшіру",
  sosNumbers:"Қазақстанның шұғыл қызметтері", sosUnified:"бірыңғай нөмір", sosAmbulance:"жедел жәрдем",
- cmpTitle:"Әкімдікке өтініш", cmpHelp:"Дайын мәтін. Көшіріп, eOtinish порталы арқылы жіберіңіз.",
- cmpText:"Өтініш мәтіні", cmpCopy:"Көшіру", cmpOpen:"eOtinish ашу",
- building:"Бағыт құрылуда…", checking:"Баспалдақ, өткел және еңіс тексерілуде…",
- routeFail:"Бағыт құру мүмкін болмады", routeFailHelp:"Орын атауын немесе интернетті тексеріңіз.",
- km:"км", min:"мин", steps:"Бағыт қадамдары", speak:"Бағытты дауыстау", stopSpeak:"Тоқтату",
- warnStairs:"Бағытта баспалдақ табылды: ", warnTunnel:"Жерасты/жерүсті өткелдері: ", warnSlope:"Ең үлкен еңіс ≈ ",
- okNoStairs:"OSM деректері бойынша баспалдақ табылмады", noElev:"Биіктік деректері қолжетімсіз",
- slopeHard:"Тік көтерілу — механикалық арбамен қиын", slopeOk:"Еңіс қолайлы",
- loadingLayer:"Қабат жүктелуде…", layerEmpty:"Бұл ауданда нысан табылмады", layerFail:"Қабат жүктелмеді",
- found:"Табылған нысандар: ", verify:"Растау", verified:"Растаулар: ", thanks:"Рахмет!",
- geoOff:"Геолокация қолжетімсіз", geoFail:"Геопозиция алынбады", geoOk:"Геопозиция анықталды",
- pickDest:"Мақсатты таңдау үшін картаны басыңыз", pickBarrier:"Кедергіні белгілеу үшін картаны басыңыз",
- needPoint:"Алдымен картадан кедергі нүктесін таңдаңыз",
- sending:"Жіберілуде…", sent:"Рахмет! Есеп модерацияға жіберілді.", sendFail:"Есеп жіберілмеді: ",
- copied:"Көшірілді", voiceNo:"Дауыстық енгізу қолдау таппайды", listening:"Сөйлеңіз…",
- offline:"Желі жоқ. Сақталған деректер көрсетілуде.", meters:"м", away:"", north:"солтүстікке", south:"оңтүстікке", east:"шығысқа", west:"батысқа",
- you:"Сіз осындасыз", start:"Бастау", finish:"Мақсат", barrier:"Кедергі"
+ cmpTitle:"Әкімдікке өтініш", cmpHelp:"Координаттар сілтемесі қоса берілген дайын мәтін. Көшіріп, eOtinish порталы арқылы жіберіңіз.",
+ cmpText:"Өтініш мәтіні", cmpCopy:"Көшіру", cmpOpen:"eOtinish порталын ашу",
+ building:"Бағыт құрылып жатыр…", checking:"Баспалдақтар, өткелдер және еңіс тексерілуде…",
+ routeFail:"Бағыт құру мүмкін болмады", routeFailHelp:"Мекенжай атауын немесе интернет байланысын тексеріңіз.",
+ km:"км", m:"м", min:"мин", steps:"Бағыт қадамдары", speak:"Бағытты дауыстап оқу", stopSpeak:"Тоқтату",
+ warnStairs:"Бағытта баспалдақ кездеседі: ", warnTunnel:"Жерасты және жерүсті өткелдері: ", warnSlope:"Ең үлкен еңіс ≈ ",
+ noRamp:"пандуссыз", okNoStairs:"OSM деректері бойынша баспалдақ кездеспейді", noElev:"Биіктік деректері қолжетімсіз",
+ slopeHard:"тік көтерілу, механикалық арбамен қиын", slopeOk:"еңіс қолайлы",
+ layerEmpty:"Көрініп тұрған аймақта нысан табылмады — картаны жылжытыңыз немесе кішірейтіңіз",
+ layerFail:"OpenStreetMap серверлері қазір бос емес. Бірнеше секундтан кейін қабат түймесін қайта басыңыз.",
+ zoomIn:"Нысандарды жүктеу үшін картаны жақындатыңыз", searchHere:"Осы аймақтан іздеу",
+ found:"Табылған нысандар: ", verify:"Растау", verified:"Растау саны: ", thanks:"Рақмет!",
+ geoOff:"Бұл браузерде геолокация қолжетімсіз", geoFail:"Геолокацияны анықтау мүмкін болмады",
+ geoOk:"Орналасқан жеріңіз анықталды", pickDest:"Межелі нүктені таңдау үшін картаны басыңыз",
+ pickBarrier:"Кедергіні белгілеу үшін картаны басыңыз", needPoint:"Алдымен картадан кедергі нүктесін таңдаңыз",
+ sending:"Жіберілуде…", sent:"Рақмет! Хабарлама модерацияға жіберілді.", sendFail:"Хабарламаны жіберу мүмкін болмады: ",
+ copied:"Көшірілді", voiceNo:"Бұл браузерде дауыспен енгізу қолдау таппайды", listening:"Сөйлеңіз…",
+ voiceFallback:"Жүйеде қазақша дауыс жоқ — орысша дауыспен оқылады",
+ voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
+ offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
+ meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
+ you:"Сіз осындасыз", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
- skip:"Skip to content", eyebrow:"Route and accessibility", title:"Move around Almaty with confidence",
- from:"From", to:"To", build:"Build route", pick:"On map",
- hint:"Type a place, pick a point on the map or use your location.",
+ basemapLabel:"Map type", acNoResults:"Nothing found",
+ skip:"Skip to main content", eyebrow:"Routes and accessibility", title:"Get around Almaty with confidence",
+ from:"From", to:"To", build:"Build route", pick:"Pick on map",
+ hint:"Type a place, pick a point on the map, or use your location.",
  viewList:"Text mode", viewMap:"Map",
  profileTitle:"Your mobility profile", profileLabel:"Profile",
- profileHelp:"It defines warnings about slopes, steps and thresholds.",
- noRoute:"No route yet", noRouteHelp:"Fill the fields above. We check the route for steps, underpasses and slope.",
- nearbyTitle:"Nearby places", nearbyHelp:"Turn on layers with the buttons on the map — the list appears here.",
- reportBtn:"+ Report a barrier", sosBtn:"🆘 Emergency", complaintBtn:"📨 Complaint to the city", dashBtn:"📊 City statistics",
- disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete.",
- listTitle:"Text mode", listHelp:"Same content without the map: step-by-step route and nearby places with distance and direction.",
+ profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
+ noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
+ nearbyTitle:"Places nearby", nearbyHelp:"Turn layers on with the buttons on the map — the list appears here and in text mode.",
+ reportBtn:"+ Report a barrier", sosBtn:"🆘 Emergency help", complaintBtn:"📨 Complaint to the city", dashBtn:"📊 City statistics",
+ disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete and is not an expert assessment of compliance with accessibility standards.",
+ listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
  setTitle:"Accessibility settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
- setTheme:"Theme", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
+ setTheme:"Appearance", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
  setMotion:"Animations", motionOn:"On", motionOff:"Off", setVoice:"Route voice-over", voiceOn:"On", voiceOff:"Off",
- setSaved:"Settings are stored in this browser.",
- repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map after review.",
- repType:"Barrier type", repSeason:"Nature", seasonPerm:"Permanent", seasonWinter:"Winter (snow, ice)", seasonTemp:"Temporary (works) — 30 days",
- repPhoto:"Photo", repComment:"Comment", repPlace:"Map marker", repPick:"Pick a point", repSend:"Send",
- sosTitle:"Emergency", sosHelp:"We'll get your coordinates and prepare a message — you choose who to send it to.",
- sosNoCoords:"Coordinates not determined yet.", sosLocate:"Find my location", sosShare:"Send to contacts", sosCopy:"Copy text",
- sosNumbers:"Emergency services in Kazakhstan", sosUnified:"single number", sosAmbulance:"ambulance",
- cmpTitle:"Complaint to the city", cmpHelp:"Ready-made text with coordinates. Copy and submit via the eOtinish portal.",
- cmpText:"Complaint text", cmpCopy:"Copy", cmpOpen:"Open eOtinish",
+ setSaved:"Settings are saved in this browser.", close:"Close", settingsBtn:"Accessibility settings",
+ repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map once reviewed.",
+ repType:"Type of barrier", repSeason:"Nature of the barrier", seasonPerm:"Permanent", seasonWinter:"Winter (snow, ice)", seasonTemp:"Temporary (roadworks) — 30 days",
+ repPhoto:"Photo", repComment:"Comment", repCommentPh:"For example: the ramp is blocked by a car",
+ repPlace:"Marker on the map", repPick:"Pick a point", repSend:"Send",
+ sosTitle:"Emergency help", sosHelp:"We'll find your coordinates and prepare a message — you choose who to send it to.",
+ sosNoCoords:"Coordinates not determined yet.", sosLocate:"Find my location", sosShare:"Send to my contacts", sosCopy:"Copy the text",
+ sosNumbers:"Emergency services in Kazakhstan", sosUnified:"single emergency number", sosAmbulance:"ambulance",
+ cmpTitle:"Complaint to the city administration", cmpHelp:"A ready-made text with a link to the coordinates. Copy it and submit through the eOtinish portal.",
+ cmpText:"Text of the complaint", cmpCopy:"Copy", cmpOpen:"Open eOtinish",
  building:"Building the route…", checking:"Checking steps, crossings and slope…",
- routeFail:"Could not build the route", routeFailHelp:"Check the place name or your connection.",
- km:"km", min:"min", steps:"Route steps", speak:"Read the route", stopSpeak:"Stop",
- warnStairs:"Steps found on the route: ", warnTunnel:"Under/overpasses: ", warnSlope:"Max slope ≈ ",
- okNoStairs:"No steps found in OSM data", noElev:"Elevation data unavailable",
- slopeHard:"Steep climb — hard in a manual wheelchair", slopeOk:"Slope is acceptable",
- loadingLayer:"Loading layer…", layerEmpty:"No places found in this area", layerFail:"Layer failed to load",
+ routeFail:"Could not build the route", routeFailHelp:"Check the place name or your internet connection.",
+ km:"km", m:"m", min:"min", steps:"Route steps", speak:"Read the route aloud", stopSpeak:"Stop",
+ warnStairs:"Steps found on the route: ", warnTunnel:"Underpasses and footbridges: ", warnSlope:"Maximum slope ≈ ",
+ noRamp:"without a ramp", okNoStairs:"No steps found in OpenStreetMap data", noElev:"Elevation data unavailable",
+ slopeHard:"steep climb, hard in a manual wheelchair", slopeOk:"slope is manageable",
+ layerEmpty:"Nothing found in the visible area — pan or zoom out",
+ layerFail:"The OpenStreetMap servers are busy right now. Tap the layer button again in a few seconds.",
+ zoomIn:"Zoom in to load places", searchHere:"Search this area",
  found:"Places found: ", verify:"Confirm", verified:"Confirmations: ", thanks:"Thank you!",
- geoOff:"Geolocation is not available", geoFail:"Could not get your position", geoOk:"Location found",
- pickDest:"Click the map to choose a destination", pickBarrier:"Click the map to mark a barrier",
- needPoint:"Pick the barrier point on the map first",
- sending:"Sending…", sent:"Thank you! The report was sent for moderation.", sendFail:"Could not send the report: ",
+ geoOff:"Geolocation is not available in this browser", geoFail:"Could not get your location",
+ geoOk:"Location found", pickDest:"Tap the map to choose a destination",
+ pickBarrier:"Tap the map to mark a barrier", needPoint:"Pick the barrier location on the map first",
+ sending:"Sending…", sent:"Thank you! Your report was sent for moderation.", sendFail:"Could not send the report: ",
  copied:"Copied", voiceNo:"Voice input is not supported in this browser", listening:"Speak now…",
- offline:"You are offline. Showing cached data.", meters:"m", away:"", north:"north", south:"south", east:"east", west:"west",
- you:"You are here", start:"Start", finish:"Finish", barrier:"Barrier"
+ voiceFallback:"No Kazakh voice is installed on this device — using the Russian voice",
+ voiceMissing:"No voice for this language was found on this device",
+ offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
+ meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
+ you:"You are here", start:"Start", finish:"Destination", barrier:"Barrier",
+ mapPoint:"Point on the map", myLocation:"My location"
 }};
 
 /* ============ Профили передвижения ============ */
@@ -522,36 +581,145 @@ const BARRIER_TYPES = [
  {v:"Машина на тротуаре/съезде", ru:"Машина на тротуаре/съезде", kk:"Тротуардағы көлік", en:"Car blocking the sidewalk"}
 ];
 
-/* ============ Слои (как в 2ГИС — по кнопкам) ============ */
-const BBOX = "43.16,76.75,43.36,77.12";
+/* ============ Слои (как в 2ГИС — по кнопкам) ============
+ * Запрос идёт по ВИДИМОЙ области карты, а не по всему городу: так ответ
+ * приходит за секунды, а не за полминуты, и Overpass реже отвечает отказом.
+ * Зеркала перебираются по очереди — публичный overpass-api.de часто занят.
+ */
+const OVERPASS_MIRRORS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.osm.jp/api/interpreter"
+];
+const LAYER_CACHE_TTL = 10 * 60 * 1000;
+const MIN_LAYER_ZOOM = 12;
+
 const LAYERS = [
  {key:"ramp",    color:"#0a7350", ru:"Пандусы", kk:"Пандустар", en:"Ramps",
-  q:`nwr["ramp:wheelchair"="yes"](${BBOX});nwr["wheelchair"="yes"]["entrance"](${BBOX});`},
+  q:bb=>`nwr["ramp:wheelchair"="yes"](${bb});nwr["wheelchair"="yes"]["entrance"](${bb});`},
  {key:"elevator",color:"#1769c2", ru:"Лифты", kk:"Лифттер", en:"Elevators",
-  q:`nwr["highway"="elevator"](${BBOX});nwr["elevator"="yes"](${BBOX});`},
- {key:"toilet",  color:"#7b4bc9", ru:"Доступные туалеты", kk:"Қолжетімді дәретхана", en:"Accessible toilets",
-  q:`nwr["amenity"="toilets"]["wheelchair"="yes"](${BBOX});nwr["toilets:wheelchair"="yes"](${BBOX});`},
- {key:"parking", color:"#0f7a8c", ru:"Парковка для инвалидов", kk:"Мүгедектерге тұрақ", en:"Disabled parking",
-  q:`nwr["parking_space"="disabled"](${BBOX});nwr["capacity:disabled"~"^[1-9]"](${BBOX});`},
+  q:bb=>`nwr["highway"="elevator"](${bb});nwr["elevator"="yes"](${bb});`},
+ {key:"toilet",  color:"#7b4bc9", ru:"Доступные туалеты", kk:"Қолжетімді дәретханалар", en:"Accessible toilets",
+  q:bb=>`nwr["amenity"="toilets"]["wheelchair"="yes"](${bb});nwr["toilets:wheelchair"="yes"](${bb});`},
+ {key:"parking", color:"#0f7a8c", ru:"Парковка для инвалидов", kk:"Мүгедектерге арналған тұрақ", en:"Disabled parking",
+  q:bb=>`nwr["parking_space"="disabled"](${bb});nwr["capacity:disabled"~"^[1-9]"](${bb});`},
  {key:"metro",   color:"#c2410c", ru:"Метро", kk:"Метро", en:"Metro",
-  q:`nwr["station"="subway"](${BBOX});nwr["railway"="subway_entrance"](${BBOX});`},
- {key:"tactile", color:"#b58900", ru:"Тактильная плитка", kk:"Тактильді плитка", en:"Tactile paving",
-  q:`nwr["tactile_paving"="yes"]["highway"!="footway"](${BBOX});`},
- {key:"sound",   color:"#8a2be2", ru:"Звуковые светофоры", kk:"Дыбысты бағдаршам", en:"Audible signals",
-  q:`nwr["traffic_signals:sound"="yes"](${BBOX});nwr["crossing:signals:sound"="yes"](${BBOX});`},
- {key:"place",   color:"#0891b2", ru:"Доступные заведения", kk:"Қолжетімді орындар", en:"Accessible venues",
-  q:`nwr["wheelchair"="yes"]["amenity"~"cafe|restaurant|pharmacy|bank|hospital|clinic|library|theatre"](${BBOX});`}
+  q:bb=>`nwr["station"="subway"](${bb});nwr["railway"="subway_entrance"](${bb});`},
+ {key:"tactile", color:"#b58900", ru:"Тактильная плитка", kk:"Тактильді жол белгілері", en:"Tactile paving",
+  q:bb=>`nwr["tactile_paving"="yes"]["highway"!="footway"](${bb});`},
+ {key:"sound",   color:"#8a2be2", ru:"Звуковые светофоры", kk:"Дыбыстық бағдаршамдар", en:"Audible signals",
+  q:bb=>`nwr["traffic_signals:sound"="yes"](${bb});nwr["crossing:signals:sound"="yes"](${bb});`},
+ {key:"place",   color:"#0891b2", ru:"Доступные заведения", kk:"Қолжетімді мекемелер", en:"Accessible venues",
+  q:bb=>`nwr["wheelchair"="yes"]["amenity"~"cafe|restaurant|pharmacy|bank|hospital|clinic|library|theatre"](${bb});`}
 ];
+
+// Перебираем зеркала: занятый сервер отвечает 429/504, это не повод показывать ошибку
+async function overpassQuery(body, timeoutMs){
+  let lastErr = null;
+  for (const url of OVERPASS_MIRRORS){
+    const ctl = new AbortController();
+    const timer = setTimeout(()=>ctl.abort(), timeoutMs || 18000);
+    try{
+      const res = await fetch(url, {method:"POST", body, signal:ctl.signal});
+      clearTimeout(timer);
+      if(!res.ok){ lastErr = new Error("HTTP "+res.status); continue; }
+      const data = await res.json();
+      if(!data || !Array.isArray(data.elements)){ lastErr = new Error("bad payload"); continue; }
+      return data;
+    }catch(e){ clearTimeout(timer); lastErr = e; }
+  }
+  throw lastErr || new Error("overpass unavailable");
+}
+
+/* ============ Подложки карты ============
+ * Подписи на растровых тайлах «запечены» в картинку, поэтому язык подписей
+ * задаётся выбором подложки, а не настройкой языка приложения. Зато все
+ * названия, которые рисует само приложение, переводятся (см. poiName).
+ */
+const BASEMAPS = {
+  osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:19,
+        url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
+  sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19,
+        url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attr:"© Esri, Maxar, Earthstar Geographics" },
+  satlab:{ ru:"Спутник с подписями", kk:"Жазуы бар спутник", en:"Satellite with labels", max:19,
+        url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        overlay:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        attr:"© Esri, Maxar, Earthstar Geographics" },
+  topo:{ ru:"Рельеф", kk:"Жер бедері", en:"Terrain", max:17,
+        url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        attr:'© <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)' },
+  light:{ ru:"Светлая", kk:"Ашық", en:"Light", max:20,
+        url:"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        attr:"© OpenStreetMap, © CARTO" },
+  dark:{ ru:"Тёмная", kk:"Күңгірт", en:"Dark", max:20,
+        url:"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        attr:"© OpenStreetMap, © CARTO" }
+};
+let baseLayer=null, baseOverlay=null;
+function setBasemap(key){
+  if(!BASEMAPS[key]) key="osm";
+  S.basemap=key; store("basemap",key);
+  const sel=document.getElementById("basemapSel"); if(sel) sel.value=key;
+  if(!mapReady) return;
+  const def=BASEMAPS[key];
+  if(baseLayer) map.removeLayer(baseLayer);
+  if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; }
+  baseLayer=L.tileLayer(def.url,{maxZoom:def.max,attribution:def.attr}).addTo(map);
+  if(baseLayer.setZIndex) baseLayer.setZIndex(0);
+  if(def.overlay){
+    baseOverlay=L.tileLayer(def.overlay,{maxZoom:def.max}).addTo(map);
+    if(baseOverlay.setZIndex) baseOverlay.setZIndex(1);
+  }
+}
+function buildBasemapSelect(){
+  const sel=document.getElementById("basemapSel"); if(!sel) return;
+  sel.innerHTML="";
+  Object.entries(BASEMAPS).forEach(([k,d])=>{
+    const o=document.createElement("option"); o.value=k; o.textContent=d[S.lang]||d.ru; sel.appendChild(o);
+  });
+  sel.value=S.basemap;
+}
+
+// Названия объектов берём на выбранном языке: в OSM они лежат в тегах name:kk/name:en
+function poiName(tags, fallback){
+  if(!tags) return fallback||"";
+  const order = S.lang==="kk" ? ["name:kk","name","name:ru","name:en"]
+              : S.lang==="en" ? ["name:en","name:ru","name"]
+              : ["name:ru","name","name:en"];
+  for(const k of order){ if(tags[k]) return tags[k]; }
+  return fallback||"";
+}
+
+function viewBbox(){
+  if(!mapReady) return "43.16,76.75,43.36,77.12";
+  const b = map.getBounds();
+  return `${b.getSouth().toFixed(4)},${b.getWest().toFixed(4)},${b.getNorth().toFixed(4)},${b.getEast().toFixed(4)}`;
+}
+function cacheGet(key){
+  try{
+    const raw = sessionStorage.getItem("ic_layer_"+key);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(Date.now() - obj.at > LAYER_CACHE_TTL) return null;
+    return obj.items;
+  }catch(e){ return null; }
+}
+function cacheSet(key, items){
+  try{ sessionStorage.setItem("ic_layer_"+key, JSON.stringify({at:Date.now(), items})); }catch(e){}
+}
 
 /* ============ Состояние ============ */
 const S = {
   lang:"ru", profile:"wheelchair_manual", theme:"light", font:"normal",
-  contrast:"normal", motion:"on", voice:"on", view:"map"
+  contrast:"normal", motion:"on", voice:"on", view:"map", basemap:"osm"
 };
 let map, routeLayer, reportLayer, userMarker;
 const layerState = {};
-let pickMode=null, reportLatLng=null, userLatLng=null, sosLatLng=null;
-let lastRoute=null, lastSteps=[], lastComplaintPoint=null;
+let pickMode=null, reportLatLng=null, userLatLng=null, sosLatLng=null, pickedLatLng=null;
+let lastRoute=null, lastSteps=[], lastComplaintPoint=null, lastAnalysis=null;
 
 const PRESETS = {
   "Площадь Республики":[43.23895,76.94575],
@@ -591,7 +759,18 @@ function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") sto
 function setLang(v){
   S.lang=v; store("lang",v);
   document.getElementById("langSel").value=v;
-  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); applyAll(); renderNearby();
+  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect();
+  applyAll();
+  // перерисовываем метки, чтобы названия объектов сменили язык
+  LAYERS.forEach(def=>{ const st=layerState[def.key]; if(st && st.on) drawLayer(def, st); });
+  acCache.clear();
+  renderNearby(); showReports();
+  // маршрут пересобираем из сохранённого разбора, ничего не запрашивая заново
+  if(lastRoute && lastAnalysis){
+    const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
+    renderRouteCard(lastRoute.rt, mins, lastAnalysis.ob, lastAnalysis.slope);
+    renderRouteList(lastRoute.rt, mins, lastAnalysis.ob, lastAnalysis.slope);
+  }
 }
 function setProfile(v){
   S.profile=v; store("profile",v);
@@ -603,11 +782,18 @@ function setProfile(v){
                     `Max slope ${p.maxSlope}%` + (noLimit? ". Steps don't block the route — we warn about them separately." : `, threshold up to ${p.maxStep} cm.`);
   if(p.textFirst && S.view==="map"){ setView("list"); }
 }
+function locale(){ return S.lang==="kk" ? "kk-KZ" : S.lang==="en" ? "en-US" : "ru-RU"; }
 function renderTexts(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const k=el.getAttribute("data-i18n");
     const val=t(k);
     if(val) el.textContent=val;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const v=t(el.getAttribute("data-i18n-ph")); if(v) el.placeholder=v;
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>{
+    const v=t(el.getAttribute("data-i18n-aria")); if(v){ el.setAttribute("aria-label",v); el.setAttribute("title",v); }
   });
   const vt=document.getElementById("viewToggle");
   vt.querySelector("span").textContent = S.view==="map"? t("viewList") : t("viewMap");
@@ -639,11 +825,10 @@ function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
   map=L.map("map",{zoomControl:false}).setView([43.2383,76.9455],13);
   L.control.zoom({position:"bottomright"}).addTo(map);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,
-    attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
+  map.on("moveend zoomend",()=>updateSearchHere());
   mapReady=true;
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
@@ -652,8 +837,8 @@ function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-po
 function onMapClick(e){
   if(!pickMode) return;
   if(pickMode==="destination"){
-    PRESETS["Точка на карте"]=[e.latlng.lat,e.latlng.lng];
-    document.getElementById("destination").value="Точка на карте";
+    pickedLatLng=[e.latlng.lat,e.latlng.lng];
+    document.getElementById("destination").value=t("mapPoint");
     pickMode=null; toast(t("geoOk"));
   } else if(pickMode==="report"){
     reportLatLng=e.latlng;
@@ -676,45 +861,100 @@ function buildLayerBar(){
     bar.appendChild(b);
   });
 }
+function chipBusy(key, busy){
+  const c=document.getElementById("chip-"+key);
+  if(!c) return;
+  c.setAttribute("aria-busy", String(busy));
+  c.disabled = busy;
+  c.classList.toggle("loading", busy);
+}
+function layerLabel(def){ return def[S.lang] || def.ru; }
+
+function drawLayer(def, st){
+  if(!mapReady || !st.group) return;
+  st.group.clearLayers();
+  st.items.forEach(it=>{
+    const nm=poiName(it.tags, layerLabel(def));
+    L.marker([it.lat,it.lon],{icon:dotIcon(def.color), alt:nm})
+     .addTo(st.group)
+     .bindPopup(`<b>${esc(nm)}</b><div class="facts">${tagFacts(it.tags)}</div>`);
+  });
+}
+
+async function loadLayer(key, {force}={}){
+  const def=LAYERS.find(x=>x.key===key);
+  const st=layerState[key];
+  const bb=viewBbox();
+  const cacheKey=key+"|"+bb;
+  if(!force){
+    const hit=cacheGet(cacheKey);
+    if(hit){ st.items=hit; st.bbox=bb; drawLayer(def,st); return {ok:true, count:hit.length, cached:true}; }
+  }
+  chipBusy(key,true);
+  try{
+    const q=`[out:json][timeout:20];(${def.q(bb)});out center tags 250;`;
+    const d=await overpassQuery(q);
+    st.items=(d.elements||[]).map(e=>({
+      lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}
+    })).filter(x=>x.lat&&x.lon);
+    st.bbox=bb;
+    cacheSet(cacheKey, st.items);
+    drawLayer(def,st);
+    return {ok:true, count:st.items.length};
+  }catch(e){
+    return {ok:false, error:e};
+  }finally{ chipBusy(key,false); }
+}
+
 async function toggleLayer(key){
   const def=LAYERS.find(x=>x.key===key);
-  let st=layerState[key];
-  if(!st){ st=layerState[key]={on:false,loaded:false,items:[],group:mapReady?L.layerGroup():null}; }
+  if(!layerState[key]) layerState[key]={on:false,items:[],bbox:null,group:mapReady?L.layerGroup():null};
+  const st=layerState[key];
+  const chip=document.getElementById("chip-"+key);
+
   if(st.on){
-    st.on=false; if(mapReady&&st.group) map.removeLayer(st.group);
-    document.getElementById("chip-"+key).setAttribute("aria-pressed","false");
-    renderNearby(); return;
+    st.on=false;
+    if(mapReady&&st.group) map.removeLayer(st.group);
+    chip.setAttribute("aria-pressed","false");
+    renderNearby(); updateSearchHere(); return;
+  }
+
+  if(mapReady && map.getZoom() < MIN_LAYER_ZOOM){ toast(t("zoomIn")); return; }
+
+  const res=await loadLayer(key);
+  if(!res.ok){
+    chip.setAttribute("aria-pressed","false");
+    toast(t("layerFail"));
+    return;
   }
   st.on=true;
-  document.getElementById("chip-"+key).setAttribute("aria-pressed","true");
-  if(!st.loaded){
-    toast(t("loadingLayer"));
-    try{
-      const q=`[out:json][timeout:25];(${def.q});out center tags 300;`;
-      const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:q});
-      const d=await r.json();
-      st.items=(d.elements||[]).map(e=>({
-        lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}
-      })).filter(x=>x.lat&&x.lon);
-      st.loaded=true;
-      if(mapReady){
-        st.items.forEach(it=>{
-          L.marker([it.lat,it.lon],{icon:dotIcon(def.color),
-            alt:(it.tags.name||def[S.lang]||def.ru)})
-           .addTo(st.group)
-           .bindPopup(`<b>${esc(it.tags.name||def[S.lang]||def.ru)}</b><div class="facts">${tagFacts(it.tags)}</div>`);
-        });
-      }
-      toast(t("found")+st.items.length);
-      if(!st.items.length) toast(t("layerEmpty"));
-    }catch(e){
-      st.on=false; st.loaded=false;
-      document.getElementById("chip-"+key).setAttribute("aria-pressed","false");
-      toast(t("layerFail")); return;
-    }
-  }
+  chip.setAttribute("aria-pressed","true");
   if(mapReady&&st.group) st.group.addTo(map);
-  renderNearby();
+  toast(res.count ? `${layerLabel(def)}: ${res.count}` : t("layerEmpty"));
+  renderNearby(); updateSearchHere();
+}
+
+// Кнопка «искать в этой области» — как в 2ГИС: данные не тянутся при каждом
+// сдвиге карты, пользователь сам решает, когда обновить видимую область.
+function activeLayers(){ return LAYERS.filter(d=>layerState[d.key] && layerState[d.key].on); }
+function updateSearchHere(){
+  const btn=document.getElementById("searchHere");
+  if(!btn) return;
+  const act=activeLayers();
+  const moved=act.some(d=>layerState[d.key].bbox && layerState[d.key].bbox!==viewBbox());
+  btn.hidden = !(act.length && moved && S.view==="map");
+}
+async function searchThisArea(){
+  const act=activeLayers();
+  if(!act.length) return;
+  if(mapReady && map.getZoom() < MIN_LAYER_ZOOM){ toast(t("zoomIn")); return; }
+  let total=0, failed=0;
+  for(const def of act){
+    const r=await loadLayer(def.key,{force:false});
+    if(r.ok) total+=r.count; else failed++;
+  }
+  toast(failed ? t("layerFail") : `${t("found")}${total}`);
+  renderNearby(); updateSearchHere();
 }
 function tagFacts(tg){
   const f=[];
@@ -745,7 +985,7 @@ function renderNearby(){
     const st=layerState[def.key];
     if(!st||!st.on) return;
     st.items.forEach(it=>{
-      rows.push({name:it.tags.name||def[S.lang]||def.ru, cat:def[S.lang]||def.ru, color:def.color,
+      rows.push({name:poiName(it.tags, layerLabel(def)), cat:layerLabel(def), color:def.color,
         d:haversine(center,[it.lat,it.lon]), dir:bearingWord(center,[it.lat,it.lon]), tags:it.tags, ll:[it.lat,it.lon]});
     });
   });
@@ -762,12 +1002,100 @@ function renderNearby(){
   document.getElementById("listPois").innerHTML=`<div class="card"><h2>${esc(t("nearbyTitle"))}</h2>${html}</div>`;
 }
 
+/* ============ Подсказки при вводе места ============
+ * Nominatim просит не чаще запроса в секунду — поэтому ввод «придерживаем»
+ * на 400 мс, а результаты кэшируем. Список управляется с клавиатуры.
+ */
+const SELECTED={};
+const acCache=new Map();
+async function acSearch(q){
+  const key=S.lang+"|"+q.toLowerCase();
+  if(acCache.has(key)) return acCache.get(key);
+  const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1`
+    +`&bounded=1&viewbox=76.75,43.36,77.12,43.16&accept-language=${S.lang}&q=${encodeURIComponent(q+", Алматы")}`;
+  const r=await fetch(url,{headers:{"Accept-Language":S.lang}});
+  if(!r.ok) throw new Error("geocoder");
+  const d=await r.json();
+  const out=d.map(x=>{
+    const parts=String(x.display_name||"").split(",").map(s=>s.trim());
+    return { title: x.name || parts[0] || "", sub: parts.slice(1,3).join(", "), ll:[Number(x.lat),Number(x.lon)] };
+  }).filter(x=>x.title);
+  acCache.set(key,out);
+  return out;
+}
+function attachAutocomplete(inputId){
+  const input=document.getElementById(inputId);
+  const list=document.getElementById("ac-"+inputId);
+  if(!input||!list) return;
+  let items=[], idx=-1, timer=null, seq=0;
+
+  const close=()=>{ list.hidden=true; input.setAttribute("aria-expanded","false");
+                    input.removeAttribute("aria-activedescendant"); idx=-1; };
+  const paint=()=>{
+    list.innerHTML=items.map((it,i)=>
+      `<li class="ac-item" role="option" id="ac-${inputId}-${i}" aria-selected="${i===idx}" data-i="${i}">`+
+      `<b>${esc(it.title)}</b>${it.sub?`<span class="sub">${esc(it.sub)}</span>`:""}</li>`).join("");
+    list.hidden=!items.length;
+    input.setAttribute("aria-expanded", String(!!items.length));
+    if(idx>=0) input.setAttribute("aria-activedescendant",`ac-${inputId}-${idx}`);
+    else input.removeAttribute("aria-activedescendant");
+  };
+  const choose=i=>{
+    const it=items[i]; if(!it) return;
+    input.value=it.title; SELECTED[inputId]={text:it.title, ll:it.ll};
+    close();
+  };
+  const query=async()=>{
+    const q=input.value.trim();
+    if(q.length<2){ items=[]; paint(); return; }
+    const local=Object.keys(PRESETS).filter(k=>k.toLowerCase().includes(q.toLowerCase()))
+                  .slice(0,3).map(k=>({title:k, sub:"", ll:PRESETS[k]}));
+    const my=++seq;
+    try{
+      const remote=await acSearch(q);
+      if(my!==seq) return;
+      const seen=new Set(local.map(x=>x.title.toLowerCase()));
+      items=local.concat(remote.filter(x=>!seen.has(x.title.toLowerCase()))).slice(0,7);
+    }catch(e){ if(my!==seq) return; items=local; }
+    idx=-1; paint();
+  };
+
+  input.addEventListener("input",()=>{
+    delete SELECTED[inputId];
+    clearTimeout(timer); timer=setTimeout(query,400);
+  });
+  input.addEventListener("keydown",e=>{
+    if(list.hidden && e.key==="ArrowDown"){ query(); return; }
+    if(list.hidden) return;
+    if(e.key==="ArrowDown"){ e.preventDefault(); idx=(idx+1)%items.length; paint(); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); idx=(idx-1+items.length)%items.length; paint(); }
+    else if(e.key==="Enter"){ if(idx>=0){ e.preventDefault(); choose(idx); } }
+    else if(e.key==="Escape"){ close(); }
+  });
+  list.addEventListener("mousedown",e=>{
+    const li=e.target.closest(".ac-item"); if(!li) return;
+    e.preventDefault(); choose(Number(li.dataset.i));
+  });
+  input.addEventListener("blur",()=>setTimeout(close,150));
+}
+// Если пользователь выбрал подсказку и не менял текст — берём её координаты
+function fieldCoords(inputId){
+  const sel=SELECTED[inputId];
+  const val=document.getElementById(inputId).value.trim();
+  return (sel && sel.text===val) ? sel.ll : null;
+}
+
 /* ============ Геокодирование ============ */
 function presetFor(v){
   const k=Object.keys(PRESETS).find(x=>x.toLowerCase()===String(v).trim().toLowerCase());
   return k?PRESETS[k]:null;
 }
 async function findPlace(v){
+  const val=String(v).trim();
+  // «Точка на карте» и «Моё местоположение» — на любом из трёх языков
+  const anyLang = k => ["ru","kk","en"].map(l=>I18N[l][k]).filter(Boolean);
+  if(pickedLatLng && anyLang("mapPoint").some(x=>x.toLowerCase()===val.toLowerCase())) return pickedLatLng;
+  if(userLatLng && anyLang("myLocation").some(x=>x.toLowerCase()===val.toLowerCase())) return userLatLng;
   const p=presetFor(v); if(p) return p;
   const q=encodeURIComponent(`${v}, Алматы, Казахстан`);
   const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=76.75,43.36,77.12,43.16&q=${q}`,
@@ -784,8 +1112,9 @@ async function buildRoute(){
   const card=document.getElementById("routeCard");
   card.innerHTML=`<h2>${esc(t("building"))}</h2>`;
   try{
-    const a = userLatLng || await findPlace(document.getElementById("start").value);
-    const b = await findPlace(document.getElementById("destination").value);
+    const startSel = fieldCoords("start");
+    const a = startSel || userLatLng || await findPlace(document.getElementById("start").value);
+    const b = fieldCoords("destination") || await findPlace(document.getElementById("destination").value);
     const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
     const r=await fetch(url); const d=await r.json();
     if(d.code!=="Ok"||!d.routes.length) throw new Error("route");
@@ -810,6 +1139,7 @@ async function buildRoute(){
       <p class="small muted">${esc(t("checking"))}</p>`;
 
     const [obstacles, slope] = await Promise.all([ checkObstacles(pts), checkSlope(pts) ]);
+    lastAnalysis={ob:obstacles, slope};
     renderRouteCard(rt,mins,obstacles,slope);
     renderRouteList(rt,mins,obstacles,slope);
     if(S.voice==="on") speakRoute();
@@ -878,7 +1208,7 @@ function obstacleFacts(ob,slope){
   if(ob.ok){
     if(ob.stairs.length){
       const noRamp=ob.stairs.filter(s=>!s.ramp).length;
-      f.push(`<span class="fact ${prof.avoidStairs?"bad":"warn"}">${esc(t("warnStairs"))}${ob.stairs.length}${noRamp?" (без пандуса: "+noRamp+")":""}</span>`);
+      f.push(`<span class="fact ${prof.avoidStairs?"bad":"warn"}">${esc(t("warnStairs"))}${ob.stairs.length}${noRamp?` (${esc(t("noRamp"))}: ${noRamp})`:""}</span>`);
     } else f.push(`<span class="fact good">${esc(t("okNoStairs"))}</span>`);
     if(ob.tunnels.length) f.push(`<span class="fact warn">${esc(t("warnTunnel"))}${ob.tunnels.length}</span>`);
   }
@@ -888,15 +1218,50 @@ function obstacleFacts(ob,slope){
   } else f.push(`<span class="fact">${esc(t("noElev"))}</span>`);
   return f.join("");
 }
+/* Манёвры OSRM на трёх языках. Фразы строятся по грамматике каждого языка,
+   а не подстановкой слов в русский шаблон — иначе казахский звучит ломано. */
+const MOD_WORDS = {
+ ru:{left:"налево",right:"направо","slight left":"плавно налево","slight right":"плавно направо",
+     "sharp left":"резко налево","sharp right":"резко направо",straight:"прямо",uturn:"назад"},
+ kk:{left:"солға",right:"оңға","slight left":"сәл солға","slight right":"сәл оңға",
+     "sharp left":"күрт солға","sharp right":"күрт оңға",straight:"тіке",uturn:"кері"},
+ en:{left:"left",right:"right","slight left":"slightly left","slight right":"slightly right",
+     "sharp left":"sharply left","sharp right":"sharply right",straight:"straight",uturn:"around"}
+};
+function fmtDist(d){
+  return d>=1000 ? `${(d/1000).toFixed(1)} ${t("km")}` : `${d} ${t("m")}`;
+}
+function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function stepText(s,i){
-  const dir={left:"налево",right:"направо",straight:"прямо","slight left":"плавно налево","slight right":"плавно направо"};
-  const dirKk={left:"солға",right:"оңға",straight:"тура"};
-  const dirEn={left:"left",right:"right",straight:"straight"};
-  const m = S.lang==="kk"?dirKk : S.lang==="en"?dirEn : dir;
-  const turn = m[s.mod]||"";
-  const road = s.name? (S.lang==="en"?` along ${s.name}`:S.lang==="kk"?` ${s.name} бойымен`:` по ${s.name}`) : "";
-  const go = S.lang==="en"?`Go ${s.dist} m`: S.lang==="kk"?`${s.dist} м жүріңіз`:`Пройдите ${s.dist} м`;
-  return `${i+1}. ${go}${road}${turn?", "+turn:""}`;
+  const L=S.lang, name=s.name||"", dist=fmtDist(s.dist);
+  const mod=(MOD_WORDS[L]||MOD_WORDS.ru)[s.mod]||"";
+  const turning = mod && s.mod!=="straight" && s.type!=="depart";
+  const n = `${i+1}. `;
+  let phrase;
+  if(s.type==="arrive"){
+    phrase = L==="kk" ? "сіз межелі жерге жеттіңіз" : L==="en" ? "you have arrived" : "вы на месте";
+    return n + cap(phrase);
+  }
+  if(s.type==="depart"){
+    // Названия улиц не склоняем: «по проспект Абылай хана» звучит неграмотно,
+    // а правильно склонять произвольные топонимы на клиенте нечем. Поэтому
+    // ставим название после тире — так фраза корректна в любом падеже.
+    if(L==="kk") phrase = name ? `${name} бойымен жүріңіз — ${dist}` : `жүруді бастаңыз — ${dist}`;
+    else if(L==="en") phrase = name ? `head along ${name} — ${dist}` : `start walking — ${dist}`;
+    else phrase = name ? `начните движение — ${name}, ${dist}` : `начните движение — ${dist}`;
+    return n + cap(phrase);
+  }
+  if(L==="kk"){
+    const verb = turning ? `${mod} бұрылыңыз` : "тіке жүре беріңіз";
+    phrase = name ? `${verb} — ${name}, ${dist}` : `${verb} — ${dist}`;
+  } else if(L==="en"){
+    const verb = turning ? `turn ${mod}` : "continue straight";
+    phrase = name ? `${verb} onto ${name} — ${dist}` : `${verb} — ${dist}`;
+  } else {
+    const verb = turning ? `поверните ${mod}` : "продолжайте движение";
+    phrase = name ? `${verb} — ${name}, ${dist}` : `${verb} — ${dist}`;
+  }
+  return n + cap(phrase);
 }
 function renderRouteCard(rt,mins,ob,slope){
   document.getElementById("routeCard").innerHTML=`
@@ -918,15 +1283,46 @@ function renderRouteList(rt,mins,ob,slope){
     </div>`;
 }
 
-/* ============ Речь ============ */
-function speakRoute(){
+/* ============ Речь ============
+ * Браузеру мало указать lang: если голоса для языка нет, он молча читает
+ * чужим. Поэтому голос выбираем явно, а о подмене честно предупреждаем.
+ */
+const BCP = { ru:"ru-RU", kk:"kk-KZ", en:"en-US" };
+let voicesReady=false;
+function loadVoices(){
   if(!("speechSynthesis" in window)) return;
+  const apply=()=>{ voicesReady = speechSynthesis.getVoices().length>0; };
+  apply();
+  speechSynthesis.onvoiceschanged = apply;
+}
+function pickVoice(lang){
+  if(!("speechSynthesis" in window)) return {voice:null, fallback:false};
+  const voices=speechSynthesis.getVoices()||[];
+  const want = lang==="kk" ? ["kk-kz","kk"] : lang==="en" ? ["en-us","en-gb","en"] : ["ru-ru","ru"];
+  for(const w of want){
+    const v=voices.find(v=>v.lang && v.lang.toLowerCase().replace("_","-").startsWith(w));
+    if(v) return {voice:v, fallback:false};
+  }
+  // Казахских голосов в браузерах почти нет. Русский голос читает кириллицу
+  // ближе к казахской фонетике, чем английский, — используем его как запасной.
+  if(lang==="kk"){
+    const ru=voices.find(v=>/^ru/i.test(v.lang));
+    if(ru) return {voice:ru, fallback:true};
+  }
+  return {voice:null, fallback:false};
+}
+function speakRoute(){
+  if(!("speechSynthesis" in window)){ toast(t("voiceNo")); return; }
   stopSpeak();
   const lines=lastSteps.map((s,i)=>stepText(s,i));
   if(!lines.length) return;
+  const {voice, fallback} = pickVoice(S.lang);
   const u=new SpeechSynthesisUtterance(lines.join(". "));
-  u.lang = S.lang==="kk"?"kk-KZ": S.lang==="en"?"en-US":"ru-RU";
+  u.lang = BCP[S.lang] || "ru-RU";
+  if(voice) u.voice=voice;
   u.rate=0.95;
+  if(fallback) toast(t("voiceFallback"));
+  else if(!voice) toast(t("voiceMissing"));
   speechSynthesis.speak(u);
 }
 function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
@@ -934,7 +1330,7 @@ function voiceInput(fieldId){
   const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){ toast(t("voiceNo")); return; }
   const rec=new SR();
-  rec.lang = S.lang==="kk"?"kk-KZ": S.lang==="en"?"en-US":"ru-RU";
+  rec.lang = BCP[S.lang] || "ru-RU";
   rec.interimResults=false; rec.maxAlternatives=1;
   rec.onresult=e=>{ document.getElementById(fieldId).value=e.results[0][0].transcript; };
   rec.onerror=()=>toast(t("geoFail"));
@@ -947,7 +1343,7 @@ function locateUser(){
   if(!navigator.geolocation){ toast(t("geoOff")); return; }
   navigator.geolocation.getCurrentPosition(p=>{
     userLatLng=[p.coords.latitude,p.coords.longitude];
-    document.getElementById("start").value = S.lang==="en"?"My location": S.lang==="kk"?"Менің орным":"Моё местоположение";
+    document.getElementById("start").value = t("myLocation");
     if(mapReady){
       if(userMarker) map.removeLayer(userMarker);
       userMarker=L.marker(userLatLng,{icon:divIcon("pin-me",18),alt:t("you")}).addTo(map).bindPopup(t("you"));
@@ -974,7 +1370,7 @@ async function showReports(){
          <p>${esc(rep.comment)}</p>
          <div class="facts">${badge}${rep.season==="winter"?'<span class="fact">❄</span>':""}</div>
          <button class="btn-sm" style="margin-top:8px" onclick="verifyReport('${esc(rep.id)}')">${esc(t("verify"))}</button>
-         <small class="muted">${new Date(rep.createdAt).toLocaleDateString()}</small>`);
+         <small class="muted">${new Date(rep.createdAt).toLocaleDateString(locale())}</small>`);
     });
   }catch(e){}
 }
@@ -1084,6 +1480,7 @@ function toast(s){
   S.font=read("font","normal"); S.contrast=read("contrast","normal");
   S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
   S.voice=read("voice","on"); S.view=read("view","map");
+  S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
   document.getElementById("langSel").value=S.lang;
   // Карта — не обязательное условие работы приложения: если Leaflet не загрузился
   // (заблокирован CDN, медленная сеть), приложение продолжает работать в текстовом
@@ -1093,9 +1490,15 @@ function toast(s){
     mapReady=false;
     S.view="list";
     document.getElementById("map").innerHTML =
-      `<div style="padding:20px"><p class="banner warn">Карта недоступна — работаем в текстовом режиме.</p></div>`;
+      `<div style="padding:20px"><p class="banner warn">${esc(t("mapFail"))}</p></div>`;
   }
-  buildProfileSelect(); buildBarrierSelect(); buildLayerBar();
+  loadVoices();
+  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect();
+  // Каждый шаг изолирован: сбой одного не должен оставить приложение
+  // наполовину настроенным (так однажды отвалились подсказки поиска).
+  const step=(name,fn)=>{ try{ fn(); }catch(e){ console.error("init step failed:",name,e); } };
+  step("basemap", ()=>setBasemap(S.basemap));
+  step("autocomplete", ()=>{ attachAutocomplete("start"); attachAutocomplete("destination"); });
   applyAll();
   showReports(); renderNearby();
   if(!navigator.onLine) toast(t("offline"));
