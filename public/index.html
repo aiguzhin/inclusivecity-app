@@ -132,14 +132,31 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
 }
 .basemap-ctl{
   position:absolute;z-index:501;left:10px;bottom:16px;display:flex;align-items:center;gap:6px;
-  background:var(--card);border:1px solid var(--line);border-radius:10px;
-  box-shadow:var(--shadow);padding:2px 4px 2px 9px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  box-shadow:var(--shadow);padding:4px;flex-wrap:wrap;max-width:calc(100% - 20px);
 }
-.basemap-ico{font-size:1rem;line-height:1}
+.basemap-quick{display:flex;gap:4px}
+.basemap-quick button{
+  min-height:36px;padding:6px 11px;border-radius:9px;font-size:.85rem;font-weight:750;
+  background:transparent;color:var(--ink);border:1px solid transparent;white-space:nowrap;
+}
+.basemap-quick button[aria-pressed="true"]{background:var(--blue-weak);color:var(--blue-ink);border-color:var(--blue)}
 .basemap-ctl select{
-  width:auto;min-height:38px;padding:6px 8px;border-radius:8px;font-size:.85rem;font-weight:700;
-  background:transparent;border:0;color:var(--ink);
+  width:auto;min-height:36px;padding:6px 8px;border-radius:9px;font-size:.85rem;font-weight:700;
+  background:transparent;border:1px solid var(--line);color:var(--ink);
 }
+
+/* Погода */
+.weather{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.weather .ico{font-size:2rem;line-height:1}
+.weather .temp{font-size:1.6rem;font-weight:850;letter-spacing:-1px}
+.weather .cond{font-size:.9rem}
+.weather .meta{font-size:.8rem;color:var(--ink-soft)}
+.weather-warn{
+  margin-top:10px;border-radius:10px;padding:9px 11px;font-size:.85rem;
+  background:var(--amber-weak);color:var(--amber);
+}
+.weather-warn.ice{background:var(--red-weak);color:var(--red);font-weight:700}
 .ac-wrap{position:relative;flex:1;min-width:0}
 .ac-list{
   position:absolute;z-index:700;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;
@@ -226,6 +243,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
     <h1 class="title" data-i18n="title">Передвигайтесь по Алматы увереннее</h1>
 
+    <div class="card" id="weatherCard" aria-live="polite">
+      <h2 data-i18n="weatherTitle">Погода в Алматы</h2>
+      <p class="small muted" data-i18n="weatherLoading">Загружаем погоду…</p>
+    </div>
+
     <div class="card">
       <h2 data-i18n="profileTitle">Ваш профиль передвижения</h2>
       <p class="small muted" data-i18n="profileHelp">От него зависят предупреждения о склонах, ступенях и порогах.</p>
@@ -284,8 +306,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <div class="layerbar" id="layerbar" role="group" aria-label="Слои объектов на карте"></div>
     <button id="searchHere" class="search-here" hidden onclick="searchThisArea()" data-i18n="searchHere">Искать в этой области</button>
     <div class="basemap-ctl">
+      <div class="basemap-quick" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты">
+        <button type="button" id="quickOsm" onclick="setBasemap('osm')" aria-pressed="true">
+          <span aria-hidden="true">🗺</span> <span data-i18n="mapPlain">Схема</span>
+        </button>
+        <button type="button" id="quickSat" onclick="setBasemap('sat')" aria-pressed="false">
+          <span aria-hidden="true">🛰</span> <span data-i18n="mapSat">Спутник</span>
+        </button>
+      </div>
       <label class="sr" for="basemapSel" data-i18n="basemapLabel">Вид карты</label>
-      <span class="basemap-ico" aria-hidden="true">🗺</span>
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
     <div id="map" role="application" aria-label="Карта Алматы"></div>
@@ -423,6 +452,18 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 const I18N = {
 ru:{
  basemapLabel:"Вид карты", acNoResults:"Ничего не найдено",
+ mapPlain:"Схема", mapSat:"Спутник",
+ weatherTitle:"Погода в Алматы", weatherLoading:"Загружаем погоду…",
+ weatherFail:"Погода сейчас недоступна", weatherFeels:"ощущается", weatherWind:"ветер",
+ weatherKmh:"км/ч",
+ weatherUpd:"Обновить", weatherWhy:"Что это значит для передвижения",
+ wxIce:"Возможен гололёд: пандусы и тактильная плитка становятся скользкими. Заложите время с запасом.",
+ wxSnow:"Снег: пандусы и бордюры могут быть не расчищены, колёса вязнут.",
+ wxRain:"Дождь: наклонные пандусы и металлические решётки скользкие.",
+ wxHeat:"Жара: планируйте маршрут по тени и с остановками.",
+ wxCold:"Сильный мороз: сократите время на улице, руки на ободах мёрзнут быстро.",
+ wxWind:"Сильный ветер: тяжело управлять коляской и удерживать равновесие.",
+ wxOk:"Погода не создаёт дополнительных препятствий.",
  skip:"Перейти к содержимому", eyebrow:"Маршрут и доступность", title:"Передвигайтесь по Алматы увереннее",
  from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
@@ -470,6 +511,18 @@ ru:{
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
+ mapPlain:"Сызба", mapSat:"Спутник",
+ weatherTitle:"Алматыдағы ауа райы", weatherLoading:"Ауа райы жүктелуде…",
+ weatherFail:"Ауа райы қазір қолжетімсіз", weatherFeels:"сезіледі", weatherWind:"жел",
+ weatherKmh:"км/сағ",
+ weatherUpd:"Жаңарту", weatherWhy:"Бұл жүріп-тұруға қалай әсер етеді",
+ wxIce:"Көктайғақ болуы мүмкін: пандустар мен тактильді плитка тайғақ болады. Уақытты қормен жоспарлаңыз.",
+ wxSnow:"Қар: пандустар мен бордюрлер тазаланбауы мүмкін, дөңгелектер батады.",
+ wxRain:"Жаңбыр: еңіс пандустар мен металл торлар тайғақ.",
+ wxHeat:"Ыстық: бағытты көлеңкемен және аялдамалармен жоспарлаңыз.",
+ wxCold:"Қатты аяз: далада аз болыңыз, қол тез тоңады.",
+ wxWind:"Қатты жел: арбаны басқару және тепе-теңдікті сақтау қиын.",
+ wxOk:"Ауа райы қосымша кедергі жасамайды.",
  skip:"Негізгі мазмұнға өту", eyebrow:"Бағыт және қолжетімділік", title:"Алматы қаласында еркін жүріңіз",
  from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан таңдау",
  hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
@@ -518,6 +571,18 @@ kk:{
 },
 en:{
  basemapLabel:"Map type", acNoResults:"Nothing found",
+ mapPlain:"Map", mapSat:"Satellite",
+ weatherTitle:"Weather in Almaty", weatherLoading:"Loading weather…",
+ weatherFail:"Weather is unavailable right now", weatherFeels:"feels like", weatherWind:"wind",
+ weatherKmh:"km/h",
+ weatherUpd:"Refresh", weatherWhy:"What this means for getting around",
+ wxIce:"Ice is likely: ramps and tactile paving turn slippery. Allow extra time.",
+ wxSnow:"Snow: ramps and kerb cuts may not be cleared, wheels sink in.",
+ wxRain:"Rain: sloped ramps and metal grates are slippery.",
+ wxHeat:"Heat: plan a shaded route with stops.",
+ wxCold:"Hard frost: keep outdoor time short, hands on rims get cold fast.",
+ wxWind:"Strong wind: hard to steer a wheelchair and keep balance.",
+ wxOk:"Weather adds no extra obstacles.",
  skip:"Skip to main content", eyebrow:"Routes and accessibility", title:"Get around Almaty with confidence",
  from:"From", to:"To", build:"Build route", pick:"Pick on map",
  hint:"Type a place, pick a point on the map, or use your location.",
@@ -673,6 +738,7 @@ function setBasemap(key){
   if(!BASEMAPS[key]) key="osm";
   S.basemap=key; store("basemap",key);
   const sel=document.getElementById("basemapSel"); if(sel) sel.value=key;
+  syncBasemapButtons(key);
   if(!mapReady) return;
   const def=BASEMAPS[key];
   if(baseLayer) map.removeLayer(baseLayer);
@@ -684,6 +750,116 @@ function setBasemap(key){
     if(baseOverlay.setZIndex) baseOverlay.setZIndex(1);
   }
 }
+// Быстрый переключатель «схема / спутник»: обычный спутник — sat, а не satlab,
+// потому что подписей на нём нет и он читается спокойнее.
+function syncBasemapButtons(key){
+  // Подсвечиваем только точное совпадение: на «Рельефе» ни одна кнопка не активна,
+  // иначе подсказка врала бы о текущем виде карты.
+  const isSat = key==="sat" || key==="satlab";
+  const isPlain = key==="osm" || key==="light" || key==="dark";
+  const o=document.getElementById("quickOsm"), t2=document.getElementById("quickSat");
+  if(o) o.setAttribute("aria-pressed", String(isPlain));
+  if(t2) t2.setAttribute("aria-pressed", String(isSat));
+}
+
+/* ============ Погода ============
+   Показываем не ради красоты: гололёд, снег и дождь напрямую меняют,
+   можно ли проехать по пандусу. Open-Meteo без ключа и без регистрации. */
+const WX = {
+  0:{ru:"Ясно",kk:"Ашық",en:"Clear",i:"☀️"},
+  1:{ru:"Преимущественно ясно",kk:"Негізінен ашық",en:"Mostly clear",i:"🌤"},
+  2:{ru:"Переменная облачность",kk:"Ауыспалы бұлттылық",en:"Partly cloudy",i:"⛅"},
+  3:{ru:"Пасмурно",kk:"Бұлтты",en:"Overcast",i:"☁️"},
+  45:{ru:"Туман",kk:"Тұман",en:"Fog",i:"🌫"},
+  48:{ru:"Изморозь",kk:"Қырау",en:"Rime fog",i:"🌫"},
+  51:{ru:"Морось",kk:"Сіркіреуік",en:"Light drizzle",i:"🌦"},
+  53:{ru:"Морось",kk:"Сіркіреуік",en:"Drizzle",i:"🌦"},
+  55:{ru:"Сильная морось",kk:"Қатты сіркіреуік",en:"Heavy drizzle",i:"🌧"},
+  56:{ru:"Ледяная морось",kk:"Мұзды сіркіреуік",en:"Freezing drizzle",i:"🌧"},
+  57:{ru:"Ледяная морось",kk:"Мұзды сіркіреуік",en:"Freezing drizzle",i:"🌧"},
+  61:{ru:"Небольшой дождь",kk:"Шағын жаңбыр",en:"Light rain",i:"🌦"},
+  63:{ru:"Дождь",kk:"Жаңбыр",en:"Rain",i:"🌧"},
+  65:{ru:"Сильный дождь",kk:"Қатты жаңбыр",en:"Heavy rain",i:"🌧"},
+  66:{ru:"Ледяной дождь",kk:"Мұзды жаңбыр",en:"Freezing rain",i:"🌧"},
+  67:{ru:"Ледяной дождь",kk:"Мұзды жаңбыр",en:"Freezing rain",i:"🌧"},
+  71:{ru:"Небольшой снег",kk:"Шағын қар",en:"Light snow",i:"🌨"},
+  73:{ru:"Снег",kk:"Қар",en:"Snow",i:"🌨"},
+  75:{ru:"Сильный снег",kk:"Қатты қар",en:"Heavy snow",i:"❄️"},
+  77:{ru:"Снежная крупа",kk:"Қар түйіршігі",en:"Snow grains",i:"🌨"},
+  80:{ru:"Ливень",kk:"Нөсер",en:"Rain showers",i:"🌦"},
+  81:{ru:"Ливень",kk:"Нөсер",en:"Rain showers",i:"🌧"},
+  82:{ru:"Сильный ливень",kk:"Қатты нөсер",en:"Violent showers",i:"🌧"},
+  85:{ru:"Снегопад",kk:"Қар жауу",en:"Snow showers",i:"🌨"},
+  86:{ru:"Сильный снегопад",kk:"Қатты қар жауу",en:"Heavy snow showers",i:"❄️"},
+  95:{ru:"Гроза",kk:"Найзағай",en:"Thunderstorm",i:"⛈"},
+  96:{ru:"Гроза с градом",kk:"Бұршақты найзағай",en:"Thunderstorm with hail",i:"⛈"},
+  99:{ru:"Гроза с градом",kk:"Бұршақты найзағай",en:"Thunderstorm with hail",i:"⛈"}
+};
+let lastWeather=null, weatherAt=0;
+
+function wxWarnings(w){
+  const out=[];
+  const c=w.code, temp=w.temp, prec=w.prec||0, wind=w.wind||0;
+  const freezing = [56,57,66,67].includes(c);
+  const snowy = [71,73,75,77,85,86].includes(c);
+  const rainy = [51,53,55,61,63,65,80,81,82,95,96,99].includes(c);
+  if(freezing || (temp<=2 && temp>=-8 && (prec>0 || snowy || rainy)))
+    out.push({key:"wxIce", ice:true});
+  if(snowy) out.push({key:"wxSnow", ice:true});
+  if(rainy && !freezing) out.push({key:"wxRain"});
+  if(temp>=32) out.push({key:"wxHeat"});
+  if(temp<=-15) out.push({key:"wxCold"});
+  if(wind>=40) out.push({key:"wxWind"});
+  return out;
+}
+
+function renderWeather(){
+  const box=document.getElementById("weatherCard"); if(!box) return;
+  const head=`<h2 data-i18n="weatherTitle">${esc(t("weatherTitle"))}</h2>`;
+  if(!lastWeather){
+    box.innerHTML = head + `<p class="small muted">${esc(t("weatherFail"))}</p>`
+      + `<button type="button" class="btn-ghost btn-sm" onclick="loadWeather(true)">${esc(t("weatherUpd"))}</button>`;
+    return;
+  }
+  const w=lastWeather;
+  const d=WX[w.code] || WX[3];
+  const warns=wxWarnings(w);
+  const rows = warns.length
+    ? `<p class="small muted" style="margin:10px 0 4px">${esc(t("weatherWhy"))}</p>`
+      + warns.map(x=>`<p class="weather-warn${x.ice?" ice":""}">${esc(t(x.key))}</p>`).join("")
+    : `<p class="weather-warn">${esc(t("wxOk"))}</p>`;
+  box.innerHTML = head
+    + `<div class="weather">`
+    +   `<span aria-hidden="true" style="font-size:30px;line-height:1">${d.i}</span>`
+    +   `<div><span class="temp">${Math.round(w.temp)}°</span> `
+    +   `<span>${esc(d[S.lang]||d.ru)}</span><br>`
+    +   `<span class="small muted">${esc(t("weatherFeels"))} ${Math.round(w.feels)}°, `
+    +   `${esc(t("weatherWind"))} ${Math.round(w.wind)} ${esc(t("weatherKmh"))}</span></div>`
+    + `</div>` + rows;
+}
+
+async function loadWeather(force){
+  const box=document.getElementById("weatherCard"); if(!box) return;
+  if(!force && lastWeather && Date.now()-weatherAt < 15*60*1000){ renderWeather(); return; }
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 10000);
+  try{
+    const url="https://api.open-meteo.com/v1/forecast?latitude=43.2383&longitude=76.9455"
+      + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto";
+    const r=await fetch(url,{signal:ctl.signal});
+    if(!r.ok) throw new Error("http "+r.status);
+    const j=await r.json();
+    const c=j.current||{};
+    lastWeather={ temp:Number(c.temperature_2m), feels:Number(c.apparent_temperature),
+                  prec:Number(c.precipitation||0), code:Number(c.weather_code||0),
+                  wind:Number(c.wind_speed_10m||0) };
+    weatherAt=Date.now();
+  }catch(e){
+    console.error("weather failed:", e);
+    lastWeather=null;
+  }finally{ clearTimeout(to); }
+  renderWeather();
+}
+
 function buildBasemapSelect(){
   const sel=document.getElementById("basemapSel"); if(!sel) return;
   sel.innerHTML="";
@@ -774,6 +950,7 @@ function setLang(v){
   // перерисовываем метки, чтобы названия объектов сменили язык
   LAYERS.forEach(def=>{ const st=layerState[def.key]; if(st && st.on) drawLayer(def, st); });
   acCache.clear();
+  renderWeather();
   renderNearby(); showReports();
   // маршрут пересобираем из сохранённого разбора, ничего не запрашивая заново
   if(lastRoute && lastAnalysis){
@@ -1546,6 +1723,7 @@ function toast(s){
   const step=(name,fn)=>{ try{ fn(); }catch(e){ console.error("init step failed:",name,e); } };
   step("basemap", ()=>setBasemap(S.basemap));
   step("autocomplete", ()=>{ attachAutocomplete("start"); attachAutocomplete("destination"); });
+  step("weather", ()=>{ loadWeather(); });
   applyAll();
   showReports(); renderNearby();
   if(!navigator.onLine) toast(t("offline"));
@@ -1556,3 +1734,4 @@ function toast(s){
 })();
 </script>
 </body></html>
+
