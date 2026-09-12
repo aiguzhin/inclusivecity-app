@@ -130,10 +130,15 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
   background:var(--card);color:var(--blue-ink);border:1px solid var(--blue);
   border-radius:99px;padding:9px 16px;box-shadow:var(--shadow);font-size:.85rem;white-space:nowrap;
 }
-.basemap-ctl{position:absolute;z-index:501;left:10px;bottom:16px}
+.basemap-ctl{
+  position:absolute;z-index:501;left:10px;bottom:16px;display:flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow);padding:2px 4px 2px 9px;
+}
+.basemap-ico{font-size:1rem;line-height:1}
 .basemap-ctl select{
-  width:auto;min-height:40px;padding:8px 12px;border-radius:10px;font-size:.85rem;font-weight:700;
-  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink);
+  width:auto;min-height:38px;padding:6px 8px;border-radius:8px;font-size:.85rem;font-weight:700;
+  background:transparent;border:0;color:var(--ink);
 }
 .ac-wrap{position:relative;flex:1;min-width:0}
 .ac-list{
@@ -280,6 +285,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <button id="searchHere" class="search-here" hidden onclick="searchThisArea()" data-i18n="searchHere">Искать в этой области</button>
     <div class="basemap-ctl">
       <label class="sr" for="basemapSel" data-i18n="basemapLabel">Вид карты</label>
+      <span class="basemap-ico" aria-hidden="true">🗺</span>
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
     <div id="map" role="application" aria-label="Карта Алматы"></div>
@@ -611,7 +617,11 @@ const LAYERS = [
  {key:"sound",   color:"#8a2be2", ru:"Звуковые светофоры", kk:"Дыбыстық бағдаршамдар", en:"Audible signals",
   q:bb=>`nwr["traffic_signals:sound"="yes"](${bb});nwr["crossing:signals:sound"="yes"](${bb});`},
  {key:"place",   color:"#0891b2", ru:"Доступные заведения", kk:"Қолжетімді мекемелер", en:"Accessible venues",
-  q:bb=>`nwr["wheelchair"="yes"]["amenity"~"cafe|restaurant|pharmacy|bank|hospital|clinic|library|theatre"](${bb});`}
+  q:bb=>`nwr["wheelchair"="yes"]["amenity"~"cafe|restaurant|pharmacy|bank|hospital|clinic|library|theatre"](${bb});`},
+ {key:"sight",   color:"#d6336c", ru:"Достопримечательности", kk:"Көрікті жерлер", en:"Landmarks",
+  q:bb=>`nwr["tourism"~"attraction|museum|viewpoint|gallery|artwork|zoo|theme_park"](${bb});`
+       +`nwr["historic"~"monument|memorial|castle|building"](${bb});`
+       +`nwr["amenity"~"theatre|arts_centre"](${bb});`}
 ];
 
 // Перебираем зеркала: занятый сервер отвечает 429/504, это не повод показывать ошибку
@@ -1016,12 +1026,31 @@ async function acSearch(q){
   const r=await fetch(url,{headers:{"Accept-Language":S.lang}});
   if(!r.ok) throw new Error("geocoder");
   const d=await r.json();
-  const out=d.map(x=>{
-    const parts=String(x.display_name||"").split(",").map(s=>s.trim());
-    return { title: x.name || parts[0] || "", sub: parts.slice(1,3).join(", "), ll:[Number(x.lat),Number(x.lon)] };
-  }).filter(x=>x.title);
+  const out=d.map(x=>({ ...acLabel(x), ll:[Number(x.lat),Number(x.lon)] })).filter(x=>x.title);
   acCache.set(key,out);
   return out;
+}
+
+// Для адресов Nominatim кладёт в name только номер дома — если взять его как есть,
+// в поле остаётся одинокое «52» без улицы. Поэтому собираем подпись сами.
+function acLabel(x){
+  const a = x.address || {};
+  const parts = String(x.display_name||"").split(",").map(v=>v.trim()).filter(Boolean);
+  const road = a.road || a.pedestrian || a.footway || a.path || a.residential;
+  const onlyNumber = v => /^\d+[A-Za-zА-Яа-я]?([\/-]\d+[A-Za-zА-Яа-я]?)?$/.test(v||"");
+  let title = (x.name || "").trim();
+  if (road && a.house_number) title = `${road}, ${a.house_number}`;
+  else if (!title || onlyNumber(title)) {
+    if (road) title = a.house_number ? `${road}, ${a.house_number}` : road;
+    else if (onlyNumber(parts[0]) && parts[1]) title = `${parts[1]}, ${parts[0]}`;
+    else title = parts[0] || "";
+  }
+  const area = [a.suburb || a.city_district || a.neighbourhood, a.city || a.town || a.village].filter(Boolean);
+  let sub = area.join(", ");
+  if (!sub) sub = parts.filter(v => v && !title.includes(v)).slice(0,2).join(", ");
+  const kind = a.amenity || a.shop || a.tourism;
+  if (kind && !title.toLowerCase().includes(String(kind).toLowerCase())) sub = sub || String(kind);
+  return { title, sub };
 }
 function attachAutocomplete(inputId){
   const input=document.getElementById(inputId);
