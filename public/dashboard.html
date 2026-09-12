@@ -37,70 +37,117 @@ td.num{text-align:right;font-weight:750;font-variant-numeric:tabular-nums}
 #map{height:420px;border-radius:14px;border:1px solid var(--line)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--ink-soft);margin-top:10px}
 .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
-button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 14px;background:var(--blue-weak);
+button,select{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 14px;background:var(--blue-weak);
 color:var(--blue);cursor:pointer;min-height:44px}
+select{border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600}
 .muted{color:var(--ink-soft)}.small{font-size:.85rem}
 .empty{text-align:center;padding:36px 10px;color:var(--ink-soft)}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand">Inclusive<b>City</b> · дашборд</div>
-  <div style="display:flex;gap:10px;align-items:center">
-    <button onclick="toggleTheme()">🌓 Тема</button>
-    <button onclick="exportCsv()">⬇ Экспорт CSV</button>
-    <a class="back" href="/">← К карте</a>
+  <div class="brand">Inclusive<b>City</b> · <span data-i18n="dash">дашборд</span></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <select id="langSel" aria-label="Тіл / Язык / Language" onchange="setLang(this.value)">
+      <option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option>
+    </select>
+    <button onclick="toggleTheme()" data-i18n="theme">🌓 Тема</button>
+    <button onclick="exportCsv()" data-i18n="export">⬇ Экспорт CSV</button>
+    <a class="back" href="/" data-i18n="back">← К карте</a>
   </div>
 </header>
 
 <main>
-  <h1>Барьеры доступности в Алматы</h1>
-  <p class="sub">Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.</p>
+  <h1 data-i18n="title">Барьеры доступности в Алматы</h1>
+  <p class="sub" data-i18n="sub">Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.</p>
 
   <div class="kpis" id="kpis"></div>
 
   <div class="card">
-    <h2>Карта плотности барьеров</h2>
+    <h2 data-i18n="heatTitle">Карта плотности барьеров</h2>
     <div id="map"></div>
     <div class="legend">
-      <span><i class="dot" style="background:#b42318"></i>подтверждённые (3+ подтверждения)</span>
-      <span><i class="dot" style="background:#e8890c"></i>на карте</span>
-      <span><i class="dot" style="background:#1769c2"></i>размер круга — число барьеров рядом</span>
+      <span><i class="dot" style="background:#b42318"></i><span data-i18n="legConfirmed">подтверждённые (3+ подтверждения)</span></span>
+      <span><i class="dot" style="background:#e8890c"></i><span data-i18n="legOnMap">на карте</span></span>
+      <span><i class="dot" style="background:#1769c2"></i><span data-i18n="legSize">размер круга — число барьеров рядом</span></span>
     </div>
   </div>
 
   <div class="card">
-    <h2>Типы барьеров</h2>
-    <table id="byType"><thead><tr><th>Тип</th><th style="text-align:right">Количество</th></tr></thead><tbody></tbody></table>
+    <h2 data-i18n="byType">Типы барьеров</h2>
+    <table id="tblType"><thead><tr><th data-i18n="thType">Тип</th><th style="text-align:right" data-i18n="thCount">Количество</th></tr></thead><tbody></tbody></table>
   </div>
 
   <div class="card">
-    <h2>Характер барьеров</h2>
-    <table id="bySeason"><thead><tr><th>Характер</th><th style="text-align:right">Количество</th></tr></thead><tbody></tbody></table>
-    <p class="small muted" style="margin-top:10px">Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.</p>
+    <h2 data-i18n="bySeason">Характер барьеров</h2>
+    <table id="tblSeason"><thead><tr><th data-i18n="thNature">Характер</th><th style="text-align:right" data-i18n="thCount">Количество</th></tr></thead><tbody></tbody></table>
+    <p class="small muted" style="margin-top:10px" data-i18n="seasonNote">Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.</p>
   </div>
 
   <div class="card">
-    <h2>Как пользоваться этими данными</h2>
-    <p class="small muted">Выгрузите CSV и приложите его к обращению в акимат или используйте для планирования ремонта тротуаров. Каждая строка содержит координаты, тип барьера, число подтверждений жителей и дату.</p>
+    <h2 data-i18n="howTitle">Как пользоваться этими данными</h2>
+    <p class="small muted" data-i18n="howText">Выгрузите CSV и приложите его к обращению в акимат или используйте для планирования ремонта тротуаров. Каждая строка содержит координаты, тип барьера, число подтверждений жителей и дату.</p>
   </div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-let REPORTS=[], map;
-const SEASON={permanent:"Постоянный",winter:"Зимний (снег, наледь)",temporary:"Временный (ремонт)"};
+const I18N={
+ru:{dash:"дашборд",theme:"🌓 Тема",export:"⬇ Экспорт CSV",back:"← К карте",
+ title:"Барьеры доступности в Алматы",sub:"Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.",
+ heatTitle:"Карта плотности барьеров",legConfirmed:"подтверждённые (3+ подтверждения)",legOnMap:"на карте",legSize:"размер круга — число барьеров рядом",
+ byType:"Типы барьеров",bySeason:"Характер барьеров",thType:"Тип",thNature:"Характер",thCount:"Количество",
+ seasonNote:"Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.",
+ howTitle:"Как пользоваться этими данными",
+ howText:"Выгрузите CSV и приложите его к обращению в акимат или используйте для планирования ремонта тротуаров. Каждая строка содержит координаты, тип барьера, число подтверждений жителей и дату.",
+ kTotal:"барьеров на карте",kConfirmed:"подтверждены жителями",k30:"добавлено за 30 дней",kWinter:"зимних (сезонных)",kPhoto:"с фотографией",
+ empty:"Пока нет данных — станьте первым, кто отметит барьер на карте.",
+ near:"Барьеров рядом",confirmed:"Подтверждённых",
+ sPerm:"Постоянный",sWinter:"Зимний (снег, наледь)",sTemp:"Временный (ремонт)"},
+kk:{dash:"дашборд",theme:"🌓 Тақырып",export:"⬇ CSV жүктеу",back:"← Картаға",
+ title:"Алматыдағы қолжетімділік кедергілері",sub:"Деректерді қала тұрғындары жинады және модерациядан өтті. Нақты уақытта жаңарады.",
+ heatTitle:"Кедергілер тығыздығының картасы",legConfirmed:"расталған (3+ растау)",legOnMap:"картада",legSize:"шеңбер өлшемі — маңайдағы кедергі саны",
+ byType:"Кедергі түрлері",bySeason:"Кедергілердің сипаты",thType:"Түрі",thNature:"Сипаты",thCount:"Саны",
+ seasonNote:"Қысқы кедергілер (қар, мұз) — маусымдық: олар жыл сайын қайталанады және бір реткі реконструкцияны емес, тұрақты тазалауды талап етеді.",
+ howTitle:"Бұл деректерді қалай пайдалануға болады",
+ howText:"CSV файлын жүктеп алып, әкімдікке жолданатын өтінішке тіркеңіз немесе тротуарларды жөндеуді жоспарлауға пайдаланыңыз. Әр жолда координаттар, кедергі түрі, тұрғындардың растау саны және күні көрсетілген.",
+ kTotal:"картадағы кедергі",kConfirmed:"тұрғындар растаған",k30:"30 күнде қосылды",kWinter:"қысқы (маусымдық)",kPhoto:"фотосуретпен",
+ empty:"Әзірге дерек жоқ — картада кедергіні бірінші болып белгілеңіз.",
+ near:"Маңайдағы кедергілер",confirmed:"Расталғаны",
+ sPerm:"Тұрақты",sWinter:"Қысқы (қар, мұз)",sTemp:"Уақытша (жөндеу)"},
+en:{dash:"dashboard",theme:"🌓 Theme",export:"⬇ Export CSV",back:"← Back to map",
+ title:"Accessibility barriers in Almaty",sub:"The data is collected by city residents and reviewed by moderators. Updated in real time.",
+ heatTitle:"Barrier density map",legConfirmed:"confirmed (3+ confirmations)",legOnMap:"on the map",legSize:"circle size — number of barriers nearby",
+ byType:"Types of barriers",bySeason:"Nature of the barriers",thType:"Type",thNature:"Nature",thCount:"Count",
+ seasonNote:"Winter barriers (snow, ice) are seasonal: they come back every winter and call for regular clearing rather than a one-off rebuild.",
+ howTitle:"How to use this data",
+ howText:"Export the CSV and attach it to a complaint to the city administration, or use it to plan pavement repairs. Each row holds the coordinates, the type of barrier, how many residents confirmed it and the date.",
+ kTotal:"barriers on the map",kConfirmed:"confirmed by residents",k30:"added in the last 30 days",kWinter:"seasonal (winter)",kPhoto:"with a photo",
+ empty:"No data yet — be the first to mark a barrier on the map.",
+ near:"Barriers nearby",confirmed:"Confirmed",
+ sPerm:"Permanent",sWinter:"Winter (snow, ice)",sTemp:"Temporary (roadworks)"}};
 
+let LANG="ru", REPORTS=[], map;
+function t(k){ return (I18N[LANG]&&I18N[LANG][k]) || I18N.ru[k] || k; }
+function locale(){ return LANG==="kk"?"kk-KZ":LANG==="en"?"en-US":"ru-RU"; }
+// Сервер хранит характер барьера кодом, а не текстом, поэтому он переводится
+const SEASON_KEY={permanent:"sPerm",winter:"sWinter",temporary:"sTemp"};
+
+function setLang(v){
+  LANG=v;
+  try{ localStorage.setItem("ic_lang",v); }catch(e){}
+  document.documentElement.lang=v;
+  document.getElementById("langSel").value=v;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ const s=t(el.getAttribute("data-i18n")); if(s) el.textContent=s; });
+  render();
+}
 function toggleTheme(){
   const h=document.documentElement;
   const next=h.getAttribute("data-theme")==="dark"?"light":"dark";
   h.setAttribute("data-theme",next);
   try{localStorage.setItem("ic_theme",next)}catch(e){}
 }
-try{ const s=localStorage.getItem("ic_theme"); if(s) document.documentElement.setAttribute("data-theme",s); }catch(e){}
-
 function esc(v){return v==null?"":String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-
 function kpi(n,l,cls){return `<div class="kpi ${cls||''}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`}
 
 function render(){
@@ -111,19 +158,16 @@ function render(){
   const last30=REPORTS.filter(r=>Date.now()-new Date(r.createdAt).getTime()<30*864e5).length;
 
   document.getElementById("kpis").innerHTML =
-    kpi(total,"барьеров на карте") +
-    kpi(confirmed,"подтверждены жителями","ok") +
-    kpi(last30,"добавлено за 30 дней","warn") +
-    kpi(winter,"зимних (сезонных)","bad") +
-    kpi(withPhoto,"с фотографией");
+    kpi(total,t("kTotal")) + kpi(confirmed,t("kConfirmed"),"ok") + kpi(last30,t("k30"),"warn") +
+    kpi(winter,t("kWinter"),"bad") + kpi(withPhoto,t("kPhoto"));
 
   if(!total){
-    document.querySelectorAll("#byType tbody,#bySeason tbody").forEach(b=>b.innerHTML='<tr><td colspan="2" class="empty">Пока нет данных — станьте первым, кто отметит барьер на карте.</td></tr>');
+    document.querySelectorAll("#tblType tbody,#tblSeason tbody")
+      .forEach(b=>b.innerHTML=`<tr><td colspan="2" class="empty">${esc(t("empty"))}</td></tr>`);
     return;
   }
-
-  group("byType", REPORTS.reduce((a,r)=>{a[r.type]=(a[r.type]||0)+1;return a},{}), total);
-  group("bySeason", REPORTS.reduce((a,r)=>{const k=SEASON[r.season]||SEASON.permanent;a[k]=(a[k]||0)+1;return a},{}), total);
+  group("tblType", REPORTS.reduce((a,r)=>{a[r.type]=(a[r.type]||0)+1;return a},{}), total);
+  group("tblSeason", REPORTS.reduce((a,r)=>{const k=t(SEASON_KEY[r.season]||"sPerm");a[k]=(a[k]||0)+1;return a},{}), total);
   drawMap();
 }
 function group(id,obj,total){
@@ -132,13 +176,18 @@ function group(id,obj,total){
     <tr><td>${esc(k)}<div class="bar"><span style="width:${Math.round(v/total*100)}%"></span></div></td>
     <td class="num">${v}</td></tr>`).join("");
 }
+let densityLayer=null;
 function drawMap(){
+  if(typeof L==="undefined"){ document.getElementById("map").style.display="none"; return; }
   if(!map){
     map=L.map("map").setView([43.2383,76.9455],12);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,
       attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
   }
-  // сетка ~500 м для оценки плотности
+  // Свой слой вместо обхода внутренних слоёв карты: при смене языка круги
+  // перерисовываются начисто и не накладываются друг на друга.
+  if(!densityLayer) densityLayer=L.layerGroup().addTo(map);
+  densityLayer.clearLayers();
   const cells={};
   REPORTS.forEach(r=>{
     const key=`${(Math.round(r.lat/0.005)*0.005).toFixed(3)}_${(Math.round(r.lng/0.007)*0.007).toFixed(3)}`;
@@ -147,12 +196,11 @@ function drawMap(){
     if((r.verifications||0)>=3) cells[key].conf++;
   });
   Object.values(cells).forEach(c=>{
-    const lat=c.lat/c.n, lng=c.lng/c.n;
-    L.circleMarker([lat,lng],{
+    L.circleMarker([c.lat/c.n, c.lng/c.n],{
       radius:Math.min(34,8+c.n*4),
       color:c.conf?"#b42318":"#e8890c", weight:2,
       fillColor:c.conf?"#b42318":"#e8890c", fillOpacity:.35
-    }).addTo(map).bindPopup(`<b>Барьеров рядом: ${c.n}</b><br>Подтверждённых: ${c.conf}`);
+    }).addTo(densityLayer).bindPopup(`<b>${esc(t("near"))}: ${c.n}</b><br>${esc(t("confirmed"))}: ${c.conf}`);
   });
 }
 function exportCsv(){
@@ -166,11 +214,11 @@ function exportCsv(){
   document.body.appendChild(a); a.click(); a.remove();
 }
 (async function(){
-  try{
-    const r=await fetch("/api/reports");
-    REPORTS=await r.json();
-  }catch(e){ REPORTS=[]; }
-  render();
+  try{ const s=localStorage.getItem("ic_theme"); if(s) document.documentElement.setAttribute("data-theme",s); }catch(e){}
+  let saved="ru";
+  try{ saved=localStorage.getItem("ic_lang")||"ru"; }catch(e){}
+  try{ const r=await fetch("/api/reports"); REPORTS=await r.json(); }catch(e){ REPORTS=[]; }
+  setLang(saved);
 })();
 </script>
 </body></html>
