@@ -1163,8 +1163,7 @@ async function checkObstacles(pts){
   try{
     const bb=bboxOf(pts);
     const q=`[out:json][timeout:25];(way["highway"="steps"](${bb});way["tunnel"="yes"]["highway"~"footway|path|pedestrian"](${bb});way["bridge"="yes"]["highway"~"footway|path"](${bb}););out center tags 200;`;
-    const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:q});
-    const d=await r.json();
+    const d=await overpassQuery(q, 25000);
     (d.elements||[]).forEach(e=>{
       const ll=[e.lat||(e.center&&e.center.lat), e.lon||(e.center&&e.center.lon)];
       if(!ll[0]||!ll[1]) return;
@@ -1182,14 +1181,33 @@ async function checkObstacles(pts){
   }catch(e){}
   return out;
 }
+// Высоты: два независимых источника. У бесплатных сервисов жёсткие лимиты,
+// поэтому один отказ не должен лишать пользователя предупреждения об уклоне.
+async function fetchElevations(sample){
+  const locs=sample.map(p=>`${p[0].toFixed(5)},${p[1].toFixed(5)}`).join("|");
+  try{
+    const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),12000);
+    const r=await fetch(`https://api.opentopodata.org/v1/srtm30m?locations=${locs}`,{signal:ctl.signal});
+    clearTimeout(t);
+    if(r.ok){ const d=await r.json(); if(d && Array.isArray(d.results)) return d.results.map(x=>x.elevation); }
+  }catch(e){}
+  try{
+    const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),12000);
+    const r=await fetch("https://api.open-elevation.com/api/v1/lookup",{
+      method:"POST", signal:ctl.signal, headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({locations:sample.map(p=>({latitude:p[0],longitude:p[1]}))})});
+    clearTimeout(t);
+    if(r.ok){ const d=await r.json(); if(d && Array.isArray(d.results)) return d.results.map(x=>x.elevation); }
+  }catch(e){}
+  return null;
+}
 async function checkSlope(pts){
   try{
     const step=Math.max(1,Math.floor(pts.length/40));
     const sample=pts.filter((_,i)=>i%step===0).slice(0,40);
-    const locs=sample.map(p=>`${p[0].toFixed(5)},${p[1].toFixed(5)}`).join("|");
-    const r=await fetch(`https://api.opentopodata.org/v1/srtm30m?locations=${locs}`);
-    const d=await r.json();
-    if(!d.results) return null;
+    const elev=await fetchElevations(sample);
+    if(!elev) return null;
+    const d={results:elev.map(e=>({elevation:e}))};
     let maxUp=0, gain=0;
     for(let i=1;i<d.results.length;i++){
       const e0=d.results[i-1].elevation, e1=d.results[i].elevation;
