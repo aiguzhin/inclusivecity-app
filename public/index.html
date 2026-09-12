@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1769c2">
-<title>InclusiveCity — доступная карта Алматы</title>
+<title>InclusiveCity — доступная карта</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -99,6 +99,11 @@ html[data-theme="dark"] #map{background:#101b25}
 #listview{position:absolute;inset:0;overflow:auto;padding:18px;background:var(--paper);display:none}
 body[data-view="list"] #listview{display:block}
 body[data-view="list"] .layerbar{display:none}
+body[data-view="list"] .wx,
+body[data-view="list"] .map-stack,
+body[data-view="list"] .basemap-ctl,
+body[data-view="list"] .search-here{display:none}
+.vt-ico{display:none}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0}
 .card h2{font-size:1rem;margin:0 0 6px}
@@ -146,17 +151,62 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
   background:transparent;border:1px solid var(--line);color:var(--ink);
 }
 
-/* Погода */
-.weather{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.weather .ico{font-size:2rem;line-height:1}
-.weather .temp{font-size:1.6rem;font-weight:850;letter-spacing:-1px}
-.weather .cond{font-size:.9rem}
-.weather .meta{font-size:.8rem;color:var(--ink-soft)}
+/* ===== Погода: плашка поверх карты ===== */
+.wx{position:absolute;z-index:502;top:62px;right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.wx-pill{
+  display:flex;align-items:center;gap:6px;min-height:38px;padding:6px 12px;
+  background:var(--card);border:1px solid var(--line);border-radius:99px;
+  box-shadow:var(--shadow);color:var(--ink);font-weight:800;font-size:.92rem;white-space:nowrap;
+}
+.wx-pill .wx-ico{font-size:1.15rem;line-height:1}
+.wx-pill .wx-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex:0 0 auto}
+.wx-pill.ice .wx-dot{background:var(--red)}
+.wx-pill[aria-expanded="true"]{border-color:var(--blue);background:var(--blue-weak);color:var(--blue-ink)}
+.wx-pop{
+  width:min(300px,calc(100vw - 28px));background:var(--card);border:1px solid var(--line);
+  border-radius:14px;box-shadow:var(--shadow);padding:12px 13px;
+}
+.wx-pop h3{font-size:.95rem;margin:0 0 8px}
+.wx-now{display:flex;align-items:center;gap:11px}
+.wx-now .wx-big{font-size:1.5rem;line-height:1}
+.wx-now .temp{font-size:1.45rem;font-weight:850;letter-spacing:-1px}
+.wx-meta{font-size:.78rem;color:var(--ink-soft)}
 .weather-warn{
-  margin-top:10px;border-radius:10px;padding:9px 11px;font-size:.85rem;
+  margin-top:9px;border-radius:10px;padding:9px 11px;font-size:.83rem;line-height:1.35;
   background:var(--amber-weak);color:var(--amber);
 }
 .weather-warn.ice{background:var(--red-weak);color:var(--red);font-weight:700}
+.weather-warn.calm{background:var(--green-weak,var(--blue-weak));color:var(--ink-soft);font-weight:400}
+
+/* ===== Компас и геопозиция ===== */
+.map-stack{position:absolute;z-index:502;right:10px;bottom:96px;display:flex;flex-direction:column;gap:8px}
+.map-btn{
+  width:46px;height:46px;min-height:46px;padding:0;border-radius:50%;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);
+  color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:1.15rem;
+}
+.map-btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.compass-face{position:relative;width:32px;height:32px}
+.compass-n{
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  font-size:.56rem;font-weight:850;color:var(--ink-soft);letter-spacing:.5px;line-height:1;
+}
+.compass-needle{
+  position:absolute;inset:0;display:block;
+  transition:transform .18s linear;transform-origin:50% 50%;
+}
+.compass-needle .n{fill:var(--red)}
+.compass-needle .s{fill:var(--ink-soft)}
+.map-btn.live{border-color:var(--blue)}
+html[data-motion="off"] .compass-needle{transition:none}
+
+/* ===== Мобильная шторка ===== */
+.hamburger{display:none}
+.sheet-handle{display:none}
+.sheet-peek{display:none}
+.sheet-backdrop{display:none}
+.city-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:14px}
+.city-row .grow{flex:1;min-width:0}
 .ac-wrap{position:relative;flex:1;min-width:0}
 .ac-list{
   position:absolute;z-index:700;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;
@@ -212,11 +262,83 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 .sos{background:var(--red);color:#fff;width:100%;margin-top:8px}
 .footer-note{font-size:.75rem;color:var(--ink-soft);margin:16px 0 4px}
 
+/* ======= Телефон: карта на весь экран, панель — выдвижной шторкой ======= */
 @media(max-width:860px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto 62vh;min-height:auto}
-  .side{border-right:0;border-bottom:1px solid var(--line);max-height:none;overflow:visible}
-  .stage{height:62vh}
-  .brand{font-size:1.05rem}
+  html,body{height:100%;overflow:hidden}
+  header.top{padding:8px 10px;gap:6px;flex-wrap:nowrap}
+  .brand{font-size:1rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-tools{gap:5px}
+  .top-tools #langSel{min-height:38px;padding:5px 4px;font-size:.8rem;max-width:96px}
+  #viewToggle .vt-text{display:none}
+  #viewToggle .vt-ico{display:inline}
+  #viewToggle{width:42px;padding:0;justify-content:center}
+
+  .hamburger{
+    display:flex;align-items:center;justify-content:center;
+    width:42px;height:38px;min-height:38px;padding:0;border-radius:10px;
+    background:transparent;border:1px solid var(--line);color:var(--ink);flex:0 0 auto;
+  }
+  .hamburger .bars{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;position:relative}
+  .hamburger .bars::before,.hamburger .bars::after{
+    content:"";position:absolute;left:0;width:18px;height:2px;background:currentColor;border-radius:2px;
+  }
+  .hamburger .bars::before{top:-6px} .hamburger .bars::after{top:6px}
+
+  .app{grid-template-columns:1fr;grid-template-rows:1fr;min-height:0;height:calc(100dvh - 55px)}
+  .stage{height:100%}
+
+  .side{
+    position:fixed;left:0;right:0;bottom:0;top:auto;z-index:1200;
+    max-height:86dvh;border-right:0;border-top:1px solid var(--line);
+    border-radius:20px 20px 0 0;padding:0 16px 20px;
+    box-shadow:0 -14px 40px rgba(0,0,0,.22);
+    transform:translateY(102%);transition:transform .26s cubic-bezier(.22,.8,.3,1);
+    overscroll-behavior:contain;
+  }
+  body.sheet-open .side{transform:none}
+  html[data-motion="off"] .side{transition:none}
+
+  .sheet-handle{
+    display:block;position:sticky;top:0;z-index:2;margin:0 -16px 6px;padding:10px 16px 8px;
+    background:var(--card);border-radius:20px 20px 0 0;
+  }
+  .sheet-handle .grip{display:block;width:42px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 8px}
+  .sheet-handle .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .sheet-handle h2{font-size:.95rem;margin:0}
+
+  .sheet-backdrop{
+    display:block;position:fixed;inset:0;z-index:1150;background:rgba(6,14,22,.45);
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  body.sheet-open .sheet-backdrop{opacity:1;pointer-events:auto}
+  html[data-motion="off"] .sheet-backdrop{transition:none}
+
+  .sheet-peek{
+    display:flex;align-items:center;gap:10px;text-align:left;
+    position:absolute;z-index:1100;left:10px;right:10px;bottom:10px;
+    min-height:52px;padding:9px 14px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink);
+  }
+  body.sheet-open .sheet-peek{display:none}
+  .sheet-peek .peek-ico{font-size:1.2rem;flex:0 0 auto}
+  .sheet-peek .peek-txt{flex:1;min-width:0}
+  .sheet-peek b{display:block;font-size:.92rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sheet-peek .peek-sub{display:block;font-size:.76rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sheet-peek .peek-go{flex:0 0 auto;color:var(--ink-soft);font-size:1rem}
+
+  /* контролы карты поднимаем над peek-баром */
+  .basemap-ctl{bottom:74px}
+  .map-stack{bottom:150px}
+  .leaflet-bottom.leaflet-right{bottom:66px}
+  .wx{top:60px;right:8px}
+  .search-here{max-width:calc(100% - 120px);font-size:.8rem;padding:8px 12px}
+  .side .eyebrow{display:none}
+  .side .title{margin-top:2px;font-size:1.32rem}
+  .toast{bottom:74px}                       /* не закрываем нижнюю плашку */
+  body.sheet-open .toast{bottom:18px}
+}
+@media(max-width:420px){
+  .basemap-ctl select{display:none}
 }
 </style>
 </head>
@@ -224,10 +346,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 <a class="skip" href="#main" data-i18n="skip">Перейти к содержимому</a>
 
 <header class="top">
+  <button type="button" class="hamburger" id="sheetBtn" onclick="toggleSheet()"
+          aria-expanded="false" aria-controls="sidePanel" data-i18n-aria="menuBtn" aria-label="Панель управления">
+    <span class="bars" aria-hidden="true"></span>
+  </button>
   <div class="brand">Inclusive<b>City</b></div>
   <div class="top-tools">
     <button id="viewToggle" class="btn-ghost btn-sm" onclick="toggleView()" aria-pressed="false">
-      <span data-i18n="viewList">Текстовый режим</span>
+      <span class="vt-ico" aria-hidden="true">📋</span>
+      <span class="vt-text" data-i18n="viewList">Текстовый режим</span>
     </button>
     <select id="langSel" aria-label="Тіл / Язык / Language" onchange="setLang(this.value)" style="width:auto;min-height:38px;padding:6px 10px">
       <option value="ru">Русский</option>
@@ -239,13 +366,23 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 </header>
 
 <main class="app" id="main">
-  <aside class="side" aria-label="Панель управления">
+  <aside class="side" id="sidePanel" aria-label="Панель управления">
+    <div class="sheet-handle">
+      <span class="grip" aria-hidden="true"></span>
+      <div class="row">
+        <h2 data-i18n="panelTitle">Маршрут и доступность</h2>
+        <button type="button" class="btn-ghost icon-btn" onclick="closeSheet()"
+                data-i18n-aria="close" aria-label="Закрыть">✕</button>
+      </div>
+    </div>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
-    <h1 class="title" data-i18n="title">Передвигайтесь по Алматы увереннее</h1>
+    <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
 
-    <div class="card" id="weatherCard" aria-live="polite">
-      <h2 data-i18n="weatherTitle">Погода в Алматы</h2>
-      <p class="small muted" data-i18n="weatherLoading">Загружаем погоду…</p>
+    <div class="city-row">
+      <div class="grow">
+        <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
+        <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
+      </div>
     </div>
 
     <div class="card">
@@ -313,11 +450,46 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
         <button type="button" id="quickSat" onclick="setBasemap('sat')" aria-pressed="false">
           <span aria-hidden="true">🛰</span> <span data-i18n="mapSat">Спутник</span>
         </button>
+
       </div>
       <label class="sr" for="basemapSel" data-i18n="basemapLabel">Вид карты</label>
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
-    <div id="map" role="application" aria-label="Карта Алматы"></div>
+    <div class="wx" id="wx">
+      <button type="button" class="wx-pill" id="wxPill" aria-expanded="false" aria-controls="wxPop"
+              onclick="toggleWx()" data-i18n-aria="weatherTitle" aria-label="Погода">
+        <span class="wx-ico" id="wxIco" aria-hidden="true">🌡</span>
+        <span id="wxTemp">…</span>
+      </button>
+      <div class="wx-pop" id="wxPop" hidden aria-live="polite"></div>
+    </div>
+
+    <div class="map-stack">
+      <button type="button" class="map-btn" id="compassBtn" onclick="compassTap()"
+              data-i18n-aria="compass" aria-label="Компас">
+        <span class="compass-face" aria-hidden="true">
+          <span class="compass-n">N</span>
+          <svg class="compass-needle" id="compassNeedle" viewBox="0 0 24 24">
+            <polygon class="n" points="12,5 15.2,13 12,11.2 8.8,13"></polygon>
+            <polygon class="s" points="12,21 8.8,13 12,14.8 15.2,13"></polygon>
+          </svg>
+        </span>
+      </button>
+      <button type="button" class="map-btn" onclick="locateUser()"
+              data-i18n-aria="myLocation" aria-label="Моё местоположение">⌖</button>
+    </div>
+
+    <button type="button" class="sheet-peek" id="sheetPeek" onclick="openSheet()"
+            aria-controls="sidePanel" aria-expanded="false">
+      <span class="peek-ico" aria-hidden="true">🧭</span>
+      <span class="peek-txt">
+        <b id="peekTitle" data-i18n="peekIdle">Куда едем?</b>
+        <span class="peek-sub" id="peekSub" data-i18n="peekIdleSub">Маршрут, слои и жалобы</span>
+      </span>
+      <span class="peek-go" aria-hidden="true">▲</span>
+    </button>
+
+    <div id="map" role="application" data-i18n-aria="mapLabel" aria-label="Карта Алматы"></div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
       <p class="small muted" data-i18n="listHelp">Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.</p>
@@ -325,6 +497,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <div id="listPois"></div>
     </div>
   </section>
+  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet()" aria-hidden="true"></div>
 </main>
 
 <!-- Настройки доступности -->
@@ -453,7 +626,14 @@ const I18N = {
 ru:{
  basemapLabel:"Вид карты", acNoResults:"Ничего не найдено",
  mapPlain:"Схема", mapSat:"Спутник",
- weatherTitle:"Погода в Алматы", weatherLoading:"Загружаем погоду…",
+ cityLabel:"Город", docTitle:"доступная карта", mapLabel:"Карта",
+ menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
+ peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
+ peekWarns:"предупреждений на пути", peekClear:"Препятствий не найдено",
+ compass:"Компас", facing:"Вы смотрите на", 
+ compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
+ compassDenied:"Доступ к компасу не разрешён. Карта всегда повёрнута на север.",
+ weatherTitle:"Погода", weatherLoading:"Загружаем погоду…",
  weatherFail:"Погода сейчас недоступна", weatherFeels:"ощущается", weatherWind:"ветер",
  weatherKmh:"км/ч",
  weatherUpd:"Обновить", weatherWhy:"Что это значит для передвижения",
@@ -464,7 +644,7 @@ ru:{
  wxCold:"Сильный мороз: сократите время на улице, руки на ободах мёрзнут быстро.",
  wxWind:"Сильный ветер: тяжело управлять коляской и удерживать равновесие.",
  wxOk:"Погода не создаёт дополнительных препятствий.",
- skip:"Перейти к содержимому", eyebrow:"Маршрут и доступность", title:"Передвигайтесь по Алматы увереннее",
+ skip:"Перейти к содержимому", eyebrow:"Маршрут и доступность",
  from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
  viewList:"Текстовый режим", viewMap:"Карта",
@@ -512,7 +692,14 @@ ru:{
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
  mapPlain:"Сызба", mapSat:"Спутник",
- weatherTitle:"Алматыдағы ауа райы", weatherLoading:"Ауа райы жүктелуде…",
+ cityLabel:"Қала", docTitle:"қолжетімді карта", mapLabel:"Карта",
+ menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
+ peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
+ peekWarns:"жолдағы ескерту", peekClear:"Кедергі табылмады",
+ compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
+ compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
+ compassDenied:"Компасқа рұқсат берілмеді. Карта әрқашан солтүстікке бағытталған.",
+ weatherTitle:"Ауа райы", weatherLoading:"Ауа райы жүктелуде…",
  weatherFail:"Ауа райы қазір қолжетімсіз", weatherFeels:"сезіледі", weatherWind:"жел",
  weatherKmh:"км/сағ",
  weatherUpd:"Жаңарту", weatherWhy:"Бұл жүріп-тұруға қалай әсер етеді",
@@ -523,7 +710,7 @@ kk:{
  wxCold:"Қатты аяз: далада аз болыңыз, қол тез тоңады.",
  wxWind:"Қатты жел: арбаны басқару және тепе-теңдікті сақтау қиын.",
  wxOk:"Ауа райы қосымша кедергі жасамайды.",
- skip:"Негізгі мазмұнға өту", eyebrow:"Бағыт және қолжетімділік", title:"Алматы қаласында еркін жүріңіз",
+ skip:"Негізгі мазмұнға өту", eyebrow:"Бағыт және қолжетімділік",
  from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан таңдау",
  hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
  viewList:"Мәтіндік режим", viewMap:"Карта",
@@ -572,7 +759,14 @@ kk:{
 en:{
  basemapLabel:"Map type", acNoResults:"Nothing found",
  mapPlain:"Map", mapSat:"Satellite",
- weatherTitle:"Weather in Almaty", weatherLoading:"Loading weather…",
+ cityLabel:"City", docTitle:"accessible map", mapLabel:"Map",
+ menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
+ peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
+ peekWarns:"warnings on the way", peekClear:"No obstacles found",
+ compass:"Compass", facing:"You are facing",
+ compassNone:"This device has no compass. The map is always north-up.",
+ compassDenied:"Compass access was not granted. The map is always north-up.",
+ weatherTitle:"Weather", weatherLoading:"Loading weather…",
  weatherFail:"Weather is unavailable right now", weatherFeels:"feels like", weatherWind:"wind",
  weatherKmh:"km/h",
  weatherUpd:"Refresh", weatherWhy:"What this means for getting around",
@@ -583,7 +777,7 @@ en:{
  wxCold:"Hard frost: keep outdoor time short, hands on rims get cold fast.",
  wxWind:"Strong wind: hard to steer a wheelchair and keep balance.",
  wxOk:"Weather adds no extra obstacles.",
- skip:"Skip to main content", eyebrow:"Routes and accessibility", title:"Get around Almaty with confidence",
+ skip:"Skip to main content", eyebrow:"Routes and accessibility",
  from:"From", to:"To", build:"Build route", pick:"Pick on map",
  hint:"Type a place, pick a point on the map, or use your location.",
  viewList:"Text mode", viewMap:"Map",
@@ -716,13 +910,13 @@ const BASEMAPS = {
   osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:19,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
+  // Подписи берём у CARTO, а не у Esri: слой Esri «Boundaries and Places» содержит
+  // только названия городов и районов — улиц в нём нет вообще. У CARTO подписи
+  // построены по OpenStreetMap, поэтому улицы подписаны и на русском/казахском.
   sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19,
         url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        attr:"© Esri, Maxar, Earthstar Geographics" },
-  satlab:{ ru:"Спутник с подписями", kk:"Жазуы бар спутник", en:"Satellite with labels", max:19,
-        url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        overlay:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-        attr:"© Esri, Maxar, Earthstar Geographics" },
+        overlay:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",
+        attr:"© Esri, Maxar, Earthstar Geographics · подписи © OpenStreetMap, © CARTO" },
   topo:{ ru:"Рельеф", kk:"Жер бедері", en:"Terrain", max:17,
         url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)' },
@@ -735,6 +929,7 @@ const BASEMAPS = {
 };
 let baseLayer=null, baseOverlay=null;
 function setBasemap(key){
+  if(key==="satlab") key="sat";   // старый сохранённый выбор переносим на единый спутник
   if(!BASEMAPS[key]) key="osm";
   S.basemap=key; store("basemap",key);
   const sel=document.getElementById("basemapSel"); if(sel) sel.value=key;
@@ -814,36 +1009,65 @@ function wxWarnings(w){
 }
 
 function renderWeather(){
-  const box=document.getElementById("weatherCard"); if(!box) return;
-  const head=`<h2 data-i18n="weatherTitle">${esc(t("weatherTitle"))}</h2>`;
+  const pill=document.getElementById("wxPill"), pop=document.getElementById("wxPop");
+  if(!pill||!pop) return;
+  const ico=document.getElementById("wxIco"), temp=document.getElementById("wxTemp");
+  const title=`${t("weatherTitle")} — ${cityName()}`;
+
   if(!lastWeather){
-    box.innerHTML = head + `<p class="small muted">${esc(t("weatherFail"))}</p>`
-      + `<button type="button" class="btn-ghost btn-sm" onclick="loadWeather(true)">${esc(t("weatherUpd"))}</button>`;
+    ico.textContent="🌡"; temp.textContent="—";
+    pill.classList.remove("ice"); pill.setAttribute("aria-label", t("weatherFail"));
+    pop.innerHTML = `<h3>${esc(title)}</h3><p class="wx-meta">${esc(t("weatherFail"))}</p>`
+      + `<button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="loadWeather(true)">${esc(t("weatherUpd"))}</button>`;
     return;
   }
-  const w=lastWeather;
-  const d=WX[w.code] || WX[3];
-  const warns=wxWarnings(w);
+  const w=lastWeather, d=WX[w.code]||WX[3], warns=wxWarnings(w);
+  const hasIce=warns.some(x=>x.ice);
+  ico.textContent=d.i;
+  temp.textContent=Math.round(w.temp)+"°";
+  pill.classList.toggle("ice", hasIce);
+  // Точку-индикатор ставим только когда есть о чём предупредить,
+  // иначе плашка молча показывает температуру и не отвлекает.
+  const dot = pill.querySelector(".wx-dot");
+  if(warns.length && !dot){ const el=document.createElement("span"); el.className="wx-dot"; el.setAttribute("aria-hidden","true"); pill.appendChild(el); }
+  if(!warns.length && dot) dot.remove();
+  pill.setAttribute("aria-label",
+    `${title}: ${Math.round(w.temp)}°, ${d[S.lang]||d.ru}`
+    + (warns.length ? `. ${t("weatherWhy")}: ` + warns.map(x=>t(x.key)).join(" ") : ""));
+
   const rows = warns.length
-    ? `<p class="small muted" style="margin:10px 0 4px">${esc(t("weatherWhy"))}</p>`
+    ? `<p class="wx-meta" style="margin:10px 0 2px">${esc(t("weatherWhy"))}</p>`
       + warns.map(x=>`<p class="weather-warn${x.ice?" ice":""}">${esc(t(x.key))}</p>`).join("")
-    : `<p class="weather-warn">${esc(t("wxOk"))}</p>`;
-  box.innerHTML = head
-    + `<div class="weather">`
-    +   `<span aria-hidden="true" style="font-size:30px;line-height:1">${d.i}</span>`
-    +   `<div><span class="temp">${Math.round(w.temp)}°</span> `
-    +   `<span>${esc(d[S.lang]||d.ru)}</span><br>`
-    +   `<span class="small muted">${esc(t("weatherFeels"))} ${Math.round(w.feels)}°, `
-    +   `${esc(t("weatherWind"))} ${Math.round(w.wind)} ${esc(t("weatherKmh"))}</span></div>`
-    + `</div>` + rows;
+    : `<p class="weather-warn calm">${esc(t("wxOk"))}</p>`;
+  pop.innerHTML = `<h3>${esc(title)}</h3>`
+    + `<div class="wx-now"><span class="wx-big" aria-hidden="true">${d.i}</span>`
+    +   `<div><span class="temp">${Math.round(w.temp)}°</span> <span>${esc(d[S.lang]||d.ru)}</span><br>`
+    +   `<span class="wx-meta">${esc(t("weatherFeels"))} ${Math.round(w.feels)}°, `
+    +   `${esc(t("weatherWind"))} ${Math.round(w.wind)} ${esc(t("weatherKmh"))}</span></div></div>`
+    + rows;
 }
 
+function toggleWx(){
+  const pill=document.getElementById("wxPill"), pop=document.getElementById("wxPop");
+  const open = pill.getAttribute("aria-expanded")!=="true";
+  pill.setAttribute("aria-expanded", String(open));
+  pop.hidden = !open;
+}
+document.addEventListener("click", e=>{
+  const wx=document.getElementById("wx");
+  if(wx && !wx.contains(e.target)){
+    const pill=document.getElementById("wxPill"), pop=document.getElementById("wxPop");
+    if(pill && pill.getAttribute("aria-expanded")==="true"){ pill.setAttribute("aria-expanded","false"); pop.hidden=true; }
+  }
+});
+
 async function loadWeather(force){
-  const box=document.getElementById("weatherCard"); if(!box) return;
+  if(!document.getElementById("wxPill")) return;
   if(!force && lastWeather && Date.now()-weatherAt < 15*60*1000){ renderWeather(); return; }
   const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 10000);
+  const [la,lo]=city().c;
   try{
-    const url="https://api.open-meteo.com/v1/forecast?latitude=43.2383&longitude=76.9455"
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
       + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto";
     const r=await fetch(url,{signal:ctl.signal});
     if(!r.ok) throw new Error("http "+r.status);
@@ -880,7 +1104,10 @@ function poiName(tags, fallback){
 }
 
 function viewBbox(){
-  if(!mapReady) return "43.16,76.75,43.36,77.12";
+  if(!mapReady){
+    const [la,lo]=city().c;
+    return `${(la-CITY_DLAT).toFixed(4)},${(lo-CITY_DLON).toFixed(4)},${(la+CITY_DLAT).toFixed(4)},${(lo+CITY_DLON).toFixed(4)}`;
+  }
   const b = map.getBounds();
   return `${b.getSouth().toFixed(4)},${b.getWest().toFixed(4)},${b.getNorth().toFixed(4)},${b.getEast().toFixed(4)}`;
 }
@@ -900,8 +1127,42 @@ function cacheSet(key, items){
 /* ============ Состояние ============ */
 const S = {
   lang:"ru", profile:"wheelchair_manual", theme:"light", font:"normal",
-  contrast:"normal", motion:"on", voice:"on", view:"map", basemap:"osm"
+  contrast:"normal", motion:"on", voice:"on", view:"map", basemap:"osm", city:"almaty"
 };
+
+/* ============ Города ============
+   Приложение больше не привязано к Алматы: центр карты, область поиска,
+   погода и шаблон обращения в акимат берутся из выбранного города. */
+const CITIES = {
+  almaty:      { ru:"Алматы", kk:"Алматы", en:"Almaty", c:[43.2383,76.9455], z:13 },
+  astana:      { ru:"Астана", kk:"Астана", en:"Astana", c:[51.1282,71.4306], z:12 },
+  shymkent:    { ru:"Шымкент", kk:"Шымкент", en:"Shymkent", c:[42.3174,69.5901], z:12 },
+  karaganda:   { ru:"Караганда", kk:"Қарағанды", en:"Karaganda", c:[49.8063,73.0855], z:12 },
+  aktobe:      { ru:"Актобе", kk:"Ақтөбе", en:"Aktobe", c:[50.2839,57.1670], z:12 },
+  taraz:       { ru:"Тараз", kk:"Тараз", en:"Taraz", c:[42.9000,71.3667], z:12 },
+  pavlodar:    { ru:"Павлодар", kk:"Павлодар", en:"Pavlodar", c:[52.2871,76.9674], z:12 },
+  oskemen:     { ru:"Усть-Каменогорск", kk:"Өскемен", en:"Oskemen", c:[49.9483,82.6275], z:12 },
+  semey:       { ru:"Семей", kk:"Семей", en:"Semey", c:[50.4111,80.2275], z:12 },
+  atyrau:      { ru:"Атырау", kk:"Атырау", en:"Atyrau", c:[47.0945,51.9238], z:12 },
+  kostanay:    { ru:"Костанай", kk:"Қостанай", en:"Kostanay", c:[53.2198,63.6354], z:12 },
+  kyzylorda:   { ru:"Кызылорда", kk:"Қызылорда", en:"Kyzylorda", c:[44.8479,65.5093], z:12 },
+  oral:        { ru:"Уральск", kk:"Орал", en:"Oral", c:[51.2333,51.3667], z:12 },
+  petropavl:   { ru:"Петропавловск", kk:"Петропавл", en:"Petropavl", c:[54.8667,69.1500], z:12 },
+  aktau:       { ru:"Актау", kk:"Ақтау", en:"Aktau", c:[43.6410,51.1975], z:13 },
+  temirtau:    { ru:"Темиртау", kk:"Теміртау", en:"Temirtau", c:[50.0547,72.9644], z:13 },
+  turkistan:   { ru:"Туркестан", kk:"Түркістан", en:"Turkistan", c:[43.3000,68.2500], z:13 },
+  kokshetau:   { ru:"Кокшетау", kk:"Көкшетау", en:"Kokshetau", c:[53.2833,69.4000], z:13 },
+  taldykorgan: { ru:"Талдыкорган", kk:"Талдықорған", en:"Taldykorgan", c:[45.0156,78.3739], z:13 },
+  ekibastuz:   { ru:"Экибастуз", kk:"Екібастұз", en:"Ekibastuz", c:[51.7298,75.3266], z:13 }
+};
+const CITY_DLAT = 0.13, CITY_DLON = 0.24;
+function city(){ return CITIES[S.city] || CITIES.almaty; }
+function cityName(){ const c=city(); return c[S.lang] || c.ru; }
+// Nominatim ждёт viewbox в порядке «запад,север,восток,юг»
+function cityViewbox(){
+  const [la,lo]=city().c;
+  return `${(lo-CITY_DLON).toFixed(4)},${(la+CITY_DLAT).toFixed(4)},${(lo+CITY_DLON).toFixed(4)},${(la-CITY_DLAT).toFixed(4)}`;
+}
 let map, routeLayer, reportLayer, userMarker;
 const layerState = {};
 let pickMode=null, reportLatLng=null, userLatLng=null, sosLatLng=null, pickedLatLng=null;
@@ -945,8 +1206,9 @@ function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") sto
 function setLang(v){
   S.lang=v; store("lang",v);
   document.getElementById("langSel").value=v;
-  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect();
+  buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect(); buildCitySelect();
   applyAll();
+  applyCityTexts(); applyHeading(); updatePeek();
   // перерисовываем метки, чтобы названия объектов сменили язык
   LAYERS.forEach(def=>{ const st=layerState[def.key]; if(st && st.on) drawLayer(def, st); });
   acCache.clear();
@@ -983,7 +1245,12 @@ function renderTexts(){
     const v=t(el.getAttribute("data-i18n-aria")); if(v){ el.setAttribute("aria-label",v); el.setAttribute("title",v); }
   });
   const vt=document.getElementById("viewToggle");
-  vt.querySelector("span").textContent = S.view==="map"? t("viewList") : t("viewMap");
+  const label = S.view==="map" ? t("viewList") : t("viewMap");
+  // именно .vt-text: первый span — иконка, на телефоне подпись в неё не влезает
+  const vtText = vt.querySelector(".vt-text") || vt.querySelector("span");
+  vtText.textContent = label;
+  vt.setAttribute("aria-label", label);   // на телефоне видна только иконка
+  vt.setAttribute("title", label);
   vt.setAttribute("aria-pressed", String(S.view==="list"));
 }
 function buildProfileSelect(){
@@ -1008,9 +1275,161 @@ function toggleView(){ setView(S.view==="map"?"list":"map"); }
 
 /* ============ Карта ============ */
 let mapReady=false;
+/* ============ Компас ============
+   Карта не поворачивается — стрелка показывает, куда повёрнут сам телефон
+   относительно севера. Это нужно, чтобы понять «мне налево или направо»,
+   не глядя на карту. Если датчика нет, честно говорим об этом, а не
+   рисуем стрелку, которая ничего не значит. */
+let heading=null, compassOn=false;
+function dirName(deg){
+  const i = Math.round(((deg%360)+360)%360 / 45) % 8;
+  const names = {
+    ru:["север","северо-восток","восток","юго-восток","юг","юго-запад","запад","северо-запад"],
+    kk:["солтүстік","солтүстік-шығыс","шығыс","оңтүстік-шығыс","оңтүстік","оңтүстік-батыс","батыс","солтүстік-батыс"],
+    en:["north","north-east","east","south-east","south","south-west","west","north-west"]
+  };
+  return (names[S.lang]||names.ru)[i];
+}
+function applyHeading(){
+  const n=document.getElementById("compassNeedle"); if(!n) return;
+  n.style.transform = heading==null ? "" : `rotate(${-heading}deg)`;
+  const btn=document.getElementById("compassBtn");
+  if(btn){
+    btn.classList.toggle("live", heading!=null);
+    btn.setAttribute("aria-label", heading==null ? t("compass")
+      : `${t("compass")}: ${t("facing")} ${dirName(heading)}`);
+  }
+}
+function onOrient(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading === "number") h=e.webkitCompassHeading;      // iOS
+  else if(e.absolute && typeof e.alpha === "number") h=360-e.alpha;             // Android
+  if(h==null || isNaN(h)) return;
+  heading=h; compassOn=true; applyHeading();
+}
+function startCompass(){
+  if(compassOn) return true;
+  if(typeof window.DeviceOrientationEvent === "undefined") return false;
+  window.addEventListener("deviceorientationabsolute", onOrient, true);
+  window.addEventListener("deviceorientation", onOrient, true);
+  return true;
+}
+async function compassTap(){
+  const DOE = window.DeviceOrientationEvent;
+  if(DOE && typeof DOE.requestPermission === "function"){
+    try{
+      const st = await DOE.requestPermission();
+      if(st !== "granted"){ toast(t("compassDenied")); return; }
+    }catch(e){ toast(t("compassNone")); return; }
+  }
+  startCompass();
+  setTimeout(()=>{
+    if(heading==null){ toast(t("compassNone")); }
+    else { toast(`${t("facing")} ${dirName(heading)}`); speak(`${t("facing")} ${dirName(heading)}`); }
+  }, 400);
+}
+
+/* ============ Шторка на телефоне ============ */
+function sheetMode(){ return window.matchMedia("(max-width:860px)").matches; }
+let sheetReturn=null;
+function openSheet(){
+  document.body.classList.add("sheet-open");
+  const b=document.getElementById("sheetBtn"), p=document.getElementById("sheetPeek");
+  if(b) b.setAttribute("aria-expanded","true");
+  if(p) p.setAttribute("aria-expanded","true");
+  sheetReturn = document.activeElement;
+  const panel=document.getElementById("sidePanel");
+  if(panel){ panel.scrollTop=0; const f=panel.querySelector("button, select, input, a"); if(f) f.focus(); }
+}
+function closeSheet(){
+  document.body.classList.remove("sheet-open");
+  const b=document.getElementById("sheetBtn"), p=document.getElementById("sheetPeek");
+  if(b) b.setAttribute("aria-expanded","false");
+  if(p) p.setAttribute("aria-expanded","false");
+  if(sheetReturn && document.body.contains(sheetReturn)){ try{ sheetReturn.focus(); }catch(e){} }
+  sheetReturn=null;
+}
+function toggleSheet(){ document.body.classList.contains("sheet-open") ? closeSheet() : openSheet(); }
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape" && document.body.classList.contains("sheet-open")) closeSheet();
+});
+// Свайп вниз по ручке закрывает шторку
+function initSheetSwipe(){
+  const h=document.querySelector(".sheet-handle"); if(!h) return;
+  let y0=null;
+  h.addEventListener("touchstart", e=>{ y0=e.touches[0].clientY; }, {passive:true});
+  h.addEventListener("touchmove", e=>{
+    if(y0!=null && e.touches[0].clientY - y0 > 60){ y0=null; closeSheet(); }
+  }, {passive:true});
+  h.addEventListener("touchend", ()=>{ y0=null; }, {passive:true});
+}
+// Нижняя плашка показывает состояние маршрута, чтобы не открывать панель ради проверки
+function updatePeek(){
+  const tl=document.getElementById("peekTitle"), sub=document.getElementById("peekSub");
+  if(!tl||!sub) return;
+  if(lastRoute && lastAnalysis){
+    const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
+    const km=(lastRoute.rt.distance/1000).toFixed(1);
+    const n=(lastAnalysis.ob||[]).length;
+    tl.textContent = `${mins} ${t("min")} · ${km} ${t("km")}`;
+    tl.removeAttribute("data-i18n");
+    sub.textContent = n ? `${n} ${t("peekWarns")}` : t("peekClear");
+    sub.removeAttribute("data-i18n");
+  } else {
+    tl.setAttribute("data-i18n","peekIdle"); tl.textContent=t("peekIdle");
+    sub.setAttribute("data-i18n","peekIdleSub"); sub.textContent=t("peekIdleSub");
+  }
+}
+
+/* ============ Выбор города ============ */
+function buildCitySelect(){
+  const sel=document.getElementById("citySel"); if(!sel) return;
+  const list=Object.entries(CITIES)
+    .map(([k,d])=>[k, d[S.lang]||d.ru])
+    .sort((a,b)=>a[1].localeCompare(b[1], locale()));
+  sel.innerHTML="";
+  list.forEach(([k,label])=>{ const o=document.createElement("option"); o.value=k; o.textContent=label; sel.appendChild(o); });
+  sel.value=S.city;
+}
+function applyCityTexts(){
+  const n=cityName();
+  const h=document.getElementById("pageTitle");
+  if(h) h.textContent = S.lang==="en" ? `Get around ${n} with confidence`
+                      : S.lang==="kk" ? `${n}: еркін жүріңіз`
+                      : `${n}: передвигайтесь увереннее`;
+  const m=document.getElementById("map");
+  if(m) m.setAttribute("aria-label", `${t("mapLabel")}: ${n}`);
+  document.title = `InclusiveCity — ${t("docTitle")}: ${n}`;
+}
+function setCity(key){
+  if(!CITIES[key]) key="almaty";
+  const changed = key!==S.city;
+  S.city=key; store("city",key);
+  const sel=document.getElementById("citySel"); if(sel) sel.value=key;
+  applyCityTexts();
+  if(!changed) return;
+  // Всё, что было привязано к прежнему городу, сбрасываем, чтобы не вести
+  // маршрут из Алматы в Астану и не показывать чужие подсказки.
+  acCache.clear();
+  try{ sessionStorage.clear(); }catch(e){}
+  delete SELECTED.start; delete SELECTED.destination;
+  const st=document.getElementById("start"), ds=document.getElementById("destination");
+  if(st) st.value=""; if(ds) ds.value="";
+  lastRoute=null; lastSteps=[]; lastAnalysis=null;
+  if(routeLayer) routeLayer.clearLayers();
+  LAYERS.forEach(def=>{ const s2=layerState[def.key]; if(s2 && s2.on){ s2.on=false; if(s2.group) s2.group.clearLayers(); } });
+  buildLayerBar();
+  if(mapReady) map.setView(city().c, city().z);
+  loadWeather(true);
+  renderNearby(); updatePeek();
+  const rc=document.getElementById("routeCard");
+  if(rc) rc.innerHTML = `<h2>${esc(t("noRoute"))}</h2><p class="small muted">${esc(t("noRouteHelp"))}</p>`;
+  toast(cityName());
+}
+
 function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
-  map=L.map("map",{zoomControl:false}).setView([43.2383,76.9455],13);
+  map=L.map("map",{zoomControl:false}).setView(city().c, city().z);
   L.control.zoom({position:"bottomright"}).addTo(map);
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
@@ -1166,7 +1585,7 @@ function bearingWord(a,b){
   return dx>0?t("east"):t("west");
 }
 function renderNearby(){
-  const center = userLatLng || (mapReady? [map.getCenter().lat,map.getCenter().lng] : [43.2383,76.9455]);
+  const center = userLatLng || (mapReady? [map.getCenter().lat,map.getCenter().lng] : city().c);
   const rows=[];
   LAYERS.forEach(def=>{
     const st=layerState[def.key];
@@ -1199,7 +1618,7 @@ async function acSearch(q){
   const key=S.lang+"|"+q.toLowerCase();
   if(acCache.has(key)) return acCache.get(key);
   const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1`
-    +`&bounded=1&viewbox=76.75,43.36,77.12,43.16&accept-language=${S.lang}&q=${encodeURIComponent(q+", Алматы")}`;
+    +`&bounded=1&viewbox=${cityViewbox()}&accept-language=${S.lang}&q=${encodeURIComponent(q+", "+cityName())}`;
   const r=await fetch(url,{headers:{"Accept-Language":S.lang}});
   if(!r.ok) throw new Error("geocoder");
   const d=await r.json();
@@ -1293,6 +1712,7 @@ function fieldCoords(inputId){
 
 /* ============ Геокодирование ============ */
 function presetFor(v){
+  if(S.city!=="almaty") return null;   // список готовых точек собран для Алматы
   const k=Object.keys(PRESETS).find(x=>x.toLowerCase()===String(v).trim().toLowerCase());
   return k?PRESETS[k]:null;
 }
@@ -1303,8 +1723,8 @@ async function findPlace(v){
   if(pickedLatLng && anyLang("mapPoint").some(x=>x.toLowerCase()===val.toLowerCase())) return pickedLatLng;
   if(userLatLng && anyLang("myLocation").some(x=>x.toLowerCase()===val.toLowerCase())) return userLatLng;
   const p=presetFor(v); if(p) return p;
-  const q=encodeURIComponent(`${v}, Алматы, Казахстан`);
-  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=76.75,43.36,77.12,43.16&q=${q}`,
+  const q=encodeURIComponent(`${v}, ${cityName()}, ${S.lang==="en"?"Kazakhstan":"Казахстан"}`);
+  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=${cityViewbox()}&q=${q}`,
     {headers:{"Accept-Language":S.lang}});
   const d=await r.json();
   if(!d.length) throw new Error("not found");
@@ -1348,9 +1768,14 @@ async function buildRoute(){
     lastAnalysis={ob:obstacles, slope};
     renderRouteCard(rt,mins,obstacles,slope);
     renderRouteList(rt,mins,obstacles,slope);
+    updatePeek();
+    // На телефоне после построения прячем шторку: маршрут нужно видеть на карте,
+    // а итог остаётся в нижней плашке.
+    if(sheetMode() && S.view==="map") closeSheet();
     if(S.voice==="on") speakRoute();
   }catch(e){
     card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
+    updatePeek();
   }
 }
 
@@ -1550,6 +1975,17 @@ function speakRoute(){
   speechSynthesis.speak(u);
 }
 function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
+// Короткая фраза вслух (компас). Озвучиваем только если голос включён в настройках.
+function speak(text){
+  if(S.voice!=="on" || !("speechSynthesis" in window)) return;
+  try{
+    stopSpeak();
+    const {voice}=pickVoice(S.lang);
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=0.98;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
 function voiceInput(fieldId){
   const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){ toast(t("voiceNo")); return; }
@@ -1659,13 +2095,13 @@ async function sosCopy(){
 
 /* ============ Обращение в акимат ============ */
 function openComplaint(){
-  const p = lastComplaintPoint || userLatLng || [43.2383,76.9455];
+  const p = lastComplaintPoint || userLatLng || city().c;
   const link=`https://www.openstreetmap.org/?mlat=${p[0]}&mlon=${p[1]}#map=19/${p[0]}/${p[1]}`;
   const body = S.lang==="en"
    ? `To the Akimat of Almaty\n\nI report an accessibility barrier in the public space.\n\nLocation: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${new Date().toLocaleDateString()}`
    : S.lang==="kk"
-   ? `Алматы қаласының әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
-   : `В акимат города Алматы\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
+   ? `${cityName()} қаласының әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
+   : `В акимат г. ${cityName()}\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
   document.getElementById("cmpText").value=body;
   openModal("complaintModal");
 }
@@ -1705,6 +2141,8 @@ function toast(s){
   S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
   S.voice=read("voice","on"); S.view=read("view","map");
   S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
+  if(S.basemap==="satlab") S.basemap="sat";
+  S.city=read("city","almaty"); if(!CITIES[S.city]) S.city="almaty";
   document.getElementById("langSel").value=S.lang;
   // Карта — не обязательное условие работы приложения: если Leaflet не загрузился
   // (заблокирован CDN, медленная сеть), приложение продолжает работать в текстовом
@@ -1723,7 +2161,16 @@ function toast(s){
   const step=(name,fn)=>{ try{ fn(); }catch(e){ console.error("init step failed:",name,e); } };
   step("basemap", ()=>setBasemap(S.basemap));
   step("autocomplete", ()=>{ attachAutocomplete("start"); attachAutocomplete("destination"); });
+  step("city", ()=>{
+    buildCitySelect(); applyCityTexts();
+    if(S.city!=="almaty"){
+      const a=document.getElementById("start"), b=document.getElementById("destination");
+      if(a) a.value=""; if(b) b.value="";
+    }
+  });
   step("weather", ()=>{ loadWeather(); });
+  step("compass", ()=>{ startCompass(); applyHeading(); });
+  step("sheet", ()=>{ initSheetSwipe(); updatePeek(); });
   applyAll();
   showReports(); renderNearby();
   if(!navigator.onLine) toast(t("offline"));
