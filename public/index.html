@@ -218,6 +218,7 @@ html[data-motion="off"] .compass-needle{transition:none}
 }
 .variant b{font-size:.92rem;grid-column:1}
 .variant .v-best{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:99px;background:var(--blue-weak);color:var(--blue-ink);font-size:.68rem;font-weight:800;vertical-align:middle}
+.variant .v-best.v-least{background:var(--amber-weak);color:var(--amber)}
 .variant .v-sub{grid-column:1;font-size:.78rem;line-height:1.3}
 .variant .v-sub.ok{color:var(--green,#177245)}
 .variant .v-sub.warn{color:var(--amber)}
@@ -649,11 +650,12 @@ ru:{
  cityLabel:"Город", docTitle:"доступная карта", mapLabel:"Карта",
  variantsTitle:"Варианты пути", vFastest:"быстрее всех", vStairs:"лестниц без пандуса",
  stairs1:"лестница", stairs2:"лестницы", stairs5:"лестниц", vNoRamp:"без пандуса",
+ warn1:"предупреждение", warn2:"предупреждения", warn5:"предупреждений", vLeastBad:"меньше всего барьеров",
  vBest:"подходит вам",
  vSlope:"уклон до", vClean:"Барьеров для вашего профиля не найдено",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
- peekWarns:"предупреждений на пути", peekClear:"Препятствий не найдено",
+ peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
  compassDenied:"Доступ к компасу не разрешён. Карта всегда повёрнута на север.",
@@ -720,11 +722,12 @@ kk:{
  cityLabel:"Қала", docTitle:"қолжетімді карта", mapLabel:"Карта",
  variantsTitle:"Жол нұсқалары", vFastest:"ең жылдам", vStairs:"пандуссыз баспалдақ",
  stairs1:"баспалдақ", stairs2:"баспалдақ", stairs5:"баспалдақ", vNoRamp:"пандуссыз",
+ warn1:"ескерту", warn2:"ескерту", warn5:"ескерту", vLeastBad:"кедергісі ең аз",
  vBest:"сізге қолайлы",
  vSlope:"еңіс", vClean:"Профиліңізге кедергі табылмады",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
- peekWarns:"жолдағы ескерту", peekClear:"Кедергі табылмады",
+ peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
  compassDenied:"Компасқа рұқсат берілмеді. Карта әрқашан солтүстікке бағытталған.",
@@ -792,11 +795,12 @@ en:{
  cityLabel:"City", docTitle:"accessible map", mapLabel:"Map",
  variantsTitle:"Route options", vFastest:"fastest", vStairs:"stairs without a ramp",
  stairs1:"staircase", stairs2:"staircases", stairs5:"staircases", vNoRamp:"without a ramp",
+ warn1:"warning", warn2:"warnings", warn5:"warnings", vLeastBad:"fewest barriers",
  vBest:"suits you",
  vSlope:"slope up to", vClean:"No barriers for your profile",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
- peekWarns:"warnings on the way", peekClear:"No obstacles found",
+ peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
  compassDenied:"Compass access was not granted. The map is always north-up.",
@@ -1421,16 +1425,26 @@ function initSheetSwipe(){
   h.addEventListener("touchend", ()=>{ y0=null; }, {passive:true});
 }
 // Нижняя плашка показывает состояние маршрута, чтобы не открывать панель ради проверки
+// Считаем именно то, что мешает ЭТОМУ профилю: лестницы без пандуса и уклон выше нормы.
+// Раньше здесь брали .length у объекта разбора — он всегда был undefined,
+// и приложение бодро сообщало «препятствий не найдено» на маршруте с лестницей.
+function countBarriers(an){
+  if(!an) return 0;
+  const prof=PROFILES[S.profile], ob=an.ob||{};
+  const stairs = prof.avoidStairs ? (ob.stairs||[]).filter(x=>!x.ramp).length : 0;
+  const slopeBad = an.slope && an.slope.maxSlope > prof.maxSlope ? 1 : 0;
+  return stairs + slopeBad;
+}
 function updatePeek(){
   const tl=document.getElementById("peekTitle"), sub=document.getElementById("peekSub");
   if(!tl||!sub) return;
   if(lastRoute && lastAnalysis){
     const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
     const km=(lastRoute.rt.distance/1000).toFixed(1);
-    const n=(lastAnalysis.ob||[]).length;
+    const n = countBarriers(lastAnalysis);
     tl.textContent = `${mins} ${t("min")} · ${km} ${t("km")}`;
     tl.removeAttribute("data-i18n");
-    sub.textContent = n ? `${n} ${t("peekWarns")}` : t("peekClear");
+    sub.textContent = n ? `${n} ${plural(n, t("warn1"), t("warn2"), t("warn5"))} ${t("peekWarns")}` : t("peekClear");
     sub.removeAttribute("data-i18n");
   } else {
     tl.setAttribute("data-i18n","peekIdle"); tl.textContent=t("peekIdle");
@@ -1918,7 +1932,11 @@ function renderVariants(){
     const delta = diff===0 ? t("vFastest") : `+${diff} ${t("min")}`;
     const clean = !(PROFILES[S.profile].avoidStairs && v.ob.stairs.some(x=>!x.ramp))
                && !(v.slope && v.slope.maxSlope > PROFILES[S.profile].maxSlope);
-    const tag = i===0 && routeVariants.length>1 ? `<span class="v-best">${esc(t("vBest"))}</span>` : "";
+    // Помечаем «подходит вам» только по-настоящему проходимый вариант.
+    // На маршруте с лестницей такая пометка завела бы человека в тупик.
+    const cleanTag = i===0 && clean;
+    const tag = i===0 && routeVariants.length>1
+      ? `<span class="v-best${cleanTag?"":" v-least"}">${esc(cleanTag ? t("vBest") : t("vLeastBad"))}</span>` : "";
     btn.innerHTML = `<b>${v.mins} ${esc(t("min"))} · ${(v.rt.distance/1000).toFixed(1)} ${esc(t("km"))}${tag}</b>`
       + `<span class="v-sub ${clean?"ok":"warn"}">${esc(variantSummary(v))}</span>`
       + `<span class="v-delta">${esc(delta)}</span>`;
