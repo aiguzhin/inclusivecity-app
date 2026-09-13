@@ -209,6 +209,21 @@ html[data-motion="off"] .compass-needle{transition:none}
 .sheet-backdrop{display:none}
 .city-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:14px}
 .city-row .grow{flex:1;min-width:0}
+/* Варианты маршрута */
+.variants{display:flex;flex-direction:column;gap:7px}
+.variant{
+  display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;text-align:left;
+  padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  min-height:56px;
+}
+.variant b{font-size:.92rem;grid-column:1}
+.variant .v-best{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:99px;background:var(--blue-weak);color:var(--blue-ink);font-size:.68rem;font-weight:800;vertical-align:middle}
+.variant .v-sub{grid-column:1;font-size:.78rem;line-height:1.3}
+.variant .v-sub.ok{color:var(--green,#177245)}
+.variant .v-sub.warn{color:var(--amber)}
+.variant .v-delta{grid-column:2;grid-row:1/3;font-size:.8rem;font-weight:750;color:var(--ink-soft);white-space:nowrap}
+.variant[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-weak);color:var(--blue-ink)}
+.variant[aria-pressed="true"] .v-delta{color:var(--blue-ink)}
 .ac-wrap{position:relative;flex:1;min-width:0}
 .ac-list{
   position:absolute;z-index:700;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;
@@ -632,6 +647,10 @@ ru:{
  mapPlain:"Схема", mapSat:"Спутник",
  satLimit:"Подробнее этот город со спутника не снят — показываем крупнее последний доступный снимок. Схема остаётся чёткой.",
  cityLabel:"Город", docTitle:"доступная карта", mapLabel:"Карта",
+ variantsTitle:"Варианты пути", vFastest:"быстрее всех", vStairs:"лестниц без пандуса",
+ stairs1:"лестница", stairs2:"лестницы", stairs5:"лестниц", vNoRamp:"без пандуса",
+ vBest:"подходит вам",
+ vSlope:"уклон до", vClean:"Барьеров для вашего профиля не найдено",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
  peekWarns:"предупреждений на пути", peekClear:"Препятствий не найдено",
@@ -699,6 +718,10 @@ kk:{
  mapPlain:"Сызба", mapSat:"Спутник",
  satLimit:"Бұл қала спутниктен бұдан егжей-тегжейлі түсірілмеген — соңғы қолжетімді суретті үлкейтіп көрсетеміз. Сызба анық күйінде қалады.",
  cityLabel:"Қала", docTitle:"қолжетімді карта", mapLabel:"Карта",
+ variantsTitle:"Жол нұсқалары", vFastest:"ең жылдам", vStairs:"пандуссыз баспалдақ",
+ stairs1:"баспалдақ", stairs2:"баспалдақ", stairs5:"баспалдақ", vNoRamp:"пандуссыз",
+ vBest:"сізге қолайлы",
+ vSlope:"еңіс", vClean:"Профиліңізге кедергі табылмады",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
  peekWarns:"жолдағы ескерту", peekClear:"Кедергі табылмады",
@@ -767,6 +790,10 @@ en:{
  mapPlain:"Map", mapSat:"Satellite",
  satLimit:"No closer satellite imagery exists for this city — we enlarge the last available shot. The street map stays sharp.",
  cityLabel:"City", docTitle:"accessible map", mapLabel:"Map",
+ variantsTitle:"Route options", vFastest:"fastest", vStairs:"stairs without a ramp",
+ stairs1:"staircase", stairs2:"staircases", stairs5:"staircases", vNoRamp:"without a ramp",
+ vBest:"suits you",
+ vSlope:"slope up to", vClean:"No barriers for your profile",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
  peekWarns:"warnings on the way", peekClear:"No obstacles found",
@@ -1764,45 +1791,79 @@ async function findPlace(v){
 }
 
 /* ============ Маршрут + анализ ============ */
+let routeVariants = [];   // разобранные варианты пути
+let variantIndex = 0;
+
+// Насколько вариант плох ДЛЯ ЭТОГО профиля. Лестница без пандуса для коляски —
+// это не «на 5 минут дольше», это «не проехать», поэтому вес несопоставимо больше времени.
+function scoreVariant(v){
+  const prof=PROFILES[S.profile];
+  const blocking = prof.avoidStairs ? v.ob.stairs.filter(x=>!x.ramp).length : 0;
+  const slope = v.slope ? v.slope.maxSlope : 0;
+  const overSlope = Math.max(0, slope - prof.maxSlope);
+  return blocking*1000 + (overSlope>0 ? 400 + overSlope*30 : 0) + v.mins;
+}
+// Русский требует согласования с числом: «1 лестница», «2 лестницы», «5 лестниц».
+// В казахском после числительного существительное не меняется.
+function plural(n, one, few, many){
+  if(S.lang!=="ru") return S.lang==="kk" ? one : (n===1 ? one : few);
+  const m10=n%10, m100=n%100;
+  if(m10===1 && m100!==11) return one;
+  if(m10>=2 && m10<=4 && (m100<12 || m100>14)) return few;
+  return many;
+}
+function variantSummary(v){
+  const prof=PROFILES[S.profile];
+  const blocking = prof.avoidStairs ? v.ob.stairs.filter(x=>!x.ramp).length : 0;
+  const slope = v.slope ? v.slope.maxSlope : 0;
+  const bits=[];
+  if(blocking) bits.push(`${blocking} ${plural(blocking, t("stairs1"), t("stairs2"), t("stairs5"))} ${t("vNoRamp")}`);
+  if(slope > prof.maxSlope) bits.push(`${t("vSlope")} ${slope.toFixed(1)}%`);
+  return bits.length ? bits.join(" · ") : t("vClean");
+}
+
 async function buildRoute(){
   if(mapReady) routeLayer.clearLayers();
   stopSpeak();
   const card=document.getElementById("routeCard");
   card.innerHTML=`<h2>${esc(t("building"))}</h2>`;
+  routeVariants=[]; variantIndex=0;
   try{
     const startSel = fieldCoords("start");
     const a = startSel || userLatLng || await findPlace(document.getElementById("start").value);
     const b = fieldCoords("destination") || await findPlace(document.getElementById("destination").value);
-    const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
+
+    // Просим несколько вариантов, а не один: это и есть основа выбора «в обход барьеров».
+    const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}`
+      + `?overview=full&geometries=geojson&steps=true&alternatives=3`;
     const r=await fetch(url); const d=await r.json();
-    if(d.code!=="Ok"||!d.routes.length) throw new Error("route");
-    const rt=d.routes[0];
-    const pts=rt.geometry.coordinates.map(c=>[c[1],c[0]]);
-    lastRoute={a,b,rt,pts};
-    if(mapReady){
-      L.polyline(pts,{color:"#1769c2",weight:7,opacity:.95}).addTo(routeLayer);
-      L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
-      L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
-      map.fitBounds(L.latLngBounds(pts),{padding:[50,50]});
-    }
+    if(d.code!=="Ok"||!d.routes||!d.routes.length) throw new Error("route");
 
-    lastSteps = (rt.legs&&rt.legs[0]&&rt.legs[0].steps? rt.legs[0].steps:[])
-      .map(s=>({name:s.name||"", dist:Math.round(s.distance), mod:(s.maneuver&&s.maneuver.modifier)||"", type:(s.maneuver&&s.maneuver.type)||""}))
-      .filter(s=>s.dist>0);
-    lastComplaintPoint=b;
-
+    const routes=d.routes.slice(0,3);
     const prof=PROFILES[S.profile];
-    const mins=Math.max(1,Math.round((rt.duration/60)/prof.speed));
-    card.innerHTML=`<h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
-      <p class="small muted">${esc(t("checking"))}</p>`;
+    const routesPts=routes.map(rt=>rt.geometry.coordinates.map(c=>[c[1],c[0]]));
 
-    const [obstacles, slope] = await Promise.all([ checkObstacles(pts), checkSlope(pts) ]);
-    lastAnalysis={ob:obstacles, slope};
-    renderRouteCard(rt,mins,obstacles,slope);
-    renderRouteList(rt,mins,obstacles,slope);
-    updatePeek();
-    // На телефоне после построения прячем шторку: маршрут нужно видеть на карте,
-    // а итог остаётся в нижней плашке.
+    // показываем первый вариант сразу, чтобы не держать пустой экран, пока идёт анализ
+    lastRoute={a,b,rt:routes[0],pts:routesPts[0]};
+    drawRoute(routesPts[0], a, b);
+    card.innerHTML=`<h2>${(routes[0].distance/1000).toFixed(1)} ${esc(t("km"))} · ~`
+      + `${Math.max(1,Math.round((routes[0].duration/60)/prof.speed))} ${esc(t("min"))}</h2>`
+      + `<p class="small muted">${esc(t("checking"))}</p>`;
+
+    let pool=[], slopes=[];
+    try{ pool = await fetchBarriers(routesPts); }catch(e){ pool=[]; }
+    try{ slopes = await checkSlopes(routesPts); }catch(e){ slopes=routesPts.map(()=>null); }
+
+    routeVariants = routes.map((rt,i)=>({
+      rt, a, b, pts:routesPts[i],
+      ob: barriersOnRoute(pool, routesPts[i]),
+      slope: slopes[i] || null,
+      mins: Math.max(1, Math.round((rt.duration/60)/prof.speed))
+    }));
+    // самый проходимый — первым; при равенстве выигрывает более быстрый
+    routeVariants.sort((x,y)=>scoreVariant(x)-scoreVariant(y));
+    showVariant(0);
+
     if(sheetMode() && S.view==="map") closeSheet();
     if(S.voice==="on") speakRoute();
   }catch(e){
@@ -1811,38 +1872,125 @@ async function buildRoute(){
   }
 }
 
+function drawRoute(pts, a, b){
+  if(!mapReady) return;
+  routeLayer.clearLayers();
+  L.polyline(pts,{color:"#1769c2",weight:7,opacity:.95}).addTo(routeLayer);
+  L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
+  L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
+  map.fitBounds(L.latLngBounds(pts),{padding:[50,50]});
+}
+
+function showVariant(i){
+  if(!routeVariants.length) return;
+  variantIndex = Math.max(0, Math.min(i, routeVariants.length-1));
+  const v = routeVariants[variantIndex];
+  lastRoute={a:v.a, b:v.b, rt:v.rt, pts:v.pts};
+  lastAnalysis={ob:v.ob, slope:v.slope};
+  lastComplaintPoint=v.b;
+  lastSteps = (v.rt.legs&&v.rt.legs[0]&&v.rt.legs[0].steps? v.rt.legs[0].steps:[])
+    .map(x=>({name:x.name||"", dist:Math.round(x.distance), mod:(x.maneuver&&x.maneuver.modifier)||"", type:(x.maneuver&&x.maneuver.type)||""}))
+    .filter(x=>x.dist>0);
+  drawRoute(v.pts, v.a, v.b);
+  drawBarriers(v.ob);
+  renderRouteCard(v.rt, v.mins, v.ob, v.slope);
+  renderRouteList(v.rt, v.mins, v.ob, v.slope);
+  renderVariants();
+  updatePeek();
+}
+
+// Варианты показываем всегда, когда их больше одного: пусть человек сам решит,
+// что для него сегодня важнее — пять минут или лестница.
+function renderVariants(){
+  const host=document.getElementById("routeCard");
+  if(!host || routeVariants.length<2) return;
+  // Разницу во времени считаем от САМОГО БЫСТРОГО варианта, а не от выбранного:
+  // иначе рекомендованный обход выглядел бы как «эталон», от которого всё медленнее.
+  const fastest=Math.min(...routeVariants.map(v=>v.mins));
+  const box=document.createElement("div");
+  box.className="variants";
+  box.innerHTML=`<p class="small muted" style="margin:12px 0 6px">${esc(t("variantsTitle"))}</p>`;
+  routeVariants.forEach((v,i)=>{
+    const btn=document.createElement("button");
+    btn.type="button"; btn.className="variant";
+    btn.setAttribute("aria-pressed", String(i===variantIndex));
+    const diff = v.mins - fastest;
+    const delta = diff===0 ? t("vFastest") : `+${diff} ${t("min")}`;
+    const clean = !(PROFILES[S.profile].avoidStairs && v.ob.stairs.some(x=>!x.ramp))
+               && !(v.slope && v.slope.maxSlope > PROFILES[S.profile].maxSlope);
+    const tag = i===0 && routeVariants.length>1 ? `<span class="v-best">${esc(t("vBest"))}</span>` : "";
+    btn.innerHTML = `<b>${v.mins} ${esc(t("min"))} · ${(v.rt.distance/1000).toFixed(1)} ${esc(t("km"))}${tag}</b>`
+      + `<span class="v-sub ${clean?"ok":"warn"}">${esc(variantSummary(v))}</span>`
+      + `<span class="v-delta">${esc(delta)}</span>`;
+    btn.onclick=()=>showVariant(i);
+    box.appendChild(btn);
+  });
+  host.appendChild(box);
+}
+
 function bboxOf(pts){
   let s=90,w=180,n=-90,e=-180;
   pts.forEach(p=>{ s=Math.min(s,p[0]); n=Math.max(n,p[0]); w=Math.min(w,p[1]); e=Math.max(e,p[1]); });
   const m=0.002;
   return `${(s-m).toFixed(5)},${(w-m).toFixed(5)},${(n+m).toFixed(5)},${(e+m).toFixed(5)}`;
 }
+// Расстояние от точки до ОТРЕЗКА, а не до его концов. Раньше проверялась каждая
+// вторая вершина маршрута, и барьер посреди длинного прямого участка не находился.
+function segDist(p,a,b){
+  const R=6371000, toRad=x=>x*Math.PI/180;
+  const latRef=toRad((a[0]+b[0])/2), k=Math.cos(latRef);
+  const X=ll=>[toRad(ll[1])*k*R, toRad(ll[0])*R];
+  const [px,py]=X(p), [ax,ay]=X(a), [bx,by]=X(b);
+  const dx=bx-ax, dy=by-ay, len2=dx*dx+dy*dy;
+  let t = len2 ? ((px-ax)*dx+(py-ay)*dy)/len2 : 0;
+  t = t<0 ? 0 : (t>1 ? 1 : t);
+  return Math.hypot(px-(ax+t*dx), py-(ay+t*dy));
+}
 function nearRoute(pts,ll,limit){
-  for(let i=0;i<pts.length;i+=2){ if(haversine(pts[i],ll)<limit) return true; }
+  if(!pts||!pts.length) return false;
+  if(pts.length===1) return haversine(pts[0],ll)<limit;
+  for(let i=1;i<pts.length;i++){ if(segDist(ll,pts[i-1],pts[i])<limit) return true; }
   return false;
 }
-async function checkObstacles(pts){
-  const out={stairs:[],tunnels:[],ok:false};
-  try{
-    const bb=bboxOf(pts);
-    const q=`[out:json][timeout:25];(way["highway"="steps"](${bb});way["tunnel"="yes"]["highway"~"footway|path|pedestrian"](${bb});way["bridge"="yes"]["highway"~"footway|path"](${bb}););out center tags 200;`;
-    const d=await overpassQuery(q, 25000);
-    (d.elements||[]).forEach(e=>{
-      const ll=[e.lat||(e.center&&e.center.lat), e.lon||(e.center&&e.center.lon)];
-      if(!ll[0]||!ll[1]) return;
-      if(!nearRoute(pts,ll,40)) return;
-      const item={ll, name:(e.tags&&e.tags.name)||"", ramp:!!(e.tags&&(e.tags.ramp==="yes"||e.tags["ramp:wheelchair"]==="yes"))};
-      if(e.tags&&e.tags.highway==="steps") out.stairs.push(item); else out.tunnels.push(item);
-    });
-    out.ok=true;
-    if(mapReady){
-      out.stairs.forEach(s=>{
-        L.circleMarker(s.ll,{radius:8,color:"#b42318",weight:3,fillColor:"#fff",fillOpacity:1})
-         .addTo(routeLayer).bindPopup(`<b>${esc(t("warnStairs"))}</b>${s.ramp?" (ramp)":""}`);
-      });
-    }
-  }catch(e){}
+// Барьеры вдоль маршрутов. Для нескольких вариантов делаем ОДИН запрос к Overpass
+// по общей рамке и раскладываем найденное по маршрутам — иначе три варианта
+// означали бы три тяжёлых запроса и минуту ожидания.
+async function fetchBarriers(routesPts){
+  const all=[].concat(...routesPts);
+  const bb=bboxOf(all);
+  const q=`[out:json][timeout:25];(way["highway"="steps"](${bb});way["tunnel"="yes"]["highway"~"footway|path|pedestrian"](${bb});way["bridge"="yes"]["highway"~"footway|path"](${bb}););out center tags 300;`;
+  const d=await overpassQuery(q, 25000);
+  return (d.elements||[]).map(e=>{
+    const ll=[e.lat||(e.center&&e.center.lat), e.lon||(e.center&&e.center.lon)];
+    if(!ll[0]||!ll[1]) return null;
+    return { ll, name:(e.tags&&e.tags.name)||"",
+             ramp:!!(e.tags&&(e.tags.ramp==="yes"||e.tags["ramp:wheelchair"]==="yes")),
+             steps: !!(e.tags&&e.tags.highway==="steps") };
+  }).filter(Boolean);
+}
+function barriersOnRoute(pool, pts){
+  const out={stairs:[],tunnels:[],ok:true};
+  pool.forEach(x=>{
+    if(!nearRoute(pts,x.ll,40)) return;
+    const item={ll:x.ll, name:x.name, ramp:x.ramp};
+    if(x.steps) out.stairs.push(item); else out.tunnels.push(item);
+  });
   return out;
+}
+function drawBarriers(ob){
+  if(!mapReady || !ob) return;
+  ob.stairs.forEach(st=>{
+    L.circleMarker(st.ll,{radius:8,color:"#b42318",weight:3,fillColor:"#fff",fillOpacity:1})
+     .addTo(routeLayer).bindPopup(`<b>${esc(t("warnStairs"))}</b>${st.ramp?" (ramp)":""}`);
+  });
+}
+async function checkObstacles(pts){
+  try{
+    const pool=await fetchBarriers([pts]);
+    const ob=barriersOnRoute(pool, pts);
+    drawBarriers(ob);
+    return ob;
+  }catch(e){ return {stairs:[],tunnels:[],ok:false}; }
 }
 // Высоты: два независимых источника. У бесплатных сервисов жёсткие лимиты,
 // поэтому один отказ не должен лишать пользователя предупреждения об уклоне.
@@ -1864,6 +2012,34 @@ async function fetchElevations(sample){
   }catch(e){}
   return null;
 }
+// Высоты для нескольких маршрутов тоже берём одним запросом: у opentopodata
+// лимит около 100 точек, поэтому делим бюджет между вариантами.
+async function checkSlopes(routesPts){
+  const per = Math.max(8, Math.floor(90 / Math.max(1,routesPts.length)));
+  const samples = routesPts.map(pts=>{
+    const step=Math.max(1,Math.floor(pts.length/per));
+    return pts.filter((_,i)=>i%step===0).slice(0,per);
+  });
+  const flat=[].concat(...samples);
+  const elev=await fetchElevations(flat);
+  if(!elev) return routesPts.map(()=>null);
+  let i=0;
+  return samples.map(sample=>{
+    const part=elev.slice(i, i+sample.length); i+=sample.length;
+    let maxUp=0, gain=0;
+    for(let k=1;k<part.length;k++){
+      const e0=part[k-1], e1=part[k];
+      if(e0==null||e1==null) continue;
+      const dist=haversine(sample[k-1],sample[k]);
+      if(dist<5) continue;
+      const g=((e1-e0)/dist)*100;
+      if(e1>e0) gain+=(e1-e0);
+      if(g>maxUp) maxUp=g;
+    }
+    return {maxSlope:maxUp, gain:Math.round(gain)};
+  });
+}
+
 async function checkSlope(pts){
   try{
     const step=Math.max(1,Math.floor(pts.length/40));
