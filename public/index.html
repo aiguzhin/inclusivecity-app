@@ -1,5 +1,6 @@
 <!doctype html>
 
+
 <html lang="ru" data-theme="light" data-font="normal" data-contrast="normal" data-motion="on">
 <head>
 <meta charset="utf-8">
@@ -629,6 +630,7 @@ const I18N = {
 ru:{
  basemapLabel:"Вид карты", acNoResults:"Ничего не найдено",
  mapPlain:"Схема", mapSat:"Спутник",
+ satLimit:"Подробнее этот город со спутника не снят — показываем крупнее последний доступный снимок. Схема остаётся чёткой.",
  cityLabel:"Город", docTitle:"доступная карта", mapLabel:"Карта",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
@@ -695,6 +697,7 @@ ru:{
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
  mapPlain:"Сызба", mapSat:"Спутник",
+ satLimit:"Бұл қала спутниктен бұдан егжей-тегжейлі түсірілмеген — соңғы қолжетімді суретті үлкейтіп көрсетеміз. Сызба анық күйінде қалады.",
  cityLabel:"Қала", docTitle:"қолжетімді карта", mapLabel:"Карта",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
@@ -762,6 +765,7 @@ kk:{
 en:{
  basemapLabel:"Map type", acNoResults:"Nothing found",
  mapPlain:"Map", mapSat:"Satellite",
+ satLimit:"No closer satellite imagery exists for this city — we enlarge the last available shot. The street map stays sharp.",
  cityLabel:"City", docTitle:"accessible map", mapLabel:"Map",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
@@ -916,7 +920,7 @@ const BASEMAPS = {
   // Подписи берём у CARTO, а не у Esri: слой Esri «Boundaries and Places» содержит
   // только названия городов и районов — улиц в нём нет вообще. У CARTO подписи
   // построены по OpenStreetMap, поэтому улицы подписаны и на русском/казахском.
-  sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19,
+  sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19, imagery:true,
         url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         overlay:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",
         attr:"© Esri, Maxar · подписи © OpenStreetMap, © CARTO" },
@@ -941,12 +945,18 @@ function setBasemap(key){
   const def=BASEMAPS[key];
   if(baseLayer) map.removeLayer(baseLayer);
   if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; }
-  baseLayer=L.tileLayer(def.url,{maxZoom:def.max,attribution:def.attr}).addTo(map);
+  const opts={maxZoom:def.max, attribution:def.attr};
+  // Для снимков ставим предел по городу: Leaflet растянет последнюю реальную
+  // плитку вместо того, чтобы показывать серую заглушку Esri.
+  if(def.imagery) opts.maxNativeZoom = city().sz || 17;
+  baseLayer=L.tileLayer(def.url,opts).addTo(map);
   if(baseLayer.setZIndex) baseLayer.setZIndex(0);
   if(def.overlay){
+    // Подписи рисуются векторно и остаются резкими на любом зуме
     baseOverlay=L.tileLayer(def.overlay,{maxZoom:def.max}).addTo(map);
     if(baseOverlay.setZIndex) baseOverlay.setZIndex(1);
   }
+  checkImageryZoom();
 }
 // Быстрый переключатель «схема / спутник»: обычный спутник — sat, а не satlab,
 // потому что подписей на нём нет и он читается спокойнее.
@@ -1087,6 +1097,20 @@ async function loadWeather(force){
   renderWeather();
 }
 
+// Один раз за сеанс говорим, что дальше снимков просто не существует —
+// иначе размытая картинка выглядит как поломка приложения.
+let imageryWarned = null;
+function checkImageryZoom(){
+  if(!mapReady) return;
+  const def=BASEMAPS[S.basemap];
+  if(!def || !def.imagery){ return; }
+  const lim = city().sz || 17;
+  if(map.getZoom() > lim && imageryWarned !== S.city){
+    imageryWarned = S.city;
+    toast(t("satLimit"));
+  }
+}
+
 function buildBasemapSelect(){
   const sel=document.getElementById("basemapSel"); if(!sel) return;
   sel.innerHTML="";
@@ -1137,27 +1161,30 @@ const S = {
    Приложение больше не привязано к Алматы: центр карты, область поиска,
    погода и шаблон обращения в акимат берутся из выбранного города. */
 const CITIES = {
-  almaty:      { ru:"Алматы", kk:"Алматы", en:"Almaty", c:[43.2383,76.9455], z:13 },
-  astana:      { ru:"Астана", kk:"Астана", en:"Astana", c:[51.1282,71.4306], z:12 },
-  shymkent:    { ru:"Шымкент", kk:"Шымкент", en:"Shymkent", c:[42.3174,69.5901], z:12 },
-  karaganda:   { ru:"Караганда", kk:"Қарағанды", en:"Karaganda", c:[49.8063,73.0855], z:12 },
-  aktobe:      { ru:"Актобе", kk:"Ақтөбе", en:"Aktobe", c:[50.2839,57.1670], z:12 },
-  taraz:       { ru:"Тараз", kk:"Тараз", en:"Taraz", c:[42.9000,71.3667], z:12 },
-  pavlodar:    { ru:"Павлодар", kk:"Павлодар", en:"Pavlodar", c:[52.2871,76.9674], z:12 },
-  oskemen:     { ru:"Усть-Каменогорск", kk:"Өскемен", en:"Oskemen", c:[49.9483,82.6275], z:12 },
-  semey:       { ru:"Семей", kk:"Семей", en:"Semey", c:[50.4111,80.2275], z:12 },
-  atyrau:      { ru:"Атырау", kk:"Атырау", en:"Atyrau", c:[47.0945,51.9238], z:12 },
-  kostanay:    { ru:"Костанай", kk:"Қостанай", en:"Kostanay", c:[53.2198,63.6354], z:12 },
-  kyzylorda:   { ru:"Кызылорда", kk:"Қызылорда", en:"Kyzylorda", c:[44.8479,65.5093], z:12 },
-  oral:        { ru:"Уральск", kk:"Орал", en:"Oral", c:[51.2333,51.3667], z:12 },
-  petropavl:   { ru:"Петропавловск", kk:"Петропавл", en:"Petropavl", c:[54.8667,69.1500], z:12 },
-  aktau:       { ru:"Актау", kk:"Ақтау", en:"Aktau", c:[43.6410,51.1975], z:13 },
-  temirtau:    { ru:"Темиртау", kk:"Теміртау", en:"Temirtau", c:[50.0547,72.9644], z:13 },
-  turkistan:   { ru:"Туркестан", kk:"Түркістан", en:"Turkistan", c:[43.3000,68.2500], z:13 },
-  kokshetau:   { ru:"Кокшетау", kk:"Көкшетау", en:"Kokshetau", c:[53.2833,69.4000], z:13 },
-  taldykorgan: { ru:"Талдыкорган", kk:"Талдықорған", en:"Taldykorgan", c:[45.0156,78.3739], z:13 },
-  ekibastuz:   { ru:"Экибастуз", kk:"Екібастұз", en:"Ekibastuz", c:[51.7298,75.3266], z:13 }
+  almaty:      { ru:"Алматы", kk:"Алматы", en:"Almaty", c:[43.2383,76.9455], z:13, sz:19 },
+  astana:      { ru:"Астана", kk:"Астана", en:"Astana", c:[51.1282,71.4306], z:12, sz:19 },
+  shymkent:    { ru:"Шымкент", kk:"Шымкент", en:"Shymkent", c:[42.3174,69.5901], z:12, sz:17 },
+  karaganda:   { ru:"Караганда", kk:"Қарағанды", en:"Karaganda", c:[49.8063,73.0855], z:12, sz:17 },
+  aktobe:      { ru:"Актобе", kk:"Ақтөбе", en:"Aktobe", c:[50.2839,57.1670], z:12, sz:17 },
+  taraz:       { ru:"Тараз", kk:"Тараз", en:"Taraz", c:[42.9000,71.3667], z:12, sz:18 },
+  pavlodar:    { ru:"Павлодар", kk:"Павлодар", en:"Pavlodar", c:[52.2871,76.9674], z:12, sz:17 },
+  oskemen:     { ru:"Усть-Каменогорск", kk:"Өскемен", en:"Oskemen", c:[49.9483,82.6275], z:12, sz:17 },
+  semey:       { ru:"Семей", kk:"Семей", en:"Semey", c:[50.4111,80.2275], z:12, sz:17 },
+  atyrau:      { ru:"Атырау", kk:"Атырау", en:"Atyrau", c:[47.0945,51.9238], z:12, sz:17 },
+  kostanay:    { ru:"Костанай", kk:"Қостанай", en:"Kostanay", c:[53.2198,63.6354], z:12, sz:17 },
+  kyzylorda:   { ru:"Кызылорда", kk:"Қызылорда", en:"Kyzylorda", c:[44.8479,65.5093], z:12, sz:17 },
+  oral:        { ru:"Уральск", kk:"Орал", en:"Oral", c:[51.2333,51.3667], z:12, sz:18 },
+  petropavl:   { ru:"Петропавловск", kk:"Петропавл", en:"Petropavl", c:[54.8667,69.1500], z:12, sz:17 },
+  aktau:       { ru:"Актау", kk:"Ақтау", en:"Aktau", c:[43.6410,51.1975], z:13, sz:17 },
+  temirtau:    { ru:"Темиртау", kk:"Теміртау", en:"Temirtau", c:[50.0547,72.9644], z:13, sz:17 },
+  turkistan:   { ru:"Туркестан", kk:"Түркістан", en:"Turkistan", c:[43.3000,68.2500], z:13, sz:17 },
+  kokshetau:   { ru:"Кокшетау", kk:"Көкшетау", en:"Kokshetau", c:[53.2833,69.4000], z:13, sz:17 },
+  taldykorgan: { ru:"Талдыкорган", kk:"Талдықорған", en:"Taldykorgan", c:[45.0156,78.3739], z:13, sz:17 },
+  ekibastuz:   { ru:"Экибастуз", kk:"Екібастұз", en:"Ekibastuz", c:[51.7298,75.3266], z:13, sz:17 }
 };
+// sz — предельный зум, до которого у Esri есть реальные снимки этого города.
+// Глубже сервер отдаёт заглушку «Map data not yet available», поэтому мы просто
+// не запрашиваем такие плитки, а растягиваем последнюю доступную.
 const CITY_DLAT = 0.13, CITY_DLON = 0.24;
 function city(){ return CITIES[S.city] || CITIES.almaty; }
 function cityName(){ const c=city(); return c[S.lang] || c.ru; }
@@ -1422,7 +1449,9 @@ function setCity(key){
   if(routeLayer) routeLayer.clearLayers();
   LAYERS.forEach(def=>{ const s2=layerState[def.key]; if(s2 && s2.on){ s2.on=false; if(s2.group) s2.group.clearLayers(); } });
   buildLayerBar();
+  imageryWarned=null;
   if(mapReady) map.setView(city().c, city().z);
+  setBasemap(S.basemap);   // у нового города свой предел детальности снимков
   loadWeather(true);
   renderNearby(); updatePeek();
   const rc=document.getElementById("routeCard");
@@ -1437,7 +1466,7 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
-  map.on("moveend zoomend",()=>updateSearchHere());
+  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); });
   mapReady=true;
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
