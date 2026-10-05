@@ -210,6 +210,27 @@ html[data-motion="off"] .compass-needle{transition:none}
 .sheet-peek{display:none}
 .sheet-backdrop{display:none}
 .city-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:14px}
+/* Способ передвижения — сегменты, как в 2ГИС */
+.mode-tabs{display:flex;gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+.mode-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.mode-tabs button[aria-checked="true"]{background:var(--card);color:var(--blue-ink);box-shadow:var(--shadow)}
+.trip-steps{list-style:none;margin:10px 0 0;padding:0}
+.trip-steps li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.trip-steps li:first-child{border-top:0}
+.trip-steps .ico{flex:0 0 auto;width:1.6em;text-align:center}
+.bus-badge{display:inline-block;min-width:2.4em;padding:2px 8px;border-radius:8px;background:var(--green);color:#fff;font-weight:800;text-align:center}
+html[data-theme="dark"] .bus-badge{color:#04130d}
+.taxi-price{font-size:1.5rem;font-weight:800;margin:4px 0}
+.taxi-order{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;text-align:left;text-decoration:none;cursor:pointer;min-height:var(--tap)}
+.taxi-order .logo{flex:0 0 auto;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.05rem}
+.taxi-order .logo.ya{background:#ffdb4d;color:#000}
+.taxi-order .logo.indrive{background:#c1f11d;color:#000}
+.taxi-order b{display:block}
+.taxi-order .sub{display:block;font-size:.82rem;color:var(--ink-soft)}
+.taxi-order .go{margin-left:auto;color:var(--ink-soft)}
+.bus-opt{display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.bus-opt[aria-pressed="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-weak)}
+.bus-opt .sub{display:block;font-size:.8rem;color:var(--ink-soft)}
 .city-row .grow{flex:1;min-width:0}
 /* Варианты маршрута */
 .variants{display:flex;flex-direction:column;gap:7px}
@@ -467,6 +488,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" data-i18n-aria="listening" aria-label="Голосовой ввод">🎤</button>
     </div>
 
+    <div class="mode-tabs" id="modeTabs" role="radiogroup" data-i18n-aria="modeLabel" aria-label="Способ передвижения">
+      <button type="button" role="radio" data-mode="walk" aria-checked="true" onclick="setMode('walk')"><span aria-hidden="true">🚶</span><span data-i18n="modeWalk">Пешком</span></button>
+      <button type="button" role="radio" data-mode="bus" aria-checked="false" onclick="setMode('bus')"><span aria-hidden="true">🚌</span><span data-i18n="modeBus">Автобус</span></button>
+      <button type="button" role="radio" data-mode="taxi" aria-checked="false" onclick="setMode('taxi')"><span aria-hidden="true">🚕</span><span data-i18n="modeTaxi">Такси</span></button>
+    </div>
     <div class="row" style="margin-top:12px">
       <button class="btn-primary grow" onclick="buildRoute()" data-i18n="build">Построить маршрут</button>
       <button class="btn-ghost" onclick="setPickMode('destination')" data-i18n="pick">На карте</button>
@@ -705,6 +731,16 @@ ru:{
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
  peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", sheetResize:"Развернуть или свернуть панель",
  cityAuto:"📍 Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
+ modeLabel:"Способ передвижения", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
+ busSearching:"Ищем автобусы…", busNone:"Прямых автобусов не нашли", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты автобусов этого города ещё загружаются — попробуйте через пару минут",
+ busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
+ busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
+ busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»",
+ busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
+ busOptions:"Другие автобусы", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
+ taxiNote:"Оценка по тарифу «Эконом» Яндекс Go в Алматы (до 58 ₸/км и 27 ₸/мин). Точная цена — в приложении, в час пик дороже.",
+ taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
+ inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"Нужна машина для кресла-коляски? Напишите об этом в комментарии к заказу.",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
@@ -779,6 +815,16 @@ kk:{
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
  peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", sheetResize:"Тақтаны жаю немесе жию",
  cityAuto:"📍 Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
+ modeLabel:"Жүру тәсілі", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
+ busSearching:"Автобустар ізделуде…", busNone:"Тікелей автобус табылмады", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың автобус бағыттары әлі жүктелуде — бірнеше минуттан кейін қайталаңыз",
+ busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
+ busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
+ busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында",
+ busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
+ busOptions:"Басқа автобустар", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
+ taxiNote:"Алматыдағы Яндекс Go «Эконом» тарифі бойынша бағалау (58 ₸/км және 27 ₸/мин дейін). Нақты баға қосымшада, қарбалас уақытта қымбатырақ.",
+ taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
+ inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Арбаға арналған көлік керек пе? Тапсырыс түсініктемесінде жазыңыз.",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
@@ -854,6 +900,16 @@ en:{
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
  peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", sheetResize:"Expand or collapse the panel",
  cityAuto:"📍 Detect from my location", cityFar:"No supported city near you",
+ modeLabel:"How to travel", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
+ busSearching:"Looking for buses…", busNone:"No direct buses found", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Bus routes for this city are still loading — try again in a couple of minutes",
+ busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
+ busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
+ busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»",
+ busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
+ busOptions:"Other buses", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
+ taxiNote:"Estimate based on the Yandex Go «Economy» fare in Almaty (up to 58 ₸/km and 27 ₸/min). The exact price is in the app and is higher at rush hour.",
+ taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
+ inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Need a car for a wheelchair? Say so in the order comment.",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
@@ -1002,12 +1058,13 @@ const BASEMAPS = {
   osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:19,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
-  // Подписи улиц — слой Esri «World Transportation»: в «Boundaries and Places»
-  // улиц нет вообще, а CARTO без API-ключа теперь отдаёт заглушку
-  // «API KEY REQUIRED» вместо тайлов.
+  // Подписи — два слоя Esri: «World Transportation» даёт улицы, «Boundaries and
+  // Places» — названия городов, районов и мест (улиц в нём нет). CARTO без
+  // API-ключа теперь отдаёт заглушку «API KEY REQUIRED» вместо тайлов.
   sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19, imagery:true,
         url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        overlay:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+        overlay:["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+                 "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"],
         attr:"© Esri, Maxar · подписи © Esri" },
   topo:{ ru:"Рельеф", kk:"Жер бедері", en:"Terrain", max:17,
         url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
@@ -1041,8 +1098,8 @@ function setBasemap(key){
   if(baseLayer.setZIndex) baseLayer.setZIndex(0);
   if(def.overlay){
     // Подписи рисуются векторно и остаются резкими на любом зуме
-    baseOverlay=L.tileLayer(def.overlay,{maxZoom:def.max}).addTo(map);
-    if(baseOverlay.setZIndex) baseOverlay.setZIndex(1);
+    baseOverlay=L.layerGroup([].concat(def.overlay).map((u,i)=>
+      L.tileLayer(u,{maxZoom:def.max}).setZIndex(1+i))).addTo(map);
   }
   checkImageryZoom();
 }
@@ -1547,9 +1604,15 @@ function countBarriers(an){
   const slopeBad = an.slope && an.slope.maxSlope > prof.maxSlope ? 1 : 0;
   return stairs + slopeBad;
 }
+let modePeek=null;   // {title, sub} — сводка поездки на автобусе/такси для плашки
 function updatePeek(){
   const tl=document.getElementById("peekTitle"), sub=document.getElementById("peekSub");
   if(!tl||!sub) return;
+  if(modePeek){
+    tl.removeAttribute("data-i18n"); sub.removeAttribute("data-i18n");
+    tl.textContent=modePeek.title; sub.textContent=modePeek.sub;
+    return;
+  }
   if(lastRoute && lastAnalysis){
     const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
     const km=(lastRoute.rt.distance/1000).toFixed(1);
@@ -1598,7 +1661,7 @@ function setCity(key){
   delete SELECTED.start; delete SELECTED.destination;
   const st=document.getElementById("start"), ds=document.getElementById("destination");
   if(st) st.value=""; if(ds) ds.value="";
-  lastRoute=null; lastSteps=[]; lastAnalysis=null;
+  lastRoute=null; lastSteps=[]; lastAnalysis=null; modePeek=null;
   if(routeLayer) routeLayer.clearLayers();
   LAYERS.forEach(def=>{ const s2=layerState[def.key]; if(s2 && s2.on){ s2.on=false; if(s2.group) s2.group.clearLayers(); } });
   buildLayerBar();
@@ -1803,7 +1866,8 @@ async function acSearch(q){
   const key=S.lang+"|"+q.toLowerCase();
   if(acCache.has(key)) return acCache.get(key);
   const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1`
-    +`&bounded=1&viewbox=${cityViewbox()}&accept-language=${S.lang}&q=${encodeURIComponent(q+", "+cityName())}`;
+    // Ищем по всему Казахстану; viewbox без bounded лишь поднимает выше адреса выбранного города
+    +`&countrycodes=kz&viewbox=${cityViewbox()}&accept-language=${S.lang}&q=${encodeURIComponent(q)}`;
   const r=await fetch(url,{headers:{"Accept-Language":S.lang}});
   if(!r.ok) throw new Error("geocoder");
   const d=await r.json();
@@ -1908,8 +1972,9 @@ async function findPlace(v){
   if(pickedLatLng && anyLang("mapPoint").some(x=>x.toLowerCase()===val.toLowerCase())) return pickedLatLng;
   if(userLatLng && anyLang("myLocation").some(x=>x.toLowerCase()===val.toLowerCase())) return userLatLng;
   const p=presetFor(v); if(p) return p;
-  const q=encodeURIComponent(`${v}, ${cityName()}, ${S.lang==="en"?"Kazakhstan":"Казахстан"}`);
-  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=${cityViewbox()}&q=${q}`,
+  // По всей стране, но при равных совпадениях выигрывает выбранный город
+  const q=encodeURIComponent(String(v));
+  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kz&viewbox=${cityViewbox()}&q=${q}`,
     {headers:{"Accept-Language":S.lang}});
   const d=await r.json();
   if(!d.length) throw new Error("not found");
@@ -1959,6 +2024,10 @@ async function buildRoute(){
     const a = startSel || userLatLng || await findPlace(document.getElementById("start").value);
     const b = fieldCoords("destination") || await findPlace(document.getElementById("destination").value);
 
+    modePeek=null;
+    if(S.mode==="bus"){ await buildBusTrip(a,b); return; }
+    if(S.mode==="taxi"){ await buildTaxiTrip(a,b); return; }
+
     // Просим несколько вариантов, а не один: это и есть основа выбора «в обход барьеров».
     const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}`
       + `?overview=full&geometries=geojson&steps=true&alternatives=3`;
@@ -1996,6 +2065,222 @@ async function buildRoute(){
     card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
     updatePeek();
   }
+}
+
+/* ============ Способ передвижения: пешком / автобус / такси ============ */
+function tf(k,o){ return t(k).replace(/\{(\w+)\}/g,(m,x)=>o[x]!=null?o[x]:m); }
+function markMode(){
+  document.querySelectorAll("#modeTabs button").forEach(b=>b.setAttribute("aria-checked", String(b.dataset.mode===S.mode)));
+}
+function setMode(m){
+  S.mode=m; store("mode",m); markMode();
+  // если маршрут уже был — сразу пересчитываем его новым способом
+  const ds=document.getElementById("destination");
+  if((lastRoute||modePeek) && ds && ds.value.trim()) buildRoute();
+}
+function inCity(ll){
+  const c=city().c;
+  return Math.abs(ll[0]-c[0])<=CITY_DLAT && Math.abs(ll[1]-c[1])<=CITY_DLON;
+}
+function showTrip(html, peek){
+  const card=document.getElementById("routeCard");
+  card.innerHTML=html;
+  const lr=document.getElementById("listRoute"); if(lr) lr.innerHTML=html;   // текстовый режим видит то же
+  lastRoute=null; lastAnalysis=null; lastSteps=[];
+  modePeek=peek||null; updatePeek();
+  // в открытой шторке сразу показываем результат, а не верх панели
+  const side=document.getElementById("sidePanel");
+  if(sheetMode() && side && document.body.classList.contains("sheet-open")){
+    const top=card.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop - 70;
+    side.scrollTo({top, behavior:S.motion==="off"?"auto":"smooth"});
+  }
+}
+// Вписываем поездку в ВИДИМУЮ часть карты: снизу её закрывает шторка или плашка
+function fitTrip(pts){
+  const side=document.getElementById("sidePanel"), peek=document.getElementById("sheetPeek");
+  let bottom=50;
+  if(sheetMode()) bottom = (document.body.classList.contains("sheet-open") ? side.offsetHeight : (peek?peek.offsetHeight:0)) + 30;
+  map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[40,110], paddingBottomRight:[40,bottom]});
+}
+function tripMarkers(a,b){
+  L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
+  L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
+}
+
+// ---- Автобусы ----
+// Настоящие маршруты из OpenStreetMap: берём автобусы и троллейбусы, у которых есть
+// остановка рядом с началом пути И остановка рядом с концом. Пересадки не ищем.
+const BUS_WALK_M = 600;
+let busOptions=[], busIndex=0;
+async function buildBusTrip(a,b){
+  const card=document.getElementById("routeCard");
+  // Автобусы показываем только внутри выбранного города — чтобы не предлагать
+  // актюбинский маршрут человеку, который выбрал Астану.
+  if(!inCity(a) || !inCity(b)){
+    showTrip(`<h2>${esc(t("busOtherCity"))}</h2><p class="small muted">${esc(tf("busOtherCityHelp",{city:cityName()}))}</p>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+    return;
+  }
+  card.innerHTML=`<h2>${esc(t("busSearching"))}</h2>`;
+  let data;
+  try{ data=await loadBusData(S.city); }
+  catch(e){   // сервер ещё выгружает маршруты этого города из OpenStreetMap
+    showTrip(`<h2>${esc(t("busLoading"))}</h2>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+    return;
+  }
+  if(!data.routes.length){
+    showTrip(`<h2>${esc(t("busNoData"))}</h2>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+    return;
+  }
+  const pt=s=>({lat:s[0], lon:s[1], name:s[2], wc:s[3]});
+
+  const prof=PROFILES[S.profile];
+  const walkPerMin=75*prof.speed, busPerMin=300, waitMin=6;
+  const best=new Map();   // один лучший вариант на номер маршрута
+  data.routes.forEach(rt=>{
+    const seq=rt.s.map(i=>pt(data.stops[i]));
+    if(seq.length<2) return;
+    let bi=-1, bd=Infinity, ai=-1, ad=Infinity;
+    seq.forEach((n,i)=>{
+      const da=haversine(a,[n.lat,n.lon]), db=haversine(b,[n.lat,n.lon]);
+      if(da<=BUS_WALK_M && da<bd){ bd=da; bi=i; }
+      if(db<=BUS_WALK_M && db<ad){ ad=db; ai=i; }
+    });
+    if(bi<0 || ai<0 || bi===ai) return;
+    // В схеме PTv2 каждое направление — отдельное отношение, и порядок остановок
+    // задаёт направление: ехать «назад» по нему нельзя.
+    if(bi>ai && rt.v2) return;
+    const path = bi<ai ? seq.slice(bi,ai+1) : seq.slice(ai,bi+1).reverse();
+    let rideM=0; for(let i=1;i<path.length;i++) rideM+=haversine([path[i-1].lat,path[i-1].lon],[path[i].lat,path[i].lon]);
+    // В части старых маршрутов OSM остановки не упорядочены — тогда «путь» петляет
+    // через весь город. Такой вариант честнее не показывать, чем показать 100 минут.
+    if(rideM > 3*haversine([seq[bi].lat,seq[bi].lon],[seq[ai].lat,seq[ai].lon]) + 1500) return;
+    // остановку и её «платформу» OSM хранит двумя точками — считаем по названиям
+    const stops=new Set(path.map((n,i)=>n.name||("#"+i))).size-1;
+    const ref=rt.r || "—";
+    const total=Math.round(bd/walkPerMin + waitMin + rideM/busPerMin + ad/walkPerMin);
+    const opt={ref, to:rt.t||"", board:seq[bi], alight:seq[ai], walk1:Math.round(bd), walk2:Math.round(ad),
+               path:path.map(n=>[n.lat,n.lon]), stops:Math.max(1,stops), total,
+               trolley:rt.k==="t"};
+    const prev=best.get(ref);
+    if(!prev || prev.total>opt.total) best.set(ref,opt);
+  });
+  busOptions=[...best.values()].sort((x,y)=>x.total-y.total).slice(0,6);
+  if(!busOptions.length){
+    if(mapReady){ routeLayer.clearLayers(); tripMarkers(a,b); fitTrip([a,b]); }
+    showTrip(`<h2>${esc(t("busNone"))}</h2><p class="small muted">${esc(t("busNoneHelp"))}</p>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+    return;
+  }
+  busTripAB=[a,b];
+  showBusOption(0);
+}
+let busTripAB=null;
+// Сервер сам выгружает маршруты города из OpenStreetMap и раздаёт /bus-<город>.json
+// (stops: [lat, lon, название, ♿ 1/0]; routes: {r: номер, t: конечная, s: индексы остановок}).
+// Готовый файл — это мгновенный ответ и работа офлайн: публичный Overpass часто перегружен.
+const busData=new Map();
+async function loadBusData(key){
+  if(busData.has(key)) return busData.get(key);
+  const r=await fetch(`/bus-${key}.json`);
+  if(!r.ok) throw new Error("bus data "+r.status);
+  const d=await r.json();
+  busData.set(key,d);
+  return d;
+}
+function stopName(n){ return n.name || t("busStop"); }
+function wcNote(n){
+  if(n.wc===1) return ` <span class="fact good">♿ ${esc(t("wcOk"))}</span>`;
+  if(n.wc===0) return ` <span class="fact warn">♿ ${esc(t("wcNo"))}</span>`;
+  return "";
+}
+function showBusOption(i){
+  busIndex=i;
+  const o=busOptions[i], [a,b]=busTripAB;
+  const bo=[o.board.lat,o.board.lon], al=[o.alight.lat,o.alight.lon];
+  if(mapReady){
+    routeLayer.clearLayers();
+    const walk={color:"#1769c2",weight:5,opacity:.9,dashArray:"2 9",lineCap:"round"};
+    L.polyline([a,bo],walk).addTo(routeLayer);
+    L.polyline([al,b],walk).addTo(routeLayer);
+    L.polyline(o.path,{color:"#0a7350",weight:7,opacity:.95}).addTo(routeLayer);
+    [bo,al].forEach(p=>L.circleMarker(p,{radius:7,color:"#fff",weight:3,fillColor:"#0a7350",fillOpacity:1}).addTo(routeLayer));
+    tripMarkers(a,b);
+    fitTrip([a,b,...o.path]);
+  }
+  const kind=o.trolley?"🚎":"🚌";
+  const others=busOptions.map((x,j)=>`<button type="button" class="bus-opt" aria-pressed="${j===i}" onclick="showBusOption(${j})">
+      <span class="bus-badge">${esc(x.ref)}</span><span><b>~${x.total} ${esc(t("min"))}</b>
+      <span class="sub">${esc(stopName(x.board))} → ${esc(stopName(x.alight))}</span></span></button>`).join("");
+  const html=`<h2>${kind} ~${o.total} ${esc(t("min"))}</h2>
+    <ol class="trip-steps">
+      <li><span class="ico" aria-hidden="true">🚶</span><span>${esc(tf("busWalkTo",{m:o.walk1,s:stopName(o.board)}))}${wcNote(o.board)}</span></li>
+      <li><span class="ico" aria-hidden="true">${kind}</span><span><span class="bus-badge">${esc(o.ref)}</span>
+        · ${esc(tf("busRide",{n:o.stops}))}${o.to?`<br><span class="small muted">${esc(tf("busToward",{d:o.to}))}</span>`:""}</span></li>
+      <li><span class="ico" aria-hidden="true">🏁</span><span>${esc(tf("busGetOff",{m:o.walk2,s:stopName(o.alight)}))}${wcNote(o.alight)}</span></li>
+    </ol>
+    ${busOptions.length>1?`<p class="small muted" style="margin:12px 0 0">${esc(t("busOptions"))}</p>${others}`:""}
+    <p class="small muted" style="margin-top:10px">${esc(t("busNote"))}</p>`;
+  showTrip(html, {title:`${kind} ${o.ref} · ~${o.total} ${t("min")}`, sub:`${stopName(o.board)} → ${stopName(o.alight)}`});
+}
+
+// ---- Такси ----
+// Официального API цен у Яндекс Go и inDrive для сторонних сайтов нет, поэтому
+// цену честно называем оценкой по опубликованному тарифу «Эконом» (Алматы):
+// подача 400 ₸ включает 1 км и 3 мин, дальше до 58 ₸/км и 27 ₸/мин.
+const TAXI_TARIFF={base:400, km:58, min:27, inclKm:1, inclMin:3, peak:1.4};
+function taxiPrice(km,mins){
+  const T=TAXI_TARIFF;
+  const p=Math.max(T.base, T.base + T.km*Math.max(0,km-T.inclKm) + T.min*Math.max(0,mins-T.inclMin));
+  const r=x=>Math.ceil(x/10)*10;
+  return [r(p), r(p*T.peak)];
+}
+let taxiTrip=null;
+async function buildTaxiTrip(a,b){
+  let pts=[a,b], km=haversine(a,b)*1.3/1000, mins=km/30*60;
+  try{
+    const r=await fetch(`https://routing.openstreetmap.de/routed-car/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`);
+    const d=await r.json();
+    if(d.code==="Ok" && d.routes && d.routes[0]){
+      pts=d.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);
+      km=d.routes[0].distance/1000; mins=d.routes[0].duration/60;
+    }
+  }catch(e){ /* без маршрута по дорогам — оценка по прямой */ }
+  // OSRM не знает о пробках и светофорах: по городу в среднем выходит ~22 км/ч
+  mins=Math.max(1,Math.round(Math.max(mins, km/22*60)));
+  const [p1,p2]=taxiPrice(km,mins);
+  if(mapReady){
+    routeLayer.clearLayers();
+    L.polyline(pts,{color:"#b26a00",weight:7,opacity:.95}).addTo(routeLayer);
+    tripMarkers(a,b);
+    fitTrip(pts);
+  }
+  taxiTrip={a,b};
+  const fmt=n=>n.toLocaleString(locale());
+  const ya=`https://3.redirect.appmetrica.yandex.com/route?start-lat=${a[0]}&start-lon=${a[1]}&end-lat=${b[0]}&end-lon=${b[1]}`
+    +`&tariffClass=econom&ref=icity&appmetrica_tracking_id=1178268795219780156&lang=${S.lang==="kk"?"kk":S.lang}`;
+  const html=`<h2>🚕 ~${mins} ${esc(t("min"))} · ${km.toFixed(1)} ${esc(t("km"))}</h2>
+    <p class="taxi-price">≈ ${fmt(p1)}–${fmt(p2)} ₸</p>
+    <p class="small muted">${esc(t("taxiNote"))}</p>
+    <a class="taxi-order" href="${esc(ya)}" target="_blank" rel="noopener">
+      <span class="logo ya" aria-hidden="true">Я</span>
+      <span><b>${esc(t("taxiYandex"))}</b><span class="sub">${esc(t("yandexSub"))}</span></span><span class="go" aria-hidden="true">›</span></a>
+    <button type="button" class="taxi-order" onclick="orderInDrive()">
+      <span class="logo indrive" aria-hidden="true">iD</span>
+      <span><b>${esc(t("taxiInDrive"))}</b><span class="sub">${esc(t("inDriveSub"))}</span></span><span class="go" aria-hidden="true">›</span></button>
+    <p class="small muted" style="margin-top:10px">♿ ${esc(t("taxiWc"))}</p>`;
+  showTrip(html, {title:`🚕 ≈ ${fmt(p1)}–${fmt(p2)} ₸`, sub:`~${mins} ${t("min")} · ${km.toFixed(1)} ${t("km")}`});
+}
+// У inDrive нет открытой ссылки с маршрутом: копируем адрес назначения,
+// чтобы его можно было сразу вставить в приложении, и открываем inDrive.
+async function orderInDrive(){
+  const ds=document.getElementById("destination");
+  let text=ds ? ds.value.trim() : "";
+  if(taxiTrip && (!text || text===t("mapPoint"))) text=`${taxiTrip.b[0].toFixed(6)}, ${taxiTrip.b[1].toFixed(6)}`;
+  try{ await navigator.clipboard.writeText(text); toast(t("inDriveCopied")); }catch(e){}
+  window.open("https://indrive.com/","_blank","noopener");
 }
 
 function drawRoute(pts, a, b){
@@ -2513,6 +2798,8 @@ function toast(s){
   S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
   if(S.basemap==="satlab") S.basemap="sat";
   S.city=read("city","almaty"); if(!CITIES[S.city]) S.city="almaty";
+  S.mode=read("mode","walk"); if(!["walk","bus","taxi"].includes(S.mode)) S.mode="walk";
+  markMode();
   document.getElementById("langSel").value=S.lang;
   // Карта — не обязательное условие работы приложения: если Leaflet не загрузился
   // (заблокирован CDN, медленная сеть), приложение продолжает работать в текстовом
