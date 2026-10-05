@@ -420,7 +420,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <option value="kk">Қазақша</option>
       <option value="en">English</option>
     </select>
-    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки доступности">⚙</button>
+    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки">⚙</button>
   </div>
 </header>
 
@@ -437,12 +437,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
     <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
 
-    <div class="city-row">
-      <div class="grow">
-        <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
-        <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
-      </div>
-    </div>
 
     <div class="card">
       <h2 data-i18n="profileTitle">Ваш профиль передвижения</h2>
@@ -572,10 +566,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
   <div class="dialog">
     <div class="dialog-head">
-      <h2 id="setTitle" data-i18n="setTitle">Настройки доступности</h2>
+      <h2 id="setTitle" data-i18n="setTitle">Настройки</h2>
       <button class="btn-ghost btn-sm" onclick="closeModal('settingsModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <div class="settings-grid">
+      <!-- Город обычно определяется сам по геопозиции; здесь — ручной выбор -->
+      <div>
+        <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
+        <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
+        <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)" data-i18n="cityAuto">📍 Определить по геопозиции</button>
+      </div>
       <div>
         <label class="field" data-i18n="setFont">Размер текста</label>
         <div class="seg" id="segFont">
@@ -704,6 +704,7 @@ ru:{
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
  peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", sheetResize:"Развернуть или свернуть панель",
+ cityAuto:"📍 Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
@@ -730,10 +731,10 @@ ru:{
  reportBtn:"+ Сообщить о барьере", sosBtn:"🆘 Экстренная помощь", complaintBtn:"📨 Обращение в акимат", dashBtn:"📊 Статистика по городу",
  disclaimer:"Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.",
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
- setTitle:"Настройки доступности", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
+ setTitle:"Настройки", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
  setTheme:"Оформление", themeLight:"Светлое", themeDark:"Тёмное", setContrast:"Контрастность", contrastNormal:"Обычная", contrastHigh:"Повышенная",
  setMotion:"Анимации", motionOn:"Включены", motionOff:"Отключены", setVoice:"Озвучка маршрута", voiceOn:"Включена", voiceOff:"Выключена",
- setSaved:"Настройки сохраняются в этом браузере.", close:"Закрыть", settingsBtn:"Настройки доступности",
+ setSaved:"Настройки сохраняются в этом браузере.", close:"Закрыть", settingsBtn:"Настройки",
  repTitle:"Сообщить о барьере", repHelp:"Отчёт уходит на модерацию и появляется на карте после проверки.",
  repType:"Тип препятствия", repSeason:"Характер", seasonPerm:"Постоянный", seasonWinter:"Зимний (снег, наледь)", seasonTemp:"Временный (ремонт) — 30 дней",
  repPhoto:"Фото", repComment:"Комментарий", repCommentPh:"Например: съезд перекрыт автомобилем",
@@ -777,6 +778,7 @@ kk:{
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
  peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", sheetResize:"Тақтаны жаю немесе жию",
+ cityAuto:"📍 Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
@@ -803,10 +805,10 @@ kk:{
  reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"🆘 Шұғыл көмек", complaintBtn:"📨 Әкімдікке өтініш", dashBtn:"📊 Қала бойынша статистика",
  disclaimer:"Карта мен нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін және қолжетімділік нормаларына сәйкестік туралы сараптамалық қорытынды болып саналмайды.",
  listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
- setTitle:"Қолжетімділік баптаулары", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
+ setTitle:"Баптаулар", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
  setTheme:"Безендіру", themeLight:"Ашық", themeDark:"Күңгірт", setContrast:"Айқындық", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
  setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстап оқу", voiceOn:"Қосулы", voiceOff:"Өшірулі",
- setSaved:"Баптаулар осы браузерде сақталады.", close:"Жабу", settingsBtn:"Қолжетімділік баптаулары",
+ setSaved:"Баптаулар осы браузерде сақталады.", close:"Жабу", settingsBtn:"Баптаулар",
  repTitle:"Кедергі туралы хабарлау", repHelp:"Хабарлама модерацияға жіберіледі және тексерістен кейін картада көрінеді.",
  repType:"Кедергі түрі", repSeason:"Сипаты", seasonPerm:"Тұрақты", seasonWinter:"Қысқы (қар, мұз)", seasonTemp:"Уақытша (жөндеу) — 30 күн",
  repPhoto:"Фотосурет", repComment:"Түсініктеме", repCommentPh:"Мысалы: пандусты көлік бөгеп тұр",
@@ -851,6 +853,7 @@ en:{
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
  peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", sheetResize:"Expand or collapse the panel",
+ cityAuto:"📍 Detect from my location", cityFar:"No supported city near you",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
@@ -877,10 +880,10 @@ en:{
  reportBtn:"+ Report a barrier", sosBtn:"🆘 Emergency help", complaintBtn:"📨 Complaint to the city", dashBtn:"📊 City statistics",
  disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete and is not an expert assessment of compliance with accessibility standards.",
  listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
- setTitle:"Accessibility settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
+ setTitle:"Settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
  setTheme:"Appearance", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
  setMotion:"Animations", motionOn:"On", motionOff:"Off", setVoice:"Route voice-over", voiceOn:"On", voiceOff:"Off",
- setSaved:"Settings are saved in this browser.", close:"Close", settingsBtn:"Accessibility settings",
+ setSaved:"Settings are saved in this browser.", close:"Close", settingsBtn:"Settings",
  repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map once reviewed.",
  repType:"Type of barrier", repSeason:"Nature of the barrier", seasonPerm:"Permanent", seasonWinter:"Winter (snow, ice)", seasonTemp:"Temporary (roadworks) — 30 days",
  repPhoto:"Photo", repComment:"Comment", repCommentPh:"For example: the ramp is blocked by a car",
@@ -2334,18 +2337,50 @@ function voiceInput(fieldId){
 }
 
 /* ============ Геолокация ============ */
+function showMe(zoom){
+  document.getElementById("start").value = t("myLocation");
+  if(!mapReady) return;
+  if(userMarker) map.removeLayer(userMarker);
+  userMarker=L.marker(userLatLng,{icon:divIcon("pin-me",18),alt:t("you")}).addTo(map).bindPopup(t("you"));
+  map.setView(userLatLng,zoom);
+}
 function locateUser(){
   if(!navigator.geolocation){ toast(t("geoOff")); return; }
   navigator.geolocation.getCurrentPosition(p=>{
     userLatLng=[p.coords.latitude,p.coords.longitude];
-    document.getElementById("start").value = t("myLocation");
-    if(mapReady){
-      if(userMarker) map.removeLayer(userMarker);
-      userMarker=L.marker(userLatLng,{icon:divIcon("pin-me",18),alt:t("you")}).addTo(map).bindPopup(t("you"));
-      map.setView(userLatLng,16);
-    }
+    showMe(16);
     toast(t("geoOk")); renderNearby();
   }, ()=>toast(t("geoFail")), {enableHighAccuracy:true,timeout:10000});
+}
+// Ближайший город из списка и расстояние до его центра, км
+function nearestCity(lat,lon){
+  let best=null, bestKm=Infinity;
+  Object.entries(CITIES).forEach(([k,d])=>{
+    const km=L.latLng(lat,lon).distanceTo(L.latLng(d.c[0],d.c[1]))/1000;
+    if(km<bestKm){ bestKm=km; best=k; }
+  });
+  return [best,bestKm];
+}
+// При запуске карта открывается там, где человек находится, а не в Алматы:
+// город из списка выбирается сам, если до него не дальше 60 км.
+// manual=true — нажата кнопка в настройках: тогда сообщаем и об ошибках.
+function autoLocate(manual){
+  if(!navigator.geolocation){ if(manual) toast(t("geoOff")); return; }
+  navigator.geolocation.getCurrentPosition(p=>{
+    userLatLng=[p.coords.latitude,p.coords.longitude];
+    const [key,km]=nearestCity(userLatLng[0],userLatLng[1]);
+    if(km<=60){
+      if(key!==S.city) setCity(key);
+      showMe(15);
+    } else if(manual){
+      toast(t("cityFar"));
+    } else if(mapReady){
+      map.setView(userLatLng,13);
+    }
+    if(manual) closeModal("settingsModal");
+    renderNearby();
+  }, ()=>{ if(manual) toast(t("geoFail")); },
+  {enableHighAccuracy:false,timeout:10000,maximumAge:300000});
 }
 
 /* ============ Отчёты ============ */
@@ -2503,6 +2538,7 @@ function toast(s){
       if(a) a.value=""; if(b) b.value="";
     }
   });
+  step("geo", ()=>autoLocate(false));
   step("weather", ()=>{ loadWeather(); });
   step("compass", ()=>{ startCompass(); applyHeading(); });
   step("sheet", ()=>{ initSheetSwipe(); updatePeek(); });
