@@ -364,6 +364,143 @@ async function handleApi(req, res, pathname) {
   return sendJson(res, 404, { error: 'not found' });
 }
 
+// --- Автобусные маршруты городов (из OpenStreetMap) ---
+// Публичный Overpass часто перегружен, и искать по нему автобусы при каждом
+// запросе пользователя — значит минутами ждать. Поэтому сервер сам выгружает
+// маршруты каждого города, хранит их в data/bus/ и раздаёт как /bus-<город>.json.
+// Свежие данные подтягиваются в фоне раз в неделю.
+const BUS_DIR = path.join(DATA_DIR, 'bus');
+const BUS_TTL_MS = 7 * 864e5;          // обычное обновление — раз в неделю
+const BUS_EMPTY_TTL_MS = 864e5;        // пустой ответ перепроверяем через сутки
+const CITY_DLAT = 0.13, CITY_DLON = 0.24;   // те же рамки города, что и во фронтенде
+const BUS_CITIES = {
+  almaty: [43.2383, 76.9455], astana: [51.1282, 71.4306], shymkent: [42.3174, 69.5901],
+  karaganda: [49.8063, 73.0855], aktobe: [50.2839, 57.1670], taraz: [42.9000, 71.3667],
+  pavlodar: [52.2871, 76.9674], oskemen: [49.9483, 82.6275], semey: [50.4111, 80.2275],
+  atyrau: [47.0945, 51.9238], kostanay: [53.2198, 63.6354], kyzylorda: [44.8479, 65.5093],
+  oral: [51.2333, 51.3667], petropavl: [54.8667, 69.1500], aktau: [43.6410, 51.1975],
+  temirtau: [50.0547, 72.9644], turkistan: [43.3000, 68.2500], kokshetau: [53.2833, 69.4000],
+  taldykorgan: [45.0156, 78.3739], ekibastuz: [51.7298, 75.3266],
+};
+const OVERPASS_MIRRORS = [
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+];
+if (!fs.existsSync(BUS_DIR)) fs.mkdirSync(BUS_DIR, { recursive: true });
+
+// Ответ Overpass (маршруты + их узлы) → компактный формат для приложения:
+// stops: [lat, lon, название, ♿ 1/0]; routes: { r: номер, t: конечная, s: индексы остановок }
+function compactBusData(city, osm) {
+  const nodes = new Map();
+  const rels = [];
+  for (const e of osm.elements || []) {
+    if (e.type === 'node') nodes.set(e.id, e);
+    else if (e.type === 'relation') rels.push(e);
+  }
+  const stops = [];
+  const index = new Map();
+  const routes = [];
+  for (const r of rels) {
+    const t = r.tags || {};
+    const seq = [];
+    for (const m of r.members || []) {
+      if (m.type !== 'node' || !nodes.has(m.ref)) continue;
+      if (!index.has(m.ref)) {
+        const n = nodes.get(m.ref);
+        const nt = n.tags || {};
+        const s = [Math.round(n.lat * 1e5) / 1e5, Math.round(n.lon * 1e5) / 1e5, nt.name || nt['name:ru'] || ''];
+        if (nt.wheelchair === 'yes') s.push(1);
+        else if (nt.wheelchair === 'no') s.push(0);
+        stops.push(s);
+        index.set(m.ref, stops.length - 1);
+      }
+      seq.push(index.get(m.ref));
+    }
+    if (seq.length < 2) continue;
+    const route = { r: String(t.ref || t.name || ''), s: seq };
+    if (t.to) route.t = t.to;
+    if (t.route === 'trolleybus') route.k = 't';
+    if (t['public_transport:version'] === '2') route.v2 = 1;
+    routes.push(route);
+  }
+  return { city, updated: new Date().toISOString().slice(0, 10),
+           source: 'OpenStreetMap contributors, ODbL', stops, routes };
+}
+
+async function fetchBusData(city) {
+  const [lat, lon] = BUS_CITIES[city];
+  const bbox = [lat - CITY_DLAT, lon - CITY_DLON, lat + CITY_DLAT, lon + CITY_DLON].map((x) => x.toFixed(4)).join(',');
+  const query = `[out:json][timeout:180];rel[route~"^(bus|trolleybus)$"](${bbox})->.r;.r out body;node(r.r);out;`;
+  let lastErr = null;
+  for (const url of OVERPASS_MIRRORS) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 200000);
+    try {
+      const res = await fetch(url, {
+        method: 'POST', body: query, signal: ctl.signal,
+        headers: { 'User-Agent': 'ICity/1.0 (+https://github.com/aiguzhin/inclusivecity-app)' },
+      });
+      if (!res.ok) { lastErr = new Error(`${url}: HTTP ${res.status}`); continue; }
+      const osm = await res.json();
+      if (!osm || !Array.isArray(osm.elements)) { lastErr = new Error(`${url}: bad payload`); continue; }
+      return compactBusData(city, osm);
+    } catch (e) {
+      lastErr = e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr || new Error('overpass unavailable');
+}
+
+function busFile(city) { return path.join(BUS_DIR, `${city}.json`); }
+function busIsFresh(city) {
+  try {
+    const st = fs.statSync(busFile(city));
+    const ttl = st.size < 300 ? BUS_EMPTY_TTL_MS : BUS_TTL_MS;   // ~пустой файл
+    return Date.now() - st.mtimeMs < ttl;
+  } catch (e) { return false; }
+}
+const busInflight = new Map();   // один запрос к Overpass на город, сколько бы ни пришло пользователей
+function refreshBus(city) {
+  if (busInflight.has(city)) return busInflight.get(city);
+  const p = fetchBusData(city)
+    .then((data) => {
+      const tmp = busFile(city) + '.tmp';
+      fs.writeFileSync(tmp, JSON.stringify(data));
+      fs.renameSync(tmp, busFile(city));
+      console.log(`bus ${city}: ${data.routes.length} routes, ${data.stops.length} stops`);
+      return data;
+    })
+    .finally(() => busInflight.delete(city));
+  busInflight.set(city, p);
+  return p;
+}
+async function serveBus(res, city) {
+  if (!BUS_CITIES[city]) return sendJson(res, 404, { error: 'unknown city' });
+  if (fs.existsSync(busFile(city))) {
+    if (!busIsFresh(city)) refreshBus(city).catch((e) => console.warn(`bus ${city} refresh failed:`, e.message));
+    return serveFile(res, busFile(city));   // устаревшие данные лучше, чем никаких
+  }
+  try {
+    await refreshBus(city);
+    return serveFile(res, busFile(city));
+  } catch (e) {
+    console.warn(`bus ${city} failed:`, e.message);
+    return sendJson(res, 503, { error: 'bus data is loading, try again later' });
+  }
+}
+// После запуска по очереди выгружаем все города (с паузами, чтобы не нагружать
+// Overpass), затем раз в сутки обновляем устаревшие.
+async function warmBusData() {
+  for (const city of Object.keys(BUS_CITIES)) {
+    if (busIsFresh(city)) continue;
+    try { await refreshBus(city); } catch (e) { console.warn(`bus ${city} warm-up failed:`, e.message); }
+    await new Promise((r) => setTimeout(r, 20000));
+  }
+}
+
 function guessExt(mimetype) {
   const map = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp' };
   return map[mimetype] || '';
@@ -387,6 +524,9 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/' ) return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
     if (pathname === '/admin' || pathname === '/admin.html') return serveFile(res, path.join(PUBLIC_DIR, 'admin.html'));
 
+    const bm = pathname.match(/^\/bus-([a-z]+)\.json$/);
+    if (bm && req.method === 'GET') return await serveBus(res, bm[1]);
+
     const staticPath = safeJoin(PUBLIC_DIR, pathname);
     if (staticPath && fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
       return serveFile(res, staticPath);
@@ -401,6 +541,8 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
+  warmBusData();
+  setInterval(warmBusData, 864e5);
   if (ADMIN_TOKEN === 'change-me-please') {
     console.warn('ВНИМАНИЕ: используется ADMIN_TOKEN по умолчанию. Задайте свой в переменных окружения!');
   }
