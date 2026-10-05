@@ -224,6 +224,22 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true });
   }
 
+  if (pathname === '/api/taxi-tariffs' && req.method === 'GET') {
+    return sendJson(res, 200, readTariffs());
+  }
+
+  if (pathname === '/api/taxi-price' && req.method === 'GET') {
+    const q = new URL(req.url, 'http://localhost').searchParams;
+    const from = parseLatLon(q.get('from')), to = parseLatLon(q.get('to'));
+    if (!from || !to) return sendJson(res, 400, { error: 'from/to must be "lat,lon"' });
+    try {
+      const r = await taxiLivePrice(from, to);
+      return sendJson(res, r.status, r.body);
+    } catch (e) {
+      return sendJson(res, 502, { error: 'yandex unavailable' });
+    }
+  }
+
   if (pathname === '/api/reports' && req.method === 'GET') {
     const list = readReports().filter((r) => r.status === 'approved' && !isExpired(r));
     return sendJson(res, 200, list.map(publicShape));
@@ -421,6 +437,8 @@ function compactBusData(city, osm) {
     const route = { r: String(t.ref || t.name || ''), s: seq };
     if (t.to) route.t = t.to;
     if (t.route === 'trolleybus') route.k = 't';
+    else if (t.route === 'minibus' || t.route === 'share_taxi') route.k = 'm';
+    else if (t.route === 'tram') route.k = 'r';
     if (t['public_transport:version'] === '2') route.v2 = 1;
     routes.push(route);
   }
@@ -431,7 +449,8 @@ function compactBusData(city, osm) {
 async function fetchBusData(city) {
   const [lat, lon] = BUS_CITIES[city];
   const bbox = [lat - CITY_DLAT, lon - CITY_DLON, lat + CITY_DLAT, lon + CITY_DLON].map((x) => x.toFixed(4)).join(',');
-  const query = `[out:json][timeout:180];rel[route~"^(bus|trolleybus)$"](${bbox})->.r;.r out body;node(r.r);out;`;
+  // маршрутки и трамваи тоже берём: в части городов они размечены именно так
+  const query = `[out:json][timeout:180];rel[route~"^(bus|trolleybus|minibus|share_taxi|tram)$"](${bbox})->.r;.r out body;node(r.r);out;`;
   let lastErr = null;
   for (const url of OVERPASS_MIRRORS) {
     const ctl = new AbortController();
@@ -501,6 +520,88 @@ async function warmBusData() {
   }
 }
 
+// --- Такси: официальные тарифы и цена в реальном времени ---
+// Тарифы «Эконом» Яндекс Go публикуются на taxi.yandex.kz отдельно для каждого
+// города. Сервер раз в неделю перечитывает эти страницы, так что оценка цены
+// в приложении всегда по действующему тарифу. Ключи города в адресах Яндекса
+// местами отличаются от наших.
+const YANDEX_SLUGS = {
+  almaty: 'almaty', astana: 'astana', shymkent: 'chimkent', karaganda: 'karaganda', aktobe: 'aktobe',
+  taraz: 'taraz', pavlodar: 'pavlodar', oskemen: 'ust_kamenogorsk', semey: 'semey', atyrau: 'atyrau',
+  kostanay: 'kostanai', kyzylorda: 'kyzylorda', oral: 'uralsk', petropavl: 'petropavlovsk', aktau: 'aktau',
+  temirtau: 'temirtau', turkistan: 'turkestan', kokshetau: 'kokshetau', taldykorgan: 'taldykorgan',
+  ekibastuz: 'ekibastuz',
+};
+const TARIFF_FILE = path.join(DATA_DIR, 'taxi-tariffs.json');
+const TARIFF_TTL_MS = 7 * 864e5;
+
+// Разбор страницы тарифа: «Минимальная стоимость (включено 3 мин и 1 км) — 400 ₸ …
+// Далее по городу — не более 58 ₸/км, не более 27 ₸/мин»
+function parseYandexTariff(html) {
+  const text = html.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
+  const i = text.indexOf('Минимальная стоимость (включено');
+  if (i < 0) return null;
+  const t = text.slice(i, i + 700);
+  const int = (re) => { const m = t.match(re); return m ? parseInt(m[1].replace(/\s/g, ''), 10) : null; };
+  const incl = t.match(/включено ([\d,]+) мин и ([\d,]+) км/);
+  const tariff = {
+    base: int(/км\) — ([\d ]+?) ₸/),
+    inclMin: incl ? parseFloat(incl[1].replace(',', '.')) : 3,
+    inclKm: incl ? parseFloat(incl[2].replace(',', '.')) : 1,
+    km: int(/не более ([\d ]+?) ₸\/км/),
+    min: int(/₸\/км , не более ([\d ]+?) ₸\/мин/),
+  };
+  return tariff.base && tariff.km && tariff.min ? tariff : null;
+}
+function readTariffs() {
+  try { return JSON.parse(fs.readFileSync(TARIFF_FILE, 'utf8')); } catch (e) { return {}; }
+}
+async function refreshTariffs() {
+  const all = readTariffs();
+  for (const [city, slug] of Object.entries(YANDEX_SLUGS)) {
+    if (all[city] && Date.now() - new Date(all[city].checked).getTime() < TARIFF_TTL_MS) continue;
+    try {
+      const res = await fetch(`https://taxi.yandex.kz/ru_kz/${slug}/tariff/econom/`,
+        { headers: { 'User-Agent': 'Mozilla/5.0 (ICity tariff check)' } });
+      const tariff = res.ok ? parseYandexTariff(await res.text()) : null;
+      if (tariff) all[city] = { ...tariff, checked: new Date().toISOString() };
+      else console.warn(`tariff ${city}: not parsed (HTTP ${res.status})`);
+    } catch (e) {
+      console.warn(`tariff ${city} failed:`, e.message);
+    }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  fs.writeFileSync(TARIFF_FILE, JSON.stringify(all));
+}
+
+// Цена прямо сейчас — через Trip information API Яндекс Go (taxi-routeinfo).
+// Для него нужны ключи партнёрской программы Яндекс Go: YANDEX_TAXI_CLID и
+// YANDEX_TAXI_APIKEY в переменных окружения. Без них отвечаем 501, и приложение
+// показывает оценку по тарифу.
+async function taxiLivePrice(from, to) {
+  const clid = process.env.YANDEX_TAXI_CLID, apikey = process.env.YANDEX_TAXI_APIKEY;
+  if (!clid || !apikey) return { status: 501, body: { error: 'live prices are not configured' } };
+  const rll = `${from[1]},${from[0]}~${to[1]},${to[0]}`;
+  const url = `https://taxi-routeinfo.taxi.yandex.net/taxi_info?clid=${encodeURIComponent(clid)}`
+    + `&apikey=${encodeURIComponent(apikey)}&rll=${rll}&class=econom&lang=ru`;
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) return { status: 502, body: { error: `yandex ${res.status}` } };
+  const d = await res.json();
+  const opt = (d.options || [])[0];
+  if (!opt) return { status: 502, body: { error: 'no options' } };
+  return { status: 200, body: {
+    price: opt.price, minPrice: opt.min_price, currency: d.currency,
+    waitSec: opt.waiting_time, tripSec: d.time, distanceM: d.distance,
+  } };
+}
+function parseLatLon(s) {
+  const m = String(s || '').match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
+  if (!m) return null;
+  const ll = [parseFloat(m[1]), parseFloat(m[2])];
+  return Math.abs(ll[0]) <= 90 && Math.abs(ll[1]) <= 180 ? ll : null;
+}
+
 function guessExt(mimetype) {
   const map = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp' };
   return map[mimetype] || '';
@@ -541,8 +642,8 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
-  warmBusData();
-  setInterval(warmBusData, 864e5);
+  refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
+  setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (ADMIN_TOKEN === 'change-me-please') {
     console.warn('ВНИМАНИЕ: используется ADMIN_TOKEN по умолчанию. Задайте свой в переменных окружения!');
   }
