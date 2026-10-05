@@ -307,57 +307,94 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   .app{grid-template-columns:1fr;grid-template-rows:1fr;min-height:0;height:calc(100dvh - 55px)}
   .stage{height:100%}
 
+  /* Шторка как в 2ГИС: открывается до середины экрана (карта сверху остаётся
+     видна и работает), за ручку тянется до полного экрана или сворачивается.
+     Высота задаётся классом sheet-full (без него — половина), а во время
+     перетаскивания — напрямую из JS (см. initSheetSwipe). */
   .side{
     position:fixed;left:0;right:0;bottom:0;top:auto;z-index:1200;
-    max-height:86dvh;border-right:0;border-top:1px solid var(--line);
-    border-radius:20px 20px 0 0;padding:0 16px 20px;
-    box-shadow:0 -14px 40px rgba(0,0,0,.22);
-    transform:translateY(102%);transition:transform .26s cubic-bezier(.22,.8,.3,1);
+    height:52dvh;max-height:none;overflow-y:auto;
+    border-right:0;border-top:1px solid var(--line);
+    border-radius:20px 20px 0 0;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -10px 30px rgba(0,0,0,.2);
+    transform:translateY(102%);
+    transition:transform .26s cubic-bezier(.22,.8,.3,1), height .26s cubic-bezier(.22,.8,.3,1);
     overscroll-behavior:contain;
   }
   body.sheet-open .side{transform:none}
+  body.sheet-full .side{height:calc(100dvh - 64px)}
+  .side.dragging{transition:none}
   html[data-motion="off"] .side{transition:none}
+  .side .title{display:none}               /* в шторке место дороже заголовка */
 
   .sheet-handle{
-    display:block;position:sticky;top:0;z-index:2;margin:0 -16px 6px;padding:10px 16px 8px;
+    display:block;position:sticky;top:0;z-index:2;margin:0 -16px 6px;padding:8px 16px 8px;
     background:var(--card);border-radius:20px 20px 0 0;
+    touch-action:none;cursor:grab;user-select:none;
   }
-  .sheet-handle .grip{display:block;width:42px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 8px}
+  /* ручка — кнопка (для клавиатуры), но выглядит как полоска; зона нажатия шире */
+  .sheet-handle .grip{
+    display:block;position:relative;width:72px;height:22px;min-height:0;min-width:0;
+    margin:0 auto 2px;padding:0;border:0;border-radius:8px;background:transparent;box-shadow:none;cursor:grab;
+  }
+  .sheet-handle .grip::before{
+    content:"";position:absolute;left:14px;right:14px;top:8px;height:5px;border-radius:99px;background:var(--line);
+  }
   .sheet-handle .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .sheet-handle h2{font-size:.95rem;margin:0}
+  .sheet-handle h2{font-size:1rem;margin:0}
 
+  /* Затемняем карту только в полноэкранном режиме — в половинном она нужна */
   .sheet-backdrop{
     display:block;position:fixed;inset:0;z-index:1150;background:rgba(6,14,22,.45);
     opacity:0;pointer-events:none;transition:opacity .2s;
   }
-  body.sheet-open .sheet-backdrop{opacity:1;pointer-events:auto}
+  body.sheet-full .sheet-backdrop{opacity:1;pointer-events:auto}
   html[data-motion="off"] .sheet-backdrop{transition:none}
 
+  /* Плашка прилегает к низу экрана, как в 2ГИС: ручка → поиск → быстрые действия */
   .sheet-peek{
-    display:flex;align-items:center;gap:10px;text-align:left;
-    position:absolute;z-index:1100;left:10px;right:10px;bottom:10px;
-    min-height:52px;padding:9px 14px;border-radius:16px;
-    background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink);
+    display:flex;flex-direction:column;gap:10px;
+    position:absolute;z-index:1100;left:0;right:0;bottom:0;
+    padding:8px 12px calc(12px + env(safe-area-inset-bottom,0px));
+    border-radius:20px 20px 0 0;
+    background:var(--card);border-top:1px solid var(--line);
+    box-shadow:0 -6px 24px rgba(0,0,0,.16);color:var(--ink);
   }
   body.sheet-open .sheet-peek{display:none}
-  .sheet-peek .peek-ico{font-size:1.2rem;flex:0 0 auto}
+  .peek-grip{display:block;width:40px;height:4px;border-radius:99px;background:var(--line);margin:0 auto}
+  .peek-search{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    min-height:var(--tap);padding:8px 14px;border-radius:12px;
+    background:var(--paper);border:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer;
+  }
+  .sheet-peek .peek-ico{font-size:1.05rem;flex:0 0 auto;opacity:.75}
   .sheet-peek .peek-txt{flex:1;min-width:0}
-  .sheet-peek b{display:block;font-size:.92rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sheet-peek b{display:block;font-size:1rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sheet-peek .peek-sub{display:block;font-size:.76rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .sheet-peek .peek-go{flex:0 0 auto;color:var(--ink-soft);font-size:1rem}
+  .peek-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px}
+  .peek-chips::-webkit-scrollbar{display:none}
+  .peek-chip{
+    flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+    min-height:38px;padding:6px 14px;border-radius:99px;
+    background:var(--blue-weak);color:var(--blue-ink);border:0;
+    font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;white-space:nowrap;
+  }
 
   /* Разводим по высоте, чтобы ничего не накладывалось:
-     peek-бар (низ) → подпись правообладателей → переключатель карты → компас. */
-  .leaflet-bottom.leaflet-right{bottom:64px}
+     плашка (низ) → подпись правообладателей → переключатель карты → компас.
+     --peek-h обновляется из JS по реальной высоте плашки (см. syncPeekHeight). */
+  .stage{--peek-h:132px}
+  .leaflet-bottom.leaflet-right{bottom:calc(var(--peek-h) + 4px)}
   .leaflet-control-attribution{font-size:9px;line-height:1.3;padding:1px 4px}
-  .basemap-ctl{bottom:92px}
-  .map-stack{bottom:168px}
+  .basemap-ctl{bottom:calc(var(--peek-h) + 32px)}
+  .map-stack{bottom:calc(var(--peek-h) + 108px)}
   .wx{top:60px;right:8px}
   .search-here{max-width:calc(100% - 120px);font-size:.8rem;padding:8px 12px}
   .side .eyebrow{display:none}
   .side .title{margin-top:2px;font-size:1.32rem}
-  .toast{bottom:74px}                       /* не закрываем нижнюю плашку */
-  body.sheet-open .toast{bottom:18px}
+  .toast{bottom:150px}                      /* не закрываем нижнюю плашку */
+  body.sheet-open .toast{bottom:calc(52dvh + 12px)}
+  body.sheet-full .toast{bottom:18px}
 }
 @media(max-width:420px){
   .basemap-ctl select{display:none}
@@ -390,7 +427,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 <main class="app" id="main">
   <aside class="side" id="sidePanel" aria-label="Панель управления">
     <div class="sheet-handle">
-      <span class="grip" aria-hidden="true"></span>
+      <button type="button" class="grip" onclick="if(event.detail===0) document.body.classList.toggle('sheet-full')" data-i18n-aria="sheetResize" aria-label="Развернуть или свернуть панель"></button>
       <div class="row">
         <h2 data-i18n="panelTitle">Маршрут и доступность</h2>
         <button type="button" class="btn-ghost icon-btn" onclick="closeSheet()"
@@ -501,15 +538,24 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
               data-i18n-aria="myLocation" aria-label="Моё местоположение">⌖</button>
     </div>
 
-    <button type="button" class="sheet-peek" id="sheetPeek" onclick="openSheet()"
-            aria-controls="sidePanel" aria-expanded="false">
-      <span class="peek-ico" aria-hidden="true">🧭</span>
-      <span class="peek-txt">
-        <b id="peekTitle" data-i18n="peekIdle">Куда едем?</b>
-        <span class="peek-sub" id="peekSub" data-i18n="peekIdleSub">Маршрут, слои и жалобы</span>
-      </span>
-      <span class="peek-go" aria-hidden="true">▲</span>
-    </button>
+    <!-- Нижняя плашка в духе 2ГИС: ручка, строка «Куда едем?» и быстрые действия -->
+    <div class="sheet-peek" id="sheetPeek">
+      <span class="peek-grip" aria-hidden="true"></span>
+      <button type="button" class="peek-search" id="peekSearch" onclick="openSheetTo('destination')"
+              aria-controls="sidePanel" aria-expanded="false">
+        <span class="peek-ico" aria-hidden="true">🔍</span>
+        <span class="peek-txt">
+          <b id="peekTitle" data-i18n="peekIdle">Куда едем?</b>
+          <span class="peek-sub" id="peekSub" data-i18n="peekIdleSub">Маршрут, слои и жалобы</span>
+        </span>
+      </button>
+      <div class="peek-chips">
+        <button type="button" class="peek-chip" onclick="locateUser()"><span aria-hidden="true">📍</span><span data-i18n="peekHere">Я здесь</span></button>
+        <button type="button" class="peek-chip" onclick="openReport()"><span aria-hidden="true">⚠️</span><span data-i18n="peekBarrier">Барьер</span></button>
+        <button type="button" class="peek-chip" onclick="openModal('sosModal')"><span aria-hidden="true">🆘</span><span data-i18n="peekSos">SOS</span></button>
+        <button type="button" class="peek-chip" onclick="openSheet()" aria-controls="sidePanel"><span aria-hidden="true">☰</span><span data-i18n="peekMore">Ещё</span></button>
+      </div>
+    </div>
 
     <div id="map" role="application" data-i18n-aria="mapLabel" aria-label="Карта Алматы"></div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
@@ -657,6 +703,7 @@ ru:{
  vSlope:"уклон до", vClean:"Барьеров для вашего профиля не найдено",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
+ peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", sheetResize:"Развернуть или свернуть панель",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
@@ -729,6 +776,7 @@ kk:{
  vSlope:"еңіс", vClean:"Профиліңізге кедергі табылмады",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
+ peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", sheetResize:"Тақтаны жаю немесе жию",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
@@ -802,6 +850,7 @@ en:{
  vSlope:"slope up to", vClean:"No barriers for your profile",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
+ peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", sheetResize:"Expand or collapse the panel",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
@@ -1259,6 +1308,7 @@ function applyAll(){
   mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
   mark("segMotion",S.motion); mark("segVoice",S.voice);
   renderTexts();
+  syncPeekHeight();   // крупный шрифт делает плашку выше
 }
 function mark(id,val){
   const box=document.getElementById(id); if(!box)return;
@@ -1398,9 +1448,12 @@ async function compassTap(){
 /* ============ Шторка на телефоне ============ */
 function sheetMode(){ return window.matchMedia("(max-width:860px)").matches; }
 let sheetReturn=null;
-function openSheet(){
+// full=true — сразу на весь экран (например, для ввода адреса: иначе поле
+// окажется под клавиатурой); по умолчанию — половина экрана, как в 2ГИС
+function openSheet(full){
   document.body.classList.add("sheet-open");
-  const b=document.getElementById("sheetBtn"), p=document.getElementById("sheetPeek");
+  document.body.classList.toggle("sheet-full", full===true);
+  const b=document.getElementById("sheetBtn"), p=document.getElementById("peekSearch");
   if(b) b.setAttribute("aria-expanded","true");
   if(p) p.setAttribute("aria-expanded","true");
   sheetReturn = document.activeElement;
@@ -1408,26 +1461,77 @@ function openSheet(){
   if(panel){ panel.scrollTop=0; const f=panel.querySelector("button, select, input, a"); if(f) f.focus(); }
 }
 function closeSheet(){
-  document.body.classList.remove("sheet-open");
-  const b=document.getElementById("sheetBtn"), p=document.getElementById("sheetPeek");
+  document.body.classList.remove("sheet-open","sheet-full");
+  const b=document.getElementById("sheetBtn"), p=document.getElementById("peekSearch");
   if(b) b.setAttribute("aria-expanded","false");
   if(p) p.setAttribute("aria-expanded","false");
   if(sheetReturn && document.body.contains(sheetReturn)){ try{ sheetReturn.focus(); }catch(e){} }
   sheetReturn=null;
 }
 function toggleSheet(){ document.body.classList.contains("sheet-open") ? closeSheet() : openSheet(); }
+// Тап по «Куда едем?» сразу ставит курсор в поле назначения
+function openSheetTo(id){
+  openSheet(true);
+  const el=document.getElementById(id);
+  if(el){ setTimeout(()=>{ try{ el.focus(); el.select(); el.scrollIntoView({block:"center"}); }catch(e){} }, 280); }
+}
+// Кнопки карты поднимаются над плашкой на её реальную высоту
+// (она меняется от размера шрифта и безопасной зоны iPhone)
+function syncPeekHeight(){
+  const p=document.getElementById("sheetPeek"), st=document.querySelector(".stage");
+  if(p && st && p.offsetHeight) st.style.setProperty("--peek-h", p.offsetHeight+"px");
+}
+window.addEventListener("resize", syncPeekHeight);
 document.addEventListener("keydown", e=>{
   if(e.key==="Escape" && document.body.classList.contains("sheet-open")) closeSheet();
 });
-// Свайп вниз по ручке закрывает шторку
+// Шторку тянут за ручку, как в 2ГИС: она идёт за пальцем, а при отпускании
+// встаёт в ближайшее положение — свёрнута / половина экрана / весь экран.
+// Короткий тап по ручке переключает половину ↔ весь экран.
 function initSheetSwipe(){
-  const h=document.querySelector(".sheet-handle"); if(!h) return;
-  let y0=null;
-  h.addEventListener("touchstart", e=>{ y0=e.touches[0].clientY; }, {passive:true});
-  h.addEventListener("touchmove", e=>{
-    if(y0!=null && e.touches[0].clientY - y0 > 60){ y0=null; closeSheet(); }
+  const h=document.querySelector(".sheet-handle"), side=document.getElementById("sidePanel");
+  if(!h || !side) return;
+  let y0=null, h0=0, moved=false, lastY=0, lastT=0, vel=0;
+  h.addEventListener("pointerdown", e=>{
+    if(e.target.closest("button:not(.grip)")) return;      // крестик «Закрыть» работает как обычно
+    y0=e.clientY; h0=side.offsetHeight; moved=false; lastY=y0; lastT=e.timeStamp; vel=0;
+    side.classList.add("dragging");
+    try{ h.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  h.addEventListener("pointermove", e=>{
+    if(y0==null) return;
+    const dy=e.clientY-y0;
+    if(Math.abs(dy)>6) moved=true;
+    const max=window.innerHeight-64;
+    side.style.height=Math.max(80, Math.min(max, h0-dy))+"px";
+    const dt=e.timeStamp-lastT; if(dt>0) vel=(e.clientY-lastY)/dt;   // px/мс, + вниз
+    lastY=e.clientY; lastT=e.timeStamp;
+  });
+  const end=()=>{
+    if(y0==null) return;
+    y0=null;
+    side.classList.remove("dragging");
+    const cur=side.offsetHeight, vh=window.innerHeight;
+    side.style.height="";
+    if(!moved){ document.body.classList.toggle("sheet-full"); return; }
+    // быстрый взмах решает сам, иначе — по ближайшему положению
+    if(vel>0.6 || cur<vh*0.3){
+      if(document.body.classList.contains("sheet-full") && cur>vh*0.3) document.body.classList.remove("sheet-full");
+      else closeSheet();
+    } else if(vel<-0.6 || cur>vh*0.72) document.body.classList.add("sheet-full");
+    else document.body.classList.remove("sheet-full");
+  };
+  h.addEventListener("pointerup", end);
+  h.addEventListener("pointercancel", end);
+  // …а свайп вверх по нижней плашке её открывает, как в 2ГИС
+  const p=document.getElementById("sheetPeek"); if(!p) return;
+  let py0=null;
+  p.addEventListener("touchstart", e=>{ py0=e.touches[0].clientY; }, {passive:true});
+  p.addEventListener("touchmove", e=>{
+    if(py0!=null && py0 - e.touches[0].clientY > 40){ py0=null; openSheet(); }
   }, {passive:true});
-  h.addEventListener("touchend", ()=>{ y0=null; }, {passive:true});
+  p.addEventListener("touchend", ()=>{ py0=null; }, {passive:true});
+  syncPeekHeight();
 }
 // Нижняя плашка показывает состояние маршрута, чтобы не открывать панель ради проверки
 // Считаем именно то, что мешает ЭТОМУ профилю: лестницы без пандуса и уклон выше нормы.
