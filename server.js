@@ -387,7 +387,7 @@ async function handleApi(req, res, pathname) {
 // Свежие данные подтягиваются в фоне раз в неделю.
 const BUS_DIR = path.join(DATA_DIR, 'bus');
 const BUS_TTL_MS = 7 * 864e5;          // обычное обновление — раз в неделю
-const BUS_EMPTY_TTL_MS = 864e5;        // пустой ответ перепроверяем через сутки
+const BUS_EMPTY_TTL_MS = 6 * 36e5;     // пустой ответ перепроверяем через 6 часов
 const CITY_DLAT = 0.13, CITY_DLON = 0.24;   // те же рамки города, что и во фронтенде
 const BUS_CITIES = {
   almaty: [43.2383, 76.9455], astana: [51.1282, 71.4306], shymkent: [42.3174, 69.5901],
@@ -452,6 +452,7 @@ async function fetchBusData(city) {
   // маршрутки и трамваи тоже берём: в части городов они размечены именно так
   const query = `[out:json][timeout:180];rel[route~"^(bus|trolleybus|minibus|share_taxi|tram)$"](${bbox})->.r;.r out body;node(r.r);out;`;
   let lastErr = null;
+  let empty = null;   // пустой ответ принимаем, только если другие зеркала не дали лучшего
   for (const url of OVERPASS_MIRRORS) {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 200000);
@@ -463,13 +464,19 @@ async function fetchBusData(city) {
       if (!res.ok) { lastErr = new Error(`${url}: HTTP ${res.status}`); continue; }
       const osm = await res.json();
       if (!osm || !Array.isArray(osm.elements)) { lastErr = new Error(`${url}: bad payload`); continue; }
-      return compactBusData(city, osm);
+      // Перегруженный Overpass отвечает 200 с пустым списком и remark «runtime error» —
+      // это сбой, а не «в городе нет автобусов».
+      if (osm.remark && /error|timed out/i.test(osm.remark)) { lastErr = new Error(`${url}: ${osm.remark}`); continue; }
+      const data = compactBusData(city, osm);
+      if (data.routes.length) return data;
+      empty = empty || data;
     } catch (e) {
       lastErr = e;
     } finally {
       clearTimeout(timer);
     }
   }
+  if (empty) return empty;
   throw lastErr || new Error('overpass unavailable');
 }
 
