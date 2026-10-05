@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1769c2">
-<title>InclusiveCity — доступная карта</title>
+<title>ICity — доступная карта</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -370,7 +370,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
           aria-expanded="false" aria-controls="sidePanel" data-i18n-aria="menuBtn" aria-label="Панель управления">
     <span class="bars" aria-hidden="true"></span>
   </button>
-  <div class="brand">Inclusive<b>City</b></div>
+  <div class="brand">I<b>City</b></div>
   <div class="top-tools">
     <button id="viewToggle" class="btn-ghost btn-sm" onclick="toggleView()" aria-pressed="false">
       <span class="vt-ico" aria-hidden="true">📋</span>
@@ -1470,7 +1470,7 @@ function applyCityTexts(){
                       : `${n}: передвигайтесь увереннее`;
   const m=document.getElementById("map");
   if(m) m.setAttribute("aria-label", `${t("mapLabel")}: ${n}`);
-  document.title = `InclusiveCity — ${t("docTitle")}: ${n}`;
+  document.title = `ICity — ${t("docTitle")}: ${n}`;
 }
 function setCity(key){
   if(!CITIES[key]) key="almaty";

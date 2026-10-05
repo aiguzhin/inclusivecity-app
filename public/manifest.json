@@ -1,6 +1,6 @@
 {
-  "name": "InclusiveCity — доступная карта Алматы",
-  "short_name": "InclusiveCity",
+  "name": "ICity — доступная карта Алматы",
+  "short_name": "ICity",
   "description": "Карта доступности Алматы: маршруты без ступеней, барьеры, пандусы, лифты и доступные объекты.",
   "start_url": "/",
   "scope": "/",
