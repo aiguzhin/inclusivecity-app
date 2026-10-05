@@ -49,6 +49,8 @@ html[data-theme="dark"][data-contrast="high"]{
 html[data-font="large"]{--fs:19px; --tap:50px}
 html[data-font="xlarge"]{--fs:23px; --tap:58px}
 html[data-motion="off"] *{transition:none!important; animation:none!important}
+.tiles-light{filter:grayscale(.9) brightness(1.06) contrast(.88)}
+.tiles-dark{filter:invert(1) hue-rotate(180deg) grayscale(.35) brightness(.92) contrast(.92)}
 
 *{box-sizing:border-box}
 body{
@@ -948,22 +950,24 @@ const BASEMAPS = {
   osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:19,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
-  // Подписи берём у CARTO, а не у Esri: слой Esri «Boundaries and Places» содержит
-  // только названия городов и районов — улиц в нём нет вообще. У CARTO подписи
-  // построены по OpenStreetMap, поэтому улицы подписаны и на русском/казахском.
+  // Подписи улиц — слой Esri «World Transportation»: в «Boundaries and Places»
+  // улиц нет вообще, а CARTO без API-ключа теперь отдаёт заглушку
+  // «API KEY REQUIRED» вместо тайлов.
   sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19, imagery:true,
         url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        overlay:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",
-        attr:"© Esri, Maxar · подписи © OpenStreetMap, © CARTO" },
+        overlay:"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+        attr:"© Esri, Maxar · подписи © Esri" },
   topo:{ ru:"Рельеф", kk:"Жер бедері", en:"Terrain", max:17,
         url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)' },
-  light:{ ru:"Светлая", kk:"Ашық", en:"Light", max:20,
-        url:"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attr:"© OpenStreetMap, © CARTO" },
-  dark:{ ru:"Тёмная", kk:"Күңгірт", en:"Dark", max:20,
-        url:"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        attr:"© OpenStreetMap, © CARTO" }
+  // Светлая и тёмная — те же тайлы OSM, перекрашенные CSS-фильтром (.tiles-light /
+  // .tiles-dark): без ключей, а подписи остаются на местных языках.
+  light:{ ru:"Светлая", kk:"Ашық", en:"Light", max:19, cls:"tiles-light",
+        url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
+  dark:{ ru:"Тёмная", kk:"Күңгірт", en:"Dark", max:19, cls:"tiles-dark",
+        url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }
 };
 let baseLayer=null, baseOverlay=null;
 function setBasemap(key){
@@ -977,6 +981,7 @@ function setBasemap(key){
   if(baseLayer) map.removeLayer(baseLayer);
   if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; }
   const opts={maxZoom:def.max, attribution:def.attr};
+  if(def.cls) opts.className = def.cls;
   // Для снимков ставим предел по городу: Leaflet растянет последнюю реальную
   // плитку вместо того, чтобы показывать серую заглушку Esri.
   if(def.imagery) opts.maxNativeZoom = city().sz || 17;
