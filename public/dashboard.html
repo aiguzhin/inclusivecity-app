@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ICity — статистика доступности Алматы</title>
+<title>ICity — статистика доступности городов Казахстана</title>
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
@@ -58,7 +58,7 @@ select{border:1px solid var(--line);background:var(--card);color:var(--ink);font
 </header>
 
 <main>
-  <h1 data-i18n="title">Барьеры доступности в Алматы</h1>
+  <h1 data-i18n="title">Барьеры доступности в городах Казахстана</h1>
   <p class="sub" data-i18n="sub">Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.</p>
 
   <div class="kpis" id="kpis"></div>
@@ -94,7 +94,7 @@ select{border:1px solid var(--line);background:var(--card);color:var(--ink);font
 <script>
 const I18N={
 ru:{dash:"дашборд",theme:"🌓 Тема",export:"⬇ Экспорт CSV",back:"← К карте",
- title:"Барьеры доступности в Алматы",sub:"Данные собраны жителями города и прошли модерацию. Обновляется в реальном времени.",
+ title:"Барьеры доступности в городах Казахстана",sub:"Данные собирают сами жители и проверяют модераторы. Обновляется в реальном времени.",
  heatTitle:"Карта плотности барьеров",legConfirmed:"подтверждённые (3+ подтверждения)",legOnMap:"на карте",legSize:"размер круга — число барьеров рядом",
  byType:"Типы барьеров",bySeason:"Характер барьеров",thType:"Тип",thNature:"Характер",thCount:"Количество",
  seasonNote:"Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.",
@@ -105,7 +105,7 @@ ru:{dash:"дашборд",theme:"🌓 Тема",export:"⬇ Экспорт CSV",
  near:"Барьеров рядом",confirmed:"Подтверждённых",
  sPerm:"Постоянный",sWinter:"Зимний (снег, наледь)",sTemp:"Временный (ремонт)"},
 kk:{dash:"дашборд",theme:"🌓 Тақырып",export:"⬇ CSV жүктеу",back:"← Картаға",
- title:"Алматыдағы қолжетімділік кедергілері",sub:"Деректерді қала тұрғындары жинады және модерациядан өтті. Нақты уақытта жаңарады.",
+ title:"Қазақстан қалаларындағы қолжетімділік кедергілері",sub:"Деректерді тұрғындардың өздері жинайды, модераторлар тексереді. Нақты уақытта жаңарады.",
  heatTitle:"Кедергілер тығыздығының картасы",legConfirmed:"расталған (3+ растау)",legOnMap:"картада",legSize:"шеңбер өлшемі — маңайдағы кедергі саны",
  byType:"Кедергі түрлері",bySeason:"Кедергілердің сипаты",thType:"Түрі",thNature:"Сипаты",thCount:"Саны",
  seasonNote:"Қысқы кедергілер (қар, мұз) — маусымдық: олар жыл сайын қайталанады және бір реткі реконструкцияны емес, тұрақты тазалауды талап етеді.",
@@ -116,7 +116,7 @@ kk:{dash:"дашборд",theme:"🌓 Тақырып",export:"⬇ CSV жүкте
  near:"Маңайдағы кедергілер",confirmed:"Расталғаны",
  sPerm:"Тұрақты",sWinter:"Қысқы (қар, мұз)",sTemp:"Уақытша (жөндеу)"},
 en:{dash:"dashboard",theme:"🌓 Theme",export:"⬇ Export CSV",back:"← Back to map",
- title:"Accessibility barriers in Almaty",sub:"The data is collected by city residents and reviewed by moderators. Updated in real time.",
+ title:"Accessibility barriers in Kazakhstan’s cities",sub:"The data is collected by residents and reviewed by moderators. Updated in real time.",
  heatTitle:"Barrier density map",legConfirmed:"confirmed (3+ confirmations)",legOnMap:"on the map",legSize:"circle size — number of barriers nearby",
  byType:"Types of barriers",bySeason:"Nature of the barriers",thType:"Type",thNature:"Nature",thCount:"Count",
  seasonNote:"Winter barriers (snow, ice) are seasonal: they come back every winter and call for regular clearing rather than a one-off rebuild.",
@@ -176,11 +176,11 @@ function group(id,obj,total){
     <tr><td>${esc(k)}<div class="bar"><span style="width:${Math.round(v/total*100)}%"></span></div></td>
     <td class="num">${v}</td></tr>`).join("");
 }
-let densityLayer=null;
+let densityLayer=null, mapFitted=false;
 function drawMap(){
   if(typeof L==="undefined"){ document.getElementById("map").style.display="none"; return; }
   if(!map){
-    map=L.map("map").setView([43.2383,76.9455],12);
+    map=L.map("map").setView([48.0,67.5],5);   // весь Казахстан, пока нет данных
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,
       attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
   }
@@ -202,6 +202,11 @@ function drawMap(){
       fillColor:c.conf?"#b42318":"#e8890c", fillOpacity:.35
     }).addTo(densityLayer).bindPopup(`<b>${esc(t("near"))}: ${c.n}</b><br>${esc(t("confirmed"))}: ${c.conf}`);
   });
+  // Барьеры есть в разных городах — показываем все разом (один раз, не на каждую смену языка)
+  if(REPORTS.length && !mapFitted){
+    mapFitted=true;
+    map.fitBounds(L.latLngBounds(REPORTS.map(r=>[r.lat,r.lng])).pad(0.2), {maxZoom:13});
+  }
 }
 function exportCsv(){
   const head=["id","lat","lng","type","season","comment","verifications","createdAt"];
