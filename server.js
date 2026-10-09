@@ -574,7 +574,10 @@ async function fetchBusData(city) {
       if (osm.remark && /error|timed out/i.test(osm.remark)) { lastErr = new Error(`${url}: ${osm.remark}`); continue; }
       const data = compactBusData(city, osm);
       try { await addStopsFromGeometry(data, osm, bbox, url); }
-      catch (e) { console.warn(`bus ${city}: stops from geometry failed:`, e.message); }
+      catch (e) {
+        console.warn(`bus ${city}: stops from geometry failed:`, e.message);
+        data.partial = true;   // данные неполные — перепроверим скоро, а не через неделю
+      }
       data.routes.forEach((r) => { delete r.osmId; });
       if (data.routes.length) return data;
       empty = empty || data;
@@ -601,9 +604,17 @@ function refreshBus(city) {
   if (busInflight.has(city)) return busInflight.get(city);
   const p = fetchBusData(city)
     .then((data) => {
+      const partial = data.partial;
+      delete data.partial;
       const tmp = busFile(city) + '.tmp';
       fs.writeFileSync(tmp, JSON.stringify(data));
       fs.renameSync(tmp, busFile(city));
+      // Неполные данные (Overpass не отдал линии маршрутов) отдаём сразу, но помечаем
+      // файл «старым»: через 6 часов он устареет и сервер попробует ещё раз.
+      if (partial) {
+        const t = new Date(Date.now() - BUS_TTL_MS + BUS_EMPTY_TTL_MS);
+        fs.utimesSync(busFile(city), t, t);
+      }
       console.log(`bus ${city}: ${data.routes.length} routes, ${data.stops.length} stops`);
       return data;
     })
