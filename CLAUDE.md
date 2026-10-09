@@ -3,7 +3,10 @@
 Карта доступности для городов Казахстана: пешие маршруты с проверкой барьеров,
 общественный транспорт, такси, жалобы на барьеры.
 
-- Прод: https://inclusivecity-production.up.railway.app/ (Railway, деплой автоматически из `main`)
+- Прод: https://inclusivecity.onrender.com/ (Render, бесплатный план, Blueprint из `render.yaml`, деплой автоматически из `main`).
+  Railway (inclusivecity-production.up.railway.app) остановлен: закончился пробный период.
+- `.github/workflows/keepalive.yml` раз в 10 минут дёргает `/api/health`: не даёт Render заснуть
+  и присылает письмо, если сайт не отвечает.
 - Репозиторий: https://github.com/aiguzhin/inclusivecity-app
 - Отображаемое название — «ICity»; домен и имя репозитория остаются `inclusivecity`.
 
@@ -15,7 +18,8 @@
   (живая цена Яндекс Go — только при `YANDEX_TAXI_CLID` и `YANDEX_TAXI_APIKEY`).
 - `public/index.html` — всё приложение (Leaflet, тексты на ru/kk/en в `I18N`).
 - `public/sw.js` — офлайн-кэш; при каждом изменении фронтенда поднимать `CACHE` (`ic-vN`).
-- `data/` на Railway не сохраняется между деплоями (нет volume) — кэши пересобираются.
+- `data/` на бесплатном Render не сохраняется между деплоями (нет диска) — кэши пересобираются,
+  жалобы и фото пропадают; для постоянного хранения нужен платный план с диском (см. `render.yaml`).
 
 ## Как работать
 
