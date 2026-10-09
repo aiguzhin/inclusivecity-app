@@ -156,6 +156,49 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
   background:transparent;border:1px solid var(--line);color:var(--ink);
 }
 
+.img-info{position:absolute;z-index:501;left:10px;bottom:70px;font-size:.74rem;color:var(--ink-soft);white-space:nowrap;
+  background:var(--card);border:1px solid var(--line);border-radius:8px;padding:3px 8px;box-shadow:var(--shadow)}
+.img-info[hidden]{display:none}
+/* подписи улиц поверх спутника (векторный слой) не должны перехватывать клики по карте */
+.leaflet-labels-pane{pointer-events:none}
+.leaflet-labels-pane canvas{pointer-events:none!important}
+
+/* Меню на телефоне и круглая кнопка 3D — на компьютере их роль играют шапка и панель «Схема/Спутник» */
+.m-menu{display:none}
+.map-btn.map-3d{display:none}
+@media(max-width:860px){
+  .top-tools,.basemap-ctl{display:none}
+  .map-btn.map-3d{display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:800;letter-spacing:.02em}
+  .img-info{bottom:calc(var(--peek-h) + 30px)}
+  .m-menu{display:block;margin:2px 0 14px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
+  .m-maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px}
+  .m-maps button{min-height:var(--tap);border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+    font:inherit;font-size:.88rem;font-weight:650;display:flex;align-items:center;justify-content:center;gap:6px}
+  .m-maps button[aria-pressed="true"]{background:var(--blue-weak);color:var(--blue-ink);border-color:var(--blue)}
+  .m-row{display:flex;gap:8px;margin-top:8px}
+  .m-row>*{flex:1;min-height:var(--tap);min-width:0;border-radius:12px;font-size:.88rem;font-weight:650;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--line);background:var(--card)}
+  .m-row select{width:100%}
+  .m-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:inherit}
+}
+
+/* ===== 3D-вид ===== */
+.view3d{position:fixed;inset:0;z-index:3000;background:#000}
+.view3d[hidden]{display:none}
+#map3d{position:absolute;inset:0}
+.v3-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;background:linear-gradient(rgba(0,0,0,.55),transparent);color:#fff;pointer-events:none}
+.v3-top h2{margin:0;font-size:1.05rem}
+.v3-top button{pointer-events:auto}
+.v3-btn{min-width:var(--tap);min-height:var(--tap);border-radius:12px;border:1px solid rgba(255,255,255,.35);
+  background:rgba(16,24,32,.78);color:#fff;font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer}
+.v3-btn.wide{padding:0 16px;font-size:.95rem}
+.v3-btn[aria-pressed="true"]{background:#1769c2;border-color:#9ccbf7}
+.v3-hint{position:absolute;top:52px;left:12px;right:12px;margin:0;color:#fff;font-size:.8rem;text-shadow:0 1px 3px #000;pointer-events:none}
+.v3-walk{position:absolute;left:12px;bottom:calc(52px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.v3-pad{display:grid;grid-template-columns:repeat(3,var(--tap));gap:6px}
+.v3-pad[hidden]{display:none}
+
 /* ===== Погода: плашка поверх карты ===== */
 .wx{position:absolute;z-index:502;top:62px;right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .wx-pill{
@@ -407,7 +450,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
      --peek-h обновляется из JS по реальной высоте плашки (см. syncPeekHeight). */
   .stage{--peek-h:132px}
   .leaflet-bottom.leaflet-right{bottom:calc(var(--peek-h) + 4px)}
-  .leaflet-control-attribution{font-size:9px;line-height:1.3;padding:1px 4px}
+  /* источники карты — в одну строку; полный текст по нажатию */
+  .leaflet-control-attribution{font-size:9px;line-height:1.3;padding:1px 4px;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .leaflet-control-attribution.open{white-space:normal;max-width:calc(100vw - 20px)}
   .basemap-ctl{bottom:calc(var(--peek-h) + 32px)}
   .map-stack{bottom:calc(var(--peek-h) + 108px)}
   .wx{top:60px;right:8px}
@@ -456,6 +501,24 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
                 data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
     </div>
+    <!-- Меню на телефоне: вид карты, язык, настройки — вместо значков в шапке и на карте -->
+    <section class="m-menu" aria-labelledby="mMenuTitle">
+      <h2 class="sr" id="mMenuTitle" data-i18n="basemapLabel">Вид карты</h2>
+      <div class="m-maps" id="mMaps" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты"></div>
+      <div class="m-row">
+        <label class="sr" for="langSel2">Тіл / Язык / Language</label>
+        <select id="langSel2" onchange="setLang(this.value)" aria-label="Тіл / Язык / Language">
+          <option value="ru">🌐 Русский</option>
+          <option value="kk">🌐 Қазақша</option>
+          <option value="en">🌐 English</option>
+        </select>
+        <button type="button" class="btn-ghost" onclick="openModal('settingsModal')"><span aria-hidden="true">⚙</span> <span data-i18n="settingsBtn">Настройки</span></button>
+      </div>
+      <div class="m-row">
+        <button type="button" class="btn-ghost" onclick="toggleView()"><span aria-hidden="true">📋</span> <span data-i18n="viewList">Текстовый режим</span></button>
+        <a class="btn-ghost m-link" href="/dashboard.html"><span aria-hidden="true">📊</span> <span data-i18n="statsShort">Статистика</span></a>
+      </div>
+    </section>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
     <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
 
@@ -530,11 +593,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
         <button type="button" id="quickSat" onclick="setBasemap('sat')" aria-pressed="false">
           <span aria-hidden="true">🛰</span> <span data-i18n="mapSat">Спутник</span>
         </button>
+        <button type="button" id="quick3d" onclick="open3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">
+          <span aria-hidden="true">🏙</span> 3D
+        </button>
 
       </div>
       <label class="sr" for="basemapSel" data-i18n="basemapLabel">Вид карты</label>
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
+    <span class="img-info" id="imgInfo" hidden></span>
     <div class="wx" id="wx">
       <button type="button" class="wx-pill" id="wxPill" aria-expanded="false" aria-controls="wxPop"
               onclick="toggleWx()" data-i18n-aria="weatherTitle" aria-label="Погода">
@@ -545,6 +612,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
 
     <div class="map-stack">
+      <button type="button" class="map-btn map-3d" onclick="open3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">3D</button>
       <button type="button" class="map-btn" id="compassBtn" onclick="compassTap()"
               data-i18n-aria="compass" aria-label="Компас">
         <span class="compass-face" aria-hidden="true">
@@ -587,6 +655,24 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
   </section>
   <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet()" aria-hidden="true"></div>
+  <!-- 3D-вид: спутник на рельефе, объёмные дома, наклон/поворот и прогулка — как в Google Earth -->
+  <div class="view3d" id="view3d" role="dialog" aria-modal="true" aria-labelledby="v3Title" hidden>
+    <div id="map3d"></div>
+    <div class="v3-top">
+      <h2 id="v3Title" data-i18n="view3dTitle">3D-вид</h2>
+      <button type="button" class="v3-btn" onclick="close3D()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+    </div>
+    <p class="v3-hint" id="v3Hint" data-i18n="v3Hint">Два пальца или правая кнопка мыши — наклон и поворот</p>
+    <div class="v3-walk">
+      <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false">🚶 <span data-i18n="walk">Прогулка</span></button>
+      <div class="v3-pad" id="walkPad" hidden>
+        <span></span><button type="button" class="v3-btn" onclick="walkStep(1)" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
+        <button type="button" class="v3-btn" onclick="walkTurn(-1)" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
+        <button type="button" class="v3-btn" onclick="walkStep(-1)" data-i18n-aria="walkBack" aria-label="Назад">↓</button>
+        <button type="button" class="v3-btn" onclick="walkTurn(1)" data-i18n-aria="walkRight" aria-label="Повернуть направо">↻</button>
+      </div>
+    </div>
+  </div>
 </main>
 
 <!-- Настройки доступности -->
@@ -730,13 +816,13 @@ ru:{
  vSlope:"уклон до", vClean:"Барьеров для вашего профиля не найдено",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
- peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", sheetResize:"Развернуть или свернуть панель",
+ peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", statsShort:"Статистика", sheetResize:"Развернуть или свернуть панель",
  cityAuto:"📍 Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
  modeLabel:"Способ передвижения", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Ищем автобусы…", busNone:"Прямых автобусов не нашли", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты автобусов этого города ещё загружаются — попробуйте через пару минут",
  busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
- busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
+ busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Наклон и поворот — двумя пальцами или правой кнопкой мыши. В прогулке: стрелки или W A S D.", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
  busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
  busOptions:"Другие автобусы", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
@@ -814,13 +900,13 @@ kk:{
  vSlope:"еңіс", vClean:"Профиліңізге кедергі табылмады",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
- peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", sheetResize:"Тақтаны жаю немесе жию",
+ peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", statsShort:"Статистика", sheetResize:"Тақтаны жаю немесе жию",
  cityAuto:"📍 Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
  modeLabel:"Жүру тәсілі", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Автобустар ізделуде…", busNone:"Тікелей автобус табылмады", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың автобус бағыттары әлі жүктелуде — бірнеше минуттан кейін қайталаңыз",
  busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
- busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
+ busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Еңкейту мен бұру — екі саусақпен немесе тінтуірдің оң түймесімен. Серуенде: көрсеткілер немесе W A S D.", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
  busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
  busOptions:"Басқа автобустар", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
@@ -899,13 +985,13 @@ en:{
  vSlope:"slope up to", vClean:"No barriers for your profile",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
- peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", sheetResize:"Expand or collapse the panel",
+ peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", statsShort:"Statistics", sheetResize:"Expand or collapse the panel",
  cityAuto:"📍 Detect from my location", cityFar:"No supported city near you",
  modeLabel:"How to travel", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
  busSearching:"Looking for buses…", busNone:"No direct buses found", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Bus routes for this city are still loading — try again in a couple of minutes",
  busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
- busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", busNote2gis:"Routes and travel times come from 2GIS.",
+ busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Tilt and rotate with two fingers or the right mouse button. While walking: arrow keys or W A S D.", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
  busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
  busOptions:"Other buses", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
@@ -1056,26 +1142,26 @@ async function overpassQuery(body, timeoutMs){
  * названия, которые рисует само приложение, переводятся (см. poiName).
  */
 const BASEMAPS = {
-  osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:19,
+  osm:{ ru:"Схема", kk:"Схема", en:"Street map", max:20, vector:true,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
   // Подписи — два слоя Esri: «World Transportation» даёт улицы, «Boundaries and
   // Places» — названия городов, районов и мест (улиц в нём нет). CARTO без
   // API-ключа теперь отдаёт заглушку «API KEY REQUIRED» вместо тайлов.
-  sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:19, imagery:true,
+  sat:{ ru:"Спутник", kk:"Спутник", en:"Satellite", max:20, imagery:true,
         url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         overlay:["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
                  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"],
-        attr:"© Esri, Maxar · подписи © Esri" },
+        attr:"© Esri, Maxar, Vantor" },
   topo:{ ru:"Рельеф", kk:"Жер бедері", en:"Terrain", max:17,
         url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)' },
   // Светлая и тёмная — те же тайлы OSM, перекрашенные CSS-фильтром (.tiles-light /
   // .tiles-dark): без ключей, а подписи остаются на местных языках.
-  light:{ ru:"Светлая", kk:"Ашық", en:"Light", max:19, cls:"tiles-light",
+  light:{ ru:"Светлая", kk:"Ашық", en:"Light", max:20, cls:"tiles-light", vector:true,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' },
-  dark:{ ru:"Тёмная", kk:"Күңгірт", en:"Dark", max:19, cls:"tiles-dark",
+  dark:{ ru:"Тёмная", kk:"Күңгірт", en:"Dark", max:20, cls:"tiles-dark", vector:true,
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }
 };
@@ -1090,20 +1176,248 @@ function setBasemap(key){
   const def=BASEMAPS[key];
   if(baseLayer) map.removeLayer(baseLayer);
   if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; }
-  const opts={maxZoom:def.max, attribution:def.attr};
+  if(glLayer){ map.removeLayer(glLayer); glLayer=null; }
+  const opts={maxZoom:def.max, attribution:def.attr, maxNativeZoom: def.max>19 ? 19 : def.max};
   if(def.cls) opts.className = def.cls;
-  // Для снимков ставим предел по городу: Leaflet растянет последнюю реальную
-  // плитку вместо того, чтобы показывать серую заглушку Esri.
-  if(def.imagery) opts.maxNativeZoom = city().sz || 17;
+  // Для снимков предел детальности берём из метаданных Esri для этого места
+  // (см. updateImgInfo): глубже Leaflet растянет последнюю реальную плитку
+  // вместо серой заглушки «Map data not yet available».
+  if(def.imagery){
+    // detectRetina сам добавляет +1 к уровню плиток — предел сдвигаем на столько же
+    opts.maxNativeZoom = (satNative || city().sz || 17) - (L.Browser.retina ? 1 : 0);
+    opts.detectRetina = true;   // на Retina-экранах плитки на уровень детальнее — снимок не «мылит»
+  }
   baseLayer=L.tileLayer(def.url,opts).addTo(map);
   if(baseLayer.setZIndex) baseLayer.setZIndex(0);
   if(def.overlay){
-    // Подписи рисуются векторно и остаются резкими на любом зуме
+    // Растровые подписи Esri — запасной вариант, пока не загрузились векторные
     baseOverlay=L.layerGroup([].concat(def.overlay).map((u,i)=>
-      L.tileLayer(u,{maxZoom:def.max}).setZIndex(1+i))).addTo(map);
+      L.tileLayer(u,{maxZoom:def.max, maxNativeZoom:19}).setZIndex(1+i))).addTo(map);
   }
+  if(def.vector || def.imagery) addGLLayer(key);
+  updateImgInfo();
   checkImageryZoom();
 }
+
+/* ============ Векторные подписи и 3D (MapLibre GL + OpenFreeMap) ============
+ * Растровые тайлы OSM «запекают» подписи на местном языке. Векторные тайлы
+ * OpenFreeMap несут названия улиц на разных языках (name:ru, name:kk, name:en)
+ * и номера домов — поэтому подписи меняются вместе с языком приложения.
+ * Растровый слой остаётся как мгновенная подложка и запасной вариант без WebGL. */
+const GL_JS="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
+const GL_CSS="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
+const GL_LEAFLET="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js";
+const OFM_STYLE="https://tiles.openfreemap.org/styles/liberty";
+const OFM_ATTR='<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+let glLayer=null, glSeq=0, satNative=null;
+const assetCache={};
+function loadAsset(url){
+  if(!assetCache[url]) assetCache[url]=new Promise((ok,fail)=>{
+    const css=url.endsWith(".css"), el=document.createElement(css?"link":"script");
+    if(css){ el.rel="stylesheet"; el.href=url; } else el.src=url;
+    el.onload=()=>ok(); el.onerror=()=>{ delete assetCache[url]; fail(new Error("load "+url)); };
+    document.head.appendChild(el);
+  });
+  return assetCache[url];
+}
+function webglOk(){
+  try{ const c=document.createElement("canvas"); return !!(c.getContext("webgl2")||c.getContext("webgl")); }catch(e){ return false; }
+}
+async function ensureGL(withLeaflet){
+  await Promise.all([loadAsset(GL_CSS), loadAsset(GL_JS)]);
+  if(withLeaflet) await loadAsset(GL_LEAFLET);
+}
+let ofmStylePromise=null;
+function ofmStyle(){
+  if(!ofmStylePromise) ofmStylePromise=fetch(OFM_STYLE).then(r=>{ if(!r.ok) throw new Error("style"); return r.json(); })
+    .catch(e=>{ ofmStylePromise=null; throw e; });
+  return ofmStylePromise;
+}
+// Название на языке приложения; если перевода в OSM нет — местное название
+// (для английского — латинская транслитерация)
+function nameExpr(){
+  return S.lang==="en"
+    ? ["coalesce",["get","name:en"],["get","name_en"],["get","name:latin"],["get","name"]]
+    : ["coalesce",["get","name:"+S.lang],["get","name"]];
+}
+const isNameLayer=l=>l.type==="symbol" && l.layout && l.layout["text-field"] && !/shield|one_way|housenumber|label_country/.test(l.id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function houseNumbers(onImagery){
+  return {id:"housenumber", type:"symbol", source:"openmaptiles", "source-layer":"housenumber", minzoom:sheetMode()?17:16,
+    layout:{"text-field":["get","housenumber"], "text-font":["Noto Sans Regular"], "text-size":11, "text-padding":2},
+    paint: onImagery ? {"text-color":"#fff","text-halo-color":"rgba(0,0,0,.85)","text-halo-width":1.4}
+                     : {"text-color":"#5b5146","text-halo-color":"rgba(255,255,255,.9)","text-halo-width":1.2}};
+}
+// Поверх спутника: линии улиц, их названия, номера домов, районы и города
+function overlayLayers(style){
+  const keep=l=>(l["source-layer"]==="transportation" && l.type==="line" && !/tunnel|rail|hatching/.test(l.id))
+    || l["source-layer"]==="transportation_name" || (l["source-layer"]==="place" && !/country|state/.test(l.id))
+    || l["source-layer"]==="poi";   // магазины, кафе, аптеки, остановки — с иконками
+  return style.layers.filter(keep).map(l=>{
+    l=clone(l);
+    if(isNameLayer(l)) l.layout["text-field"]=nameExpr();
+    if(l.type==="line") l.paint=Object.assign({},l.paint,{"line-opacity":/pedestrian/.test(l.id)?0.35:/casing/.test(l.id)?0.45:0.75});
+    // на телефоне меньше мелочи: иконки мест — с приближения на 1 больше
+    if(l["source-layer"]==="poi" && sheetMode()) l.minzoom=Math.max(l.minzoom||14, 15)+1;
+    if(l.type==="symbol") l.paint=Object.assign({},l.paint,{"text-color":"#fff","text-halo-color":"rgba(0,0,0,.85)","text-halo-width":1.6});
+    return l;
+  }).concat([
+    // тонкие контуры домов — на снимке сразу видно, где какое здание
+    {id:"building-outline", type:"line", source:"openmaptiles", "source-layer":"building", minzoom:16,
+     paint:{"line-color":"rgba(255,255,255,.55)","line-width":0.8}},
+    houseNumbers(true)
+  ]);
+}
+function fullLayers(style){
+  return style.layers.map(l=>{ l=clone(l); if(isNameLayer(l)) l.layout["text-field"]=nameExpr(); return l; })
+    .concat([houseNumbers(false)]);
+}
+async function addGLLayer(key){
+  const seq=++glSeq, def=BASEMAPS[key];
+  if(!webglOk()) return;
+  try{
+    const [style]=await Promise.all([ofmStyle(), ensureGL(true)]);
+    if(seq!==glSeq || S.basemap!==key || !L.maplibreGL) return;   // пока грузили, вид карты сменили
+    const onImagery=!!def.imagery;
+    const gl=L.maplibreGL({
+      style:{version:8, glyphs:style.glyphs, sprite:style.sprite,
+             sources:onImagery ? {openmaptiles:style.sources.openmaptiles} : style.sources,
+             layers:onImagery ? overlayLayers(style) : fullLayers(style)},
+      interactive:false, pane:onImagery?"labels":"tilePane", attribution:OFM_ATTR,
+      // плавность на телефонах: не рисуем чётче 2×, подписи без анимации появления
+      pixelRatio:Math.min(window.devicePixelRatio||1, 2), fadeDuration:0
+    }).addTo(map);
+    glLayer=gl;
+    const ml=gl.getMaplibreMap();
+    ml.once("load",()=>{
+      if(glLayer!==gl) return;
+      const box=gl.getContainer && gl.getContainer();
+      if(box && def.cls) box.classList.add(def.cls);   // светлая/тёмная — тот же фильтр, что у растра
+      // векторные подписи готовы — растровые дубли больше не нужны
+      if(onImagery){ if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; } }
+      else if(baseLayer){ map.removeLayer(baseLayer); }   // растр под вектором больше не грузим
+    });
+  }catch(e){ /* без векторного слоя остаётся растровая карта */ }
+}
+// Смена языка: переписываем подписи в уже открытых векторных картах
+function relabelGL(){
+  const maps=[glLayer && glLayer.getMaplibreMap && glLayer.getMaplibreMap(), map3d].filter(Boolean);
+  maps.forEach(m=>{
+    try{ (m.getStyle().layers||[]).forEach(l=>{ if(isNameLayer(l)) m.setLayoutProperty(l.id,"text-field",nameExpr()); }); }catch(e){}
+  });
+}
+
+// Дата и разрешение снимка в центре карты (метаданные Esri World Imagery)
+let imgInfoTimer=null;
+function updateImgInfo(){
+  const box=document.getElementById("imgInfo"); if(!box) return;
+  clearTimeout(imgInfoTimer);
+  if(!mapReady || !BASEMAPS[S.basemap] || !BASEMAPS[S.basemap].imagery){ box.hidden=true; return; }
+  imgInfoTimer=setTimeout(async()=>{
+    const c=map.getCenter(), b=map.getBounds();
+    const url="https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/identify?f=json&geometryType=esriGeometryPoint"
+      +`&geometry=${c.lng.toFixed(5)},${c.lat.toFixed(5)}&sr=4326&layers=all&tolerance=1&returnGeometry=false`
+      +`&mapExtent=${b.getWest().toFixed(4)},${b.getSouth().toFixed(4)},${b.getEast().toFixed(4)},${b.getNorth().toFixed(4)}&imageDisplay=800,600,96`;
+    try{
+      const d=await (await fetch(url)).json();
+      const best=(d.results||[]).map(r=>r.attributes||{}).filter(a=>a["DATE (YYYYMMDD)"]&&a["DATE (YYYYMMDD)"]!=="Null")[0];
+      if(!best || !BASEMAPS[S.basemap].imagery){ box.hidden=true; return; }
+      const ds=String(best["DATE (YYYYMMDD)"]), res=parseFloat(best["RESOLUTION (M)"]);
+      const date=new Date(+ds.slice(0,4), +ds.slice(4,6)-1, +ds.slice(6,8)).toLocaleDateString(locale(),{year:"numeric",month:"long"});
+      box.textContent=tf("imgInfo",{date, res:Math.round(res*100)});
+      box.hidden=false;
+      // Насколько глубоко у Esri есть настоящие снимки именно здесь
+      const lvl=parseInt(best.MaxMapLevel,10);
+      const native=lvl - (L.Browser.retina ? 1 : 0);
+      if(lvl && baseLayer && native!==baseLayer.options.maxNativeZoom){ satNative=lvl; baseLayer.options.maxNativeZoom=native; baseLayer.redraw(); }
+    }catch(e){ box.hidden=true; }
+  },600);
+}
+
+// ---- 3D-вид, как в Google Earth: спутник на рельефе, объёмные дома, наклон и прогулка ----
+let map3d=null, walking=false, v3Return=null;
+async function open3D(){
+  if(!webglOk()){ toast(t("noWebgl")); return; }
+  const box=document.getElementById("view3d");
+  v3Return=document.activeElement;
+  box.hidden=false;
+  try{
+    const [style]=await Promise.all([ofmStyle(), ensureGL(false)]);
+    if(box.hidden) return;
+    const c=mapReady ? map.getCenter() : {lat:city().c[0], lng:city().c[1]};
+    const z=mapReady ? Math.max(14, map.getZoom()-1) : 15;
+    const buildings=clone(style.layers.find(l=>l.id==="building-3d") || {});
+    buildings.paint=Object.assign({},buildings.paint,{"fill-extrusion-color":"#e8e1d6","fill-extrusion-opacity":0.7});
+    map3d=new maplibregl.Map({
+      pixelRatio:Math.min(window.devicePixelRatio||1, sheetMode()?1.5:2),   // 3D тяжёлый — на телефоне чуть экономнее
+      container:"map3d", center:[c.lng,c.lat], zoom:z, pitch:62, bearing:-15, maxPitch:85,
+      attributionControl:{compact:true},
+      style:{version:8, glyphs:style.glyphs, sprite:style.sprite,
+        sources:{
+          sat:{type:"raster", tileSize:256, maxzoom:19, attribution:"© Esri, Maxar, Vantor",
+               tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]},
+          dem:{type:"raster-dem", encoding:"terrarium", tileSize:256, maxzoom:15, attribution:"Terrain © Mapzen, AWS",
+               tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"]},
+          openmaptiles:style.sources.openmaptiles
+        },
+        terrain:{source:"dem", exaggeration:1.3},
+        sky:{"sky-color":"#6fa8dc","horizon-color":"#d6e6f5","fog-color":"#e6eef6","sky-horizon-blend":0.6,"horizon-fog-blend":0.5,"fog-ground-blend":0.4,"atmosphere-blend":0.8},
+        // номера домов в 3D — только вблизи, иначе ими усыпаны все крыши
+        layers:[{id:"sat", type:"raster", source:"sat"}].concat(buildings.id?[buildings]:[],
+          overlayLayers(style).map(l=>l.id==="housenumber"?Object.assign(l,{minzoom:18}):l))
+      }
+    });
+    map3d.addControl(new maplibregl.NavigationControl({visualizePitch:true}), "bottom-right");
+    map3d.on("load", ()=>{
+      // подпись источников — свёрнутой «i», иначе на телефоне закрывает кнопки прогулки
+      const at=document.querySelector("#map3d .maplibregl-ctrl-attrib");
+      if(at) at.classList.remove("maplibregl-compact-show");
+      // текущий маршрут — и в 3D: линии маршрута с основной карты
+      const lines=[];
+      if(mapReady) routeLayer.eachLayer(l=>{ if(l instanceof L.Polyline && !(l instanceof L.Polygon)){
+        const ll=l.getLatLngs().flat(); if(ll.length>1) lines.push(ll.map(p=>[p.lng,p.lat])); } });
+      if(lines.length){
+        map3d.addSource("route",{type:"geojson", data:{type:"FeatureCollection", features:lines.map(c=>({type:"Feature", properties:{}, geometry:{type:"LineString", coordinates:c}}))}});
+        map3d.addLayer({id:"route", type:"line", source:"route", paint:{"line-color":"#1769c2","line-width":6,"line-opacity":.9}});
+      }
+    });
+    box.querySelector(".v3-top button").focus();
+  }catch(e){ close3D(); toast(t("noWebgl")); }
+}
+function close3D(){
+  const box=document.getElementById("view3d");
+  box.hidden=true;
+  if(walking) toggleWalk();
+  if(map3d){ map3d.remove(); map3d=null; }
+  if(v3Return && document.body.contains(v3Return)){ try{ v3Return.focus(); }catch(e){} }
+}
+// Прогулка: камера опускается к земле, шаги по 15 м и повороты по 20°
+function toggleWalk(){
+  walking=!walking;
+  document.getElementById("walkToggle").setAttribute("aria-pressed", String(walking));
+  document.getElementById("walkPad").hidden=!walking;
+  if(!map3d) return;
+  if(walking){ map3d.keyboard.disable(); map3d.easeTo({zoom:17.6, pitch:72, duration:900}); }
+  else{ map3d.keyboard.enable(); map3d.easeTo({zoom:16, pitch:62, duration:900}); }
+}
+function walkStep(dir){
+  if(!map3d) return;
+  const c=map3d.getCenter(), b=map3d.getBearing()*Math.PI/180, d=15*dir;
+  const lat=c.lat + Math.cos(b)*d/111320, lng=c.lng + Math.sin(b)*d/(111320*Math.cos(c.lat*Math.PI/180));
+  map3d.easeTo({center:[lng,lat], duration:350});
+}
+function walkTurn(dir){ if(map3d) map3d.easeTo({bearing:map3d.getBearing()+20*dir, duration:300}); }
+document.addEventListener("keydown", e=>{
+  const box=document.getElementById("view3d");
+  if(!box || box.hidden) return;
+  if(e.key==="Escape"){ close3D(); return; }
+  if(!walking) return;
+  const k=e.key.toLowerCase();
+  if(k==="arrowup"||k==="w"||k==="ц"){ walkStep(1); e.preventDefault(); }
+  else if(k==="arrowdown"||k==="s"||k==="ы"){ walkStep(-1); e.preventDefault(); }
+  else if(k==="arrowleft"||k==="a"||k==="ф"){ walkTurn(-1); e.preventDefault(); }
+  else if(k==="arrowright"||k==="d"||k==="в"){ walkTurn(1); e.preventDefault(); }
+});
 // Быстрый переключатель «схема / спутник»: обычный спутник — sat, а не satlab,
 // потому что подписей на нём нет и он читается спокойнее.
 function syncBasemapButtons(key){
@@ -1114,6 +1428,7 @@ function syncBasemapButtons(key){
   const o=document.getElementById("quickOsm"), t2=document.getElementById("quickSat");
   if(o) o.setAttribute("aria-pressed", String(isPlain));
   if(t2) t2.setAttribute("aria-pressed", String(isSat));
+  document.querySelectorAll("#mMaps button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.key===key)));
 }
 
 /* ============ Погода ============
@@ -1250,7 +1565,7 @@ function checkImageryZoom(){
   if(!mapReady) return;
   const def=BASEMAPS[S.basemap];
   if(!def || !def.imagery){ return; }
-  const lim = city().sz || 17;
+  const lim = satNative || city().sz || 17;
   if(map.getZoom() > lim && imageryWarned !== S.city){
     imageryWarned = S.city;
     toast(t("satLimit"));
@@ -1264,6 +1579,13 @@ function buildBasemapSelect(){
     const o=document.createElement("option"); o.value=k; o.textContent=d[S.lang]||d.ru; sel.appendChild(o);
   });
   sel.value=S.basemap;
+  // те же виды карты — кнопками в меню на телефоне
+  const box=document.getElementById("mMaps");
+  if(box){
+    const ICO={osm:"🗺",sat:"🛰",topo:"⛰",light:"☀️",dark:"🌙"};
+    box.innerHTML=Object.entries(BASEMAPS).map(([k,d])=>
+      `<button type="button" data-key="${k}" aria-pressed="${k===S.basemap}" onclick="setBasemap(this.dataset.key)"><span aria-hidden="true">${ICO[k]||""}</span>${esc(d[S.lang]||d.ru)}</button>`).join("");
+  }
 }
 
 // Названия объектов берём на выбранном языке: в OSM они лежат в тегах name:kk/name:en
@@ -1385,6 +1707,7 @@ function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") sto
 function setLang(v){
   S.lang=v; store("lang",v);
   document.getElementById("langSel").value=v;
+  const l2=document.getElementById("langSel2"); if(l2) l2.value=v;
   buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect(); buildCitySelect();
   applyAll();
   applyCityTexts(); applyHeading(); updatePeek();
@@ -1393,6 +1716,7 @@ function setLang(v){
   acCache.clear();
   renderWeather();
   renderNearby(); showReports();
+  relabelGL(); updateImgInfo();   // названия улиц на карте — на новом языке
   // маршрут пересобираем из сохранённого разбора, ничего не запрашивая заново
   if(lastRoute && lastAnalysis){
     const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
@@ -1682,10 +2006,16 @@ function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
   map=L.map("map",{zoomControl:false}).setView(city().c, city().z);
   L.control.zoom({position:"bottomright"}).addTo(map);
+  // на телефоне подпись источников свёрнута в строку — раскрываем по нажатию
+  map.attributionControl.getContainer().addEventListener("click", e=>{
+    if(e.target.tagName!=="A") e.currentTarget.classList.toggle("open");
+  });
+  // слой векторных подписей над спутником: выше снимка, ниже маршрутов и маркеров
+  map.createPane("labels"); map.getPane("labels").style.zIndex=350;
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
-  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); });
+  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); });
   mapReady=true;
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
@@ -2914,6 +3244,7 @@ function toast(s){
   S.mode=read("mode","walk"); if(!["walk","bus","taxi"].includes(S.mode)) S.mode="walk";
   markMode();
   document.getElementById("langSel").value=S.lang;
+  const l2=document.getElementById("langSel2"); if(l2) l2.value=S.lang;
   // Карта — не обязательное условие работы приложения: если Leaflet не загрузился
   // (заблокирован CDN, медленная сеть), приложение продолжает работать в текстовом
   // режиме, который для незрячих пользователей и так является основным.
