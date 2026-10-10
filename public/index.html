@@ -281,7 +281,11 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .bus-opt .sub{display:block;font-size:.8rem;color:var(--ink-soft)}
 .bus-opt .bo-top{display:flex;align-items:baseline;gap:8px}
 .bus-opt .bo-top .sub{display:inline}
-/* ===== Транспорт: значки, плашки номеров, полоска поездки (как в 2ГИС) ===== */
+.set-maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
+.set-maps button{min-height:var(--tap);border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font:inherit;font-size:.88rem;font-weight:650;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.set-maps button[aria-pressed="true"]{background:var(--blue-weak);color:var(--blue-ink);border-color:var(--blue)}
+/* ===== Транспорт: значки,  плашки номеров, полоска поездки (как в 2ГИС) ===== */
 .ic{width:1.15em;height:1.15em;flex:0 0 auto;vertical-align:-.2em}
 .mode-tabs .ic{width:20px;height:20px}
 .tr-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 5px;border-radius:7px;background:var(--k,#12935a);color:#fff;font-weight:800;font-size:.85rem;line-height:1.35;white-space:nowrap;vertical-align:middle}
@@ -721,6 +725,18 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
         <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
         <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
         <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)"><i data-ic="pin"></i> <span data-i18n="cityAuto">Определить по геопозиции</span></button>
+      </div>
+      <div>
+        <label class="field">Тіл · Язык · Language</label>
+        <div class="seg" id="segLang">
+          <button onclick="setLang('kk')" data-v="kk" lang="kk">Қазақша</button>
+          <button onclick="setLang('ru')" data-v="ru" lang="ru">Русский</button>
+          <button onclick="setLang('en')" data-v="en" lang="en">English</button>
+        </div>
+      </div>
+      <div>
+        <label class="field" data-i18n="basemapLabel">Вид карты</label>
+        <div class="m-maps set-maps" id="setMaps" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты"></div>
       </div>
       <div>
         <label class="field" data-i18n="setFont">Размер текста</label>
@@ -1364,7 +1380,7 @@ async function addGLLayer(key){
              layers:onImagery ? overlayLayers(style) : fullLayers(style)},
       interactive:false, pane:onImagery?"labels":"tilePane", attribution:OFM_ATTR,
       // плавность на телефонах: не рисуем чётче 2×, подписи без анимации появления
-      pixelRatio:Math.min(window.devicePixelRatio||1, 2), fadeDuration:0
+      pixelRatio:Math.min(window.devicePixelRatio||1, sheetMode()?1.5:2), fadeDuration:0
     }).addTo(map);
     glLayer=gl;
     const ml=gl.getMaplibreMap();
@@ -1655,7 +1671,7 @@ function syncBasemapButtons(key){
   const o=document.getElementById("quickOsm"), t2=document.getElementById("quickSat");
   if(o) o.setAttribute("aria-pressed", String(isPlain));
   if(t2) t2.setAttribute("aria-pressed", String(isSat));
-  document.querySelectorAll("#mMaps button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.key===key)));
+  document.querySelectorAll("#mMaps button, #setMaps button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.key===key)));
 }
 
 /* ============ Погода ============
@@ -1809,12 +1825,12 @@ function buildBasemapSelect(){
   });
   sel.value=S.basemap;
   // те же виды карты — кнопками в меню на телефоне
-  const box=document.getElementById("mMaps");
-  if(box){
-    const ICO={osm:"map",sat:"sat",topo:"topo",light:"sun",dark:"moon"};
+  // и в настройках
+  const ICO={osm:"map",sat:"sat",topo:"topo",light:"sun",dark:"moon"};
+  ["mMaps","setMaps"].map(id=>document.getElementById(id)).filter(Boolean).forEach(box=>{
     box.innerHTML=Object.entries(BASEMAPS).map(([k,d])=>
       `<button type="button" data-key="${k}" aria-pressed="${k===S.basemap}" onclick="setBasemap(this.dataset.key)">${svgI(ICO[k]||"map")}${esc(d[S.lang]||d.ru)}</button>`).join("");
-  }
+  });
 }
 
 // Названия объектов берём на выбранном языке: в OSM они лежат в тегах name:kk/name:en
@@ -1920,7 +1936,7 @@ function applyAll(){
   h.setAttribute("lang",S.lang);
   document.body.setAttribute("data-view",S.view);
   mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
-  mark("segMotion",S.motion); mark("segVoice",S.voice);
+  mark("segMotion",S.motion); mark("segVoice",S.voice); mark("segLang",S.lang);
   renderTexts();
   syncPeekHeight();   // крупный шрифт делает плашку выше
 }
@@ -2286,12 +2302,18 @@ function chipBusy(key, busy){
 }
 function layerLabel(def){ return def[S.lang] || def.ru; }
 
+let poiCanvasR=null;
+const poiCanvas=()=>poiCanvasR||(poiCanvasR=L.canvas({padding:0.3, tolerance:8}));
 function drawLayer(def, st){
   if(!mapReady || !st.group) return;
   st.group.clearLayers();
   st.items.forEach(it=>{
     const nm=poiName(it.tags, layerLabel(def));
-    L.marker([it.lat,it.lon],{icon:dotIcon(def.color), alt:nm})
+    // на телефоне сотни HTML-значков тормозят карту — рисуем точки на одном холсте;
+    // на компьютере оставляем значки: до них можно дойти клавиатурой
+    (sheetMode()
+      ? L.circleMarker([it.lat,it.lon],{renderer:poiCanvas(), radius:7, color:"#fff", weight:2, fillColor:def.color, fillOpacity:1})
+      : L.marker([it.lat,it.lon],{icon:dotIcon(def.color), alt:nm}))
      .addTo(st.group)
      .bindPopup(`<b>${esc(nm)}</b><div class="facts">${tagFacts(it.tags)}</div>`);
   });
