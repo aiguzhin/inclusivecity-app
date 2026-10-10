@@ -281,12 +281,33 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .bus-opt .sub{display:block;font-size:.8rem;color:var(--ink-soft)}
 .bus-opt .bo-top{display:flex;align-items:baseline;gap:8px}
 .bus-opt .bo-top .sub{display:inline}
-/* полоска поездки, как в 2ГИС: 🚶5 › 34 › 🚶2 › 92 */
+/* ===== Транспорт: значки, плашки номеров, полоска поездки (как в 2ГИС) ===== */
+.ic{width:1.15em;height:1.15em;flex:0 0 auto;vertical-align:-.2em}
+.mode-tabs .ic{width:20px;height:20px}
+.tr-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 5px;border-radius:7px;background:var(--k,#12935a);color:#fff;font-weight:800;font-size:.85rem;line-height:1.35;white-space:nowrap;vertical-align:middle}
+.tr-badge .ic{width:15px;height:15px;stroke-width:2}
+.tr-badge.big{font-size:1rem;padding:3px 10px 3px 7px;border-radius:9px}
+.tr-badge.big .ic{width:18px;height:18px}
+.kind-name{font-weight:700;color:var(--ink-soft);font-size:.85rem;margin-left:4px}
+.kind-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px;padding-bottom:2px}
+.kind-chips::-webkit-scrollbar{display:none}
+.kind-chips button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
+.kind-chips button .ic{color:var(--k)}
+.kind-chips button[aria-pressed="true"]{background:var(--k,var(--blue));border-color:var(--k,var(--blue));color:#fff}
+.kind-chips button[aria-pressed="true"] .ic{color:#fff}
+.trip-head{display:flex;align-items:center;gap:12px;margin:2px 0 8px}
+.trip-time{white-space:nowrap;font-size:2rem;font-weight:850;line-height:1;letter-spacing:-.02em}
+.trip-time small{font-size:.95rem;font-weight:700;color:var(--ink-soft)}
+.trip-meta{display:flex;flex-direction:column;font-size:.85rem;color:var(--ink-soft)}
+.trip-meta b{color:var(--ink);font-size:.95rem}
+.trip-steps .ico{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--paper);border:1px solid var(--line);color:var(--ink-soft)}
+.trip-steps .ico .ic{width:17px;height:17px}
+.trip-steps li.ride .ico{background:var(--leg);border-color:var(--leg);color:#fff}
+.fact .ic{width:1em;height:1em}
 .trip-strip{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:.85rem}
-.trip-strip .bus-badge{min-width:0;padding:2px 7px;font-size:.85rem}
-.ts-walk{color:var(--ink-soft);font-weight:700;white-space:nowrap}
-.ts-sep{color:var(--ink-soft)}
-.trip-steps li.ride{border-left:4px solid var(--leg);padding-left:8px;margin-left:2px}
+.ts-walk{display:inline-flex;align-items:center;gap:1px;color:var(--ink-soft);font-weight:700;font-size:.85rem;white-space:nowrap}
+.ts-walk .ic{width:15px;height:15px}
+.ts-sep{width:5px;height:5px;border-top:2px solid var(--ink-soft);border-right:2px solid var(--ink-soft);transform:rotate(45deg);opacity:.5;margin:0 2px}
 .bus-stops summary{cursor:pointer;color:var(--blue-ink);font-size:.85rem;min-height:32px;display:flex;align-items:center}
 .bus-stops ol{margin:4px 0 0;padding-left:1.4em;font-size:.85rem;color:var(--ink-soft)}
 .city-row .grow{flex:1;min-width:0}
@@ -496,7 +517,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   <div class="brand">I<b>City</b></div>
   <div class="top-tools">
     <button id="viewToggle" class="btn-ghost btn-sm" onclick="toggleView()" aria-pressed="false">
-      <span class="vt-ico" aria-hidden="true">📋</span>
+      <span class="vt-ico"><i data-ic="list"></i></span>
       <span class="vt-text" data-i18n="viewList">Текстовый режим</span>
     </button>
     <select id="langSel" aria-label="Тіл / Язык / Language" onchange="setLang(this.value)" style="width:auto;min-height:38px;padding:6px 10px">
@@ -504,7 +525,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <option value="kk">Қазақша</option>
       <option value="en">English</option>
     </select>
-    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки">⚙</button>
+    <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки"><i data-ic="gear"></i></button>
   </div>
 </header>
 
@@ -525,15 +546,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <div class="m-row">
         <label class="sr" for="langSel2">Тіл / Язык / Language</label>
         <select id="langSel2" onchange="setLang(this.value)" aria-label="Тіл / Язык / Language">
-          <option value="ru">🌐 Русский</option>
-          <option value="kk">🌐 Қазақша</option>
-          <option value="en">🌐 English</option>
+          <option value="ru">Русский</option>
+          <option value="kk">Қазақша</option>
+          <option value="en">English</option>
         </select>
-        <button type="button" class="btn-ghost" onclick="openModal('settingsModal')"><span aria-hidden="true">⚙</span> <span data-i18n="settingsBtn">Настройки</span></button>
+        <button type="button" class="btn-ghost" onclick="openModal('settingsModal')"><i data-ic="gear"></i> <span data-i18n="settingsBtn">Настройки</span></button>
       </div>
       <div class="m-row">
-        <button type="button" class="btn-ghost" onclick="toggleView()"><span aria-hidden="true">📋</span> <span data-i18n="viewList">Текстовый режим</span></button>
-        <a class="btn-ghost m-link" href="/dashboard.html"><span aria-hidden="true">📊</span> <span data-i18n="statsShort">Статистика</span></a>
+        <button type="button" class="btn-ghost" onclick="toggleView()"><i data-ic="list"></i> <span data-i18n="viewList">Текстовый режим</span></button>
+        <a class="btn-ghost m-link" href="/dashboard.html"><i data-ic="chart"></i> <span data-i18n="statsShort">Статистика</span></a>
       </div>
     </section>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
@@ -556,7 +577,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
         <ul class="ac-list" id="ac-start" role="listbox" aria-label="Подсказки" hidden></ul>
       </div>
       <button class="btn-ghost icon-btn" onclick="locateUser()" data-i18n-aria="myLocation" aria-label="Моё местоположение">⌖</button>
-      <button class="btn-ghost icon-btn" onclick="voiceInput('start')" data-i18n-aria="listening" aria-label="Голосовой ввод">🎤</button>
+      <button class="btn-ghost icon-btn" onclick="voiceInput('start')" data-i18n-aria="listening" aria-label="Голосовой ввод"><i data-ic="mic"></i></button>
     </div>
 
     <label class="field" for="destination"><span data-i18n="to">Куда</span></label>
@@ -566,13 +587,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-destination">
         <ul class="ac-list" id="ac-destination" role="listbox" aria-label="Подсказки" hidden></ul>
       </div>
-      <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" data-i18n-aria="listening" aria-label="Голосовой ввод">🎤</button>
+      <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" data-i18n-aria="listening" aria-label="Голосовой ввод"><i data-ic="mic"></i></button>
     </div>
 
     <div class="mode-tabs" id="modeTabs" role="radiogroup" data-i18n-aria="modeLabel" aria-label="Способ передвижения">
-      <button type="button" role="radio" data-mode="walk" aria-checked="true" onclick="setMode('walk')"><span aria-hidden="true">🚶</span><span data-i18n="modeWalk">Пешком</span></button>
-      <button type="button" role="radio" data-mode="bus" aria-checked="false" onclick="setMode('bus')"><span aria-hidden="true">🚌</span><span data-i18n="modeBus">Автобус</span></button>
-      <button type="button" role="radio" data-mode="taxi" aria-checked="false" onclick="setMode('taxi')"><span aria-hidden="true">🚕</span><span data-i18n="modeTaxi">Такси</span></button>
+      <button type="button" role="radio" data-mode="walk" aria-checked="true" onclick="setMode('walk')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/></svg><span data-i18n="modeWalk">Пешком</span></button>
+      <button type="button" role="radio" data-mode="bus" aria-checked="false" onclick="setMode('bus')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="14" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/></svg><span data-i18n="modeBus">Автобус</span></button>
+      <button type="button" role="radio" data-mode="taxi" aria-checked="false" onclick="setMode('taxi')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16.5V12l2-5h10l2 5v4.5z"/><path d="M5 12h14M7.5 16.5V19M16.5 16.5V19M8 14h.01M16 14h.01"/></svg><span data-i18n="modeTaxi">Такси</span></button>
     </div>
     <div class="row" style="margin-top:12px">
       <button class="btn-primary grow" onclick="buildRoute()" data-i18n="build">Построить маршрут</button>
@@ -592,9 +613,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
 
     <button class="btn-dark" style="width:100%" onclick="openReport()" data-i18n="reportBtn">+ Сообщить о барьере</button>
-    <button class="sos" onclick="openModal('sosModal')" data-i18n="sosBtn">🆘 Экстренная помощь</button>
-    <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="openComplaint()" data-i18n="complaintBtn">📨 Обращение в акимат</button>
-    <a href="/dashboard.html" style="display:block;margin-top:8px"><button class="btn-ghost" style="width:100%" data-i18n="dashBtn">📊 Статистика по городу</button></a>
+    <button class="sos" onclick="openModal('sosModal')"><i data-ic="sos"></i> <span data-i18n="sosBtn">Экстренная помощь</span></button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="openComplaint()"><i data-ic="mail"></i> <span data-i18n="complaintBtn">Обращение в акимат</span></button>
+    <a href="/dashboard.html" style="display:block;margin-top:8px"><button class="btn-ghost" style="width:100%"><i data-ic="chart"></i> <span data-i18n="dashBtn">Статистика по городу</span></button></a>
 
     <p class="footer-note" data-i18n="disclaimer">Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.</p>
   </aside>
@@ -605,13 +626,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <div class="basemap-ctl">
       <div class="basemap-quick" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты">
         <button type="button" id="quickOsm" onclick="setBasemap('osm')" aria-pressed="true">
-          <span aria-hidden="true">🗺</span> <span data-i18n="mapPlain">Схема</span>
+          <i data-ic="map"></i> <span data-i18n="mapPlain">Схема</span>
         </button>
         <button type="button" id="quickSat" onclick="setBasemap('sat')" aria-pressed="false">
-          <span aria-hidden="true">🛰</span> <span data-i18n="mapSat">Спутник</span>
+          <i data-ic="sat"></i> <span data-i18n="mapSat">Спутник</span>
         </button>
         <button type="button" id="quick3d" onclick="toggle3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">
-          <span aria-hidden="true">🏙</span> 3D
+          <i data-ic="cube"></i> 3D
         </button>
 
       </div>
@@ -622,7 +643,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <div class="wx" id="wx">
       <button type="button" class="wx-pill" id="wxPill" aria-expanded="false" aria-controls="wxPop"
               onclick="toggleWx()" data-i18n-aria="weatherTitle" aria-label="Погода">
-        <span class="wx-ico" id="wxIco" aria-hidden="true">🌡</span>
+        <span class="wx-ico" id="wxIco" aria-hidden="true"><i data-ic="thermo"></i></span>
         <span id="wxTemp">…</span>
       </button>
       <div class="wx-pop" id="wxPop" hidden aria-live="polite"></div>
@@ -649,17 +670,17 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <span class="peek-grip" aria-hidden="true"></span>
       <button type="button" class="peek-search" id="peekSearch" onclick="openSheetTo('destination')"
               aria-controls="sidePanel" aria-expanded="false">
-        <span class="peek-ico" aria-hidden="true">🔍</span>
+        <span class="peek-ico"><i data-ic="search"></i></span>
         <span class="peek-txt">
           <b id="peekTitle" data-i18n="peekIdle">Куда едем?</b>
           <span class="peek-sub" id="peekSub" data-i18n="peekIdleSub">Маршрут, слои и жалобы</span>
         </span>
       </button>
       <div class="peek-chips">
-        <button type="button" class="peek-chip" onclick="locateUser()"><span aria-hidden="true">📍</span><span data-i18n="peekHere">Я здесь</span></button>
-        <button type="button" class="peek-chip" onclick="openReport()"><span aria-hidden="true">⚠️</span><span data-i18n="peekBarrier">Барьер</span></button>
-        <button type="button" class="peek-chip" onclick="openModal('sosModal')"><span aria-hidden="true">🆘</span><span data-i18n="peekSos">SOS</span></button>
-        <button type="button" class="peek-chip" onclick="openSheet()" aria-controls="sidePanel"><span aria-hidden="true">☰</span><span data-i18n="peekMore">Ещё</span></button>
+        <button type="button" class="peek-chip" onclick="locateUser()"><i data-ic="pin"></i><span data-i18n="peekHere">Я здесь</span></button>
+        <button type="button" class="peek-chip" onclick="openReport()"><i data-ic="warn"></i><span data-i18n="peekBarrier">Барьер</span></button>
+        <button type="button" class="peek-chip" onclick="openModal('sosModal')"><i data-ic="sos"></i><span data-i18n="peekSos">SOS</span></button>
+        <button type="button" class="peek-chip" onclick="openSheet()" aria-controls="sidePanel"><i data-ic="menu"></i><span data-i18n="peekMore">Ещё</span></button>
       </div>
     </div>
 
@@ -668,7 +689,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     <div class="view3d" id="view3d" hidden>
       <div id="map3d"></div>
       <div class="v3-walk">
-        <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false">🚶 <span data-i18n="walk">Прогулка</span></button>
+        <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/></svg> <span data-i18n="walk">Прогулка</span></button>
         <div class="v3-pad" id="walkPad" hidden>
           <span></span><button type="button" class="v3-btn" onclick="walkStep(1)" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
           <button type="button" class="v3-btn" onclick="walkTurn(-1)" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
@@ -699,7 +720,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <div>
         <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
         <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
-        <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)" data-i18n="cityAuto">📍 Определить по геопозиции</button>
+        <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)"><i data-ic="pin"></i> <span data-i18n="cityAuto">Определить по геопозиции</span></button>
       </div>
       <div>
         <label class="field" data-i18n="setFont">Размер текста</label>
@@ -814,6 +835,47 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+// ---- Значки интерфейса: свои линейные SVG вместо эмодзи (одинаково на любом телефоне) ----
+const ICONS={
+  b:'<rect x="4.5" y="3.5" width="15" height="14" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/>',
+  t:'<path d="M9.5 3.5 7 .8M14.5 3.5 17 .8"/><rect x="4.5" y="4.5" width="15" height="13" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/>',
+  m:'<path d="M3.5 16.5V9l3-4.5h11a3 3 0 0 1 3 3v9z"/><path d="M3.5 10.5h17M7 16.5v2.5M17 16.5v2.5M8 13.5h.01"/>',
+  r:'<path d="M8 3.5h8M12 3.5v2"/><rect x="5.5" y="5.5" width="13" height="12" rx="3"/><path d="M5.5 11h13M9 14.5h.01M15 14.5h.01M8 17.5l-2 3M16 17.5l2 3"/>',
+  walk:'<circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/>',
+  swap:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
+  flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
+  stop:'<path d="M12 21V10"/><rect x="6.5" y="3" width="11" height="7" rx="1.5"/><path d="M9.5 6.5h5"/>',
+  wc:'<circle cx="11" cy="4" r="1.8"/><path d="M11 7v6h5l2 5M11 10h4"/><path d="M8.5 11.2A5 5 0 1 0 14.8 18"/>',
+  car:'<path d="M5 16.5V12l2-5h10l2 5v4.5z"/><path d="M5 12h14M7.5 16.5V19M16.5 16.5V19M8 14h.01M16 14h.01"/>',
+  map:'<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>',
+  sat:'<rect x="9.2" y="9.2" width="5.6" height="5.6" rx="1" transform="rotate(45 12 12)"/><path d="m3 9 5.5-5.5M15.5 20.5 21 15M6 6l3 3M15 15l3 3"/>',
+  topo:'<path d="m2.5 20 7-12 4.5 7 2.5-3.5 5 8.5z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M2.5 12h2M19.5 12h2M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.3 7.5l1.9 1.1M17.8 15.4l1.9 1.1M4.3 16.5l1.9-1.1M17.8 8.6l1.9-1.1"/><circle cx="12" cy="12" r="7.3"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  chart:'<path d="M3.5 20.5h17M6.5 20.5v-7M11.5 20.5V4.5M16.5 20.5v-11"/>',
+  cube:'<path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  warn:'<path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  sos:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.8"/><path d="m5.6 5.6 3.7 3.7M14.7 14.7l3.7 3.7M18.4 5.6l-3.7 3.7M9.3 14.7l-3.7 3.7"/>',
+  menu:'<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+  thermo:'<path d="M14 14.8V4.5a2 2 0 0 0-4 0v10.3a4 4 0 1 0 4 0z"/>',
+  cloud:'<path d="M7 18.5h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 11.5a3.5 3.5 0 0 0 1 7z"/>',
+  sunCloud:'<path d="M10 2.5v1.5M4.3 4.8l1 1M2.5 10.5H4M15.7 4.8l-1 1"/><path d="M6.5 11a3.5 3.5 0 0 1 6.8-1.2"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.4 1.5A2.8 2.8 0 0 0 9 20z"/>',
+  rain:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="m8.5 21 1.2-3M12.5 21l1.2-3M16.5 21l1.2-3"/>',
+  snow:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="M8.5 18.5h.01M12 20.5h.01M15.5 18.5h.01M10 22h.01M14 22h.01"/>',
+  fog:'<path d="M4 8.5h16M3 12.5h18M5 16.5h14M8 20.5h8"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+  speaker:'<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  storm:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="m13 14.5-2.5 4h3.2L11.5 22.5"/>'
+};
+const svgI=(n,cls)=>`<svg class="ic ${cls||""}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||ICONS.b}</svg>`;
+// <i data-ic="…"></i> в разметке → значок
+function fillIcons(root){ (root||document).querySelectorAll("i[data-ic]").forEach(el=>{ el.outerHTML=svgI(el.dataset.ic); }); }
+fillIcons();
 /* ============ i18n ============ */
 const I18N = {
 ru:{
@@ -829,14 +891,14 @@ ru:{
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
  peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", statsShort:"Статистика", sheetResize:"Развернуть или свернуть панель",
- cityAuto:"📍 Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
+ cityAuto:"Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
  modeLabel:"Способ передвижения", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Ищем автобусы…", busNone:"Прямых автобусов не нашли", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты автобусов этого города ещё загружаются — попробуйте через пару минут",
  busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
  busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной, как в 2ГИС", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
  busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
- busOptions:"Другие варианты", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
+ busOptions:"Другие варианты", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
@@ -863,7 +925,7 @@ ru:{
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
  noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
  nearbyTitle:"Объекты рядом", nearbyHelp:"Включите слои кнопками на карте — список появится здесь и в текстовом режиме.",
- reportBtn:"+ Сообщить о барьере", sosBtn:"🆘 Экстренная помощь", complaintBtn:"📨 Обращение в акимат", dashBtn:"📊 Статистика по городу",
+ reportBtn:"+ Сообщить о барьере", sosBtn:"Экстренная помощь", complaintBtn:"Обращение в акимат", dashBtn:"Статистика по городу",
  disclaimer:"Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.",
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
  setTitle:"Настройки", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
@@ -913,14 +975,14 @@ kk:{
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
  peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", statsShort:"Статистика", sheetResize:"Тақтаны жаю немесе жию",
- cityAuto:"📍 Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
+ cityAuto:"Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
  modeLabel:"Жүру тәсілі", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Автобустар ізделуде…", busNone:"Тікелей автобус табылмады", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың автобус бағыттары әлі жүктелуде — бірнеше минуттан кейін қайталаңыз",
  busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
  busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
  busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
- busOptions:"Басқа нұсқалар", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
+ busOptions:"Басқа нұсқалар", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
@@ -947,7 +1009,7 @@ kk:{
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
  noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
  nearbyTitle:"Жақын маңдағы нысандар", nearbyHelp:"Картадағы түймелер арқылы қабаттарды қосыңыз — тізім осы жерде және мәтіндік режимде шығады.",
- reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"🆘 Шұғыл көмек", complaintBtn:"📨 Әкімдікке өтініш", dashBtn:"📊 Қала бойынша статистика",
+ reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"Шұғыл көмек", complaintBtn:"Әкімдікке өтініш", dashBtn:"Қала бойынша статистика",
  disclaimer:"Карта мен нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін және қолжетімділік нормаларына сәйкестік туралы сараптамалық қорытынды болып саналмайды.",
  listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
  setTitle:"Баптаулар", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
@@ -998,14 +1060,14 @@ en:{
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
  peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", statsShort:"Statistics", sheetResize:"Expand or collapse the panel",
- cityAuto:"📍 Detect from my location", cityFar:"No supported city near you",
+ cityAuto:"Detect from my location", cityFar:"No supported city near you",
  modeLabel:"How to travel", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
  busSearching:"Looking for buses…", busNone:"No direct buses found", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Bus routes for this city are still loading — try again in a couple of minutes",
  busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
  busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
  busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
- busOptions:"Other options", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
+ busOptions:"Other options", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
@@ -1032,7 +1094,7 @@ en:{
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
  noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
  nearbyTitle:"Places nearby", nearbyHelp:"Turn layers on with the buttons on the map — the list appears here and in text mode.",
- reportBtn:"+ Report a barrier", sosBtn:"🆘 Emergency help", complaintBtn:"📨 Complaint to the city", dashBtn:"📊 City statistics",
+ reportBtn:"+ Report a barrier", sosBtn:"Emergency help", complaintBtn:"Complaint to the city", dashBtn:"City statistics",
  disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete and is not an expert assessment of compliance with accessibility standards.",
  listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
  setTitle:"Settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
@@ -1358,7 +1420,7 @@ function set3DButtons(on){
   document.querySelectorAll("#quick3d,.map-btn.map-3d").forEach(b=>{
     b.setAttribute("aria-pressed", String(on));
     if(b.classList.contains("map-3d")) b.textContent = on ? "2D" : "3D";
-    else b.innerHTML = '<span aria-hidden="true">🏙</span> ' + (on ? "2D" : "3D");
+    else b.innerHTML = svgI("cube") + ' ' + (on ? "2D" : "3D");
   });
 }
 function toggle3D(){ if(document.body.classList.contains("is3d")) close3D(); else open3D(); }
@@ -1630,6 +1692,8 @@ const WX = {
   99:{ru:"Гроза с градом",kk:"Бұршақты найзағай",en:"Thunderstorm with hail",i:"⛈"}
 };
 let lastWeather=null, weatherAt=0;
+// погода в таблице WX помечена эмодзи — рисуем её своими значками
+const wxIc=e=>({"☀️":"sun","🌤":"sunCloud","⛅":"sunCloud","☁️":"cloud","🌫":"fog","🌦":"rain","🌧":"rain","🌨":"snow","❄️":"snow","⛈":"storm"})[e]||"cloud";
 
 function wxWarnings(w){
   const out=[];
@@ -1654,7 +1718,7 @@ function renderWeather(){
   const title=`${t("weatherTitle")} — ${cityName()}`;
 
   if(!lastWeather){
-    ico.textContent="🌡"; temp.textContent="—";
+    ico.innerHTML=svgI("thermo"); temp.textContent="—";
     pill.classList.remove("ice"); pill.setAttribute("aria-label", t("weatherFail"));
     pop.innerHTML = `<h3>${esc(title)}</h3><p class="wx-meta">${esc(t("weatherFail"))}</p>`
       + `<button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="loadWeather(true)">${esc(t("weatherUpd"))}</button>`;
@@ -1662,7 +1726,7 @@ function renderWeather(){
   }
   const w=lastWeather, d=WX[w.code]||WX[3], warns=wxWarnings(w);
   const hasIce=warns.some(x=>x.ice);
-  ico.textContent=d.i;
+  ico.innerHTML=svgI(wxIc(d.i));
   temp.textContent=Math.round(w.temp)+"°";
   pill.classList.toggle("ice", hasIce);
   // Точку-индикатор ставим только когда есть о чём предупредить,
@@ -1679,7 +1743,7 @@ function renderWeather(){
       + warns.map(x=>`<p class="weather-warn${x.ice?" ice":""}">${esc(t(x.key))}</p>`).join("")
     : `<p class="weather-warn calm">${esc(t("wxOk"))}</p>`;
   pop.innerHTML = `<h3>${esc(title)}</h3>`
-    + `<div class="wx-now"><span class="wx-big" aria-hidden="true">${d.i}</span>`
+    + `<div class="wx-now"><span class="wx-big" aria-hidden="true">${svgI(wxIc(d.i))}</span>`
     +   `<div><span class="temp">${Math.round(w.temp)}°</span> <span>${esc(d[S.lang]||d.ru)}</span><br>`
     +   `<span class="wx-meta">${esc(t("weatherFeels"))} ${Math.round(w.feels)}°, `
     +   `${esc(t("weatherWind"))} ${Math.round(w.wind)} ${esc(t("weatherKmh"))}</span></div></div>`
@@ -1747,9 +1811,9 @@ function buildBasemapSelect(){
   // те же виды карты — кнопками в меню на телефоне
   const box=document.getElementById("mMaps");
   if(box){
-    const ICO={osm:"🗺",sat:"🛰",topo:"⛰",light:"☀️",dark:"🌙"};
+    const ICO={osm:"map",sat:"sat",topo:"topo",light:"sun",dark:"moon"};
     box.innerHTML=Object.entries(BASEMAPS).map(([k,d])=>
-      `<button type="button" data-key="${k}" aria-pressed="${k===S.basemap}" onclick="setBasemap(this.dataset.key)"><span aria-hidden="true">${ICO[k]||""}</span>${esc(d[S.lang]||d.ru)}</button>`).join("");
+      `<button type="button" data-key="${k}" aria-pressed="${k===S.basemap}" onclick="setBasemap(this.dataset.key)">${svgI(ICO[k]||"map")}${esc(d[S.lang]||d.ru)}</button>`).join("");
   }
 }
 
@@ -2610,7 +2674,6 @@ function tripMarkers(a,b){
 // Ищем поездки без пересадок и с одной пересадкой.
 const BUS_WALK_M = 1000;         // сколько готовы пройти до остановки и от неё
 const BUS_TRANSFER_M = 350;      // пешая пересадка между остановками
-const BUS_KIND = { t:"🚎", m:"🚐", r:"🚋", M:"🚇" };
 let busOptions=[], busIndex=0, busTripAB=null;
 // Быстрое расстояние в метрах (плоская проекция — для пределов в пару километров хватает)
 function fastDist(a,b){
@@ -2623,7 +2686,7 @@ async function buildBusTrip(a,b){
   // актюбинский маршрут человеку, который выбрал Астану.
   if(!inCity(a) || !inCity(b)){
     showTrip(`<h2>${esc(t("busOtherCity"))}</h2><p class="small muted">${esc(tf("busOtherCityHelp",{city:cityName()}))}</p>
-      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button>`);
     return;
   }
   card.innerHTML=`<h2>${esc(t("busSearching"))}</h2>`;
@@ -2634,7 +2697,7 @@ async function buildBusTrip(a,b){
     if(r.ok){
       const d=await r.json();
       if(d && Array.isArray(d.options) && d.options.length){
-        busOptions=d.options.slice(0,8); busTripAB=[a,b];
+        busOptions=d.options.slice(0,8); busTripAB=[a,b]; busCtx=null;
         showBusOption(0);
         return;
       }
@@ -2644,18 +2707,19 @@ async function buildBusTrip(a,b){
   try{ data=await loadBusData(S.city); }
   catch(e){   // сервер ещё выгружает маршруты этого города из OpenStreetMap
     showTrip(`<h2>${esc(t("busLoading"))}</h2>
-      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button>`);
     return;
   }
   if(!data.routes.length){
     showTrip(`<h2>${esc(t("busNoData"))}</h2><p class="small muted">${esc(t("busNoDataHelp"))}</p>${nearStops(data,a,b)}${transitLinks(a,b)}
-      <button class="btn-ghost" style="width:100%;margin-top:12px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+      <button class="btn-ghost" style="width:100%;margin-top:12px" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button>`);
     return;
   }
-  busOptions=busPlan(prepBus(data), a, b);
+  busKindFilter="all"; busCtx={P:prepBus(data), a, b};
+  busOptions=busPlan(busCtx.P, a, b);
   if(!busOptions.length){
     showTrip(`<h2>${esc(t("busNone"))}</h2><p class="small muted">${esc(t("busNoneHelp"))}</p>${nearStops(data,a,b)}${transitLinks(a,b)}
-      <button class="btn-ghost" style="width:100%;margin-top:12px" onclick="setMode('taxi')">🚕 ${esc(t("modeTaxi"))}</button>`);
+      <button class="btn-ghost" style="width:100%;margin-top:12px" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button>`);
     return;
   }
   busTripAB=[a,b];
@@ -2717,7 +2781,8 @@ function prepBus(data){
 // плюс полминуты на каждую остановку. Разные варианты получаем, по очереди «запрещая»
 // номер, на котором держится лучший вариант, — как список вариантов в 2ГИС.
 const BUS_WAIT=6, BUS_SPEED={"":330, t:300, m:360, r:300, M:600}, BUS_DWELL=0.15, BUS_ROUNDS=3;
-function busPlan(P, a, b){
+function busPlan(P, a, b, kind){
+  const kindOk=d=>!kind || kind==="all" || kindKey(d.kind)===kind;
   const prof=PROFILES[S.profile]||{speed:1};
   const walkV=75*(prof.speed||1);                           // м/мин
   const access=prof.avoidStairs ? 700 : BUS_WALK_M;          // коляске далеко до остановки не идём
@@ -2738,7 +2803,7 @@ function busPlan(P, a, b){
       const tau=new Float64Array(N).fill(Infinity), lab=new Array(N);
       // какие направления проходят через отмеченные остановки и с какого места их смотреть
       const q=new Map();
-      marked.forEach(s=>P.byStop[s].forEach(([di,i])=>{ if(banned.has(P.dirs[di].ref)) return; if(!q.has(di) || q.get(di)>i) q.set(di,i); }));
+      marked.forEach(s=>P.byStop[s].forEach(([di,i])=>{ if(banned.has(P.dirs[di].ref) || !kindOk(P.dirs[di])) return; if(!q.has(di) || q.get(di)>i) q.set(di,i); }));
       const v=new Set();
       q.forEach((i0,di)=>{
         const d=P.dirs[di], sp=BUS_SPEED[d.kind]||330;
@@ -2796,7 +2861,10 @@ function busPlan(P, a, b){
   for(let it=0; it<10 && out.length<8; it++){
     const found=run(banned);
     if(!found.length) break;
-    found.forEach(o=>{ const sig=o.legs.map(l=>l.ref).join("→"); if(!seen.has(sig)){ seen.add(sig); out.push(o); } });
+    found.forEach(o=>{
+      // пересадка с номера на тот же номер — бессмысленный вариант
+      if(o.legs.some((l,k)=>k && l.ref===o.legs[k-1].ref)) return;
+      const sig=o.legs.map(l=>l.ref).join("→"); if(!seen.has(sig)){ seen.add(sig); out.push(o); } });
     // запрещаем самый длинный отрезок лучшей поездки и ищем снова
     const best=found.slice().sort((x,y)=>x.cost-y.cost)[0];
     const longest=best.legs.slice().sort((x,y)=>y.rideM-x.rideM)[0];
@@ -2855,34 +2923,56 @@ function nearStops(data,a,b){
     const walk={color:"#1769c2",weight:5,opacity:.9,dashArray:"2 9",lineCap:"round"};
     [[a,n1],[b,n2]].forEach(([p,n])=>{ if(!n) return;
       L.polyline([p,n.s.ll],walk).addTo(routeLayer);
-      L.circleMarker(n.s.ll,{radius:8,color:"#fff",weight:3,fillColor:"#0a7350",fillOpacity:1}).bindPopup("🚏 "+esc(stopName(n.s))).addTo(routeLayer); });
+      L.circleMarker(n.s.ll,{radius:8,color:"#fff",weight:3,fillColor:"#0a7350",fillOpacity:1}).bindPopup(esc(stopName(n.s))).addTo(routeLayer); });
     tripMarkers(a,b); fitTrip([a,b].concat(n1?[n1.s.ll]:[], n2?[n2.s.ll]:[]));
   }
   if(!n1 && !n2) return "";
-  const li=(n,key)=>n?`<li><span class="ico" aria-hidden="true">🚏</span><span>${esc(tf(key,{s:stopName(n.s),m:n.d}))} · ~${walkMin(n.d)} ${esc(t("min"))}${wcNote(n.s)}</span></li>`:"";
+  const li=(n,key)=>n?`<li><span class="ico">${svgI("stop")}</span><span>${esc(tf(key,{s:stopName(n.s),m:n.d}))} · ~${walkMin(n.d)} ${esc(t("min"))}${wcNote(n.s)}</span></li>`:"";
   return `<ol class="trip-steps">${li(n1,"busNearStart")}${li(n2,"busNearEnd")}</ol>`;
 }
+// вид транспорта: b — автобус, t — троллейбус, m — маршрутка, r — трамвай
+const kindKey=k=>k==="t"||k==="m"||k==="r" ? k : "b";
+const KIND_COLOR={b:"#12935a", t:"#1769c2", m:"#c27a00", r:"#c62f3a"};
+const kindColor=k=>KIND_COLOR[kindKey(k)];
+const kindName=k=>t({b:"kindBus", t:"kindTrolley", m:"kindMinibus", r:"kindTram"}[kindKey(k)]);
+const kindIcon=k=>svgI(kindKey(k));
+// Номер маршрута — цветная плашка со значком вида транспорта, как в 2ГИС
+const trBadge=(l,big)=>`<span class="tr-badge${big?" big":""}" style="--k:${kindColor(l.kind)}" title="${esc(kindName(l.kind))} ${esc(l.ref)}">${kindIcon(l.kind)}<b>${esc(l.ref)}</b></span>`;
 function wcNote(n){
-  if(n.wc===1) return ` <span class="fact good">♿ ${esc(t("wcOk"))}</span>`;
-  if(n.wc===0) return ` <span class="fact warn">♿ ${esc(t("wcNo"))}</span>`;
+  if(n.wc===1) return ` <span class="fact good">${svgI("wc")} ${esc(t("wcOk"))}</span>`;
+  if(n.wc===0) return ` <span class="fact warn">${svgI("wc")} ${esc(t("wcNo"))}</span>`;
   return "";
 }
-const kindIcon=k=>BUS_KIND[k]||"🚌";
-const LEG_COLORS=["#0a7350","#7a3db8","#b26a00","#1769c2"];
 const walkMin=m=>Math.max(1,Math.round(m*1.25/(75*((PROFILES[S.profile]||{}).speed||1))));
 function hhmm(min){ const d=new Date(Date.now()+min*60000); return d.toLocaleTimeString(S.lang==="en"?"en-GB":S.lang==="kk"?"kk-KZ":"ru-RU",{hour:"2-digit",minute:"2-digit"}); }
-// Полоска поездки, как в 2ГИС: 🚶 5 › 34 › 🚶 2 › 92 › 🚶 4
+// Полоска поездки, как в 2ГИС: пешком 5 › [автобус 34] › пешком 2 › [троллейбус 6] › пешком 4
 function tripStrip(o){
-  const w=m=>`<span class="ts-walk" aria-hidden="true">🚶${walkMin(m)}</span>`;
+  const w=m=>`<span class="ts-walk">${svgI("walk")}${walkMin(m)}</span>`;
   const parts=[w(o.walk1)];
-  o.legs.forEach((l,k)=>{
-    if(k) parts.push(w((o.gaps||[])[k-1]||0));
-    parts.push(`<span class="bus-badge" style="background:${LEG_COLORS[k%LEG_COLORS.length]}">${kindIcon(l.kind)} ${esc(l.ref)}</span>`);
-  });
+  o.legs.forEach((l,k)=>{ if(k) parts.push(w((o.gaps||[])[k-1]||0)); parts.push(trBadge(l)); });
   parts.push(w(o.walk2));
-  return `<span class="trip-strip">${parts.join('<span class="ts-sep" aria-hidden="true">›</span>')}</span>`;
+  return `<span class="trip-strip">${parts.join('<span class="ts-sep" aria-hidden="true"></span>')}</span>`;
 }
-function badges(o){ return o.legs.map(l=>`<span class="bus-badge">${esc(l.ref)}</span>`).join(" → "); }
+function badges(o){ return o.legs.map(l=>trBadge(l)).join(" "); }
+// Фильтр «Все / Автобусы / Троллейбусы»: показываем, только если в городе больше одного вида
+let busKindFilter="all", busCtx=null;
+function kindChips(){
+  if(!busCtx) return "";
+  const kinds=[...new Set(busCtx.P.dirs.map(d=>kindKey(d.kind)))].sort((x,y)=>"btmr".indexOf(x)-"btmr".indexOf(y));
+  if(kinds.length<2) return "";
+  const lab={all:"busKindAll", b:"busKindB", t:"busKindT", m:"busKindM", r:"busKindR"};
+  return `<div class="kind-chips" role="group" aria-label="${esc(t("busKindLabel"))}">`
+    + ["all",...kinds].map(k=>`<button type="button" aria-pressed="${busKindFilter===k}" onclick="setBusKind('${k}')"${k!=="all"?` style="--k:${KIND_COLOR[k]}"`:""}>${k!=="all"?svgI(k):""}${esc(t(lab[k]))}</button>`).join("")
+    + `</div>`;
+}
+function setBusKind(k){
+  busKindFilter=k;
+  if(!busCtx) return;
+  busOptions=busPlan(busCtx.P, busCtx.a, busCtx.b, k);
+  if(busOptions.length){ showBusOption(0); return; }
+  const [a,b]=busTripAB;
+  showTrip(`${kindChips()}<h2>${esc(t("busKindNone"))}</h2>${transitLinks(a,b)}`);
+}
 let walkLegSeq=0;
 function showBusOption(i){
   busIndex=i;
@@ -2891,18 +2981,18 @@ function showBusOption(i){
   const gaps=o.gaps || (o.legs.length===2 ? [o.transferM] : []);   // пешком между пересадками
   if(mapReady){
     routeLayer.clearLayers();
-    const walk={color:"#1769c2",weight:5,opacity:.9,dashArray:"2 9",lineCap:"round"};
+    const walk={color:"#5b6b7a",weight:5,opacity:.9,dashArray:"1 9",lineCap:"round"};
     const walks=[[a,first.board.ll],[last.alight.ll,b]];
     for(let k=1;k<o.legs.length;k++) walks.push([o.legs[k-1].alight.ll, o.legs[k].board.ll]);
     const walkLines=walks.map(w=>L.polyline(w,walk).addTo(routeLayer));
     const all=[a,b];
-    o.legs.forEach((l,k)=>{
-      const c=LEG_COLORS[k%LEG_COLORS.length], path=legPath(l);
+    o.legs.forEach(l=>{
+      const c=kindColor(l.kind), path=legPath(l);
       all.push(...path);
       L.polyline(path,{color:"#fff",weight:11,opacity:.85}).addTo(routeLayer);   // светлая обводка — линию видно и на спутнике
       L.polyline(path,{color:c,weight:7,opacity:.95}).addTo(routeLayer);
       [l.board,l.alight].forEach(n=>L.circleMarker(n.ll,{radius:7,color:"#fff",weight:3,fillColor:c,fillOpacity:1})
-        .bindPopup(`${kindIcon(l.kind)} <b>${esc(l.ref)}</b> · ${esc(stopName(n))}`).addTo(routeLayer));
+        .bindPopup(`<b>${esc(kindName(l.kind))} ${esc(l.ref)}</b><br>${esc(stopName(n))}`).addTo(routeLayer));
     });
     tripMarkers(a,b);
     fitTrip(all);
@@ -2920,34 +3010,34 @@ function showBusOption(i){
   const rideMin=l=>Math.max(1,Math.round(l.rideM/(BUS_SPEED[l.kind]||330)+BUS_DWELL*l.stops));
   const stopsList=l=>l.list && l.list.length>2 ? `<details class="bus-stops"><summary>${esc(tf("busRide",{n:l.stops}))}</summary>
       <ol>${l.list.map(n=>`<li>${esc(n||t("busStop"))}</li>`).join("")}</ol></details>` : `<span class="small muted">${esc(tf("busRide",{n:l.stops}))}</span>`;
-  const rideLi=(l,k)=>`<li class="ride" style="--leg:${LEG_COLORS[k%LEG_COLORS.length]}"><span class="ico" aria-hidden="true">${kindIcon(l.kind)}</span><span>
-        <span class="bus-badge" style="background:${LEG_COLORS[k%LEG_COLORS.length]}">${esc(l.ref)}</span>
-        ${l.to?`<span class="small muted">${esc(tf("busToward",{d:l.to}))}</span>`:""}
+  const step=(ico,body,cls,style)=>`<li class="${cls||""}"${style?` style="${style}"`:""}><span class="ico">${ico}</span><span>${body}</span></li>`;
+  const rideLi=l=>step(kindIcon(l.kind), `${trBadge(l,true)} <span class="kind-name">${esc(kindName(l.kind))}</span>
+        ${l.to?`<br><span class="small muted">${esc(tf("busToward",{d:l.to}))}</span>`:""}
         <br><b>${esc(stopName(l.board))}</b> → <b>${esc(stopName(l.alight))}</b> · ~${rideMin(l)} ${esc(t("min"))}
-        <br>${stopsList(l)}</span></li>`;
-  let steps=`<li><span class="ico" aria-hidden="true">🚶</span><span>${esc(tf("busWalkTo",{m:o.walk1,s:stopName(first.board)}))} · ~${walkMin(o.walk1)} ${esc(t("min"))}${wcNote(first.board)}</span></li>`
-    + rideLi(first,0);
+        <br>${stopsList(l)}`, "ride", `--leg:${kindColor(l.kind)}`);
+  let steps=step(svgI("walk"), `${esc(tf("busWalkTo",{m:o.walk1,s:stopName(first.board)}))} · ~${walkMin(o.walk1)} ${esc(t("min"))}${wcNote(first.board)}`, "walk")
+    + rideLi(first);
   for(let k=1;k<o.legs.length;k++){
     const p=o.legs[k-1], l=o.legs[k];
-    steps+=`<li><span class="ico" aria-hidden="true">🔁</span><span>${esc(tf("busTransfer",{s1:stopName(p.alight),m:gaps[k-1]||0,s2:stopName(l.board)}))}${wcNote(l.board)}</span></li>`
-      + rideLi(l,k);
+    steps+=step(svgI("swap"), `${esc(tf("busTransfer",{s1:stopName(p.alight),m:gaps[k-1]||0,s2:stopName(l.board)}))}${wcNote(l.board)}`, "walk") + rideLi(l);
   }
-  steps+=`<li><span class="ico" aria-hidden="true">🏁</span><span>${esc(tf("busGetOff",{m:o.walk2,s:stopName(last.alight)}))} · ~${walkMin(o.walk2)} ${esc(t("min"))}${wcNote(last.alight)}</span></li>`;
+  steps+=step(svgI("flag"), `${esc(tf("busGetOff",{m:o.walk2,s:stopName(last.alight)}))} · ~${walkMin(o.walk2)} ${esc(t("min"))}${wcNote(last.alight)}`, "walk");
   const changes=x=>{ const n=x.legs.length-1; return n===0?t("busDirect"):n===1?t("busOneChange"):tf("busChanges",{n}); };
   const walkTotal=x=>x.walkM!=null ? x.walkM : (x.walk1||0)+(x.walk2||0)+(x.gaps||[]).reduce((p,q)=>p+q,0);
   const others=busOptions.map((x,j)=>`<button type="button" class="bus-opt" aria-pressed="${j===i}" onclick="showBusOption(${j})">
-      <span class="bo-top"><b>~${x.total} ${esc(t("min"))}</b><span class="sub">${esc(tf("busArrive",{t:hhmm(x.total)}))}</span></span>
+      <span class="bo-top"><b>${x.total} ${esc(t("min"))}</b><span class="sub">${esc(tf("busArrive",{t:hhmm(x.total)}))}</span></span>
       ${tripStrip(x)}
       <span class="sub">${esc(changes(x))} · ${esc(tf("busWalkTotal",{m:walkTotal(x)}))}</span></button>`).join("");
-  const html=`<h2>${kindIcon(first.kind)} ~${o.total} ${esc(t("min"))} <span class="small muted" style="font-weight:600">· ${esc(tf("busArrive",{t:hhmm(o.total)}))}</span></h2>
-    <p class="small muted" style="margin:2px 0 6px">${esc(changes(o))} · ${esc(tf("busWalkTotal",{m:walkTotal(o)}))}</p>
+  const html=`${kindChips()}
+    <div class="trip-head"><span class="trip-time">${o.total}<small> ${esc(t("min"))}</small></span>
+      <span class="trip-meta"><b>${esc(tf("busArrive",{t:hhmm(o.total)}))}</b><span>${esc(changes(o))} · ${esc(tf("busWalkTotal",{m:walkTotal(o)}))}</span></span></div>
     ${tripStrip(o)}
-    ${o.walkFaster?`<p class="fact warn" style="margin-top:8px">🚶 ${esc(tf("busWalkFaster",{n:o.walkFaster}))}</p>`:""}
+    ${o.walkFaster?`<p class="fact warn" style="margin-top:8px">${svgI("walk")} ${esc(tf("busWalkFaster",{n:o.walkFaster}))}</p>`:""}
     <ol class="trip-steps">${steps}</ol>
     ${busOptions.length>1?`<p class="small muted" style="margin:12px 0 0">${esc(t("busOptions"))}</p>${others}`:""}
     ${transitLinks(a,b)}
     <p class="small muted" style="margin-top:10px">${esc(t(o.source==="2gis"?"busNote2gis":"busNote"))}</p>`;
-  showTrip(html, {title:`${kindIcon(first.kind)} ${o.legs.map(l=>l.ref).join(" → ")} · ~${o.total} ${t("min")}`,
+  showTrip(html, {title:`${o.legs.map(l=>kindName(l.kind)+" "+l.ref).join(" → ")} · ${o.total} ${t("min")}`,
                   sub:`${stopName(first.board)} → ${stopName(last.alight)} · ${tf("busArrive",{t:hhmm(o.total)})}`});
 }
 
@@ -3026,7 +3116,7 @@ async function buildTaxiTrip(a,b){
        <p class="small"><span class="fact good">● ${esc(t("taxiLive"))}</span>${live.waitSec?` · ${esc(tf("taxiWait",{n:Math.max(1,Math.round(live.waitSec/60))}))}`:""}</p>`
     : `<p class="taxi-price">≈ ${fmt(p1)}–${fmt(p2)} ₸</p>
        <p class="small muted">${esc(tf("taxiNote",{city:tCity, base:T.base, km:T.km, min:T.min}))}</p>`;
-  const html=`<h2>🚕 ~${mins} ${esc(t("min"))} · ${km.toFixed(1)} ${esc(t("km"))}</h2>
+  const html=`<h2>${svgI("car")} ~${mins} ${esc(t("min"))} · ${km.toFixed(1)} ${esc(t("km"))}</h2>
     ${priceHtml}
     <a class="taxi-order" href="${esc(ya)}" target="_blank" rel="noopener">
       <span class="logo ya" aria-hidden="true">Я</span>
@@ -3034,8 +3124,8 @@ async function buildTaxiTrip(a,b){
     <button type="button" class="taxi-order" onclick="orderInDrive()">
       <span class="logo indrive" aria-hidden="true">iD</span>
       <span><b>${esc(t("taxiInDrive"))}</b><span class="sub">${esc(t("inDriveSub"))}</span></span><span class="go" aria-hidden="true">›</span></button>
-    <p class="small muted" style="margin-top:10px">♿ ${esc(t("taxiWc"))}</p>`;
-  const title = live ? `🚕 ${fmt(live.price)} ₸` : `🚕 ≈ ${fmt(p1)}–${fmt(p2)} ₸`;
+    <p class="small muted" style="margin-top:10px">${svgI("wc")} ${esc(t("taxiWc"))}</p>`;
+  const title = live ? `${t("modeTaxi")} · ${fmt(live.price)} ₸` : `${t("modeTaxi")} · ≈ ${fmt(p1)}–${fmt(p2)} ₸`;
   showTrip(html, {title, sub:`~${mins} ${t("min")} · ${km.toFixed(1)} ${t("km")}`});
 }
 // У inDrive нет открытой ссылки с маршрутом: копируем адрес назначения,
@@ -3305,7 +3395,7 @@ function renderRouteCard(rt,mins,ob,slope){
     <h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
     <div class="facts">${obstacleFacts(ob,slope)}</div>
     <div class="row" style="margin-top:12px">
-      <button class="btn-ghost grow" onclick="speakRoute()">🔊 ${esc(t("speak"))}</button>
+      <button class="btn-ghost grow" onclick="speakRoute()">${svgI("speaker")} ${esc(t("speak"))}</button>
       <button class="btn-ghost" onclick="stopSpeak()">■</button>
     </div>`;
 }
@@ -3316,7 +3406,7 @@ function renderRouteList(rt,mins,ob,slope){
       <p><b>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))}</b> · ~${mins} ${esc(t("min"))}</p>
       <div class="facts">${obstacleFacts(ob,slope)}</div>
       <ol class="steps">${lastSteps.map((s,i)=>`<li>${esc(stepText(s,i))}</li>`).join("")}</ol>
-      <button class="btn-ghost" onclick="speakRoute()">🔊 ${esc(t("speak"))}</button>
+      <button class="btn-ghost" onclick="speakRoute()">${svgI("speaker")} ${esc(t("speak"))}</button>
     </div>`;
 }
 
@@ -3448,7 +3538,7 @@ async function showReports(){
        .bindPopup(`<b>${esc(rep.type)}</b>
          ${rep.photo?`<img src="${esc(rep.photo)}" alt="">`:""}
          <p>${esc(rep.comment)}</p>
-         <div class="facts">${badge}${rep.season==="winter"?'<span class="fact">❄</span>':""}</div>
+         <div class="facts">${badge}${rep.season==="winter"?'<span class="fact">'+svgI("snow")+'</span>':""}</div>
          <button class="btn-sm" style="margin-top:8px" onclick="verifyReport('${esc(rep.id)}')">${esc(t("verify"))}</button>
          <small class="muted">${new Date(rep.createdAt).toLocaleDateString(locale())}</small>`);
     });
