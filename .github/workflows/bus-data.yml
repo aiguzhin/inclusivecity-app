@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - name: Build bus routes
         run: node tools/busbuild.js
       - name: Commit
@@ -30,4 +30,6 @@ jobs:
           git add bus-data
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "Маршруты транспорта из OpenStreetMap [skip render]"
-          git push
+          # пока шла сборка (до получаса), в main могли появиться другие коммиты
+          for i in 1 2 3; do git pull --rebase origin main && git push && exit 0; sleep 10; done
+          exit 1
