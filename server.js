@@ -12,6 +12,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const zlib = require('zlib');
 const { URL } = require('url');
 
 const PORT = process.env.PORT || 3000;
@@ -204,10 +205,16 @@ function serveFile(res, filePath) {
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, {
-      'Content-Type': EXT_TYPES[ext] || 'application/octet-stream',
-      'Content-Length': data.length,
-    });
+    const type = EXT_TYPES[ext] || 'application/octet-stream';
+    // текст сжимаем: страница и маршруты автобусов становятся в 4–6 раз легче
+    const ae = (res.req && res.req.headers['accept-encoding']) || '';
+    if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\bgzip\b/.test(ae)) {
+      const gz = zlib.gzipSync(data);
+      res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': 'gzip', 'Vary': 'Accept-Encoding', 'Content-Length': gz.length });
+      res.end(gz);
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': type, 'Content-Length': data.length });
     res.end(data);
   });
 }
@@ -393,256 +400,69 @@ async function handleApi(req, res, pathname) {
 }
 
 // --- Автобусные маршруты городов (из OpenStreetMap) ---
-// Публичный Overpass часто перегружен, и искать по нему автобусы при каждом
-// запросе пользователя — значит минутами ждать. Поэтому сервер сам выгружает
-// маршруты каждого города, хранит их в data/bus/ и раздаёт как /bus-<город>.json.
-// Свежие данные подтягиваются в фоне раз в неделю.
+// Маршруты собирает tools/busbuild.js: раз в неделю его запускает GitHub Actions
+// (.github/workflows/bus-data.yml) и сохраняет bus-data/<город>.json в репозиторий.
+// Сервер берёт свежую версию прямо из GitHub (без передеплоя, жалобы не теряются),
+// держит её в data/bus/ и раздаёт как /bus-<город>.json. Если GitHub недоступен —
+// отдаёт копию из самого репозитория, а если нет и её — собирает город из Overpass.
+const busbuild = require('./tools/busbuild');
+const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
-const BUS_TTL_MS = 7 * 864e5;          // обычное обновление — раз в неделю
-const BUS_EMPTY_TTL_MS = 6 * 36e5;     // пустой ответ перепроверяем через 6 часов
-const CITY_DLAT = 0.13, CITY_DLON = 0.24;   // те же рамки города, что и во фронтенде
-const BUS_CITIES = {
-  almaty: [43.2383, 76.9455], astana: [51.1282, 71.4306], shymkent: [42.3174, 69.5901],
-  karaganda: [49.8063, 73.0855], aktobe: [50.2839, 57.1670], taraz: [42.9000, 71.3667],
-  pavlodar: [52.2871, 76.9674], oskemen: [49.9483, 82.6275], semey: [50.4111, 80.2275],
-  atyrau: [47.0945, 51.9238], kostanay: [53.2198, 63.6354], kyzylorda: [44.8479, 65.5093],
-  oral: [51.2333, 51.3667], petropavl: [54.8667, 69.1500], aktau: [43.6410, 51.1975],
-  temirtau: [50.0547, 72.9644], turkistan: [43.3000, 68.2500], kokshetau: [53.2833, 69.4000],
-  taldykorgan: [45.0156, 78.3739], ekibastuz: [51.7298, 75.3266],
-  konaev: [43.8552, 77.0615], zhezkazgan: [47.8043, 67.7146],
-};
-const OVERPASS_MIRRORS = [
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter',
-];
+const BUS_REPO_DIR = path.join(ROOT, 'bus-data');
+const BUS_RAW_URL = 'https://raw.githubusercontent.com/aiguzhin/inclusivecity-app/main/bus-data/';
+const BUS_TTL_MS = 864e5;   // свежую версию из GitHub проверяем раз в сутки
 if (!fs.existsSync(BUS_DIR)) fs.mkdirSync(BUS_DIR, { recursive: true });
 
-// Ответ Overpass (маршруты + их узлы) → компактный формат для приложения:
-// stops: [lat, lon, название, ♿ 1/0]; routes: { r: номер, t: конечная, s: индексы остановок }
-function compactBusData(city, osm) {
-  const nodes = new Map();
-  const rels = [];
-  for (const e of osm.elements || []) {
-    if (e.type === 'node') nodes.set(e.id, e);
-    else if (e.type === 'relation') rels.push(e);
-  }
-  const stops = [];
-  const index = new Map();
-  const routes = [];
-  for (const r of rels) {
-    const t = r.tags || {};
-    const seq = [];
-    for (const m of r.members || []) {
-      if (m.type !== 'node' || !nodes.has(m.ref)) continue;
-      if (!index.has(m.ref)) {
-        const n = nodes.get(m.ref);
-        const nt = n.tags || {};
-        const s = [Math.round(n.lat * 1e5) / 1e5, Math.round(n.lon * 1e5) / 1e5, nt.name || nt['name:ru'] || ''];
-        if (nt.wheelchair === 'yes') s.push(1);
-        else if (nt.wheelchair === 'no') s.push(0);
-        stops.push(s);
-        index.set(m.ref, stops.length - 1);
-      }
-      seq.push(index.get(m.ref));
-    }
-    if (seq.length < 2) continue;
-    const route = { r: String(t.ref || t.name || ''), s: seq, osmId: r.id };   // osmId убираем перед сохранением
-    if (t.to) route.t = t.to;
-    if (t.route === 'trolleybus') route.k = 't';
-    else if (t.route === 'minibus' || t.route === 'share_taxi') route.k = 'm';
-    else if (t.route === 'tram') route.k = 'r';
-    if (t['public_transport:version'] === '2') route.v2 = 1;
-    routes.push(route);
-  }
-  return { city, updated: new Date().toISOString().slice(0, 10),
-           source: 'OpenStreetMap contributors, ODbL', stops, routes };
-}
-
-// Во многих городах маршрут в OSM нарисован линией, а остановки в него не
-// добавлены (в Алматы так 32 маршрута из 158). Для таких
-// маршрутов берём их линию и отдельно размеченные остановки города: остановка,
-// стоящая не дальше 30 м от линии, считается остановкой маршрута, а порядок
-// задаёт её положение вдоль линии.
-const STOP_SNAP_M = 30;
-function localXY(lat0) {
-  const k = Math.cos(lat0 * Math.PI / 180);
-  return (p) => [p[1] * 111320 * k, p[0] * 111320];
-}
-async function addStopsFromGeometry(data, osm, bbox, url) {
-  const rels = (osm.elements || []).filter((e) => e.type === 'relation');
-  const nodeIds = new Set((osm.elements || []).filter((e) => e.type === 'node').map((e) => e.id));
-  const lacking = rels.filter((r) => (r.members || []).filter((m) => m.type === 'node' && nodeIds.has(m.ref)).length < 3
-    && (r.members || []).some((m) => m.type === 'way'));
-  if (!lacking.length) return;
-  const q = `[out:json][timeout:180];rel(id:${lacking.map((r) => r.id).join(',')});way(r);out geom;`
-    + `(node[highway=bus_stop](${bbox});node[public_transport=platform](${bbox}););out;`;
-  const res = await fetch(url, { method: 'POST', body: q,
-    headers: { 'User-Agent': 'ICity/1.0 (+https://github.com/aiguzhin/inclusivecity-app)' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const extra = await res.json();
-  if (extra.remark && /error|timed out/i.test(extra.remark)) throw new Error(extra.remark);
-  const ways = new Map();
-  const stopsAll = [];
-  for (const e of extra.elements || []) {
-    if (e.type === 'way' && e.geometry) ways.set(e.id, e.geometry.map((g) => [g.lat, g.lon]));
-    else if (e.type === 'node') stopsAll.push(e);
-  }
-  const index = new Map();   // osm id → индекс в data.stops (для уже добавленных остановок)
-  const known = new Map(data.routes.map((r) => [r.osmId, r]));
-  for (const r of lacking) {
-    // линия маршрута: пути в порядке членства, каждый развёрнут так, чтобы стыковаться с предыдущим
-    let line = [];
-    for (const m of r.members) {
-      if (m.type !== 'way' || !ways.has(m.ref)) continue;
-      let g = ways.get(m.ref);
-      if (line.length) {
-        const end = line[line.length - 1];
-        const dHead = Math.hypot(g[0][0] - end[0], g[0][1] - end[1]);
-        const dTail = Math.hypot(g[g.length - 1][0] - end[0], g[g.length - 1][1] - end[1]);
-        if (dTail < dHead) g = g.slice().reverse();
-      }
-      line = line.concat(g);
-    }
-    if (line.length < 2) continue;
-    const xy = localXY(line[0][0]);
-    const L = line.map(xy);
-    const cum = [0];
-    for (let i = 1; i < L.length; i++) cum.push(cum[i - 1] + Math.hypot(L[i][0] - L[i - 1][0], L[i][1] - L[i - 1][1]));
-    let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-    line.forEach(([a, b]) => { minLat = Math.min(minLat, a); maxLat = Math.max(maxLat, a); minLon = Math.min(minLon, b); maxLon = Math.max(maxLon, b); });
-    const found = [];
-    for (const n of stopsAll) {
-      if (n.lat < minLat - 0.001 || n.lat > maxLat + 0.001 || n.lon < minLon - 0.001 || n.lon > maxLon + 0.001) continue;
-      const P = xy([n.lat, n.lon]);
-      let best = Infinity, pos = 0;
-      for (let i = 1; i < L.length; i++) {
-        const [ax, ay] = L[i - 1], [bx, by] = L[i];
-        const dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
-        let t = len2 ? ((P[0] - ax) * dx + (P[1] - ay) * dy) / len2 : 0;
-        t = Math.max(0, Math.min(1, t));
-        const d = Math.hypot(P[0] - (ax + t * dx), P[1] - (ay + t * dy));
-        if (d < best) { best = d; pos = cum[i - 1] + t * Math.sqrt(len2); }
-      }
-      if (best <= STOP_SNAP_M) found.push({ n, pos });
-    }
-    if (found.length < 2) continue;
-    found.sort((x, y) => x.pos - y.pos);
-    const seq = found.map(({ n }) => {
-      if (!index.has(n.id)) {
-        const nt = n.tags || {};
-        const s = [Math.round(n.lat * 1e5) / 1e5, Math.round(n.lon * 1e5) / 1e5, nt.name || nt['name:ru'] || ''];
-        if (nt.wheelchair === 'yes') s.push(1);
-        else if (nt.wheelchair === 'no') s.push(0);
-        data.stops.push(s);
-        index.set(n.id, data.stops.length - 1);
-      }
-      return index.get(n.id);
-    });
-    const t = r.tags || {};
-    const route = { r: String(t.ref || t.name || ''), s: seq, g: 1 };   // g — остановки найдены по линии
-    if (t.to) route.t = t.to;
-    if (t.route === 'trolleybus') route.k = 't';
-    else if (t.route === 'minibus' || t.route === 'share_taxi') route.k = 'm';
-    else if (t.route === 'tram') route.k = 'r';
-    const old = known.get(r.id);
-    if (old) data.routes.splice(data.routes.indexOf(old), 1, route);
-    else data.routes.push(route);
-  }
-}
-
-async function fetchBusData(city) {
-  const [lat, lon] = BUS_CITIES[city];
-  const bbox = [lat - CITY_DLAT, lon - CITY_DLON, lat + CITY_DLAT, lon + CITY_DLON].map((x) => x.toFixed(4)).join(',');
-  // маршрутки и трамваи тоже берём: в части городов они размечены именно так
-  const query = `[out:json][timeout:180];rel[route~"^(bus|trolleybus|minibus|share_taxi|tram)$"](${bbox})->.r;.r out body;node(r.r);out;`;
-  let lastErr = null;
-  let empty = null;   // пустой ответ принимаем, только если другие зеркала не дали лучшего
-  for (const url of OVERPASS_MIRRORS) {
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), 200000);
-    try {
-      const res = await fetch(url, {
-        method: 'POST', body: query, signal: ctl.signal,
-        headers: { 'User-Agent': 'ICity/1.0 (+https://github.com/aiguzhin/inclusivecity-app)' },
-      });
-      if (!res.ok) { lastErr = new Error(`${url}: HTTP ${res.status}`); continue; }
-      const osm = await res.json();
-      if (!osm || !Array.isArray(osm.elements)) { lastErr = new Error(`${url}: bad payload`); continue; }
-      // Перегруженный Overpass отвечает 200 с пустым списком и remark «runtime error» —
-      // это сбой, а не «в городе нет автобусов».
-      if (osm.remark && /error|timed out/i.test(osm.remark)) { lastErr = new Error(`${url}: ${osm.remark}`); continue; }
-      const data = compactBusData(city, osm);
-      try { await addStopsFromGeometry(data, osm, bbox, url); }
-      catch (e) {
-        console.warn(`bus ${city}: stops from geometry failed:`, e.message);
-        data.partial = true;   // данные неполные — перепроверим скоро, а не через неделю
-      }
-      data.routes.forEach((r) => { delete r.osmId; });
-      if (data.routes.length) return data;
-      empty = empty || data;
-    } catch (e) {
-      lastErr = e;
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  if (empty) return empty;
-  throw lastErr || new Error('overpass unavailable');
-}
-
 function busFile(city) { return path.join(BUS_DIR, `${city}.json`); }
+function busRepoFile(city) { return path.join(BUS_REPO_DIR, `${city}.json`); }
 function busIsFresh(city) {
-  try {
-    const st = fs.statSync(busFile(city));
-    const ttl = st.size < 300 ? BUS_EMPTY_TTL_MS : BUS_TTL_MS;   // ~пустой файл
-    return Date.now() - st.mtimeMs < ttl;
-  } catch (e) { return false; }
+  try { return Date.now() - fs.statSync(busFile(city)).mtimeMs < BUS_TTL_MS; } catch (e) { return false; }
 }
-const busInflight = new Map();   // один запрос к Overpass на город, сколько бы ни пришло пользователей
+function saveBus(city, data) {
+  const tmp = busFile(city) + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data));
+  fs.renameSync(tmp, busFile(city));
+}
+const busInflight = new Map();   // один запрос на город, сколько бы ни пришло пользователей
 function refreshBus(city) {
   if (busInflight.has(city)) return busInflight.get(city);
-  const p = fetchBusData(city)
-    .then((data) => {
-      const partial = data.partial;
-      delete data.partial;
-      const tmp = busFile(city) + '.tmp';
-      fs.writeFileSync(tmp, JSON.stringify(data));
-      fs.renameSync(tmp, busFile(city));
-      // Неполные данные (Overpass не отдал линии маршрутов) отдаём сразу, но помечаем
-      // файл «старым»: через 6 часов он устареет и сервер попробует ещё раз.
-      if (partial) {
-        const t = new Date(Date.now() - BUS_TTL_MS + BUS_EMPTY_TTL_MS);
-        fs.utimesSync(busFile(city), t, t);
+  const p = (async () => {
+    try {
+      const res = await fetch(BUS_RAW_URL + city + '.json', { headers: { 'User-Agent': 'ICity/1.0' } });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.v === 2 && Array.isArray(data.routes)) { saveBus(city, data); return data; }
       }
-      console.log(`bus ${city}: ${data.routes.length} routes, ${data.stops.length} stops`);
-      return data;
-    })
-    .finally(() => busInflight.delete(city));
+    } catch (e) { /* GitHub недоступен — дальше */ }
+    if (fs.existsSync(busRepoFile(city))) {   // копия из репозитория
+      fs.copyFileSync(busRepoFile(city), busFile(city));
+      return JSON.parse(fs.readFileSync(busFile(city), 'utf8'));
+    }
+    const data = await busbuild.fetchCity(city, (s) => console.warn('bus', s));
+    saveBus(city, data);
+    console.log(`bus ${city}: ${data.routes.length} routes (built from Overpass)`);
+    return data;
+  })().finally(() => busInflight.delete(city));
   busInflight.set(city, p);
   return p;
 }
 async function serveBus(res, city) {
   if (!BUS_CITIES[city]) return sendJson(res, 404, { error: 'unknown city' });
-  if (fs.existsSync(busFile(city))) {
+  const ready = fs.existsSync(busFile(city)) ? busFile(city) : fs.existsSync(busRepoFile(city)) ? busRepoFile(city) : null;
+  if (ready) {
     if (!busIsFresh(city)) refreshBus(city).catch((e) => console.warn(`bus ${city} refresh failed:`, e.message));
-    return serveFile(res, busFile(city));   // устаревшие данные лучше, чем никаких
+    return serveFile(res, ready);   // устаревшие данные лучше, чем никаких
   }
-  try {
-    await refreshBus(city);
-    return serveFile(res, busFile(city));
-  } catch (e) {
-    console.warn(`bus ${city} failed:`, e.message);
-    return sendJson(res, 503, { error: 'bus data is loading, try again later' });
-  }
+  // данных нет совсем — собираем в фоне, клиент повторит запрос
+  refreshBus(city).catch((e) => console.warn(`bus ${city} failed:`, e.message));
+  return sendJson(res, 503, { error: 'bus data is loading, try again later' });
 }
-// После запуска по очереди выгружаем все города (с паузами, чтобы не нагружать
-// Overpass), затем раз в сутки обновляем устаревшие.
+// После запуска и затем раз в сутки подтягиваем свежие версии всех городов
 async function warmBusData() {
   for (const city of Object.keys(BUS_CITIES)) {
     if (busIsFresh(city)) continue;
     try { await refreshBus(city); } catch (e) { console.warn(`bus ${city} warm-up failed:`, e.message); }
-    await new Promise((r) => setTimeout(r, 20000));
+    await new Promise((r) => setTimeout(r, 2000));
   }
 }
 
