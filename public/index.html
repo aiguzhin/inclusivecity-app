@@ -2539,16 +2539,22 @@ function renderNearby(){
  * на 400 мс, а результаты кэшируем. Список управляется с клавиатуры.
  */
 const SELECTED={};
-const acCache=new Map();
-async function acSearch(q){
-  const key=S.lang+"|"+q.toLowerCase();
-  if(acCache.has(key)) return acCache.get(key);
-  const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1`
-    // Ищем по всему Казахстану; viewbox без bounded лишь поднимает выше адреса выбранного города
-    +`&countrycodes=kz&viewbox=${cityViewbox()}&accept-language=${S.lang}&q=${encodeURIComponent(q)}`;
+// Nominatim: bounded=1 — только внутри рамки выбранного города
+async function geoSearch(q, limit, inCityOnly){
+  const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=${limit}&addressdetails=1`
+    +`&countrycodes=kz&viewbox=${cityViewbox()}${inCityOnly?"&bounded=1":""}&accept-language=${S.lang}&q=${encodeURIComponent(q)}`;
   const r=await fetch(url,{headers:{"Accept-Language":S.lang}});
   if(!r.ok) throw new Error("geocoder");
-  const d=await r.json();
+  return r.json();
+}
+const acCache=new Map();
+async function acSearch(q){
+  const key=S.city+"|"+S.lang+"|"+q.toLowerCase();   // у каждого города свои подсказки
+  if(acCache.has(key)) return acCache.get(key);
+  // Сначала — только выбранный город: в Актобе ищем улицы Актобе, а не одноимённые в Алматы.
+  // Если в городе ничего не нашлось — тогда уже по всему Казахстану.
+  let d=await geoSearch(q, 6, true);
+  if(d.length<2){ const all=await geoSearch(q, 6, false); d=d.concat(all.filter(x=>!d.some(y=>y.place_id===x.place_id))).slice(0,6); }
   const out=d.map(x=>({ ...acLabel(x), ll:[Number(x.lat),Number(x.lon)] })).filter(x=>x.title);
   acCache.set(key,out);
   return out;
@@ -2650,11 +2656,9 @@ async function findPlace(v){
   if(pickedLatLng && anyLang("mapPoint").some(x=>x.toLowerCase()===val.toLowerCase())) return pickedLatLng;
   if(userLatLng && anyLang("myLocation").some(x=>x.toLowerCase()===val.toLowerCase())) return userLatLng;
   const p=presetFor(v); if(p) return p;
-  // По всей стране, но при равных совпадениях выигрывает выбранный город
-  const q=encodeURIComponent(String(v));
-  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kz&viewbox=${cityViewbox()}&q=${q}`,
-    {headers:{"Accept-Language":S.lang}});
-  const d=await r.json();
+  // Сначала в выбранном городе, и только если там нет — по всей стране
+  let d=await geoSearch(String(v), 1, true);
+  if(!d.length) d=await geoSearch(String(v), 1, false);
   if(!d.length) throw new Error("not found");
   return [Number(d[0].lat),Number(d[0].lon)];
 }
