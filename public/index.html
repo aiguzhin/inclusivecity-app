@@ -182,22 +182,24 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
   .m-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:inherit}
 }
 
-/* ===== 3D-вид ===== */
-.view3d{position:fixed;inset:0;z-index:3000;background:#000}
+/* ===== 3D-вид — прямо на месте карты, весь интерфейс остаётся поверх (как в 2ГИС) ===== */
+.view3d{position:absolute;inset:0;z-index:450;background:#cfd9e2}
 .view3d[hidden]{display:none}
+body.is3d #map,body.is3d .img-info{visibility:hidden}
 #map3d{position:absolute;inset:0}
-.v3-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 12px;background:linear-gradient(rgba(0,0,0,.55),transparent);color:#fff;pointer-events:none}
-.v3-top h2{margin:0;font-size:1.05rem}
-.v3-top button{pointer-events:auto}
-.v3-btn{min-width:var(--tap);min-height:var(--tap);border-radius:12px;border:1px solid rgba(255,255,255,.35);
-  background:rgba(16,24,32,.78);color:#fff;font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer}
-.v3-btn.wide{padding:0 16px;font-size:.95rem}
-.v3-btn[aria-pressed="true"]{background:#1769c2;border-color:#9ccbf7}
-.v3-hint{position:absolute;top:52px;left:12px;right:12px;margin:0;color:#fff;font-size:.8rem;text-shadow:0 1px 3px #000;pointer-events:none}
-.v3-walk{position:absolute;left:12px;bottom:calc(52px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.v3-btn{min-width:var(--tap);min-height:var(--tap);border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.v3-btn.wide{padding:0 14px;font-size:.9rem}
+.v3-btn[aria-pressed="true"]{background:#1769c2;border-color:#1769c2;color:#fff}
+.v3-walk{position:absolute;z-index:3;left:10px;bottom:70px;display:flex;flex-direction:column-reverse;gap:8px;align-items:flex-start}
 .v3-pad{display:grid;grid-template-columns:repeat(3,var(--tap));gap:6px}
 .v3-pad[hidden]{display:none}
+/* кнопка 3D, пока объёмный вид включён, — «2D» и подсвечена */
+#quick3d[aria-pressed="true"],.map-btn.map-3d[aria-pressed="true"]{background:#1769c2;color:#fff;border-color:#1769c2}
+/* метки на 3D-карте — те же значки, что на обычной */
+.m3-pin{cursor:pointer}
+.view3d .maplibregl-popup-content{font:inherit;font-size:.9rem;color:#14202b;border-radius:10px;padding:10px 26px 10px 12px}
+.view3d .maplibregl-ctrl-bottom-right{bottom:40px}
 
 /* ===== Погода: плашка поверх карты ===== */
 .wx{position:absolute;z-index:502;top:62px;right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
@@ -455,6 +457,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
   .leaflet-control-attribution.open{white-space:normal;max-width:calc(100vw - 20px)}
   .basemap-ctl{bottom:calc(var(--peek-h) + 32px)}
   .map-stack{bottom:calc(var(--peek-h) + 108px)}
+  .v3-walk{bottom:calc(var(--peek-h) + 14px)}
+  .view3d .maplibregl-ctrl-bottom-right{bottom:calc(var(--peek-h) + 4px)}
+  .view3d .maplibregl-ctrl-zoom-in,.view3d .maplibregl-ctrl-zoom-out{display:none}
   .wx{top:60px;right:8px}
   .search-here{max-width:calc(100% - 120px);font-size:.8rem;padding:8px 12px}
   .side .eyebrow{display:none}
@@ -593,7 +598,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
         <button type="button" id="quickSat" onclick="setBasemap('sat')" aria-pressed="false">
           <span aria-hidden="true">🛰</span> <span data-i18n="mapSat">Спутник</span>
         </button>
-        <button type="button" id="quick3d" onclick="open3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">
+        <button type="button" id="quick3d" onclick="toggle3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">
           <span aria-hidden="true">🏙</span> 3D
         </button>
 
@@ -612,7 +617,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
 
     <div class="map-stack">
-      <button type="button" class="map-btn map-3d" onclick="open3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">3D</button>
+      <button type="button" class="map-btn map-3d" onclick="toggle3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">3D</button>
       <button type="button" class="map-btn" id="compassBtn" onclick="compassTap()"
               data-i18n-aria="compass" aria-label="Компас">
         <span class="compass-face" aria-hidden="true">
@@ -647,6 +652,19 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
 
     <div id="map" role="application" data-i18n-aria="mapLabel" aria-label="Карта Алматы"></div>
+    <!-- 3D прямо на месте карты (как в 2ГИС): рельеф, объёмные дома, наклон и поворот двумя пальцами -->
+    <div class="view3d" id="view3d" hidden>
+      <div id="map3d"></div>
+      <div class="v3-walk">
+        <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false">🚶 <span data-i18n="walk">Прогулка</span></button>
+        <div class="v3-pad" id="walkPad" hidden>
+          <span></span><button type="button" class="v3-btn" onclick="walkStep(1)" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
+          <button type="button" class="v3-btn" onclick="walkTurn(-1)" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
+          <button type="button" class="v3-btn" onclick="walkStep(-1)" data-i18n-aria="walkBack" aria-label="Назад">↓</button>
+          <button type="button" class="v3-btn" onclick="walkTurn(1)" data-i18n-aria="walkRight" aria-label="Повернуть направо">↻</button>
+        </div>
+      </div>
+    </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
       <p class="small muted" data-i18n="listHelp">Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.</p>
@@ -655,24 +673,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
   </section>
   <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet()" aria-hidden="true"></div>
-  <!-- 3D-вид: спутник на рельефе, объёмные дома, наклон/поворот и прогулка — как в Google Earth -->
-  <div class="view3d" id="view3d" role="dialog" aria-modal="true" aria-labelledby="v3Title" hidden>
-    <div id="map3d"></div>
-    <div class="v3-top">
-      <h2 id="v3Title" data-i18n="view3dTitle">3D-вид</h2>
-      <button type="button" class="v3-btn" onclick="close3D()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
-    </div>
-    <p class="v3-hint" id="v3Hint" data-i18n="v3Hint">Два пальца или правая кнопка мыши — наклон и поворот</p>
-    <div class="v3-walk">
-      <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false">🚶 <span data-i18n="walk">Прогулка</span></button>
-      <div class="v3-pad" id="walkPad" hidden>
-        <span></span><button type="button" class="v3-btn" onclick="walkStep(1)" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
-        <button type="button" class="v3-btn" onclick="walkTurn(-1)" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
-        <button type="button" class="v3-btn" onclick="walkStep(-1)" data-i18n-aria="walkBack" aria-label="Назад">↓</button>
-        <button type="button" class="v3-btn" onclick="walkTurn(1)" data-i18n-aria="walkRight" aria-label="Повернуть направо">↻</button>
-      </div>
-    </div>
-  </div>
 </main>
 
 <!-- Настройки доступности -->
@@ -1197,6 +1197,11 @@ function setBasemap(key){
   if(def.vector || def.imagery) addGLLayer(key);
   updateImgInfo();
   checkImageryZoom();
+  // в 3D сменили вид карты — пересобираем объёмную карту с той же камерой
+  if(map3d){
+    const cam={center:map3d.getCenter().toArray(), zoom:map3d.getZoom(), pitch:map3d.getPitch(), bearing:map3d.getBearing()};
+    close3D(); open3D(false, cam);
+  }
 }
 
 /* ============ Векторные подписи и 3D (MapLibre GL + OpenFreeMap) ============
@@ -1334,72 +1339,193 @@ function updateImgInfo(){
   },600);
 }
 
-// ---- 3D-вид, как в Google Earth: спутник на рельефе, объёмные дома, наклон и прогулка ----
-let map3d=null, walking=false, v3Return=null;
-// fromGesture — открыли жестом «два пальца вверх»: начинаем с плоской карты и плавно наклоняем,
-// чтобы переход выглядел как в 2ГИС, а не как смена экрана
-async function open3D(fromGesture){
+// ---- 3D, как в 2ГИС: объёмная карта появляется на месте обычной, весь интерфейс остаётся поверх.
+// Рельеф, объёмные дома, наклон и поворот двумя пальцами; маршрут, «я здесь», жалобы и слои — те же.
+let map3d=null, walking=false, m3Seq=0, m3Sync=null, m3Sig="", m3Pins=[], m3Lines={}, m3Popup=null, m3Moving=false;
+function set3DButtons(on){
+  document.querySelectorAll("#quick3d,.map-btn.map-3d").forEach(b=>{
+    b.setAttribute("aria-pressed", String(on));
+    if(b.classList.contains("map-3d")) b.textContent = on ? "2D" : "3D";
+    else b.innerHTML = '<span aria-hidden="true">🏙</span> ' + (on ? "2D" : "3D");
+  });
+}
+function toggle3D(){ if(document.body.classList.contains("is3d")) close3D(); else open3D(); }
+// Стиль 3D повторяет выбранный вид: спутник — снимок на рельефе, схема — векторная карта на рельефе
+function style3D(style){
+  const def=BASEMAPS[S.basemap]||{}, sat=!!def.imagery;
+  const sources={openmaptiles:style.sources.openmaptiles,
+    dem:{type:"raster-dem", encoding:"terrarium", tileSize:256, maxzoom:15, attribution:"Terrain © Mapzen, AWS",
+         tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"]}};
+  let layers;
+  if(sat){
+    sources.sat={type:"raster", tileSize:256, maxzoom:19, attribution:"© Esri, Maxar, Vantor",
+      tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]};
+    const b=clone(style.layers.find(l=>l.id==="building-3d") || {});
+    if(b.id) b.paint=Object.assign({},b.paint,{"fill-extrusion-color":"#e8e1d6","fill-extrusion-opacity":0.7});
+    // номера домов в 3D — только вблизи, иначе ими усыпаны все крыши
+    layers=[{id:"sat", type:"raster", source:"sat"}].concat(b.id?[b]:[],
+      overlayLayers(style).map(l=>l.id==="housenumber"?Object.assign(l,{minzoom:18}):l));
+  } else {
+    // мелкомасштабная подложка Natural Earth (растр до z6) в 3D только мешает рельефу
+    layers=fullLayers(style).filter(l=>l.source!=="ne2_shaded");
+  }
+  return {version:8, glyphs:style.glyphs, sprite:style.sprite, sources, layers,
+    terrain:{source:"dem", exaggeration:1.3},
+    sky:{"sky-color":"#6fa8dc","horizon-color":"#d6e6f5","fog-color":"#e6eef6","sky-horizon-blend":0.6,"horizon-fog-blend":0.5,"fog-ground-blend":0.4,"atmosphere-blend":0.8}};
+}
+// cam — камера, которую надо сохранить (при смене вида карты в 3D); fromGesture — начинаем плоско и плавно наклоняем
+async function open3D(fromGesture, cam){
   fromGesture = fromGesture===true;
   if(!webglOk()){ toast(t("noWebgl")); return; }
-  const box=document.getElementById("view3d");
-  v3Return=document.activeElement;
-  box.hidden=false;
+  const seq=++m3Seq;
+  document.body.classList.add("is3d"); set3DButtons(true);
   try{
     const [style]=await Promise.all([ofmStyle(), ensureGL(false)]);
-    if(box.hidden) return;
+    if(seq!==m3Seq) return;
+    const box=document.getElementById("view3d");
     const c=mapReady ? map.getCenter() : {lat:city().c[0], lng:city().c[1]};
-    const z=mapReady ? Math.max(14, map.getZoom()-1) : 15;
-    const buildings=clone(style.layers.find(l=>l.id==="building-3d") || {});
-    buildings.paint=Object.assign({},buildings.paint,{"fill-extrusion-color":"#e8e1d6","fill-extrusion-opacity":0.7});
-    map3d=new maplibregl.Map({
+    // у MapLibre плитки 512 px — тот же масштаб на 1 зум меньше
+    const start=cam || {center:[c.lng,c.lat], zoom:mapReady ? Math.max(3, map.getZoom()-1) : 15,
+                        pitch:fromGesture?0:60, bearing:0};
+    box.hidden=false;
+    map3d=new maplibregl.Map(Object.assign({
       pixelRatio:Math.min(window.devicePixelRatio||1, sheetMode()?1.5:2),   // 3D тяжёлый — на телефоне чуть экономнее
-      container:"map3d", center:[c.lng,c.lat], zoom:z, pitch:fromGesture?0:62, bearing:fromGesture?0:-15, maxPitch:85,
-      attributionControl:{compact:true},
-      style:{version:8, glyphs:style.glyphs, sprite:style.sprite,
-        sources:{
-          sat:{type:"raster", tileSize:256, maxzoom:19, attribution:"© Esri, Maxar, Vantor",
-               tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]},
-          dem:{type:"raster-dem", encoding:"terrarium", tileSize:256, maxzoom:15, attribution:"Terrain © Mapzen, AWS",
-               tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"]},
-          openmaptiles:style.sources.openmaptiles
-        },
-        terrain:{source:"dem", exaggeration:1.3},
-        sky:{"sky-color":"#6fa8dc","horizon-color":"#d6e6f5","fog-color":"#e6eef6","sky-horizon-blend":0.6,"horizon-fog-blend":0.5,"fog-ground-blend":0.4,"atmosphere-blend":0.8},
-        // номера домов в 3D — только вблизи, иначе ими усыпаны все крыши
-        layers:[{id:"sat", type:"raster", source:"sat"}].concat(buildings.id?[buildings]:[],
-          overlayLayers(style).map(l=>l.id==="housenumber"?Object.assign(l,{minzoom:18}):l))
-      }
-    });
+      container:"map3d", maxPitch:85, fadeDuration:0,
+      attributionControl:{compact:true}, style:style3D(style)
+    }, start));
+    const def=BASEMAPS[S.basemap]||{};
+    if(def.cls) map3d.getCanvas().classList.add(def.cls);   // светлая/тёмная — тот же фильтр, что у плоской карты
     map3d.addControl(new maplibregl.NavigationControl({visualizePitch:true}), "bottom-right");
-    map3d.on("load", ()=>{
-      if(fromGesture) map3d.easeTo({pitch:58, duration:700});
-      // Как в 2ГИС: опустили карту двумя пальцами до плоской — возвращаемся в обычный вид
-      map3d.on("pitchend", ()=>{ if(map3d && !walking && map3d.getPitch()<6) close3D(); });
-      // подпись источников — свёрнутой «i», иначе на телефоне закрывает кнопки прогулки
+    const m=map3d;
+    m.on("load", ()=>{
+      if(map3d!==m) return;
+      if(fromGesture) m.easeTo({pitch:58, duration:700});
       const at=document.querySelector("#map3d .maplibregl-ctrl-attrib");
       if(at) at.classList.remove("maplibregl-compact-show");
-      // текущий маршрут — и в 3D: линии маршрута с основной карты
-      const lines=[];
-      if(mapReady) routeLayer.eachLayer(l=>{ if(l instanceof L.Polyline && !(l instanceof L.Polygon)){
-        const ll=l.getLatLngs().flat(); if(ll.length>1) lines.push(ll.map(p=>[p.lng,p.lat])); } });
-      if(lines.length){
-        map3d.addSource("route",{type:"geojson", data:{type:"FeatureCollection", features:lines.map(c=>({type:"Feature", properties:{}, geometry:{type:"LineString", coordinates:c}}))}});
-        map3d.addLayer({id:"route", type:"line", source:"route", paint:{"line-color":"#1769c2","line-width":6,"line-opacity":.9}});
-      }
+      m3Sig=""; m3Pins=[]; m3Lines={}; mirror3D();
+      clearInterval(m3Sync); m3Sync=setInterval(mirror3D, 1200);
     });
-    box.querySelector(".v3-top button").focus();
-  }catch(e){ close3D(); toast(t("noWebgl")); }
+    // Как в 2ГИС: опустили карту двумя пальцами до плоской — снова обычная карта
+    m.on("pitchend", ()=>{ if(map3d===m && !walking && m.getPitch()<6) close3D(); });
+    // обычная карта (невидимая) идёт следом: поиск «в этой области», погода и т.п. берут её границы
+    m.on("moveend", ()=>{
+      if(map3d!==m || !mapReady) return;
+      const cc=m.getCenter(); m3Moving=true;
+      map.setView([cc.lat,cc.lng], Math.round(m.getZoom()+1), {animate:false});
+      m3Moving=false;
+    });
+    // нажатие на карту — как на обычной (выбор точки маршрута или места жалобы)
+    m.on("click", e=>{
+      const f=m.queryRenderedFeatures(e.point,{layers:["m3-dots"].filter(id=>m.getLayer(id))})[0];
+      if(f){ open3DPopup(f.properties.lid, e.lngLat); return; }
+      if(mapReady) map.fire("click",{latlng:L.latLng(e.lngLat.lat,e.lngLat.lng), originalEvent:e.originalEvent});
+    });
+    if(!read("v3Hint","")){ store("v3Hint","1"); toast(t("v3Hint")); }
+  }catch(e){ if(seq===m3Seq){ close3D(); toast(t("noWebgl")); } }
 }
 function close3D(){
-  const box=document.getElementById("view3d");
-  box.hidden=true;
+  m3Seq++;
+  clearInterval(m3Sync); m3Sync=null;
   if(walking) toggleWalk();
+  document.body.classList.remove("is3d"); set3DButtons(false);
+  document.getElementById("view3d").hidden=true;
+  if(m3Popup){ m3Popup.remove(); m3Popup=null; }
+  m3Pins.forEach(p=>p.remove()); m3Pins=[];
   if(map3d){
-    // обычная карта открывается там же, куда «долетели» в 3D (у MapLibre плитки 512 px — зум на 1 меньше)
-    if(mapReady){ const c=map3d.getCenter(); map.setView([c.lat,c.lng], Math.round(map3d.getZoom()+1), {animate:false}); }
+    // обычная карта открывается там же, куда «долетели» в 3D
+    if(mapReady){ const c=map3d.getCenter(); m3Moving=true; map.setView([c.lat,c.lng], Math.round(map3d.getZoom()+1), {animate:false}); m3Moving=false; }
     const m=map3d; map3d=null; m.remove();
   }
-  if(v3Return && document.body.contains(v3Return)){ try{ v3Return.focus(); }catch(e){} }
+  if(mapReady) map.invalidateSize();
+}
+// Приложение само сдвинуло обычную карту (построили маршрут, «я здесь») — 3D летит туда же, не теряя наклон
+function follow3D(){
+  if(!map3d || m3Moving) return;
+  const c=map.getCenter(), z=map.getZoom()-1, cur=map3d.getCenter();
+  if(Math.abs(cur.lat-c.lat)<1e-5 && Math.abs(cur.lng-c.lng)<1e-5 && Math.abs(map3d.getZoom()-z)<0.6) return;
+  map3d.easeTo({center:[c.lng,c.lat], zoom:z, duration:800});
+}
+// Переносим на 3D-карту всё, что нарисовано на обычной: метки — теми же значками, линии и кружки — слоями
+function mirror3D(){
+  if(!map3d || !mapReady || !map3d.isStyleLoaded()) return;
+  const marks=[], lines=[], dots=[], areas=[];
+  const walk=l=>{
+    if(l instanceof L.LayerGroup) return;   // их содержимое map.eachLayer и так перечисляет
+    if(l instanceof L.Marker) marks.push(l);
+    else if(l instanceof L.Circle){ areas.push(l); }
+    else if(l instanceof L.CircleMarker) dots.push(l);
+    else if(l instanceof L.Polyline) lines.push(l);
+  };
+  map.eachLayer(l=>{ if(!(l instanceof L.TileLayer) && l!==glLayer) walk(l); });
+  const r=x=>Math.round(x*1e5);
+  const sig=marks.map(l=>L.stamp(l)+":"+r(l.getLatLng().lat)+","+r(l.getLatLng().lng)).join("|")+"/"+
+    dots.map(l=>L.stamp(l)+(l.options.fillColor||"")).join("|")+"/"+lines.map(l=>L.stamp(l)+(l.options.color||"")).join("|")+"/"+areas.map(l=>L.stamp(l)+":"+Math.round(l.getRadius())).join("|");
+  if(sig===m3Sig) return;
+  m3Sig=sig; m3Lines={};
+  // метки
+  m3Pins.forEach(p=>p.remove()); m3Pins=[];
+  marks.slice(0,800).forEach(l=>{
+    const ic=l.options.icon && l.options.icon.options || {}, el=document.createElement("div");
+    const sz=L.point(ic.iconSize||[25,41]), an=L.point(ic.iconAnchor||[sz.x/2,sz.y/2]);
+    if(ic.html!=null){ el.className="m3-pin "+(ic.className||""); el.innerHTML=ic.html; }
+    else { el.className="m3-pin"; const im=document.createElement("img"); im.src=ic.iconUrl||""; im.alt=""; im.width=sz.x; im.height=sz.y; el.appendChild(im); }
+    el.style.width=sz.x+"px"; el.style.height=sz.y+"px";
+    if(l.options.alt){ el.setAttribute("role","button"); el.setAttribute("aria-label", l.options.alt); el.tabIndex=0; }
+    const ll=l.getLatLng(), lid=L.stamp(l);
+    m3Lines[lid]=l;
+    const go=e=>{ e.stopPropagation(); open3DPopup(lid, {lng:ll.lng, lat:ll.lat}); };
+    el.addEventListener("click", go);
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(e); } });
+    m3Pins.push(new maplibregl.Marker({element:el, anchor:"top-left", offset:[-an.x,-an.y]}).setLngLat([ll.lng,ll.lat]).addTo(map3d));
+  });
+  // линии: маршрут пешком, автобусные отрезки (пунктир — отдельным слоем, у MapLibre он не задаётся по объекту)
+  const lf=[];
+  lines.forEach(l=>{
+    const o=l.options, poly=l instanceof L.Polygon;
+    let parts=l.getLatLngs(); if(!Array.isArray(parts[0])) parts=[parts];
+    const flat=a=>Array.isArray(a[0]) ? a.flatMap(flat) : [a];
+    flat(parts).forEach(ring=>{
+      if(ring.length<2) return;
+      const coords=ring.map(p=>[p.lng,p.lat]); if(poly) coords.push(coords[0]);
+      lf.push({type:"Feature", properties:{color:o.color||"#3388ff", w:o.weight||3, op:o.opacity==null?1:o.opacity,
+        dash:o.dashArray?1:0, fill:poly&&o.fill!==false?1:0, fc:o.fillColor||o.color||"#3388ff", fo:o.fillOpacity==null?0.2:o.fillOpacity},
+        geometry:{type:"LineString", coordinates:coords}});
+    });
+  });
+  // круги в метрах (точность геопозиции) — многоугольником, чтобы лежали на земле
+  areas.forEach(l=>{
+    const c=l.getLatLng(), rad=l.getRadius(), o=l.options, ring=[];
+    for(let i=0;i<=48;i++){ const a=i/48*2*Math.PI;
+      ring.push([c.lng+Math.sin(a)*rad/(111320*Math.cos(c.lat*Math.PI/180)), c.lat+Math.cos(a)*rad/111320]); }
+    lf.push({type:"Feature", properties:{color:o.color||"#3388ff", w:o.weight||1, op:o.opacity==null?1:o.opacity, dash:0,
+      fill:1, fc:o.fillColor||o.color||"#3388ff", fo:o.fillOpacity==null?0.2:o.fillOpacity}, geometry:{type:"LineString", coordinates:ring}});
+  });
+  const df=dots.map(l=>{ const o=l.options, ll=l.getLatLng(), lid=L.stamp(l); m3Lines[lid]=l;
+    return {type:"Feature", properties:{lid, r:o.radius||10, fc:o.fillColor||o.color||"#3388ff", fo:o.fillOpacity==null?0.2:o.fillOpacity,
+      color:o.color||"#3388ff", w:o.stroke===false?0:(o.weight||3)}, geometry:{type:"Point", coordinates:[ll.lng,ll.lat]}}; });
+  const fc=f=>({type:"FeatureCollection", features:f});
+  const fills=lf.filter(f=>f.properties.fill).map(f=>({type:"Feature", properties:f.properties, geometry:{type:"Polygon", coordinates:[f.geometry.coordinates]}}));
+  const put=(id,data)=>{ const s=map3d.getSource(id); if(s) s.setData(data); else map3d.addSource(id,{type:"geojson", data}); };
+  put("m3-lines", fc(lf)); put("m3-fills", fc(fills)); put("m3-dots", fc(df));
+  if(!map3d.getLayer("m3-fill")){
+    map3d.addLayer({id:"m3-fill", type:"fill", source:"m3-fills", paint:{"fill-color":["get","fc"], "fill-opacity":["get","fo"]}});
+    const lp={"line-color":["get","color"], "line-width":["get","w"], "line-opacity":["get","op"]};
+    map3d.addLayer({id:"m3-line", type:"line", source:"m3-lines", filter:["==",["get","dash"],0], layout:{"line-join":"round","line-cap":"round"}, paint:lp});
+    map3d.addLayer({id:"m3-dash", type:"line", source:"m3-lines", filter:["==",["get","dash"],1], layout:{"line-join":"round"}, paint:Object.assign({"line-dasharray":[1.5,1.5]},lp)});
+    map3d.addLayer({id:"m3-dots", type:"circle", source:"m3-dots", paint:{"circle-radius":["get","r"], "circle-color":["get","fc"],
+      "circle-opacity":["get","fo"], "circle-stroke-color":["get","color"], "circle-stroke-width":["get","w"], "circle-pitch-alignment":"map"}});
+  }
+}
+// Подсказка над меткой — та же, что на обычной карте; если её нет, срабатывает обычное нажатие
+function open3DPopup(lid, lngLat){
+  const l=m3Lines[lid]; if(!l || !map3d) return;
+  const p=l.getPopup && l.getPopup();
+  if(!p){ l.fire("click",{latlng:l.getLatLng ? l.getLatLng() : L.latLng(lngLat.lat,lngLat.lng)}); return; }
+  let c=p.getContent(); if(typeof c==="function") c=c(l);
+  if(m3Popup) m3Popup.remove();
+  m3Popup=new maplibregl.Popup({maxWidth:"300px", offset:12}).setLngLat([lngLat.lng,lngLat.lat]);
+  if(c instanceof HTMLElement) m3Popup.setDOMContent(c); else m3Popup.setHTML(String(c));
+  m3Popup.addTo(map3d);
 }
 // Прогулка: камера опускается к земле, шаги по 15 м и повороты по 20°
 function toggleWalk(){
@@ -1437,7 +1563,7 @@ function initTiltGesture(){
 document.addEventListener("keydown", e=>{
   const box=document.getElementById("view3d");
   if(!box || box.hidden) return;
-  if(e.key==="Escape"){ close3D(); return; }
+  if(e.key==="Escape" && box.contains(document.activeElement)){ close3D(); return; }
   if(!walking) return;
   const k=e.key.toLowerCase();
   if(k==="arrowup"||k==="w"||k==="ц"){ walkStep(1); e.preventDefault(); }
@@ -2042,7 +2168,7 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
-  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); });
+  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D(); });
   mapReady=true;
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
