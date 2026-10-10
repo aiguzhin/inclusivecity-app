@@ -281,10 +281,26 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .bus-opt .sub{display:block;font-size:.8rem;color:var(--ink-soft)}
 .bus-opt .bo-top{display:flex;align-items:baseline;gap:8px}
 .bus-opt .bo-top .sub{display:inline}
-.set-maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
-.set-maps button{min-height:var(--tap);border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);
-  font:inherit;font-size:.88rem;font-weight:650;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.set-maps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.set-maps button{min-height:40px;padding:4px 6px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font:inherit;font-size:.82rem;font-weight:650;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .set-maps button[aria-pressed="true"]{background:var(--blue-weak);color:var(--blue-ink);border-color:var(--blue)}
+/* ===== История снимков ===== */
+.wb-panel{position:absolute;z-index:520;left:10px;bottom:70px;width:min(420px,calc(100% - 80px));background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px 8px}
+.wb-panel[hidden]{display:none}
+.wb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.92rem}
+.wb-x{border:0;background:transparent;color:var(--ink-soft);font:inherit;min-width:36px;min-height:36px;border-radius:10px;cursor:pointer}
+.wb-list{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 0 4px;-webkit-overflow-scrolling:touch}
+.wb-list::-webkit-scrollbar{display:none}
+.wb-list button{flex:0 0 auto;min-height:36px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  font:inherit;font-size:.84rem;font-weight:650;white-space:nowrap;cursor:pointer}
+.wb-list button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+html[data-theme="dark"] .wb-list button[aria-pressed="true"]{color:#04121f}
+.wb-note{margin:2px 0 0;font-size:.75rem;color:var(--ink-soft)}
+.map-btn.map-wb[hidden]{display:none}
+.map-btn.map-wb .ic{width:22px;height:22px}
+@media(max-width:860px){ .wb-panel{left:10px;right:62px;width:auto;bottom:calc(var(--peek-h) + 12px)} }
 /* ===== Транспорт: значки,  плашки номеров, полоска поездки (как в 2ГИС) ===== */
 .ic{width:1.15em;height:1.15em;flex:0 0 auto;vertical-align:-.2em}
 .mode-tabs .ic{width:20px;height:20px}
@@ -377,11 +393,14 @@ ol.steps li{margin-bottom:8px}
 .leaflet-popup-content{min-width:200px;font-size:.9rem}
 .leaflet-popup-content img{max-width:100%;border-radius:8px;margin:6px 0;display:block}
 
-.settings-grid{display:grid;gap:12px}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{flex:1;min-width:90px}
-.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
-html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
+.settings-grid{display:grid;gap:4px}
+.settings-grid label.field{margin:12px 0 6px;font-size:.78rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-soft)}
+/* Переключатели — одной компактной полоской, как в iOS */
+.seg{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.seg button{flex:1;min-width:0;min-height:38px;padding:6px 8px;border:0;border-radius:9px;background:transparent;color:var(--ink);
+  font:inherit;font-size:.86rem;font-weight:650;line-height:1.15;box-shadow:none;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--blue-ink);box-shadow:0 1px 4px rgba(0,0,0,.18);font-weight:750}
+html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);color:#04121f}
 
 .sos{background:var(--red);color:#fff;width:100%;margin-top:8px}
 .footer-note{font-size:.75rem;color:var(--ink-soft);margin:16px 0 4px}
@@ -644,6 +663,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
     <span class="img-info" id="imgInfo" hidden></span>
+    <!-- История снимков: как менялось место (архив Esri Wayback), как в Google Earth -->
+    <div class="wb-panel" id="wbPanel" hidden role="region" data-i18n-aria="wbTitle" aria-label="История снимков">
+      <div class="wb-head"><b data-i18n="wbTitle">История снимков</b>
+        <button type="button" class="wb-x" onclick="toggleWayback(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
+      <div class="wb-list" id="wbList"></div>
+      <p class="wb-note" data-i18n="wbNote">Даты, когда снимок этого места обновлялся. Архив Esri Wayback.</p>
+    </div>
     <div class="wx" id="wx">
       <button type="button" class="wx-pill" id="wxPill" aria-expanded="false" aria-controls="wxPop"
               onclick="toggleWx()" data-i18n-aria="weatherTitle" aria-label="Погода">
@@ -654,6 +680,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#04121f}
     </div>
 
     <div class="map-stack">
+      <button type="button" class="map-btn map-wb" id="wbBtn" onclick="toggleWayback()" hidden data-i18n-aria="wbTitle" aria-label="История снимков" aria-expanded="false"><i data-ic="clock"></i></button>
       <button type="button" class="map-btn map-3d" onclick="toggle3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">3D</button>
       <button type="button" class="map-btn" id="compassBtn" onclick="compassTap()"
               data-i18n-aria="compass" aria-label="Компас">
@@ -886,6 +913,7 @@ const ICONS={
   fog:'<path d="M4 8.5h16M3 12.5h18M5 16.5h14M8 20.5h8"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
   speaker:'<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   storm:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="m13 14.5-2.5 4h3.2L11.5 22.5"/>'
 };
 const svgI=(n,cls)=>`<svg class="ic ${cls||""}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||ICONS.b}</svg>`;
@@ -914,7 +942,7 @@ ru:{
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
  busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной, как в 2ГИС", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
  busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
- busOptions:"Другие варианты", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
+ busOptions:"Другие варианты", wbTitle:"История снимков", wbNow:"Сейчас", wbLoading:"Ищем снимки этого места…", wbFail:"Архив снимков сейчас недоступен", wbShown:"Архивный снимок: {d}", wbNote:"Даты, когда снимок этого места обновлялся. Архив Esri Wayback.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
@@ -998,7 +1026,7 @@ kk:{
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
  busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
  busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
- busOptions:"Басқа нұсқалар", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
+ busOptions:"Басқа нұсқалар", wbTitle:"Суреттер тарихы", wbNow:"Қазір", wbLoading:"Осы жердің суреттері ізделуде…", wbFail:"Суреттер мұрағаты қазір қолжетімсіз", wbShown:"Мұрағат суреті: {d}", wbNote:"Осы жердің суреті жаңарған күндер. Esri Wayback мұрағаты.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
@@ -1083,7 +1111,7 @@ en:{
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
  busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
  busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
- busOptions:"Other options", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
+ busOptions:"Other options", wbTitle:"Imagery history", wbNow:"Now", wbLoading:"Looking for images of this place…", wbFail:"The imagery archive is unavailable right now", wbShown:"Archive image: {d}", wbNote:"Dates when imagery of this place was updated. Esri Wayback archive.", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
@@ -1277,7 +1305,9 @@ function setBasemap(key){
     opts.maxNativeZoom = (satNative || city().sz || 17) - (L.Browser.retina ? 1 : 0);
     opts.detectRetina = true;   // на Retina-экранах плитки на уровень детальнее — снимок не «мылит»
   }
-  baseLayer=L.tileLayer(def.url,opts).addTo(map);
+  baseLayer=L.tileLayer(def.imagery && waybackRel ? WB_TILE.replace("{rel}",waybackRel) : def.url, opts).addTo(map);
+  const wb=document.getElementById("wbBtn"); if(wb) wb.hidden=!def.imagery;
+  if(!def.imagery) toggleWayback(false);
   if(baseLayer.setZIndex) baseLayer.setZIndex(0);
   if(def.overlay){
     // Растровые подписи Esri — запасной вариант, пока не загрузились векторные
@@ -1408,6 +1438,7 @@ function updateImgInfo(){
   const box=document.getElementById("imgInfo"); if(!box) return;
   clearTimeout(imgInfoTimer);
   if(!mapReady || !BASEMAPS[S.basemap] || !BASEMAPS[S.basemap].imagery){ box.hidden=true; return; }
+  if(waybackRel){ const w=(wbReleases||[]).find(x=>x.rel===waybackRel); box.textContent=tf("wbShown",{d:w?wbDate(w.date):""}); box.hidden=false; return; }
   imgInfoTimer=setTimeout(async()=>{
     const c=map.getCenter(), b=map.getBounds();
     const url="https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/identify?f=json&geometryType=esriGeometryPoint"
@@ -1427,6 +1458,68 @@ function updateImgInfo(){
       if(lvl && baseLayer && native!==baseLayer.options.maxNativeZoom){ satNative=lvl; baseLayer.options.maxNativeZoom=native; baseLayer.redraw(); }
     }catch(e){ box.hidden=true; }
   },600);
+}
+
+// ---- История снимков (Esri Wayback), как «исторические снимки» в Google Earth ----
+// В архиве ~200 выпусков с 2014 года, но над конкретным местом снимок меняется
+// реже. Служба tilemap для плитки в центре карты говорит, из какого выпуска эта
+// плитка на самом деле взята, — идём по цепочке назад и получаем только реальные смены снимка.
+const WB_CONFIG="https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json";
+const WB_TILE="https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/{rel}/{z}/{y}/{x}";
+const WB_MAP="https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tilemap/";
+let waybackRel=null, wbReleases=null, wbSeq=0, wbTimer=null;
+async function wbLoadReleases(){
+  if(wbReleases) return wbReleases;
+  const d=await (await fetch(WB_CONFIG)).json();
+  wbReleases=Object.entries(d).map(([k,v])=>({rel:+k, date:((v.itemTitle||"").match(/\d{4}-\d\d-\d\d/)||[])[0]}))
+    .filter(x=>x.date).sort((x,y)=>y.date.localeCompare(x.date));
+  return wbReleases;
+}
+function tileXY(lat,lng,z){
+  const n=2**z, rad=lat*Math.PI/180;
+  return {z, x:Math.floor((lng+180)/360*n), y:Math.floor((1-Math.log(Math.tan(rad)+1/Math.cos(rad))/Math.PI)/2*n)};
+}
+async function wbVersions(lat,lng){
+  const rels=await wbLoadReleases();
+  const {x,y,z}=tileXY(lat,lng,Math.min(17,Math.max(13,Math.round(map.getZoom()))));
+  const out=[]; let i=0;
+  while(i<rels.length && out.length<24){
+    const d=await (await fetch(`${WB_MAP}${rels[i].rel}/${z}/${y}/${x}`)).json();
+    if(!d.data || !d.data[0]) break;   // дальше в прошлом снимков этого места нет
+    const sel=rels.find(r=>r.rel===((d.select&&d.select[0])||rels[i].rel)) || rels[i];
+    if(!out.some(o=>o.rel===sel.rel)) out.push(sel);
+    const j=rels.findIndex(r=>r.date<sel.date); if(j<0) break;
+    i=j;
+  }
+  return out;
+}
+const wbDate=d=>new Date(d+"T12:00:00").toLocaleDateString(locale(),{month:"short",year:"numeric"}).replace(/\s?г\.$/,"");
+function renderWayback(list){
+  const box=document.getElementById("wbList"); if(!box) return;
+  const chip=(rel,label)=>`<button type="button" aria-pressed="${waybackRel===rel}" onclick="setWayback(${rel})">${esc(label)}</button>`;
+  box.innerHTML=chip(null,t("wbNow")) + list.map(v=>chip(v.rel, wbDate(v.date))).join("");
+  const on=box.querySelector("[aria-pressed=\"true\"]"); if(on) box.scrollLeft=on.offsetLeft-box.offsetWidth/2+on.offsetWidth/2;
+}
+async function refreshWayback(){
+  const box=document.getElementById("wbList"); if(!box || !mapReady) return;
+  const seq=++wbSeq, c=map.getCenter();
+  if(!box.children.length) box.innerHTML=`<span class="wb-note">${esc(t("wbLoading"))}</span>`;
+  try{
+    const list=await wbVersions(c.lat,c.lng);
+    if(seq===wbSeq) renderWayback(list);
+  }catch(e){ if(seq===wbSeq) box.innerHTML=`<span class="wb-note">${esc(t("wbFail"))}</span>`; }
+}
+function toggleWayback(open){
+  const p=document.getElementById("wbPanel"), b=document.getElementById("wbBtn"); if(!p) return;
+  if(open===undefined) open=p.hidden;
+  p.hidden=!open; if(b) b.setAttribute("aria-expanded", String(open));
+  if(open){ document.getElementById("wbList").innerHTML=""; refreshWayback(); }
+}
+function setWayback(rel){
+  waybackRel=rel;
+  document.querySelectorAll("#wbList button").forEach(b=>b.setAttribute("aria-pressed", String(b.getAttribute("onclick")===`setWayback(${rel})`)));
+  setBasemap("sat");
+  const p=document.getElementById("wbPanel"); if(p) p.hidden=false;
 }
 
 // ---- 3D, как в 2ГИС: объёмная карта появляется на месте обычной, весь интерфейс остаётся поверх.
@@ -1449,7 +1542,7 @@ function style3D(style){
   let layers;
   if(sat){
     sources.sat={type:"raster", tileSize:256, maxzoom:19, attribution:"© Esri, Maxar, Vantor",
-      tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]};
+      tiles:[waybackRel ? WB_TILE.replace("{rel}",waybackRel) : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]};
     const b=clone(style.layers.find(l=>l.id==="building-3d") || {});
     if(b.id) b.paint=Object.assign({},b.paint,{"fill-extrusion-color":"#e8e1d6","fill-extrusion-opacity":0.7});
     // номера домов в 3D — только вблизи, иначе ими усыпаны все крыши
@@ -2260,7 +2353,8 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
-  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D(); });
+  map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D();
+    const wp=document.getElementById("wbPanel"); if(wp && !wp.hidden){ clearTimeout(wbTimer); wbTimer=setTimeout(refreshWayback,700); } });
   mapReady=true;
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
