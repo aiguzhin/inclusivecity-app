@@ -424,11 +424,17 @@ function saveBus(city, data) {
   fs.renameSync(tmp, busFile(city));
 }
 const busInflight = new Map();   // один запрос на город, сколько бы ни пришло пользователей
+const busBuilding = new Map();   // медленная сборка из Overpass — отдельно, чтобы не держать быстрый путь
+// Быстрый путь (секунды): свежий файл из GitHub, иначе копия из репозитория.
+// Если нет ни того, ни другого — запускаем сборку из Overpass в фоне и сразу отвечаем «ещё нет».
 function refreshBus(city) {
   if (busInflight.has(city)) return busInflight.get(city);
   const p = (async () => {
     try {
-      const res = await fetch(BUS_RAW_URL + city + '.json', { headers: { 'User-Agent': 'ICity/1.0' } });
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 15000);
+      const res = await fetch(BUS_RAW_URL + city + '.json', { headers: { 'User-Agent': 'ICity/1.0' }, signal: ctl.signal });
+      clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
         if (data && data.v === 2 && Array.isArray(data.routes)) { saveBus(city, data); return data; }
@@ -438,31 +444,43 @@ function refreshBus(city) {
       fs.copyFileSync(busRepoFile(city), busFile(city));
       return JSON.parse(fs.readFileSync(busFile(city), 'utf8'));
     }
-    const data = await busbuild.fetchCity(city, (s) => console.warn('bus', s));
-    saveBus(city, data);
-    console.log(`bus ${city}: ${data.routes.length} routes (built from Overpass)`);
-    return data;
+    buildBusLive(city);
+    throw new Error('not ready yet');
   })().finally(() => busInflight.delete(city));
   busInflight.set(city, p);
   return p;
 }
+let busQueue = Promise.resolve();   // сборки из Overpass — по одной, чтобы не перегружать его
+function buildBusLive(city) {
+  if (busBuilding.has(city) || fs.existsSync(busFile(city))) return;
+  const p = busQueue.then(() => fs.existsSync(busFile(city)) ? null   // GitHub мог успеть раньше
+    : busbuild.fetchCity(city, (s) => console.warn('bus', s)).then((data) => {
+        if (!fs.existsSync(busFile(city))) saveBus(city, data);
+        console.log(`bus ${city}: ${data.routes.length} routes (built from Overpass)`);
+      }))
+    .catch((e) => console.warn(`bus ${city} build failed:`, e.message))
+    .finally(() => busBuilding.delete(city));
+  busQueue = p;
+  busBuilding.set(city, p);
+}
 async function serveBus(res, city) {
   if (!BUS_CITIES[city]) return sendJson(res, 404, { error: 'unknown city' });
-  const ready = fs.existsSync(busFile(city)) ? busFile(city) : fs.existsSync(busRepoFile(city)) ? busRepoFile(city) : null;
-  if (ready) {
-    if (!busIsFresh(city)) refreshBus(city).catch((e) => console.warn(`bus ${city} refresh failed:`, e.message));
-    return serveFile(res, ready);   // устаревшие данные лучше, чем никаких
+  const ready = () => fs.existsSync(busFile(city)) ? busFile(city) : fs.existsSync(busRepoFile(city)) ? busRepoFile(city) : null;
+  if (ready()) {
+    if (!busIsFresh(city)) refreshBus(city).catch(() => {});
+    return serveFile(res, ready());   // устаревшие данные лучше, чем никаких
   }
-  // данных нет совсем — собираем в фоне, клиент повторит запрос
-  refreshBus(city).catch((e) => console.warn(`bus ${city} failed:`, e.message));
+  // данных нет — пробуем быстрый путь прямо сейчас (GitHub отвечает за секунду)
+  try { await refreshBus(city); } catch (e) { /* ещё собирается */ }
+  if (ready()) return serveFile(res, ready());
   return sendJson(res, 503, { error: 'bus data is loading, try again later' });
 }
 // После запуска и затем раз в сутки подтягиваем свежие версии всех городов
 async function warmBusData() {
   for (const city of Object.keys(BUS_CITIES)) {
     if (busIsFresh(city)) continue;
-    try { await refreshBus(city); } catch (e) { console.warn(`bus ${city} warm-up failed:`, e.message); }
-    await new Promise((r) => setTimeout(r, 2000));
+    try { await refreshBus(city); } catch (e) { /* соберётся в фоне */ }
+    await new Promise((r) => setTimeout(r, 1000));
   }
 }
 
