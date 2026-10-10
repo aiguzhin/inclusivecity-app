@@ -285,6 +285,29 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .set-maps button{min-height:40px;padding:4px 6px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);
   font:inherit;font-size:.82rem;font-weight:650;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .set-maps button[aria-pressed="true"]{background:var(--blue-weak);color:var(--blue-ink);border-color:var(--blue)}
+/* ===== Карточка места ===== */
+.place-card{position:absolute;z-index:530;left:10px;bottom:70px;width:min(400px,calc(100% - 80px));max-height:70%;overflow:auto;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px 12px}
+.place-card[hidden]{display:none}
+.pc-head{display:flex;align-items:flex-start;gap:8px}
+.pc-title{flex:1;min-width:0}
+.pc-title h2{margin:0;font-size:1.1rem;line-height:1.25}
+.pc-sub{margin:4px 0 0;font-size:.82rem;color:var(--ink-soft);display:flex;align-items:baseline;gap:6px}
+.pc-sub .pc-dot{flex:0 0 auto;transform:translateY(-1px)}
+.pc-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.pc-status{display:inline-flex;align-items:center;gap:6px;margin:10px 0 8px;padding:5px 12px;border-radius:99px;font-weight:750;font-size:.88rem}
+.pc-status.good{background:#e3f4ea;color:#0a5a3c}.pc-status.warn{background:#fdf0d8;color:#7a4a00}
+.pc-status.bad{background:#fde4e4;color:#8a1c1c}.pc-status.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+.pc-facts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pc-facts li{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:10px;background:var(--paper);border:1px solid var(--line);font-size:.83rem;line-height:1.2}
+.pc-facts li.good .ic{color:#0a7350}.pc-facts li.warn .ic{color:#b26a00}.pc-facts li.bad .ic{color:#c62828}
+.pc-desc{margin:8px 0 0;font-size:.86rem}
+.pc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pc-actions>*{flex:1;min-width:110px;min-height:42px;padding:8px 10px;border-radius:12px;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.pc-actions a.btn-ghost{border:1px solid var(--line);color:var(--ink)}
+body.place-open .leaflet-control-zoom{display:none}
+.pc-edit{display:inline-block;margin-top:10px;font-size:.8rem;color:var(--ink-soft)}
+@media(max-width:860px){ .place-card{left:8px;right:8px;width:auto;bottom:calc(var(--peek-h) + 10px);max-height:62vh} }
 /* ===== История снимков ===== */
 .wb-panel{position:absolute;z-index:520;left:10px;bottom:70px;width:min(420px,calc(100% - 80px));background:var(--card);color:var(--ink);
   border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px 8px}
@@ -663,6 +686,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
       <select id="basemapSel" onchange="setBasemap(this.value)" data-i18n-aria="basemapLabel" aria-label="Вид карты"></select>
     </div>
     <span class="img-info" id="imgInfo" hidden></span>
+    <!-- Карточка места: доступность объекта, как карточка организации в 2ГИС -->
+    <section class="place-card" id="placeCard" hidden role="dialog" aria-labelledby="pcName">
+      <div class="pc-head">
+        <div class="pc-title"><h2 id="pcName"></h2><p class="pc-sub" id="pcSub"></p></div>
+        <button type="button" class="wb-x" onclick="closePlace()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+      </div>
+      <div id="pcBody"></div>
+    </section>
     <!-- История снимков: как менялось место (архив Esri Wayback), как в Google Earth -->
     <div class="wb-panel" id="wbPanel" hidden role="region" data-i18n-aria="wbTitle" aria-label="История снимков">
       <div class="wb-head"><b data-i18n="wbTitle">История снимков</b>
@@ -942,7 +973,7 @@ ru:{
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
  busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной, как в 2ГИС", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
  busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
- busOptions:"Другие варианты", busAutoRetry:"Обновим сами через несколько секунд. А пока поездку можно посмотреть здесь:", wbTitle:"История снимков", wbNow:"Сейчас", wbLoading:"Ищем снимки этого места…", wbFail:"Архив снимков сейчас недоступен", wbShown:"Архивный снимок: {d}", wbNote:"Даты, когда снимок этого места обновлялся. Архив Esri Wayback.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
+ busOptions:"Другие варианты", pcOk:"Доступно для коляски", pcLimited:"Доступно частично", pcNo:"Недоступно для коляски", pcUnknown:"Нет данных о доступности", pcNoData:"Подробностей о доступности пока нет — помогите их добавить.", pcRoute:"Маршрут сюда", pcBarrier:"Барьер здесь", pcCall:"Позвонить", pcEdit:"Исправить данные в OpenStreetMap", pcfWc:"Вход для коляски", pcfWcL:"Вход частично доступен", pcfWcNo:"Вход недоступен", pcfRamp:"Есть пандус", pcfRampL:"Пандус неудобный", pcfRampNo:"Нет пандуса", pcfToilet:"Доступный туалет", pcfToiletL:"Туалет частично доступен", pcfToiletNo:"Нет доступного туалета", pcfLift:"Есть лифт", pcfLiftL:"Лифт работает не всегда", pcfLiftNo:"Нет лифта", pcfTactile:"Тактильная плитка", pcfTactileL:"Плитка частично", pcfTactileNo:"Нет тактильной плитки", pcfSound:"Звуковой сигнал", pcfSoundL:"Звук частично", pcfSoundNo:"Без звука", pcfDoor:"Дверь {w} м", pcfSteps:"Ступенек: {n}", pcfKerb:"Бордюр: {v}", pcfParking:"Мест для инвалидов: {n}", busAutoRetry:"Обновим сами через несколько секунд. А пока поездку можно посмотреть здесь:", wbTitle:"История снимков", wbNow:"Сейчас", wbLoading:"Ищем снимки этого места…", wbFail:"Архив снимков сейчас недоступен", wbShown:"Архивный снимок: {d}", wbNote:"Даты, когда снимок этого места обновлялся. Архив Esri Wayback.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
@@ -1026,7 +1057,7 @@ kk:{
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
  busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
  busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
- busOptions:"Басқа нұсқалар", busAutoRetry:"Бірнеше секундтан кейін өзіміз жаңартамыз. Әзірге жолды мұнда қарауға болады:", wbTitle:"Суреттер тарихы", wbNow:"Қазір", wbLoading:"Осы жердің суреттері ізделуде…", wbFail:"Суреттер мұрағаты қазір қолжетімсіз", wbShown:"Мұрағат суреті: {d}", wbNote:"Осы жердің суреті жаңарған күндер. Esri Wayback мұрағаты.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
+ busOptions:"Басқа нұсқалар", pcOk:"Арбаға қолжетімді", pcLimited:"Ішінара қолжетімді", pcNo:"Арбаға қолжетімсіз", pcUnknown:"Қолжетімділік туралы дерек жоқ", pcNoData:"Қолжетімділік туралы толық мәлімет әзірге жоқ — қосуға көмектесіңіз.", pcRoute:"Осында бағыт", pcBarrier:"Мұнда кедергі", pcCall:"Қоңырау шалу", pcEdit:"OpenStreetMap-те түзету", pcfWc:"Арбамен кіруге болады", pcfWcL:"Кіреберіс ішінара қолжетімді", pcfWcNo:"Кіреберіс қолжетімсіз", pcfRamp:"Пандус бар", pcfRampL:"Пандус ыңғайсыз", pcfRampNo:"Пандус жоқ", pcfToilet:"Қолжетімді дәретхана", pcfToiletL:"Дәретхана ішінара қолжетімді", pcfToiletNo:"Қолжетімді дәретхана жоқ", pcfLift:"Лифт бар", pcfLiftL:"Лифт үнемі жұмыс істемейді", pcfLiftNo:"Лифт жоқ", pcfTactile:"Тактильді жол", pcfTactileL:"Тактильді жол ішінара", pcfTactileNo:"Тактильді жол жоқ", pcfSound:"Дыбыстық белгі", pcfSoundL:"Дыбыс ішінара", pcfSoundNo:"Дыбыссыз", pcfDoor:"Есік {w} м", pcfSteps:"Баспалдақ: {n}", pcfKerb:"Жиек тас: {v}", pcfParking:"Мүгедектерге орын: {n}", busAutoRetry:"Бірнеше секундтан кейін өзіміз жаңартамыз. Әзірге жолды мұнда қарауға болады:", wbTitle:"Суреттер тарихы", wbNow:"Қазір", wbLoading:"Осы жердің суреттері ізделуде…", wbFail:"Суреттер мұрағаты қазір қолжетімсіз", wbShown:"Мұрағат суреті: {d}", wbNote:"Осы жердің суреті жаңарған күндер. Esri Wayback мұрағаты.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
@@ -1111,7 +1142,7 @@ en:{
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
  busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
  busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
- busOptions:"Other options", busAutoRetry:"We will refresh this automatically in a few seconds. Meanwhile you can check the trip here:", wbTitle:"Imagery history", wbNow:"Now", wbLoading:"Looking for images of this place…", wbFail:"The imagery archive is unavailable right now", wbShown:"Archive image: {d}", wbNote:"Dates when imagery of this place was updated. Esri Wayback archive.", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
+ busOptions:"Other options", pcOk:"Wheelchair accessible", pcLimited:"Partly accessible", pcNo:"Not wheelchair accessible", pcUnknown:"No accessibility data", pcNoData:"No accessibility details yet — help add them.", pcRoute:"Route here", pcBarrier:"Barrier here", pcCall:"Call", pcEdit:"Fix the data in OpenStreetMap", pcfWc:"Step-free entrance", pcfWcL:"Entrance partly accessible", pcfWcNo:"Entrance not accessible", pcfRamp:"Has a ramp", pcfRampL:"Ramp is awkward", pcfRampNo:"No ramp", pcfToilet:"Accessible toilet", pcfToiletL:"Toilet partly accessible", pcfToiletNo:"No accessible toilet", pcfLift:"Has an elevator", pcfLiftL:"Elevator not always working", pcfLiftNo:"No elevator", pcfTactile:"Tactile paving", pcfTactileL:"Partial tactile paving", pcfTactileNo:"No tactile paving", pcfSound:"Audible signal", pcfSoundL:"Partly audible", pcfSoundNo:"No sound", pcfDoor:"Door {w} m", pcfSteps:"Steps: {n}", pcfKerb:"Kerb: {v}", pcfParking:"Disabled spaces: {n}", busAutoRetry:"We will refresh this automatically in a few seconds. Meanwhile you can check the trip here:", wbTitle:"Imagery history", wbNow:"Now", wbLoading:"Looking for images of this place…", wbFail:"The imagery archive is unavailable right now", wbShown:"Archive image: {d}", wbNote:"Dates when imagery of this place was updated. Esri Wayback archive.", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
@@ -2407,9 +2438,9 @@ function drawLayer(def, st){
     // на компьютере оставляем значки: до них можно дойти клавиатурой
     (sheetMode()
       ? L.circleMarker([it.lat,it.lon],{renderer:poiCanvas(), radius:7, color:"#fff", weight:2, fillColor:def.color, fillOpacity:1})
-      : L.marker([it.lat,it.lon],{icon:dotIcon(def.color), alt:nm}))
+      : L.marker([it.lat,it.lon],{icon:dotIcon(def.color), alt:nm, keyboard:true}))
      .addTo(st.group)
-     .bindPopup(`<b>${esc(nm)}</b><div class="facts">${tagFacts(it.tags)}</div>`);
+     .on("click", ()=>openPlace(def,it));
   });
 }
 
@@ -2427,7 +2458,7 @@ async function loadLayer(key, {force}={}){
     const q=`[out:json][timeout:20];(${def.q(bb)});out center tags 250;`;
     const d=await overpassQuery(q);
     st.items=(d.elements||[]).map(e=>({
-      lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}
+      lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}, osm:e.type&&e.id?e.type+'/'+e.id:null
     })).filter(x=>x.lat&&x.lon);
     st.bbox=bb;
     cacheSet(cacheKey, st.items);
@@ -2497,6 +2528,78 @@ function tagFacts(tg){
   if(tg.phone) f.push(`<span class="fact">${esc(tg.phone)}</span>`);
   return f.join("")||`<span class="fact">—</span>`;
 }
+
+// ---- Карточка места ----
+// Всё, что OSM знает о доступности объекта, — человеческим языком и с понятной оценкой
+let placeNow=null;
+function placeStatus(tg){
+  const w=tg.wheelchair || (tg["ramp:wheelchair"]==="yes"||tg.ramp==="yes"?"yes":null) || (tg.highway==="elevator"?"yes":null);
+  if(w==="yes"||w==="designated") return ["good","pcOk"];
+  if(w==="limited") return ["warn","pcLimited"];
+  if(w==="no") return ["bad","pcNo"];
+  return ["none","pcUnknown"];
+}
+function placeFacts(tg){
+  const yn=(v,okKey,noKey,ico)=>v==null?null:[ico, t(/^(yes|designated)$/.test(v)?okKey:v==="limited"?okKey+"L":noKey), /^(yes|designated)$/.test(v)?"good":v==="no"?"bad":"warn"];
+  const f=[
+    yn(tg.wheelchair,"pcfWc","pcfWcNo","wc"),
+    yn(tg["ramp:wheelchair"]||tg.ramp,"pcfRamp","pcfRampNo","ramp"),
+    yn(tg["toilets:wheelchair"],"pcfToilet","pcfToiletNo","toilet"),
+    tg.highway==="elevator"||tg.elevator ? yn(tg.elevator||"yes","pcfLift","pcfLiftNo","lift") : null,
+    yn(tg.tactile_paving,"pcfTactile","pcfTactileNo","tactile"),
+    yn(tg["traffic_signals:sound"]||tg["crossing:signals:sound"],"pcfSound","pcfSoundNo","sound"),
+    tg["door:width"]||tg.width ? ["door", tf("pcfDoor",{w:tg["door:width"]||tg.width}), parseFloat(tg["door:width"]||tg.width)>=0.9?"good":"warn"] : null,
+    tg.step_count ? ["steps", tf("pcfSteps",{n:tg.step_count}), +tg.step_count>0?"warn":"good"] : null,
+    tg.kerb ? ["kerb", tf("pcfKerb",{v:tg.kerb}), /lowered|flush|no/.test(tg.kerb)?"good":"warn"] : null,
+    tg["capacity:disabled"] ? ["parking", tf("pcfParking",{n:tg["capacity:disabled"]}), "good"] : null,
+    tg.opening_hours ? ["clock", tg.opening_hours, ""] : null
+  ].filter(Boolean);
+  return f;
+}
+const PC_ICON={wc:"wc",ramp:"walk",toilet:"wc",lift:"cube",tactile:"walk",sound:"speaker",door:"map",steps:"warn",kerb:"warn",parking:"car",clock:"clock"};
+function openPlace(def,it){
+  placeNow={def,it};
+  const tg=it.tags||{}, nm=poiName(tg, layerLabel(def));
+  const here=userLatLng || (mapReady?[map.getCenter().lat,map.getCenter().lng]:city().c);
+  const d=haversine(here,[it.lat,it.lon]);
+  const addr=[tg["addr:street"], tg["addr:housenumber"]].filter(Boolean).join(", ");
+  const [cls,key]=placeStatus(tg);
+  document.getElementById("pcName").textContent=nm;
+  document.getElementById("pcSub").innerHTML=`<span class="pc-dot" style="background:${def.color}"></span><span>${esc(layerLabel(def))}${addr?" · "+esc(addr):""} · ${d<1000?Math.round(d)+" "+esc(t("m")):(d/1000).toFixed(1)+" "+esc(t("km"))}</span>`;
+  const facts=placeFacts(tg);
+  const desc=tg["wheelchair:description:"+S.lang]||tg["wheelchair:description"]||tg.description;
+  const phone=tg.phone||tg["contact:phone"];
+  document.getElementById("pcBody").innerHTML=`
+    <p class="pc-status ${cls}">${svgI("wc")} ${esc(t(key))}</p>
+    ${facts.length?`<ul class="pc-facts">${facts.map(([ic,txt,c])=>`<li class="${c}">${svgI(PC_ICON[ic]||"map")}<span>${esc(txt)}</span></li>`).join("")}</ul>`
+      :`<p class="small muted">${esc(t("pcNoData"))}</p>`}
+    ${desc?`<p class="pc-desc">${esc(desc)}</p>`:""}
+    <div class="pc-actions">
+      <button type="button" class="btn-dark" onclick="placeRoute()">${svgI("walk")} ${esc(t("pcRoute"))}</button>
+      <button type="button" class="btn-ghost" onclick="placeBarrier()">${svgI("warn")} ${esc(t("pcBarrier"))}</button>
+      ${phone?`<a class="btn-ghost" href="tel:${esc(phone.replace(/[^\d+]/g,""))}">${esc(t("pcCall"))}</a>`:""}
+    </div>
+    ${it.osm?`<a class="pc-edit" href="https://www.openstreetmap.org/${esc(it.osm)}" target="_blank" rel="noopener">${esc(t("pcEdit"))} ↗</a>`:""}`;
+  const card=document.getElementById("placeCard"); card.hidden=false;
+  document.body.classList.add("place-open");
+  if(mapReady) map.panTo([it.lat,it.lon],{animate:S.motion!=="off"});
+  card.querySelector(".wb-x").focus();
+}
+function closePlace(){ const c=document.getElementById("placeCard"); if(c) c.hidden=true; document.body.classList.remove("place-open"); placeNow=null; }
+function placeRoute(){
+  if(!placeNow) return;
+  const {def,it}=placeNow, nm=poiName(it.tags, layerLabel(def));
+  const ds=document.getElementById("destination"); ds.value=nm; SELECTED.destination={text:nm, ll:[it.lat,it.lon]};
+  closePlace(); if(typeof openSheet==="function" && sheetMode()) openSheet(); buildRoute();
+}
+function placeBarrier(){
+  if(!placeNow) return;
+  const {it}=placeNow;
+  reportLatLng=L.latLng(it.lat,it.lon);
+  const rp=document.getElementById("reportPlace"); if(rp) rp.value=`${it.lat.toFixed(5)}, ${it.lon.toFixed(5)}`;
+  closePlace(); openModal("reportModal");
+}
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && placeNow) closePlace(); });
 
 /* ============ Расстояния и список ============ */
 function haversine(a,b){
