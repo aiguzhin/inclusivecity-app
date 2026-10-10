@@ -1,0 +1,33 @@
+# Раз в неделю собираем маршруты автобусов всех городов из OpenStreetMap
+# (tools/busbuild.js) и сохраняем в bus-data/. Сервер сам забирает свежие
+# файлы из GitHub, поэтому коммит помечен [skip render] — передеплой не нужен,
+# и жалобы на бесплатном Render не обнуляются.
+name: bus-data
+
+on:
+  schedule:
+    - cron: "17 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build bus routes
+        run: node tools/busbuild.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bus-data
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Маршруты транспорта из OpenStreetMap [skip render]"
+          git push
