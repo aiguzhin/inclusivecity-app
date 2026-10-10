@@ -77,6 +77,44 @@ function readReports() {
 }
 function writeReports(list) {
   fs.writeFileSync(REPORTS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  kvSaveReports();
+}
+
+// --- Постоянное хранилище: Cloudflare Workers KV ---
+// На бесплатном Render диск стирается при каждом передеплое. Если заданы
+// CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID и CF_API_TOKEN, жалобы и фото дублируются
+// в KV и при запуске восстанавливаются оттуда. Без переменных — как раньше, только диск.
+const KV = process.env.CF_ACCOUNT_ID && process.env.CF_KV_NAMESPACE_ID && process.env.CF_API_TOKEN
+  ? `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/storage/kv/namespaces/${process.env.CF_KV_NAMESPACE_ID}/values/`
+  : null;
+const kvHeaders = () => ({ Authorization: `Bearer ${process.env.CF_API_TOKEN}` });
+async function kvPut(key, body, type) {
+  if (!KV) return;
+  const res = await fetch(KV + encodeURIComponent(key), { method: 'PUT', headers: { ...kvHeaders(), 'Content-Type': type || 'application/octet-stream' }, body });
+  if (!res.ok) throw new Error(`KV put ${key}: HTTP ${res.status}`);
+}
+async function kvGet(key) {
+  if (!KV) return null;
+  const res = await fetch(KV + encodeURIComponent(key), { headers: kvHeaders() });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`KV get ${key}: HTTP ${res.status}`);
+  return Buffer.from(await res.arrayBuffer());
+}
+let kvTimer = null;
+function kvSaveReports() {   // пачкой через секунду — в KV не больше одной записи на серию изменений
+  if (!KV) return;
+  clearTimeout(kvTimer);
+  kvTimer = setTimeout(() => {
+    kvPut('reports', fs.readFileSync(REPORTS_FILE), 'application/json').catch((e) => console.warn(e.message));
+  }, 1000);
+}
+async function kvRestore() {
+  if (!KV) { console.log('storage: local disk only (set CF_* env vars to keep reports between deploys)'); return; }
+  try {
+    const buf = await kvGet('reports');
+    if (buf) { fs.writeFileSync(REPORTS_FILE, buf); console.log(`storage: restored ${JSON.parse(buf).length} reports from Cloudflare KV`); }
+    else kvSaveReports();   // первый запуск — отправляем то, что есть
+  } catch (e) { console.warn('storage: restore failed:', e.message); }
 }
 
 function publicShape(r) {
@@ -339,6 +377,7 @@ async function handleApi(req, res, pathname) {
       const ext = (path.extname(file.filename || '').slice(0, 8) || guessExt(file.mimetype)).replace(/[^a-zA-Z0-9.]/g, '');
       const savedName = `${crypto.randomUUID()}${ext}`;
       fs.writeFileSync(path.join(UPLOADS_DIR, savedName), file.data);
+      kvPut('photo:' + savedName, file.data, file.mimetype).catch((e) => console.warn(e.message));
       photoPath = `/uploads/${savedName}`;
     }
 
@@ -665,6 +704,10 @@ const server = http.createServer(async (req, res) => {
     if (pathname.startsWith('/uploads/')) {
       const filePath = safeJoin(UPLOADS_DIR, pathname.replace('/uploads/', ''));
       if (!filePath) return sendJson(res, 400, { error: 'bad path' });
+      // фото пропало с диска после передеплоя — достаём из KV и кладём обратно
+      if (!fs.existsSync(filePath) && KV) {
+        try { const buf = await kvGet('photo:' + path.basename(filePath)); if (buf) fs.writeFileSync(filePath, buf); } catch (e) { /* нет — 404 */ }
+      }
       return serveFile(res, filePath);
     }
 
@@ -688,6 +731,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
+  kvRestore();
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (ADMIN_TOKEN === 'change-me-please') {
