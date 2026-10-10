@@ -3,7 +3,9 @@
 Карта доступности для городов Казахстана: пешие маршруты с проверкой барьеров,
 общественный транспорт, такси, жалобы на барьеры.
 
-- Прод: https://inclusivecity.onrender.com/ (Render, бесплатный план, Blueprint из `render.yaml`, деплой автоматически из `main`).
+- Прод: https://inclusivecity.uk/ (домен на Cloudflare Registrar, DNS там же: CNAME `@` и `www` → `inclusivecity.onrender.com`, режим «DNS only»).
+  Хостинг — Render, бесплатный план, Blueprint из `render.yaml`, деплой автоматически из `main`;
+  адрес https://inclusivecity.onrender.com/ тоже работает.
   Railway (inclusivecity-production.up.railway.app) остановлен: закончился пробный период.
 - `.github/workflows/keepalive.yml` раз в 10 минут дёргает `/api/health`: не даёт Render заснуть
   и присылает письмо, если сайт не отвечает.
