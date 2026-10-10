@@ -937,7 +937,7 @@ ru:{
  peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", statsShort:"Статистика", sheetResize:"Развернуть или свернуть панель",
  cityAuto:"Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
  modeLabel:"Способ передвижения", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
- busSearching:"Ищем автобусы…", busNone:"Прямых автобусов не нашли", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты этого города ещё готовятся",
+ busSearching:"Ищем автобусы…", busNone:"Автобусов не нашли — даже с пересадками", busFewRoutes:"В открытых картах OpenStreetMap у этого города всего {n} маршр. — поездку с пересадками построить не из чего. Точные маршруты и время — в 2ГИС, Яндексе или Avtobys ниже.", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты этого города ещё готовятся",
  busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
  busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной, как в 2ГИС", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
@@ -1021,7 +1021,7 @@ kk:{
  peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", statsShort:"Статистика", sheetResize:"Тақтаны жаю немесе жию",
  cityAuto:"Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
  modeLabel:"Жүру тәсілі", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
- busSearching:"Автобустар ізделуде…", busNone:"Тікелей автобус табылмады", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың бағыттары әлі дайындалуда",
+ busSearching:"Автобустар ізделуде…", busNone:"Ауысумен де автобус табылмады", busFewRoutes:"OpenStreetMap-те бұл қалада тек {n} бағыт бар — ауысумен жол құру мүмкін емес. Нақты бағыттар — төмендегі 2ГИС, Яндекс немесе Avtobys-та.", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың бағыттары әлі дайындалуда",
  busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
  busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
@@ -1106,7 +1106,7 @@ en:{
  peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", statsShort:"Statistics", sheetResize:"Expand or collapse the panel",
  cityAuto:"Detect from my location", cityFar:"No supported city near you",
  modeLabel:"How to travel", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
- busSearching:"Looking for buses…", busNone:"No direct buses found", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Routes for this city are still being prepared",
+ busSearching:"Looking for buses…", busNone:"No buses found, even with transfers", busFewRoutes:"OpenStreetMap has only {n} routes for this city, too few to build a trip with transfers. See exact routes in 2GIS, Yandex or Avtobys below.", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Routes for this city are still being prepared",
  busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
  busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
@@ -2843,8 +2843,11 @@ async function buildBusTrip(a,b){
   }
   busKindFilter="all"; busCtx={P:prepBus(data), a, b};
   busOptions=busPlan(busCtx.P, a, b);
+  // рядом остановок нет (окраина, село) — ищем дальше
+  for(const r of [2000,3500]) if(!busOptions.length) busOptions=busPlan(busCtx.P, a, b, null, r);
   if(!busOptions.length){
-    showTrip(`<h2>${esc(t("busNone"))}</h2><p class="small muted">${esc(t("busNoneHelp"))}</p>${nearStops(data,a,b)}${transitLinks(a,b)}
+    const nRefs=new Set(data.routes.map(r=>r.r)).size;
+    showTrip(`<h2>${esc(t("busNone"))}</h2><p class="small muted">${esc(nRefs<30 ? tf("busFewRoutes",{n:nRefs}) : t("busNoneHelp"))}</p>${nearStops(data,a,b)}${transitLinks(a,b)}
       <button class="btn-ghost" style="width:100%;margin-top:12px" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button>`);
     return;
   }
@@ -2906,12 +2909,12 @@ function prepBus(data){
 // Расписаний в OSM нет — ждём автобус в среднем BUS_WAIT минут, едем BUS_SPEED м/мин
 // плюс полминуты на каждую остановку. Разные варианты получаем, по очереди «запрещая»
 // номер, на котором держится лучший вариант, — как список вариантов в 2ГИС.
-const BUS_WAIT=6, BUS_SPEED={"":330, t:300, m:360, r:300, M:600}, BUS_DWELL=0.15, BUS_ROUNDS=3;
-function busPlan(P, a, b, kind){
+const BUS_WAIT=6, BUS_SPEED={"":330, t:300, m:360, r:300, M:600}, BUS_DWELL=0.15, BUS_ROUNDS=4;
+function busPlan(P, a, b, kind, reach){
   const kindOk=d=>!kind || kind==="all" || kindKey(d.kind)===kind;
   const prof=PROFILES[S.profile]||{speed:1};
   const walkV=75*(prof.speed||1);                           // м/мин
-  const access=prof.avoidStairs ? 700 : BUS_WALK_M;          // коляске далеко до остановки не идём
+  const access=reach || (prof.avoidStairs ? 700 : BUS_WALK_M);          // коляске далеко до остановки не идём
   const W=d=>d*1.25/walkV;                                  // по прямой ×1,25 — примерно по тротуарам
   const wcPenalty=s=>prof.avoidStairs && P.stops[s].wc===0 ? 15 : 0;   // недоступная остановка
   const src=P.near(a,access), dst=P.near(b,access);
