@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<title>Вход — ICity</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ink:#070b12; --card:#0d1520; --field:#111c29; --fg:#e9eef2; --soft:#c9d3dc; --muted:#93a1b0;
+  --line:rgba(160,200,220,.18); --ok:#3fe0a8; --ok-ink:#04201a; --err:#ff7b75; --warn:#ffb547;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--ink);color:var(--fg)}
+body{margin:0;min-height:100vh;font:16px/1.55 var(--f-body);padding-inline:16px;
+  background:radial-gradient(90% 60% at 50% 0%,rgba(63,224,168,.12),transparent 60%),radial-gradient(70% 50% at 100% 100%,rgba(90,184,255,.08),transparent 60%),var(--ink)}
+.top{max-width:460px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:calc(env(safe-area-inset-top,0px) + 18px) 10px}
+.brand{display:flex;align-items:center;gap:10px;font:800 17px var(--f-display);color:var(--fg);text-decoration:none}
+.brand b{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--ok);color:var(--ok-ink);font-size:15px}
+select{font:inherit;font-size:14px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+main{max-width:460px;margin:18px auto 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px}
+h1{font:800 clamp(24px,6vw,30px)/1.1 var(--f-display);margin:0 0 8px;text-wrap:balance}
+.lead{color:var(--soft);margin:0 0 20px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:20px}
+.tabs button{font:600 15px var(--f-body);color:var(--muted);background:none;border:0;border-radius:9px;padding:10px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ok);color:var(--ok-ink)}
+.providers{display:grid;gap:10px}
+.prov{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;font:600 15px var(--f-body);color:var(--fg);
+  background:var(--field);border:1px solid var(--line);border-radius:12px;cursor:pointer;padding:10px 14px;position:relative}
+.prov:hover:not([aria-disabled="true"]){border-color:var(--fg)}
+.prov svg{width:20px;height:20px;flex:none}
+.prov[aria-disabled="true"]{cursor:not-allowed;color:var(--muted)}
+.prov .soon{position:absolute;right:12px;font-size:11px;font-weight:500;color:var(--warn);background:rgba(255,181,71,.12);padding:2px 8px;border-radius:99px}
+.egov{display:grid;place-items:center;width:20px;height:20px;border-radius:5px;background:#1f6fd1;color:#fff;font:800 11px var(--f-body)}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:20px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:14px;color:var(--soft)}
+input{font:inherit;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:48px;width:100%}
+input:focus{outline:none;border-color:var(--ok);box-shadow:0 0 0 3px rgba(63,224,168,.2)}
+input[aria-invalid="true"]{border-color:var(--err)}
+.pw{position:relative}
+.pw input{padding-right:84px}
+.pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);font:500 13px var(--f-body);color:var(--muted);background:none;border:0;cursor:pointer;padding:6px 8px}
+.hint{font-size:12px;color:var(--muted)}
+.submit{font:600 16px var(--f-body);color:var(--ok-ink);background:var(--ok);border:0;border-radius:12px;min-height:50px;cursor:pointer;margin-top:4px}
+.submit:hover{background:#6af0c0}
+.submit[disabled]{opacity:.6;cursor:progress}
+.link{font:500 14px var(--f-body);color:var(--ok);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
+.msg{font-size:14px;border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.msg.err{color:var(--err);background:rgba(255,123,117,.1);border:1px solid rgba(255,123,117,.3)}
+.msg.ok{color:var(--ok);background:rgba(63,224,168,.08);border:1px solid rgba(63,224,168,.3)}
+.terms{font-size:12px;color:var(--muted);margin:16px 0 0;text-align:center}
+.who{display:flex;align-items:center;gap:14px;margin:6px 0 20px}
+.ava{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:var(--ok-ink);font:800 22px var(--f-display);flex:none;overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover}
+.who b{display:block;font-size:18px}
+.who span{color:var(--muted);font-size:14px;word-break:break-all}
+dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;margin:0 0 22px;font-size:14px}
+dt{color:var(--muted)} dd{margin:0;text-align:right}
+.actions{display:grid;gap:10px}
+.ghost{font:600 15px var(--f-body);color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:12px;min-height:48px;cursor:pointer;text-decoration:none;display:grid;place-items:center}
+.ghost:hover{border-color:var(--fg)}
+a.submit{display:grid;place-items:center;text-decoration:none}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--ok);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.phone{display:flex;align-items:stretch}
+.phone span{display:grid;place-items:center;padding:0 12px;background:var(--field);border:1px solid var(--line);border-right:0;border-radius:12px 0 0 12px;color:var(--soft);font-variant-numeric:tabular-nums}
+.phone input{border-radius:0 12px 12px 0;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.code{font-size:28px;letter-spacing:.5em;text-align:center;font-variant-numeric:tabular-nums;padding-left:calc(14px + .5em)}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:14px}
+.forgot-row{display:flex;justify-content:flex-end;margin-top:-4px}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="brand" href="/"><b>i</b>ICity</a>
+  <label class="sr" for="lang">Тіл / Язык / Language</label>
+  <select id="lang"><option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option></select>
+</div>
+
+<main>
+  <div class="card">
+    <div id="msg" role="status" aria-live="polite"></div>
+
+    <!-- Вход и регистрация -->
+    <section id="v-auth">
+      <h1 id="authTitle">Вход в ICity</h1>
+      <p class="lead" id="authLead"></p>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tabLogin" aria-selected="true" data-t="tabLogin">Войти</button>
+        <button type="button" role="tab" id="tabSignup" aria-selected="false" data-t="tabSignup">Регистрация</button>
+      </div>
+      <div class="providers">
+        <button type="button" class="prov" id="btnGoogle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9l3.7-2.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>
+          <span data-t="google">Продолжить с Google</span>
+        </button>
+        <button type="button" class="prov" aria-disabled="true" id="btnApple">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.2.7-3 1.6-.6.7-1.2 1.9-1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>
+          <span data-t="apple">Продолжить с Apple</span><span class="soon" data-t="soon">скоро</span>
+        </button>
+        <button type="button" class="prov" aria-disabled="true" id="btnEgov">
+          <span class="egov" aria-hidden="true">e</span>
+          <span data-t="egov">Войти через eGov</span><span class="soon" data-t="soon">скоро</span>
+        </button>
+      </div>
+      <div class="or"><span data-t="or">или</span></div>
+
+      <!-- Вход -->
+      <form id="loginForm" novalidate>
+        <label><span data-t="ident">Телефон или почта</span>
+          <input id="ident" name="username" autocomplete="username" placeholder="+7 701 123 45 67" required>
+        </label>
+        <label><span data-t="password">Пароль</span>
+          <span class="pw"><input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button type="button" class="togglePw" data-for="password" data-t="show">Показать</button></span>
+        </label>
+        <div class="forgot-row"><button type="button" class="link" id="forgotBtn" data-t="forgot">Забыли пароль?</button></div>
+        <button class="submit" type="submit" data-t="tabLogin">Войти</button>
+      </form>
+
+      <!-- Регистрация -->
+      <form id="signupForm" novalidate hidden>
+        <div class="tabs" role="radiogroup" aria-label="Способ регистрации" style="margin:0">
+          <button type="button" role="radio" id="mPhone" aria-checked="true" aria-selected="true" data-t="byPhone">По телефону</button>
+          <button type="button" role="radio" id="mEmail" aria-checked="false" aria-selected="false" data-t="byEmail">По почте</button>
+        </div>
+        <label><span data-t="name">Имя</span>
+          <input id="name" name="name" autocomplete="name" maxlength="80" required>
+        </label>
+        <label id="phoneRow"><span data-t="phone">Номер телефона</span>
+          <span class="phone"><span aria-hidden="true">+7</span><input id="phone" name="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="701 123 45 67" maxlength="13" required></span>
+          <span class="hint" data-t="phoneHint">Пришлём SMS с кодом подтверждения.</span>
+        </label>
+        <label id="emailRow" hidden><span data-t="email">Почта</span>
+          <input id="sEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@mail.kz">
+        </label>
+        <label><span data-t="password">Пароль</span>
+          <span class="pw"><input id="sPassword" name="new-password" type="password" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="togglePw" data-for="sPassword" data-t="show">Показать</button></span>
+          <span class="hint" data-t="pwHint">Не меньше 8 символов.</span>
+        </label>
+        <button class="submit" type="submit" id="signupSubmit" data-t="getCode">Получить код по SMS</button>
+      </form>
+      <p class="terms" data-t="terms">Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт.</p>
+    </section>
+
+    <!-- Код из SMS -->
+    <section id="v-otp" hidden>
+      <h1 data-t="otpTitle">Введи код из SMS</h1>
+      <p class="lead"><span data-t="otpText">Мы отправили 6-значный код на номер</span> <b id="otpPhone"></b></p>
+      <form id="otpForm" novalidate>
+        <label><span class="sr" data-t="otpLabel">Код из SMS</span>
+          <input id="otp" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required>
+        </label>
+        <button class="submit" type="submit" data-t="confirm">Подтвердить</button>
+        <div class="row-between">
+          <button type="button" class="link" id="resendBtn" data-t="resend">Отправить код ещё раз</button>
+          <span class="muted" id="resendWait"></span>
+        </div>
+        <button type="button" class="link" id="otpBack" data-t="changeNumber">Изменить номер</button>
+      </form>
+    </section>
+
+    <!-- Письмо отправлено -->
+    <section id="v-check" hidden>
+      <h1 data-t="checkTitle">Проверь почту</h1>
+      <p class="lead"><span data-t="checkText">Мы отправили ссылку на</span> <b id="checkEmail"></b>. <span data-t="checkText2">Открой письмо и перейди по ссылке, чтобы закончить.</span></p>
+      <div class="actions"><button type="button" class="ghost" id="backBtn1" data-t="back">Назад ко входу</button></div>
+    </section>
+
+    <!-- Восстановление пароля -->
+    <section id="v-forgot" hidden>
+      <h1 data-t="forgotTitle">Восстановить пароль</h1>
+      <p class="lead" data-t="forgotLead">Введи номер или почту, с которыми регистрировался. На телефон придёт код в SMS, на почту — ссылка.</p>
+      <form id="forgotForm" novalidate>
+        <label><span data-t="ident">Телефон или почта</span><input id="fIdent" autocomplete="username" placeholder="+7 701 123 45 67" required></label>
+        <button class="submit" type="submit" data-t="restore">Восстановить</button>
+        <button type="button" class="link" id="backBtn2" data-t="back">Назад ко входу</button>
+      </form>
+    </section>
+
+    <!-- Новый пароль -->
+    <section id="v-reset" hidden>
+      <h1 data-t="resetTitle">Новый пароль</h1>
+      <form id="resetForm" novalidate>
+        <label><span data-t="newPassword">Новый пароль</span>
+          <span class="pw"><input id="newPw" type="password" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="togglePw" data-for="newPw" data-t="show">Показать</button></span>
+          <span class="hint" data-t="pwHint">Не меньше 8 символов.</span></label>
+        <button class="submit" type="submit" data-t="savePw">Сохранить пароль</button>
+      </form>
+    </section>
+
+    <!-- Профиль -->
+    <section id="v-account" hidden>
+      <h1 data-t="accTitle">Твой профиль</h1>
+      <div class="who"><div class="ava" id="ava"></div><div><b id="accName"></b><span id="accSub"></span></div></div>
+      <dl>
+        <dt data-t="phone">Номер телефона</dt><dd id="accPhone"></dd>
+        <dt data-t="email">Почта</dt><dd id="accEmail"></dd>
+        <dt data-t="accVia">Способ входа</dt><dd id="accVia"></dd>
+        <dt data-t="accSince">С нами с</dt><dd id="accSince"></dd>
+      </dl>
+      <div class="actions">
+        <a class="submit" href="/map" data-t="openMap">Открыть карту</a>
+        <button type="button" class="ghost" id="logoutBtn" data-t="logout">Выйти</button>
+      </div>
+    </section>
+
+    <!-- Вход не настроен -->
+    <section id="v-off" hidden>
+      <h1 data-t="offTitle">Вход скоро заработает</h1>
+      <p class="lead" data-t="offText">Регистрация временно недоступна. Картой можно пользоваться и без аккаунта.</p>
+      <div class="actions"><a class="submit" href="/map" data-t="openMap">Открыть карту</a></div>
+    </section>
+  </div>
+</main>
+
+<script src="/auth-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+const T={
+ru:{titleLogin:"Вход в ICity",titleSignup:"Регистрация в ICity",leadLogin:"Сохраняй маршруты и следи за своими жалобами на барьеры.",leadSignup:"Аккаунт нужен, чтобы сохранять маршруты и следить за своими жалобами.",
+ tabLogin:"Войти",tabSignup:"Регистрация",google:"Продолжить с Google",apple:"Продолжить с Apple",egov:"Войти через eGov",soon:"скоро",or:"или",
+ ident:"Телефон или почта",name:"Имя",phone:"Номер телефона",phoneHint:"Пришлём SMS с кодом подтверждения.",email:"Почта",password:"Пароль",show:"Показать",hide:"Скрыть",
+ pwHint:"Не меньше 8 символов.",forgot:"Забыли пароль?",byPhone:"По телефону",byEmail:"По почте",getCode:"Получить код по SMS",signupBtn:"Зарегистрироваться",
+ terms:"Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт.",
+ otpTitle:"Введи код из SMS",otpText:"Мы отправили 6-значный код на номер",otpLabel:"Код из SMS",confirm:"Подтвердить",resend:"Отправить код ещё раз",resendIn:"через {s} с",changeNumber:"Изменить номер",codeSent:"Новый код отправлен.",
+ checkTitle:"Проверь почту",checkText:"Мы отправили ссылку на",checkText2:"Открой письмо и перейди по ссылке, чтобы закончить.",back:"Назад ко входу",
+ forgotTitle:"Восстановить пароль",forgotLead:"Введи номер или почту, с которыми регистрировался. На телефон придёт код в SMS, на почту — ссылка.",restore:"Восстановить",
+ resetTitle:"Новый пароль",newPassword:"Новый пароль",savePw:"Сохранить пароль",pwSaved:"Пароль обновлён.",
+ accTitle:"Твой профиль",accVia:"Способ входа",accSince:"С нами с",openMap:"Открыть карту",logout:"Выйти",viaEmail:"Почта",viaPhone:"Телефон",none:"не указан",
+ offTitle:"Вход скоро заработает",offText:"Регистрация временно недоступна. Картой можно пользоваться и без аккаунта.",
+ eIdent:"Введи номер в формате +7 701 123 45 67 или почту.",eName:"Напиши, как тебя зовут.",ePhone:"Номер должен состоять из 10 цифр после +7.",eEmail:"Введи почту в формате name@mail.kz.",ePw:"Пароль должен быть не короче 8 символов.",
+ eCreds:"Неверный телефон, почта или пароль.",eExists:"Этот номер или почта уже зарегистрированы. Попробуй войти.",eConfirm:"Сначала подтверди почту: ссылка в письме.",
+ eCode:"Неверный или устаревший код. Проверь SMS или запроси новый.",eCodeFmt:"Код состоит из 6 цифр.",ePhoneOff:"Вход по телефону пока не включён. Зарегистрируйся по почте или через Google.",
+ eSms:"Не удалось отправить SMS. Проверь номер и попробуй позже.",eNoUser:"Аккаунт с этим номером не найден.",
+ eRate:"Слишком много попыток. Подожди пару минут и попробуй снова.",eNet:"Нет связи с сервером входа. Проверь интернет.",eGeneric:"Не получилось. Попробуй ещё раз.",eProvider:"Вход через Google пока не включён.",
+ soonMsg:"Этот способ входа появится позже. Пока можно войти по телефону, почте или через Google.",sentReset:"Если такая почта зарегистрирована, ссылка уже в пути.",welcome:"Готово, аккаунт создан."},
+kk:{titleLogin:"ICity-ге кіру",titleSignup:"ICity-де тіркелу",leadLogin:"Бағыттарды сақтап, кедергілер туралы шағымдарыңды бақыла.",leadSignup:"Аккаунт бағыттарды сақтау және шағымдарды бақылау үшін керек.",
+ tabLogin:"Кіру",tabSignup:"Тіркелу",google:"Google арқылы жалғастыру",apple:"Apple арқылы жалғастыру",egov:"eGov арқылы кіру",soon:"жақында",or:"немесе",
+ ident:"Телефон немесе пошта",name:"Аты",phone:"Телефон нөмірі",phoneHint:"Растау коды бар SMS жібереміз.",email:"Пошта",password:"Құпиясөз",show:"Көрсету",hide:"Жасыру",
+ pwHint:"Кемінде 8 таңба.",forgot:"Құпиясөзді ұмыттыңыз ба?",byPhone:"Телефон арқылы",byEmail:"Пошта арқылы",getCode:"SMS арқылы код алу",signupBtn:"Тіркелу",
+ terms:"Тіркелу арқылы ICity аккаунтқа кіру үшін телефоныңды, поштаңды және атыңды сақтайтынына келісесің.",
+ otpTitle:"SMS-тегі кодты енгіз",otpText:"6 таңбалы кодты мына нөмірге жібердік:",otpLabel:"SMS коды",confirm:"Растау",resend:"Кодты қайта жіберу",resendIn:"{s} с кейін",changeNumber:"Нөмірді өзгерту",codeSent:"Жаңа код жіберілді.",
+ checkTitle:"Поштаңды тексер",checkText:"Сілтемені мына мекенжайға жібердік:",checkText2:"Аяқтау үшін хатты ашып, сілтемеге өт.",back:"Кіруге оралу",
+ forgotTitle:"Құпиясөзді қалпына келтіру",forgotLead:"Тіркелген нөмірді немесе поштаны енгіз. Телефонға SMS-код, поштаға сілтеме келеді.",restore:"Қалпына келтіру",
+ resetTitle:"Жаңа құпиясөз",newPassword:"Жаңа құпиясөз",savePw:"Құпиясөзді сақтау",pwSaved:"Құпиясөз жаңартылды.",
+ accTitle:"Сенің профилің",accVia:"Кіру тәсілі",accSince:"Бізбен бірге",openMap:"Картаны ашу",logout:"Шығу",viaEmail:"Пошта",viaPhone:"Телефон",none:"көрсетілмеген",
+ offTitle:"Кіру жақында іске қосылады",offText:"Тіркелу уақытша қолжетімсіз. Картаны аккаунтсыз да қолдануға болады.",
+ eIdent:"Нөмірді +7 701 123 45 67 түрінде немесе поштаны енгіз.",eName:"Атыңды жаз.",ePhone:"Нөмір +7-ден кейін 10 цифрдан тұруы керек.",eEmail:"Поштаны name@mail.kz түрінде енгіз.",ePw:"Құпиясөз кемінде 8 таңба болуы керек.",
+ eCreds:"Телефон, пошта немесе құпиясөз қате.",eExists:"Бұл нөмір немесе пошта тіркелген. Кіріп көр.",eConfirm:"Алдымен поштаңды раста: сілтеме хатта.",
+ eCode:"Код қате немесе ескірген. SMS-ті тексер немесе жаңасын сұра.",eCodeFmt:"Код 6 цифрдан тұрады.",ePhoneOff:"Телефон арқылы кіру әлі қосылмаған. Пошта немесе Google арқылы тіркел.",
+ eSms:"SMS жіберу мүмкін болмады. Нөмірді тексеріп, кейінірек қайталап көр.",eNoUser:"Бұл нөмірмен аккаунт табылмады.",
+ eRate:"Әрекет тым көп. Бірнеше минут күтіп, қайталап көр.",eNet:"Кіру серверімен байланыс жоқ. Интернетті тексер.",eGeneric:"Болмады. Қайталап көр.",eProvider:"Google арқылы кіру әлі қосылмаған.",
+ soonMsg:"Бұл кіру тәсілі кейінірек қосылады. Әзірге телефон, пошта немесе Google арқылы кір.",sentReset:"Мұндай пошта тіркелген болса, сілтеме жіберілді.",welcome:"Дайын, аккаунт жасалды."},
+en:{titleLogin:"Sign in to ICity",titleSignup:"Join ICity",leadLogin:"Save your routes and follow your barrier reports.",leadSignup:"An account lets you save routes and follow your reports.",
+ tabLogin:"Sign in",tabSignup:"Sign up",google:"Continue with Google",apple:"Continue with Apple",egov:"Sign in with eGov",soon:"soon",or:"or",
+ ident:"Phone or email",name:"Name",phone:"Phone number",phoneHint:"We'll text you a confirmation code.",email:"Email",password:"Password",show:"Show",hide:"Hide",
+ pwHint:"At least 8 characters.",forgot:"Forgot password?",byPhone:"By phone",byEmail:"By email",getCode:"Get SMS code",signupBtn:"Create account",
+ terms:"By signing up you agree that ICity stores your phone, email and name so you can sign in.",
+ otpTitle:"Enter the SMS code",otpText:"We sent a 6-digit code to",otpLabel:"SMS code",confirm:"Confirm",resend:"Send the code again",resendIn:"in {s} s",changeNumber:"Change number",codeSent:"New code sent.",
+ checkTitle:"Check your email",checkText:"We sent a link to",checkText2:"Open it to finish.",back:"Back to sign in",
+ forgotTitle:"Reset password",forgotLead:"Enter the phone or email you signed up with. A phone gets an SMS code, an email gets a link.",restore:"Reset",
+ resetTitle:"New password",newPassword:"New password",savePw:"Save password",pwSaved:"Password updated.",
+ accTitle:"Your account",accVia:"Signed in with",accSince:"Member since",openMap:"Open the map",logout:"Sign out",viaEmail:"Email",viaPhone:"Phone",none:"not set",
+ offTitle:"Sign-in is coming soon",offText:"Accounts are temporarily unavailable. You can use the map without one.",
+ eIdent:"Enter a phone like +7 701 123 45 67 or an email.",eName:"Tell us your name.",ePhone:"The number needs 10 digits after +7.",eEmail:"Enter an email like name@mail.kz.",ePw:"Password must be at least 8 characters.",
+ eCreds:"Wrong phone, email or password.",eExists:"This phone or email is already registered. Try signing in.",eConfirm:"Confirm your email first: the link is in your inbox.",
+ eCode:"Wrong or expired code. Check the SMS or request a new one.",eCodeFmt:"The code has 6 digits.",ePhoneOff:"Phone sign-in isn't enabled yet. Sign up with email or Google.",
+ eSms:"Couldn't send the SMS. Check the number and try again later.",eNoUser:"No account with this number.",
+ eRate:"Too many attempts. Wait a couple of minutes and try again.",eNet:"Can't reach the sign-in server. Check your connection.",eGeneric:"Something went wrong. Try again.",eProvider:"Google sign-in isn't enabled yet.",
+ soonMsg:"This sign-in option is coming later. For now use phone, email or Google.",sentReset:"If this email is registered, the link is on its way.",welcome:"Done, your account is ready."}
+};
+const $=id=>document.getElementById(id);
+let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
+if(!T[lang])lang="ru";
+const t=k=>(T[lang]&&T[lang][k])||T.ru[k]||k;
+let mode=location.hash==="#signup"?"signup":"login";
+let method="phone";          // способ регистрации: phone | email
+let currentUser=null;
+let otp={phone:"",purpose:""}; // purpose: signup | recovery
+let hold=false;              // не уводить на профиль, пока идёт восстановление пароля
+
+/* ---------- телефон ---------- */
+function normPhone(v){
+  let d=(v||"").replace(/\D/g,"");
+  if(d.length===11&&(d[0]==="7"||d[0]==="8"))d=d.slice(1);
+  return d.length===10?"+7"+d:null;
+}
+function fmtPhone(p){
+  const d=(p||"").replace(/\D/g,"").replace(/^7(?=\d{10}$)/,"");
+  if(d.length!==10)return p?("+"+(p+"").replace(/^\+/,"")):"";
+  return "+7 "+d.slice(0,3)+" "+d.slice(3,6)+" "+d.slice(6,8)+" "+d.slice(8);
+}
+$("phone").addEventListener("input",e=>{
+  let d=e.target.value.replace(/\D/g,"");
+  if(d.length>10&&(d[0]==="7"||d[0]==="8"))d=d.slice(1);
+  d=d.slice(0,10);
+  e.target.value=[d.slice(0,3),d.slice(3,6),d.slice(6,8),d.slice(8,10)].filter(Boolean).join(" ");
+});
+$("otp").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6);if(e.target.value.length===6)$("otpForm").requestSubmit();});
+
+/* ---------- тексты и виды ---------- */
+function applyTexts(){
+  document.documentElement.lang=lang;$("lang").value=lang;
+  document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.getAttribute("data-t"))});
+  setMode(mode,true);setMethod(method,true);
+  if(currentUser)fillAccount(currentUser);
+}
+$("lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("ic_lang",lang)}catch(_){}applyTexts()};
+function show(view){["auth","otp","check","forgot","reset","account","off"].forEach(v=>$("v-"+v).hidden=v!==view);}
+function msg(text,kind){const m=$("msg");m.innerHTML="";if(!text)return;const d=document.createElement("p");d.className="msg "+(kind||"err");d.textContent=text;d.setAttribute("role",kind==="ok"?"status":"alert");m.appendChild(d);}
+function bad(id,text){$(id).setAttribute("aria-invalid","true");msg(text);$(id).focus();}
+
+function setMode(m,silent){
+  mode=m;const su=m==="signup";
+  $("tabLogin").setAttribute("aria-selected",String(!su));$("tabSignup").setAttribute("aria-selected",String(su));
+  $("authTitle").textContent=t(su?"titleSignup":"titleLogin");$("authLead").textContent=t(su?"leadSignup":"leadLogin");
+  $("loginForm").hidden=su;$("signupForm").hidden=!su;
+  if(!silent)msg("");
+}
+function setMethod(m,silent){
+  method=m;const ph=m==="phone";
+  $("mPhone").setAttribute("aria-checked",String(ph));$("mPhone").setAttribute("aria-selected",String(ph));
+  $("mEmail").setAttribute("aria-checked",String(!ph));$("mEmail").setAttribute("aria-selected",String(!ph));
+  $("phoneRow").hidden=!ph;$("emailRow").hidden=ph;
+  $("signupSubmit").textContent=t(ph?"getCode":"signupBtn");
+  if(!silent)msg("");
+}
+$("tabLogin").onclick=()=>{setMode("login");history.replaceState(null,"",location.pathname)};
+$("tabSignup").onclick=()=>{setMode("signup");history.replaceState(null,"","#signup")};
+$("mPhone").onclick=()=>setMethod("phone");$("mEmail").onclick=()=>setMethod("email");
+document.querySelectorAll(".togglePw").forEach(b=>b.onclick=()=>{const p=$(b.dataset.for);const v=p.type==="password";p.type=v?"text":"password";b.textContent=t(v?"hide":"show")});
+["btnApple","btnEgov"].forEach(id=>$(id).onclick=()=>msg(t("soonMsg"),"ok"));
+$("forgotBtn").onclick=()=>{$("fIdent").value=$("ident").value;msg("");show("forgot");$("fIdent").focus()};
+$("backBtn1").onclick=$("backBtn2").onclick=()=>{hold=false;msg("");show("auth")};
+$("otpBack").onclick=()=>{msg("");if(otp.purpose==="recovery"){show("forgot")}else{setMode("signup",true);show("auth")}};
+document.querySelectorAll("input").forEach(el=>el.addEventListener("input",()=>{el.removeAttribute("aria-invalid");const f=$("msg").firstChild;if(f&&!f.classList.contains("ok"))msg("")}));
+
+const validEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+function errText(e){
+  const s=((e&&(e.message||e.error_description||e.msg||e.code))||"")+" "+((e&&e.code)||"");
+  if(/invalid login credentials|invalid_credentials/i.test(s))return t("eCreds");
+  if(/already registered|already been registered|already exists|user_already_exists|phone_exists|email_exists/i.test(s))return t("eExists");
+  if(/email not confirmed/i.test(s))return t("eConfirm");
+  if(/token has expired|is invalid|otp_expired|invalid.*otp|otp.*invalid/i.test(s))return t("eCode");
+  if(/phone.*(disabled|not enabled)|phone_provider_disabled|unsupported phone provider|sms provider/i.test(s))return t("ePhoneOff");
+  if(/signups not allowed for otp|otp_disabled|user not found/i.test(s))return t("eNoUser");
+  if(/sms|twilio|messagebird|vonage|textlocal/i.test(s))return t("eSms");
+  if(/rate limit|too many|over_.*_rate|429/i.test(s)||(e&&e.status===429))return t("eRate");
+  if(/provider is not enabled|unsupported provider/i.test(s))return t("eProvider");
+  if(/failed to fetch|network/i.test(s))return t("eNet");
+  if(/password/i.test(s)&&/(6|8|characters|short|weak)/i.test(s))return t("ePw");
+  return t("eGeneric");
+}
+function busy(form,on){form.querySelectorAll("button[type=submit]").forEach(b=>b.disabled=on)}
+
+function fillAccount(u){
+  const meta=u.user_metadata||{};
+  const name=meta.full_name||meta.name||(u.email||"").split("@")[0]||fmtPhone(u.phone);
+  $("accName").textContent=name;
+  $("accSub").textContent=u.email||fmtPhone(u.phone)||"";
+  $("accPhone").textContent=u.phone?fmtPhone(u.phone):t("none");
+  $("accEmail").textContent=u.email||t("none");
+  const ava=$("ava");ava.innerHTML="";
+  if(meta.avatar_url){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.src=meta.avatar_url;ava.appendChild(im);}
+  else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
+  const provs=(u.app_metadata&&u.app_metadata.providers)||[u.app_metadata&&u.app_metadata.provider].filter(Boolean);
+  $("accVia").textContent=provs.map(p=>p==="email"?t("viaEmail"):p==="phone"?t("viaPhone"):p==="google"?"Google":p).join(", ")||(u.phone?t("viaPhone"):t("viaEmail"));
+  const loc=lang==="kk"?"kk-KZ":lang==="en"?"en-GB":"ru-RU";
+  try{$("accSince").textContent=new Date(u.created_at).toLocaleDateString(loc,{day:"numeric",month:"long",year:"numeric"})}catch(e){$("accSince").textContent=""}
+}
+function showAccount(u){hold=false;currentUser=u;fillAccount(u);show("account");if(location.pathname!=="/account")history.replaceState(null,"","/account");}
+
+/* ---------- таймер повторной отправки SMS ---------- */
+let timer=null;
+function startResendTimer(){
+  let s=60;clearInterval(timer);$("resendBtn").disabled=true;$("resendBtn").style.opacity=".5";
+  const tick=()=>{$("resendWait").textContent=s>0?t("resendIn").replace("{s}",s):"";if(s<=0){clearInterval(timer);$("resendBtn").disabled=false;$("resendBtn").style.opacity="";}s--;};
+  tick();timer=setInterval(tick,1000);
+}
+function openOtp(phone,purpose){otp={phone,purpose};$("otpPhone").textContent=fmtPhone(phone);$("otp").value="";show("otp");startResendTimer();setTimeout(()=>$("otp").focus(),50);}
+
+applyTexts();
+
+const cfg=window.ICITY_AUTH||{};
+if(!cfg.url||!cfg.anonKey||!window.supabase||!window.supabase.createClient){
+  show("off");
+  if(!window.supabase)console.warn("ICity: библиотека Supabase не загрузилась");
+  else console.warn("ICity: задайте SUPABASE_URL и SUPABASE_ANON_KEY в переменных окружения Render");
+  return;
+}
+const sb=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+const params=new URLSearchParams(location.search);
+const wantReset=params.get("reset")==="1";
+const urlErr=params.get("error_description")||new URLSearchParams(location.hash.slice(1)).get("error_description");
+
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){hold=true;show("reset");return;}
+  if(event==="SIGNED_OUT"){currentUser=null;setMode("login",true);show("auth");return;}
+  if(session&&session.user&&!wantReset&&!hold&&(event==="SIGNED_IN"||event==="USER_UPDATED"))showAccount(session.user);
+});
+
+(async()=>{
+  const {data}=await sb.auth.getSession();
+  const s=data&&data.session;
+  if(s&&wantReset){hold=true;show("reset");return;}
+  if(s){showAccount(s.user);return;}
+  show("auth");
+  if(urlErr)msg(urlErr.replace(/\+/g," "));
+})();
+
+$("btnGoogle").onclick=async()=>{
+  msg("");
+  const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+"/account"}});
+  if(error)msg(errText(error));
+};
+
+/* вход: телефон или почта + пароль */
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const id=$("ident").value.trim(),pw=$("password").value;
+  let cred;
+  if(id.includes("@")){if(!validEmail(id))return bad("ident",t("eEmail"));cred={email:id};}
+  else{const p=normPhone(id);if(!p)return bad("ident",t("eIdent"));cred={phone:p};}
+  if(!pw)return bad("password",t("ePw"));
+  busy(e.target,true);msg("");
+  try{const {data,error}=await sb.auth.signInWithPassword({...cred,password:pw});if(error)throw error;showAccount(data.user);}
+  catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+
+/* регистрация: по телефону (код из SMS) или по почте (ссылка в письме) */
+$("signupForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const name=$("name").value.trim(),pw=$("sPassword").value;
+  if(!name)return bad("name",t("eName"));
+  let phone=null,email=null;
+  if(method==="phone"){phone=normPhone($("phone").value);if(!phone)return bad("phone",t("ePhone"));}
+  else{email=$("sEmail").value.trim();if(!validEmail(email))return bad("sEmail",t("eEmail"));}
+  if(pw.length<8)return bad("sPassword",t("ePw"));
+  busy(e.target,true);msg("");
+  try{
+    const opts={data:{full_name:name}};
+    let res;
+    if(phone)res=await sb.auth.signUp({phone,password:pw,options:{...opts,channel:"sms"}});
+    else res=await sb.auth.signUp({email,password:pw,options:{...opts,emailRedirectTo:location.origin+"/account"}});
+    const {data,error}=res;if(error)throw error;
+    if(data.session){showAccount(data.user);msg(t("welcome"),"ok");}
+    else if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){msg(t("eExists"));}
+    else if(phone){openOtp(phone,"signup");}
+    else{$("checkEmail").textContent=email;show("check");}
+  }catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+
+/* подтверждение кода из SMS */
+$("otpForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const code=$("otp").value.trim();
+  if(!/^\d{6}$/.test(code))return bad("otp",t("eCodeFmt"));
+  busy(e.target,true);msg("");
+  if(otp.purpose==="recovery")hold=true;
+  try{
+    const {data,error}=await sb.auth.verifyOtp({phone:otp.phone,token:code,type:"sms"});
+    if(error)throw error;
+    clearInterval(timer);
+    if(otp.purpose==="recovery"){show("reset");setTimeout(()=>$("newPw").focus(),50);}
+    else{showAccount(data.user);msg(t("welcome"),"ok");}
+  }catch(err){hold=false;msg(errText(err));$("otp").select();}
+  finally{busy(e.target,false);}
+});
+$("resendBtn").onclick=async()=>{
+  if($("resendBtn").disabled)return;
+  msg("");
+  const {error}=otp.purpose==="recovery"
+    ?await sb.auth.signInWithOtp({phone:otp.phone,options:{shouldCreateUser:false,channel:"sms"}})
+    :await sb.auth.resend({type:"sms",phone:otp.phone});
+  if(error)msg(errText(error));else{msg(t("codeSent"),"ok");startResendTimer();}
+};
+
+/* забыли пароль: телефон → код в SMS, почта → ссылка */
+$("forgotForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const id=$("fIdent").value.trim();
+  busy(e.target,true);msg("");
+  try{
+    if(id.includes("@")){
+      if(!validEmail(id))return bad("fIdent",t("eEmail"));
+      const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:location.origin+"/account?reset=1"});
+      if(error)throw error;
+      msg(t("sentReset"),"ok");
+    }else{
+      const p=normPhone(id);if(!p)return bad("fIdent",t("eIdent"));
+      const {error}=await sb.auth.signInWithOtp({phone:p,options:{shouldCreateUser:false,channel:"sms"}});
+      if(error)throw error;
+      openOtp(p,"recovery");
+    }
+  }catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+
+/* новый пароль */
+$("resetForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const pw=$("newPw").value;
+  if(pw.length<8)return bad("newPw",t("ePw"));
+  busy(e.target,true);
+  const {data,error}=await sb.auth.updateUser({password:pw});
+  busy(e.target,false);
+  if(error){msg(errText(error));return;}
+  history.replaceState(null,"","/account");
+  showAccount(data.user);msg(t("pwSaved"),"ok");
+});
+
+$("logoutBtn").onclick=async()=>{await sb.auth.signOut();history.replaceState(null,"","/login");msg("");};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<title>ICity — доступная карта Казахстана</title>
+<meta name="description" content="ICity помогает заранее узнать, как добраться до места без лестниц, высоких бордюров и других барьеров. Маршруты, транспорт, такси и жалобы на барьеры в 22 городах Казахстана.">
+<meta property="og:title" content="ICity — доступная карта Казахстана">
+<meta property="og:description" content="Маршруты без барьеров для людей на коляске, с тростью, с детской коляской, незрячих и глухих. 22 города Казахстана.">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: fixed WebGL night city behind; eleven full-height story sections scroll over it and drive the camera */
+:root{
+  --ink:#070b12; --fg:#e9eef2; --soft:#c9d3dc; --muted:#93a1b0; --line:rgba(160,200,220,.16);
+  --ok:#3fe0a8; --warn:#ffb547; --bar:#ff5f5a; --bus:#5ab8ff; --taxi:#ffd23f;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ink);color:var(--fg)}
+body{font-family:var(--f-body);font-size:17px;line-height:1.6;margin:0;overflow-x:hidden}
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.fallback #scene{display:none}
+.fallback{background:radial-gradient(120% 80% at 50% 100%,#10324a 0%,var(--ink) 60%)}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(130% 90% at 50% 50%,transparent 45%,rgba(4,7,12,.75) 100%)}
+.brand{position:fixed;top:calc(env(safe-area-inset-top,0px) + 18px);left:max(16px,3vw);z-index:4;display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:16px;color:var(--fg);text-decoration:none}
+.brand b{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--ok);color:#04201a;font-size:15px}
+.brand small{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.06em}
+main{position:relative;z-index:2}
+section{min-height:100vh;display:flex;align-items:center;padding:12vh max(16px,6vw)}
+section.right{justify-content:flex-end}
+section.center{justify-content:center;text-align:center}
+.panel{max-width:560px;min-width:0;padding:28px 30px;border-radius:18px;background:rgba(7,11,18,.64);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.hero .panel{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;max-width:900px}
+.hero{align-items:flex-end;padding-bottom:14vh}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);margin:0 0 14px}
+h1,h2{font-family:var(--f-display);font-weight:800;line-height:1;margin:0 0 18px;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(80px,19vw,240px);line-height:.85;letter-spacing:-.03em;display:flex}
+h1 .i{color:var(--ok)}
+h1 .c{color:transparent;-webkit-text-stroke:2px var(--fg)}
+h2{font-size:clamp(28px,4.2vw,48px);line-height:1.08}
+p{margin:0 0 14px;color:var(--soft);max-width:62ch}
+.lead{font-size:clamp(17px,1.6vw,21px);max-width:46ch}
+.hint{margin-top:34px;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:12px}
+.hint i{display:block;width:1px;height:38px;background:linear-gradient(var(--ok),transparent);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(.2);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(.2);transform-origin:bottom}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+.chips span{font-size:14px;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--fg)}
+.chips.lit span:first-child{border-color:var(--ok);color:var(--ok);background:rgba(63,224,168,.1)}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-family:var(--f-mono);font-size:13px;margin-top:18px}
+.card header{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:rgba(255,255,255,.04);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.row b{font-weight:500}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;white-space:nowrap;align-self:center}
+.t-ok{color:var(--ok);background:rgba(63,224,168,.12)}
+.t-warn{color:var(--warn);background:rgba(255,181,71,.13)}
+.t-bar{color:var(--bar);background:rgba(255,95,90,.13)}
+.t-bus{color:var(--bus);background:rgba(90,184,255,.13)}
+.sub{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.legend{display:grid;gap:10px;margin:20px 0 6px}
+.legend div{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 12px currentColor}
+.legend strong{font-family:var(--f-mono);font-weight:500;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+.giant{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,8.5vw,120px);line-height:.95;margin:0 0 22px;letter-spacing:-.02em;text-wrap:balance}
+.giant em{font-style:normal;color:var(--ok)}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.pills span{font-family:var(--f-mono);font-size:13px;padding:6px 12px;border-radius:99px;border:1px solid var(--line)}
+.kz{width:100%;height:auto;display:block;margin:14px 0 6px}
+.kz text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.kz .big{fill:var(--fg)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px}
+.btn{display:inline-block;font:500 15px/1 var(--f-body);padding:15px 24px;border-radius:99px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);text-decoration:none;transition:background .2s,border-color .2s}
+.btn.primary{background:var(--ok);color:#04201a;border-color:var(--ok)}
+.btn:hover{border-color:var(--fg)}
+.btn.primary:hover{background:#6af0c0}
+.btn:focus-visible,.rail a:focus-visible{outline:2px solid var(--ok);outline-offset:3px}
+footer{position:relative;z-index:2;text-align:center;padding:0 16px 40px;font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.08em}
+.rail{position:fixed;right:max(16px,2.2vw);top:50%;transform:translateY(-50%);z-index:3;display:grid;gap:12px}
+.rail a{display:flex;align-items:center;justify-content:flex-end;gap:10px;text-decoration:none;color:var(--muted);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em}
+.rail a span{opacity:0;transform:translateX(6px);transition:.25s}
+.rail a i{width:7px;height:7px;border-radius:50%;border:1px solid var(--muted);transition:.25s}
+.rail a.on i{background:var(--ok);border-color:var(--ok);box-shadow:0 0 10px var(--ok)}
+.rail a.on span,.rail a:hover span{opacity:1;transform:none;color:var(--fg)}
+.reveal{opacity:.25;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+@media (max-width:720px){
+  section,section.right{justify-content:flex-start;padding:10vh 16px}
+  .panel{padding:22px 20px}
+  .rail{display:none}
+  .hero{padding-bottom:12vh}
+  .brand small{display:none}
+}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.hint i{animation:none}}
+.top-actions{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:max(16px,3vw);z-index:4;display:flex;gap:8px}
+.top-actions .btn{padding:10px 16px;font-size:14px;background:rgba(7,11,18,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.top-actions .btn.primary{background:var(--ok)}
+@media (max-width:420px){.top-actions .hide-xs{display:none}}
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<a class="brand" href="/"><b>i</b>ICity <small>inclusivecity.uk</small></a>
+<div class="top-actions">
+  <a class="btn hide-xs" href="/map">Карта</a>
+  <a class="btn primary" id="acctTop" href="/login">Войти</a>
+</div>
+
+<nav class="rail" aria-label="Разделы">
+  <a href="#s0"><span>Старт</span><i></i></a>
+  <a href="#s1"><span>Проблема</span><i></i></a>
+  <a href="#s2"><span>Профиль</span><i></i></a>
+  <a href="#s3"><span>Места</span><i></i></a>
+  <a href="#s4"><span>Карта</span><i></i></a>
+  <a href="#s5"><span>Маршрут</span><i></i></a>
+  <a href="#s6"><span>Транспорт</span><i></i></a>
+  <a href="#s7"><span>Такси</span><i></i></a>
+  <a href="#s8"><span>Жалобы</span><i></i></a>
+  <a href="#s9"><span>Города</span><i></i></a>
+  <a href="#s10"><span>Открыть</span><i></i></a>
+</nav>
+
+<main>
+  <section id="s0" class="hero">
+    <div class="panel">
+      <p class="eyebrow">Доступная карта Казахстана</p>
+      <h1 aria-label="ICity"><span class="i">I</span><span class="c">City</span></h1>
+      <p class="lead">Помогаем заранее узнать, как добраться до места без лестниц, высоких бордюров и других барьеров. На коляске, с тростью, с детской коляской и без зрения.</p>
+      <div class="hint"><i></i>Листай вниз</div>
+    </div>
+  </section>
+
+  <section id="s1" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Проблема</p>
+      <h2>О барьере узнаёшь, когда уже упёрся в него</h2>
+      <p>Ступени у входа в поликлинику. Подземный переход без лифта. Бордюр высотой с ладонь. На обычной карте этого не видно.</p>
+      <p>Поэтому люди заранее звонят и уточняют, просят прохожих помочь или просто остаются дома.</p>
+    </div>
+  </section>
+
+  <section id="s2" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Профиль</p>
+      <h2>Маршрут строится под тебя</h2>
+      <p>Выбери, как ты передвигаешься, и ICity проверит путь на ступени, подземные переходы и крутые уклоны.</p>
+      <div class="chips lit">
+        <span>На кресле-коляске</span><span>С тростью</span><span>С ходунками</span><span>С детской коляской</span><span>Незрячим</span><span>Слабовидящим</span><span>Глухим</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Доступные места рядом</p>
+      <h2>Город сканируется на доступность</h2>
+      <p>Данные берутся из OpenStreetMap и дополняются сообщениями самих жителей.</p>
+      <div class="chips"><span>Пандусы</span><span>Лифты</span><span>Доступные туалеты</span><span>Парковки</span><span>Тактильная плитка</span><span>Звуковые светофоры</span></div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <div class="panel reveal">
+      <p class="eyebrow">Карта</p>
+      <h2>Каждый вход отмечен цветом</h2>
+      <p>Зелёный значит, что можно пройти самому. Жёлтый значит, что пройти можно, но понадобится помощь. Красный значит, что путь закрыт.</p>
+      <div class="legend">
+        <div><span class="dot" style="color:var(--ok);background:var(--ok)"></span><span>Доступно</span><strong id="c-ok">0</strong></div>
+        <div><span class="dot" style="color:var(--warn);background:var(--warn)"></span><span>С трудом</span><strong id="c-warn">0</strong></div>
+        <div><span class="dot" style="color:var(--bar);background:var(--bar)"></span><span>Барьер</span><strong id="c-bar">0</strong></div>
+      </div>
+      <p class="note">Отметки в этом демо-квартале условные.</p>
+    </div>
+  </section>
+
+  <section id="s5" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Маршрут пешком</p>
+      <p class="giant">Путь <em>без</em> барьеров</p>
+      <p>Если на обычном пути лестница или подземный переход, ICity предлагает обход. Иногда он чуть длиннее, зато его можно пройти от начала до конца.</p>
+      <div class="pills"><span style="color:var(--ok)">0 барьеров на пути</span><span style="color:var(--bar)">2 обойдены</span></div>
+    </div>
+  </section>
+
+  <section id="s6">
+    <div class="panel reveal">
+      <p class="eyebrow">Общественный транспорт</p>
+      <h2>Автобус, троллейбус, маршрутка, трамвай</h2>
+      <p>Маршруты с пересадкой и отметки о доступности остановок, чтобы заранее знать, где удобно сесть и выйти.</p>
+      <div class="card" role="table" aria-label="Пример поездки">
+        <header><span>Пример поездки</span><span>с пересадкой</span></header>
+        <div class="row" role="row"><div><b>Остановка «Парк»</b><span class="sub">пандус, без бордюра</span></div><span class="tag t-ok">доступна</span></div>
+        <div class="row" role="row"><div><b>Автобус → троллейбус</b><span class="sub">пересадка на той же стороне</span></div><span class="tag t-bus">1 пересадка</span></div>
+        <div class="row" role="row"><div><b>Остановка «Центр»</b><span class="sub">высокий бордюр</span></div><span class="tag t-warn">с трудом</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s7" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Такси</p>
+      <h2>Цена поездки до заказа</h2>
+      <p>ICity оценивает стоимость по официальному тарифу Яндекс Go в твоём городе. Заказать машину можно сразу в Яндекс Go или inDrive.</p>
+    </div>
+  </section>
+
+  <section id="s8">
+    <div class="panel reveal">
+      <p class="eyebrow">Жалобы на барьеры</p>
+      <h2>Увидел барьер? Отметь его</h2>
+      <p>Жалоба с фото попадает на карту после модерации. Жители подтверждают её, а ICity собирает готовое обращение в акимат.</p>
+      <div class="card" role="table" aria-label="Пример жалобы">
+        <header><span>Пример жалобы</span><span>вход в поликлинику</span></header>
+        <div class="row" role="row"><div><b>Ступени без пандуса</b><span class="sub">фото приложено</span></div><span class="tag t-bar">барьер</span></div>
+        <div class="row" role="row"><div><b>Подтвердили жители</b></div><span class="tag t-warn">14</span></div>
+        <div class="row" role="row"><div><b>Модерация</b></div><span class="tag t-ok">одобрено</span></div>
+        <div class="row" role="row"><div><b>Обращение в акимат</b></div><span class="tag t-ok">готово</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s9" class="right">
+    <div class="panel reveal">
+      <p class="eyebrow">Казахстан</p>
+      <h2>22 города</h2>
+      <p>Алматы, Астана, Шымкент и все областные центры.</p>
+      <svg class="kz" id="kz" viewBox="0 0 500 260" role="img" aria-label="22 города ICity на карте Казахстана"></svg>
+      <p class="eyebrow" style="margin-top:18px">Для всех</p>
+      <div class="chips"><span>Русский · Қазақша · English</span><span>Крупный шрифт</span><span>Высокий контраст</span><span>Тёмная тема</span><span>Текстовый режим без карты</span><span>Голосовые подсказки</span></div>
+    </div>
+  </section>
+
+  <section id="s10" class="center">
+    <div class="panel reveal" style="margin-inline:auto">
+      <p class="eyebrow">ICity</p>
+      <h2>Город, в котором можно пройти везде</h2>
+      <p style="margin-inline:auto">Построй маршрут под свой профиль или отметь барьер, который видишь каждый день. Чем больше отметок, тем точнее карта для всех.</p>
+      <div class="actions">
+        <a class="btn primary" href="/map">Открыть карту</a>
+        <a class="btn" id="acctCta" href="/login#signup">Зарегистрироваться</a>
+        <button class="btn" id="b-again" type="button">Пролететь ещё раз</button>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>ICity · inclusivecity.uk</footer>
+<script>
+/* Если человек уже вошёл (сессия Supabase в localStorage), показываем «Профиль» вместо «Войти» */
+(function(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k)||"null");if(v&&v.user){const a=document.getElementById("acctTop");a.textContent="Профиль";a.href="/account";const c=document.getElementById("acctCta");c.textContent="Мой профиль";c.href="/account";break;}}}}catch(e){}})();
+</script>
+
+<script>
+(function(){
+const C=[["Алматы",43.2383,76.9455,1],["Астана",51.1282,71.4306,1],["Шымкент",42.3174,69.5901,1],["Караганда",49.8063,73.0855],["Актобе",50.2839,57.167,1],["Тараз",42.9,71.3667],["Павлодар",52.2871,76.9674],["Усть-Каменогорск",49.9483,82.6275],["Семей",50.4111,80.2275],["Атырау",47.0945,51.9238],["Костанай",53.2198,63.6354],["Кызылорда",44.8479,65.5093],["Уральск",51.2333,51.3667],["Петропавловск",54.8667,69.15],["Актау",43.641,51.1975],["Темиртау",50.0547,72.9644],["Туркестан",43.3,68.25],["Кокшетау",53.2833,69.4],["Талдыкорган",45.0156,78.3739],["Экибастуз",51.7298,75.3266],["Конаев",43.8552,77.0615],["Жезказган",47.8043,67.7146]];
+const svg=document.getElementById('kz');let s='';
+const X=lon=>20+(lon-50)/(84-50)*460, Y=lat=>16+(56-lat)/(56-41.5)*228;
+C.forEach(c=>{const x=X(c[2]),y=Y(c[1]);s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${c[3]?5:3.2}" fill="#3fe0a8" opacity="${c[3]?1:.75}"><title>${c[0]}</title></circle>`;if(c[3])s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="none" stroke="#3fe0a8" stroke-opacity=".35"/><text class="big" x="${(x+(c[2]>75?-14:14)).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="${c[2]>75?'end':'start'}">${c[0]}</text>`;});
+svg.innerHTML=s;
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('b-again').onclick=()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const railLinks=[...document.querySelectorAll('.rail a')];
+const secs=[...document.querySelectorAll('main section')];
+
+let p=0,target=0;
+function readScroll(){
+  const max=document.documentElement.scrollHeight-innerHeight;
+  target=max>0?Math.min(1,Math.max(0,scrollY/max)):0;
+  const mid=scrollY+innerHeight/2;let idx=0;
+  secs.forEach((s,i)=>{if(s.offsetTop<=mid)idx=i});
+  railLinks.forEach((a,i)=>a.classList.toggle('on',i===idx));
+}
+addEventListener('scroll',readScroll,{passive:true});readScroll();
+
+if(typeof THREE==='undefined'){document.body.classList.add('fallback');return;}
+const canvas=document.getElementById('scene');
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}
+catch(e){document.body.classList.add('fallback');return;}
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.setClearColor(0x070b12,1);
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x070b12,0.005);
+const camera=new THREE.PerspectiveCamera(50,1,0.2,1200);
+
+let seed=7;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const ss=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+
+scene.add(new THREE.HemisphereLight(0x3a6c8c,0x05080d,0.9));
+const moon=new THREE.DirectionalLight(0x9fd8ff,0.7);moon.position.set(-60,120,40);scene.add(moon);
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(500,500),new THREE.MeshLambertMaterial({color:0x060a10}));
+ground.rotation.x=-Math.PI/2;scene.add(ground);
+const gv=[];for(let k=-7;k<=7;k++){const v=k*10;gv.push(v,0.02,-70,v,0.02,70,-70,0.02,v,70,0.02,v);}
+const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.Float32BufferAttribute(gv,3));
+scene.add(new THREE.LineSegments(gg,new THREE.LineBasicMaterial({color:0x17303f})));
+
+function softTex(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.4,'rgba(255,255,255,.35)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);}
+const soft=softTex();
+const glowSprite=(c,s,o)=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:soft,color:c,transparent:true,opacity:o==null?.8:o,blending:THREE.AdditiveBlending,depthWrite:false}));sp.scale.set(s,s,1);return sp;};
+/* buildings */
+const blds=[];
+for(let i=0;i<14;i++)for(let j=0;j<14;j++){
+  const cx=(i-6.5)*10,cz=(j-6.5)*10;
+  if(rnd()<0.1)continue;
+  const w=3.6+rnd()*2.5,d=3.6+rnd()*2.5;
+  const fall=1+3.2*Math.exp(-(cx*cx+cz*cz)/1400);
+  let h=(2.5+rnd()*7)*fall; if(rnd()<0.05)h*=1.9;
+  blds.push({x:cx+(rnd()-.5)*.6,z:cz+(rnd()-.5)*.6,w,d,h});
+}
+const inst=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),blds.length);
+const m4=new THREE.Matrix4(),col=new THREE.Color(),Q=new THREE.Quaternion();
+blds.forEach((b,k)=>{m4.compose(new THREE.Vector3(b.x,b.h/2,b.z),Q,new THREE.Vector3(b.w,b.h,b.d));inst.setMatrixAt(k,m4);col.setHSL(.57,.35,.07+rnd()*.05);inst.setColorAt(k,col);});
+scene.add(inst);
+const ev=[];
+blds.forEach(b=>{const x0=b.x-b.w/2,x1=b.x+b.w/2,z0=b.z-b.d/2,z1=b.z+b.d/2,y=b.h;const c=[[x0,z0],[x1,z0],[x1,z1],[x0,z1]];
+  for(let k=0;k<4;k++){const a=c[k],n=c[(k+1)%4];ev.push(a[0],y,a[1],n[0],y,n[1],a[0],0,a[1],n[0],0,n[1],a[0],0,a[1],a[0],y,a[1]);}});
+const eg=new THREE.BufferGeometry();eg.setAttribute('position',new THREE.Float32BufferAttribute(ev,3));
+const edgeMat=new THREE.LineBasicMaterial({color:0x2c6f86,transparent:true,opacity:.55});
+scene.add(new THREE.LineSegments(eg,edgeMat));
+const wv=[];
+blds.forEach(b=>{const n=Math.min(60,Math.floor(b.h*1.4));for(let k=0;k<n;k++){const f=Math.floor(rnd()*4),y=1+rnd()*(b.h-1.5);
+  if(f===0)wv.push(b.x-b.w/2+rnd()*b.w,y,b.z+b.d/2+.05);else if(f===1)wv.push(b.x-b.w/2+rnd()*b.w,y,b.z-b.d/2-.05);
+  else if(f===2)wv.push(b.x+b.w/2+.05,y,b.z-b.d/2+rnd()*b.d);else wv.push(b.x-b.w/2-.05,y,b.z-b.d/2+rnd()*b.d);}});
+const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute(wv,3));
+scene.add(new THREE.Points(wg,new THREE.PointsMaterial({map:soft,color:0xffd59a,size:.7,transparent:true,opacity:.85,depthWrite:false,blending:THREE.AdditiveBlending})));
+
+
+/* clouds */
+const cv=[];for(let k=0;k<260;k++)cv.push((rnd()-.5)*260,55+rnd()*70,(rnd()-.5)*260+40);
+const cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(cv,3));
+const cloudMat=new THREE.PointsMaterial({map:soft,color:0x9cc4dd,size:46,transparent:true,opacity:.11,depthWrite:false});
+const clouds=new THREE.Points(cg,cloudMat);scene.add(clouds);
+
+/* markers */
+const COLORS={ok:0x3fe0a8,warn:0xffb547,bar:0xff5f5a};
+const markers=[];
+const beamGeo=new THREE.CylinderGeometry(.09,.09,1,6,1,true);beamGeo.translate(0,.5,0);
+const ringGeo=new THREE.RingGeometry(.7,.95,32);ringGeo.rotateX(-Math.PI/2);
+const headGeo=new THREE.SphereGeometry(.38,12,10);
+function addMarker(x,z,status,h){
+  const g=new THREE.Group();g.position.set(x,0.05,z);const c=COLORS[status];
+  const beam=new THREE.Mesh(beamGeo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const ring=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));
+  const head=new THREE.Mesh(headGeo,new THREE.MeshBasicMaterial({color:c}));
+  const halo=glowSprite(c,3);
+  g.add(beam,ring,head,halo);scene.add(g);
+  const m={g,beam,ring,head,halo,x,z,h:h||5+rnd()*3,status,ph:rnd()*6.28};markers.push(m);return m;
+}
+const blockedA=addMarker(-10,20,'bar',7),blockedB=addMarker(30,0,'bar',7);
+blds.forEach(b=>{if(rnd()<0.26){const r=rnd();const s=r<0.52?'ok':r<0.76?'warn':'bar';addMarker(b.x,b.z+b.d/2+1.1,s);}});
+const counts={ok:0,warn:0,bar:0};markers.forEach(m=>counts[m.status]++);
+['ok','warn','bar'].forEach(k=>document.getElementById('c-'+k).textContent=counts[k]);
+
+/* scan */
+const scanMat=new THREE.MeshBasicMaterial({color:0x3fe0a8,transparent:true,opacity:0,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false});
+const scan=new THREE.Mesh(new THREE.PlaneGeometry(150,60),scanMat);scan.rotation.y=Math.PI/2;scan.position.y=30;scene.add(scan);
+const scanLine=new THREE.Mesh(new THREE.PlaneGeometry(150,.6),new THREE.MeshBasicMaterial({color:0x8fffd8,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+scanLine.rotation.x=-Math.PI/2;scanLine.rotation.z=Math.PI/2;scanLine.position.y=.15;scene.add(scanLine);
+
+/* route */
+const RP=[[-50,40],[-50,20],[-30,20],[-30,0],[10,0],[10,-20],[40,-20],[40,-40]].map(([x,z])=>new THREE.Vector3(x,.12,z));
+const path=new THREE.CurvePath();for(let k=0;k<RP.length-1;k++)path.add(new THREE.LineCurve3(RP[k],RP[k+1]));
+const pathLen=path.getLength();
+const RS=8,TS=800;
+const tubeGeo=new THREE.TubeGeometry(path,TS,.28,RS,false);
+const tube=new THREE.Mesh(tubeGeo,new THREE.MeshBasicMaterial({color:0x3fe0a8}));
+const glowGeo=new THREE.TubeGeometry(path,TS,1.1,RS,false);
+const glow=new THREE.Mesh(glowGeo,new THREE.MeshBasicMaterial({color:0x3fe0a8,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false}));
+scene.add(tube,glow);
+function pin(v,c){const s=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,.15,32),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.85}));s.position.set(v.x,.08,v.z);scene.add(s);return s;}
+const pinA=pin(RP[0],0xe9eef2),pinB=pin(RP[RP.length-1],0x3fe0a8);
+/* blocked "usual" path */
+const dashPts=[new THREE.Vector3(-30,.15,20),new THREE.Vector3(10,.15,20),new THREE.Vector3(10,.15,0),new THREE.Vector3(40,.15,0),new THREE.Vector3(40,.15,-20)];
+const dashGeo=new THREE.BufferGeometry().setFromPoints(dashPts);
+const dashMat=new THREE.LineDashedMaterial({color:0xff5f5a,dashSize:1.4,gapSize:1,transparent:true,opacity:0});
+const dash=new THREE.Line(dashGeo,dashMat);dash.computeLineDistances();scene.add(dash);
+
+/* wheelchair */
+const wc=new THREE.Group();
+const bodyMat=new THREE.MeshStandardMaterial({color:0xe9eef2,emissive:0x1d4a4a,roughness:.5,metalness:.2});
+const frameMat=new THREE.MeshStandardMaterial({color:0x9fb3c2,emissive:0x0e2a30,roughness:.4,metalness:.6});
+const wheelMat=new THREE.MeshStandardMaterial({color:0x3fe0a8,emissive:0x2bbf8c,emissiveIntensity:.9,roughness:.3});
+const skinMat=new THREE.MeshStandardMaterial({color:0xd8c3b0,emissive:0x2a1d14,roughness:.7});
+function wheel(r,t){const g=new THREE.Group();const tor=new THREE.Mesh(new THREE.TorusGeometry(r,t,10,36),wheelMat);g.add(tor);
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(t*1.6,t*1.6,t*2,10),frameMat);hub.rotation.x=Math.PI/2;g.add(hub);
+  for(let k=0;k<4;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(t*.5,r*2,t*.5),frameMat);sp.rotation.z=k*Math.PI/4;g.add(sp);}
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(r*.86,t*.35,6,30),frameMat);g.add(rim);return g;}
+const wheels=[];
+[-1,1].forEach(sx=>{const w=wheel(.46,.05);w.rotation.y=Math.PI/2;w.position.set(sx*.44,.46,-.08);const spin=new THREE.Group();spin.position.copy(w.position);w.position.set(0,0,0);spin.add(w);wc.add(spin);wheels.push(spin);
+  const cst=wheel(.12,.035);cst.rotation.y=Math.PI/2;const cs=new THREE.Group();cs.position.set(sx*.32,.12,.52);cs.add(cst);wc.add(cs);wheels.push(cs);
+  const leg=new THREE.Mesh(new THREE.BoxGeometry(.04,.5,.04),frameMat);leg.position.set(sx*.32,.38,.42);wc.add(leg);
+  const arm=new THREE.Mesh(new THREE.BoxGeometry(.05,.05,.5),frameMat);arm.position.set(sx*.36,.82,.0);wc.add(arm);
+  const post=new THREE.Mesh(new THREE.BoxGeometry(.04,.62,.04),frameMat);post.position.set(sx*.36,.88,-.28);wc.add(post);
+  const handle=new THREE.Mesh(new THREE.BoxGeometry(.04,.04,.18),frameMat);handle.position.set(sx*.36,1.18,-.36);wc.add(handle);
+});
+const seat=new THREE.Mesh(new THREE.BoxGeometry(.72,.07,.5),bodyMat);seat.position.set(0,.58,.02);wc.add(seat);
+const back=new THREE.Mesh(new THREE.BoxGeometry(.72,.52,.05),bodyMat);back.position.set(0,.88,-.27);back.rotation.x=-.12;wc.add(back);
+const foot=new THREE.Mesh(new THREE.BoxGeometry(.5,.04,.16),frameMat);foot.position.set(0,.16,.58);wc.add(foot);
+/* rider */
+const shirtMat=new THREE.MeshStandardMaterial({color:0x3fe0a8,emissive:0x0f4a38,roughness:.6});
+const pantsMat=new THREE.MeshStandardMaterial({color:0x2a3a52,emissive:0x0a1220,roughness:.7});
+const torso=new THREE.Mesh(new THREE.CylinderGeometry(.18,.22,.56,12),shirtMat);torso.position.set(0,.92,-.1);torso.rotation.x=.08;wc.add(torso);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.15,16,12),skinMat);head.position.set(0,1.36,-.06);wc.add(head);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.155,16,12,0,Math.PI*2,0,Math.PI/2),pantsMat);hair.position.copy(head.position);hair.position.y+=.02;wc.add(hair);
+[-1,1].forEach(sx=>{
+  const th=new THREE.Mesh(new THREE.BoxGeometry(.16,.14,.46),pantsMat);th.position.set(sx*.11,.68,.18);wc.add(th);
+  const sh=new THREE.Mesh(new THREE.BoxGeometry(.13,.42,.13),pantsMat);sh.position.set(sx*.11,.42,.4);wc.add(sh);
+  const shoe=new THREE.Mesh(new THREE.BoxGeometry(.14,.08,.22),frameMat);shoe.position.set(sx*.11,.22,.48);wc.add(shoe);
+  const ua=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.36,8),shirtMat);ua.position.set(sx*.27,1.0,-.1);ua.rotation.z=sx*.25;wc.add(ua);
+  const fa=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.32,8),skinMat);fa.position.set(sx*.36,.78,-.02);fa.rotation.x=.5;wc.add(fa);
+});
+const wcHalo=glowSprite(0x3fe0a8,5,.55);wcHalo.position.y=.1;wc.add(wcHalo);
+const wcRing=new THREE.Mesh(new THREE.RingGeometry(.9,1.05,40),new THREE.MeshBasicMaterial({color:0x3fe0a8,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}));wcRing.rotation.x=-Math.PI/2;wcRing.position.y=.03;wc.add(wcRing);
+const wcLight=new THREE.PointLight(0x3fe0a8,2.2,16,1.6);wcLight.position.y=2.5;wc.add(wcLight);
+wc.scale.setScalar(1.25);scene.add(wc);
+
+/* bus + stop */
+const bus=new THREE.Group();
+const busBody=new THREE.Mesh(new THREE.BoxGeometry(5.4,1.7,1.8),new THREE.MeshStandardMaterial({color:0x2f8fd0,emissive:0x0b2c45,roughness:.5}));busBody.position.y=1.1;bus.add(busBody);
+const busWin=new THREE.Mesh(new THREE.BoxGeometry(5.0,.55,1.84),new THREE.MeshBasicMaterial({color:0xffe2b0}));busWin.position.y=1.45;bus.add(busWin);
+const busRoof=new THREE.Mesh(new THREE.BoxGeometry(5.2,.12,1.6),new THREE.MeshStandardMaterial({color:0xe9eef2}));busRoof.position.y=2.0;bus.add(busRoof);
+[-1.8,1.8].forEach(x=>[-.9,.9].forEach(z=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.2,14),new THREE.MeshStandardMaterial({color:0x111}));w.rotation.x=Math.PI/2;w.position.set(x,.3,z);bus.add(w);}));
+const busLamp=glowSprite(0xfff1c8,3,.9);busLamp.position.set(2.8,.8,0);bus.add(busLamp);
+const busSign=glowSprite(0x5ab8ff,6,.5);busSign.position.set(0,2.3,0);bus.add(busSign);
+bus.position.set(-90,0,29.2);scene.add(bus);
+const stop=new THREE.Group();
+const sMat=new THREE.MeshStandardMaterial({color:0x9fb3c2,emissive:0x0e2a30,metalness:.5});
+const roof=new THREE.Mesh(new THREE.BoxGeometry(3,.1,1.2),sMat);roof.position.y=2.3;stop.add(roof);
+[-1.4,1.4].forEach(x=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.08,2.3,.08),sMat);p.position.set(x,1.15,-.5);stop.add(p);});
+const glass=new THREE.Mesh(new THREE.BoxGeometry(2.8,1.8,.04),new THREE.MeshBasicMaterial({color:0x5ab8ff,transparent:true,opacity:.18}));glass.position.set(0,1.2,-.5);stop.add(glass);
+const stopRing=new THREE.Mesh(new THREE.RingGeometry(1.4,1.6,40),new THREE.MeshBasicMaterial({color:0x3fe0a8,transparent:true,opacity:.8,side:THREE.DoubleSide,depthWrite:false}));stopRing.rotation.x=-Math.PI/2;stopRing.position.y=.04;stop.add(stopRing);
+stop.position.set(4,0,31.6);scene.add(stop);
+
+/* taxi */
+const taxi=new THREE.Group();
+const tb=new THREE.Mesh(new THREE.BoxGeometry(2.6,.6,1.2),new THREE.MeshStandardMaterial({color:0xffd23f,emissive:0x4a3a00,roughness:.4}));tb.position.y=.55;taxi.add(tb);
+const tc=new THREE.Mesh(new THREE.BoxGeometry(1.4,.5,1.1),new THREE.MeshStandardMaterial({color:0x1a2230,emissive:0x0b1018}));tc.position.set(-.1,1.08,0);taxi.add(tc);
+const tsg=new THREE.Mesh(new THREE.BoxGeometry(.5,.18,.3),new THREE.MeshBasicMaterial({color:0xfff6c8}));tsg.position.set(-.1,1.42,0);taxi.add(tsg);
+const tl=glowSprite(0xfff1c8,2.4,.9);tl.position.set(-1.35,.5,0);taxi.add(tl);
+const tglow=glowSprite(0xffd23f,5,.35);tglow.position.y=1.2;taxi.add(tglow);
+taxi.position.set(90,0,-49.2);scene.add(taxi);
+
+/* camera rig */
+const K=[[10,150,175, 0,0,0],[-70,48,75, 0,6,0],[-50,3,49, -46.8,1.4,40.5],[55,34,55, 0,2,0],[4,125,14, 0,0,0],[-40,30,60, -20,0,10],[14,7,41, -7,1.2,29],[22,12,-36, 0,1,-50],[-2,9,31, -10,2.5,20],[0,230,150, 0,0,0],[70,80,105, 0,0,-5]];
+const posCurve=new THREE.CatmullRomCurve3(K.map(k=>new THREE.Vector3(k[0],k[1],k[2])),false,'centripetal');
+const lookCurve=new THREE.CatmullRomCurve3(K.map(k=>new THREE.Vector3(k[3],k[4],k[5])),false,'centripetal');
+
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<720?64:50;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();
+
+const lookV=new THREE.Vector3(),tan=new THREE.Vector3(),chaseP=new THREE.Vector3(),chaseL=new THREE.Vector3(),camP=new THREE.Vector3(),camL=new THREE.Vector3();
+let t0=performance.now();
+function frame(now){
+  const time=(now-t0)/1000;
+  p+=reduce?(target-p):(target-p)*0.07;
+  const u=Math.min(1,Math.max(0,p));
+
+  /* wheelchair along route */
+  const rp=ss(.44,.58,u);
+  const at=Math.min(.9999,Math.max(.0001,rp));
+  wc.position.copy(path.getPointAt(at));tan.copy(path.getTangentAt(at));
+  wc.rotation.y=Math.atan2(tan.x,tan.z);
+  const dist=rp*pathLen;
+  wheels.forEach((w,i)=>{w.rotation.x=dist/(i%2===0?.58:.15);});
+  wc.visible=u>.12&&u<.95;
+  if(!reduce&&rp>0&&rp<1){wc.position.y+=Math.abs(Math.sin(time*9))*.03;}
+  wcRing.scale.setScalar(reduce?1:1+.12*Math.sin(time*3));
+
+  /* camera */
+  posCurve.getPoint(u,camP);lookCurve.getPoint(u,camL);
+  const wch=ss(.43,.47,u)*(1-ss(.57,.61,u));
+  if(wch>0){
+    chaseP.copy(wc.position).addScaledVector(tan,-7).add(new THREE.Vector3(-tan.z*2.5,4.2,tan.x*2.5));
+    chaseL.copy(wc.position).addScaledVector(tan,5);chaseL.y=1.2;
+    camP.lerp(chaseP,wch);camL.lerp(chaseL,wch);
+  }
+  camera.position.copy(camP);
+  if(!reduce){camera.position.x+=Math.sin(time*.3)*.6*(1-wch);camera.position.y+=Math.sin(time*.4)*.3*(1-wch);}
+  camera.lookAt(camL);
+
+  cloudMat.opacity=.11*(1-ss(.06,.14,u))+.03+.06*ss(.85,.9,u)*(1-ss(.95,1,u));
+  clouds.rotation.y=time*.01;
+
+  /* scan */
+  const sp=ss(.25,.37,u);const sx=-85+170*sp;const scanOn=sp>0&&sp<1?1:0;
+  scan.position.x=sx;scanLine.position.x=sx;scanMat.opacity=.07*scanOn;scanLine.material.opacity=.9*scanOn;
+  edgeMat.opacity=.45+.25*scanOn;
+  const mapBoost=ss(.36,.4,u)*(1-ss(.42,.46,u));
+  const complaint=ss(.74,.79,u)*(1-ss(.83,.88,u));
+  markers.forEach(m=>{
+    const r=sp>=1?1:Math.min(1,Math.max(0,(sx-m.x)/12));
+    m.g.visible=r>0.001;
+    const focus=(m===blockedA)?complaint:0;
+    const pulse=reduce?1:1+.15*Math.sin(time*3+m.ph)+focus*.5*Math.sin(time*5);
+    m.beam.scale.set(1+focus*1.5,m.h*r*(1+focus*.6),1+focus*1.5);
+    const hy=m.h*r*(1+focus*.6);m.head.position.y=hy;m.halo.position.y=hy;
+    m.ring.scale.setScalar(r*pulse*(1+mapBoost*.8+focus*2));
+    m.halo.material.opacity=.8*r;m.halo.scale.setScalar(3+focus*6);
+    m.head.scale.setScalar(r*(1+mapBoost*.6+focus*.8));
+  });
+
+  /* route draw */
+  const step=RS*6;
+  const n=Math.floor(tubeGeo.index.count*rp/step)*step;
+  tubeGeo.setDrawRange(0,n);glowGeo.setDrawRange(0,Math.floor(glowGeo.index.count*rp/step)*step);
+  tube.visible=glow.visible=n>0;
+  pinA.visible=pinB.visible=u>.38;
+  dashMat.opacity=.85*ss(.4,.45,u)*(1-ss(.6,.65,u));
+
+  /* bus */
+  bus.position.x=-90+94*ss(.53,.6,u)+90*ss(.64,.7,u)-2.8;
+  stopRing.scale.setScalar(reduce?1:1+.1*Math.sin(time*3));
+  /* taxi */
+  taxi.position.x=90-90*ss(.63,.7,u)-90*ss(.74,.8,u);
+
+  renderer.render(scene,camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

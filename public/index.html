@@ -83,6 +83,7 @@ html[data-theme="dark"] .btn-primary{color:#04121f}
 .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn-dark{background:var(--ink);color:var(--paper)}
 .btn-danger{background:var(--red-weak);color:var(--red);border:1px solid var(--red)}
+.acct-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:650}
 .btn-sm{min-height:36px;padding:6px 10px;font-size:.82rem;border-radius:8px}
 .icon-btn{min-width:var(--tap);padding:8px 10px}
 
@@ -577,6 +578,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
       <option value="en">English</option>
     </select>
     <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки"><i data-ic="gear"></i></button>
+    <a class="btn-ghost btn-sm acct-link" id="acctBtn" href="/login" data-i18n="acctLogin">Войти</a>
   </div>
 </header>
 
@@ -606,6 +608,10 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
       <div class="m-row">
         <button type="button" class="btn-ghost" onclick="toggleView()"><i data-ic="list"></i> <span data-i18n="viewList">Текстовый режим</span></button>
         <a class="btn-ghost m-link" href="/dashboard.html"><i data-ic="chart"></i> <span data-i18n="statsShort">Статистика</span></a>
+      </div>
+      <div class="m-row">
+        <a class="btn-ghost m-link acct-link" id="acctBtn2" href="/login"><span data-i18n="acctLogin">Войти</span></a>
+        <a class="btn-ghost m-link" href="/"><span data-i18n="aboutShort">О проекте</span></a>
       </div>
     </section>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
@@ -1006,6 +1012,7 @@ ru:{
  from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
  viewList:"Текстовый режим", viewMap:"Карта",
+ acctLogin:"Войти", acctProfile:"Профиль", aboutShort:"О проекте",
  profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль",
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
  noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
@@ -1090,6 +1097,7 @@ kk:{
  from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан таңдау",
  hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
  viewList:"Мәтіндік режим", viewMap:"Карта",
+ acctLogin:"Кіру", acctProfile:"Профиль", aboutShort:"Жоба туралы",
  profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль",
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
  noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
@@ -1175,6 +1183,7 @@ en:{
  from:"From", to:"To", build:"Build route", pick:"Pick on map",
  hint:"Type a place, pick a point on the map, or use your location.",
  viewList:"Text mode", viewMap:"Map",
+ acctLogin:"Sign in", acctProfile:"Account", aboutShort:"About",
  profileTitle:"Your mobility profile", profileLabel:"Profile",
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
  noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
@@ -4025,6 +4034,19 @@ function toast(s){
   if("serviceWorker" in navigator){
     window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
   }
+  // Кнопка «Войти» / «Профиль»: сессию Supabase хранит в localStorage под ключом sb-…-auth-token
+  step("account", ()=>{
+    let signedIn=false;
+    try{
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); if(v && v.user){ signedIn=true; break; } }
+      }
+    }catch(e){}
+    if(!signedIn) return;
+    const b=document.getElementById("acctBtn"); if(b){ b.setAttribute("data-i18n","acctProfile"); b.textContent=t("acctProfile"); b.href="/account"; }
+    const b2=document.getElementById("acctBtn2"); if(b2){ b2.href="/account"; const sp=b2.querySelector("span"); if(sp){ sp.setAttribute("data-i18n","acctProfile"); sp.textContent=t("acctProfile"); } }
+  });
 })();
 </script>
 </body></html>
