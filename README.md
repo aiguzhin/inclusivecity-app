@@ -39,6 +39,29 @@ npm-зависимости**, поэтому не нужен даже `npm insta
 - `server.js` — бэкенд: отдаёт статику и API для приёма/хранения отчётов
   (JSON-файл `data/reports.json` + фото в `uploads/`).
 
+## Вход и регистрация (Supabase)
+
+Аккаунты хранятся в Supabase (бесплатный план), а не на диске Render, поэтому не пропадают при деплое.
+
+1. https://supabase.com → New project. В **Project Settings → API** скопируйте *Project URL* и ключ *anon public*.
+2. В Render → сервис → **Environment** добавьте `SUPABASE_URL` и `SUPABASE_ANON_KEY`.
+3. В Supabase **Authentication → URL Configuration**: *Site URL* `https://inclusivecity.uk`,
+   *Redirect URLs* `https://inclusivecity.uk/account*` и `https://inclusivecity.onrender.com/account*`.
+4. Google: в Google Cloud Console создайте OAuth Client ID (Web application) с redirect URI
+   `https://<ref>.supabase.co/auth/v1/callback`, затем вставьте Client ID и Secret в Supabase
+   **Authentication → Providers → Google**.
+5. Встроенная почта Supabase отправляет лишь несколько писем в час — для реального запуска подключите
+   свой SMTP в **Authentication → Emails → SMTP Settings**.
+6. Телефон и SMS-коды: в **Authentication → Providers → Phone** включите провайдер и подключите SMS-сервис
+   (Twilio, MessageBird, Vonage или Textlocal — у него свой аккаунт, SMS платные). Для бесплатной проверки там же
+   можно задать тестовые номера с постоянным кодом (*Test Phone Numbers and OTPs*), SMS на них не отправляются.
+
+Как устроен вход (`public/login.html`): регистрация по телефону (код из SMS) или по почте (ссылка в письме),
+вход по телефону или почте с паролем, «Забыли пароль?» — для телефона код в SMS и новый пароль,
+для почты — ссылка на `/account?reset=1`.
+
+Apple (нужен Apple Developer, $99/год) и eGov пока показаны как «скоро».
+
 ## Запуск локально
 
 ```bash

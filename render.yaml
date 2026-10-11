@@ -9,6 +9,11 @@ services:
     envVars:
       - key: ADMIN_TOKEN
         sync: false
+      # Вход и регистрация (Supabase → Project Settings → API)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
     # На бесплатном плане Render постоянный диск недоступен — данные и фото
     # обнуляются при каждом передеплое/перезапуске. Чтобы это исправить,
     # перейдите на платный план и раскомментируйте блок ниже:

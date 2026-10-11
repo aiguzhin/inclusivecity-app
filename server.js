@@ -711,7 +711,17 @@ const server = http.createServer(async (req, res) => {
       return serveFile(res, filePath);
     }
 
-    if (pathname === '/' ) return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
+    // Главная — лендинг, приложение с картой — /map (старый /index.html тоже открывает карту)
+    if (pathname === '/') return serveFile(res, path.join(PUBLIC_DIR, 'landing.html'));
+    if (pathname === '/map' || pathname === '/map/') return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
+    if (pathname === '/login' || pathname === '/account') return serveFile(res, path.join(PUBLIC_DIR, 'login.html'));
+    // Ключи Supabase для входа: берутся из переменных окружения Render (anon-ключ публичный по замыслу Supabase)
+    if (pathname === '/auth-config.js') {
+      const cfg = { url: process.env.SUPABASE_URL || '', anonKey: process.env.SUPABASE_ANON_KEY || '' };
+      const body = 'window.ICITY_AUTH=' + JSON.stringify(cfg) + ';';
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store', 'Content-Length': Buffer.byteLength(body) });
+      return res.end(body);
+    }
     if (pathname === '/admin' || pathname === '/admin.html') return serveFile(res, path.join(PUBLIC_DIR, 'admin.html'));
 
     const bm = pathname.match(/^\/bus-([a-z]+)\.json$/);
