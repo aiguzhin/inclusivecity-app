@@ -265,6 +265,8 @@ function safeJoin(baseDir, requestedPath) {
 }
 
 async function handleApi(req, res, pathname) {
+  // Серік — ИИ-помощник (GET — включён ли, POST — ответ)
+  if (pathname === '/api/assistant') return await assistant.handle(req, res, { readBody, sendJson });
   if (pathname === '/api/health' && req.method === 'GET') {
     return sendJson(res, 200, { ok: true });
   }
@@ -444,6 +446,7 @@ async function handleApi(req, res, pathname) {
 // Сервер берёт свежую версию прямо из GitHub (без передеплоя, жалобы не теряются),
 // держит её в data/bus/ и раздаёт как /bus-<город>.json. Если GitHub недоступен —
 // отдаёт копию из самого репозитория, а если нет и её — собирает город из Overpass.
+const assistant = require('./assistant');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');

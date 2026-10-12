@@ -14,6 +14,9 @@ services:
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
+      # ИИ-помощник Серік (console.anthropic.com → API Keys)
+      - key: ANTHROPIC_API_KEY
+        sync: false
     # На бесплатном плане Render постоянный диск недоступен — данные и фото
     # обнуляются при каждом передеплое/перезапуске. Чтобы это исправить,
     # перейдите на платный план и раскомментируйте блок ниже:
