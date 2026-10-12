@@ -26,6 +26,7 @@ body{margin:0;min-height:100vh;font:16px/1.55 var(--f-body);padding-inline:16px;
 .top{max-width:460px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:calc(env(safe-area-inset-top,0px) + 18px) 10px}
 .brand{display:flex;align-items:center;gap:10px;font:800 17px var(--f-display);color:var(--fg);text-decoration:none}
 .brand b{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--ok);color:var(--ok-ink);font-size:15px}
+.mob{margin:0 0 22px}.mob select{width:100%;min-height:48px;font-size:15px;border-radius:12px;padding:10px 12px}.mob small{color:var(--soft);font-size:12px}
 select{font:inherit;font-size:14px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
 main{max-width:460px;margin:18px auto 40px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px}
@@ -214,6 +215,10 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
         <dt data-t="accVia">Способ входа</dt><dd id="accVia"></dd>
         <dt data-t="accSince">С нами с</dt><dd id="accSince"></dd>
       </dl>
+      <label class="mob" for="accMob"><span data-t="mobLabel">Профиль передвижения</span>
+        <select id="accMob"></select>
+        <small data-t="mobHelp">По нему карта подбирает маршрут: уклоны, ступени, бордюры. Сохраняется в аккаунте.</small>
+      </label>
       <div class="actions">
         <a class="submit" href="/map" data-t="openMap">Открыть карту</a>
         <button type="button" class="ghost" id="logoutBtn" data-t="logout">Выйти</button>
@@ -243,7 +248,7 @@ ru:{titleLogin:"Вход в ICity",titleSignup:"Регистрация в ICity"
  checkTitle:"Проверь почту",checkText:"Мы отправили ссылку на",checkText2:"Открой письмо и перейди по ссылке, чтобы закончить.",back:"Назад ко входу",
  forgotTitle:"Восстановить пароль",forgotLead:"Введи номер или почту, с которыми регистрировался. На телефон придёт код в SMS, на почту — ссылка.",restore:"Восстановить",
  resetTitle:"Новый пароль",newPassword:"Новый пароль",savePw:"Сохранить пароль",pwSaved:"Пароль обновлён.",
- accTitle:"Твой профиль",accVia:"Способ входа",accSince:"С нами с",openMap:"Открыть карту",logout:"Выйти",viaEmail:"Почта",viaPhone:"Телефон",none:"не указан",
+ mobLabel:"Профиль передвижения",mobHelp:"По нему карта подбирает маршрут: уклоны, ступени, бордюры. Сохраняется в аккаунте.",mobSaved:"Профиль сохранён",accTitle:"Твой профиль",accVia:"Способ входа",accSince:"С нами с",openMap:"Открыть карту",logout:"Выйти",viaEmail:"Почта",viaPhone:"Телефон",none:"не указан",
  offTitle:"Вход скоро заработает",offText:"Регистрация временно недоступна. Картой можно пользоваться и без аккаунта.",
  eIdent:"Введи номер в формате +7 701 123 45 67 или почту.",eName:"Напиши, как тебя зовут.",ePhone:"Номер должен состоять из 10 цифр после +7.",eEmail:"Введи почту в формате name@mail.kz.",ePw:"Пароль должен быть не короче 8 символов.",
  eCreds:"Неверный телефон, почта или пароль.",eExists:"Этот номер или почта уже зарегистрированы. Попробуй войти.",eConfirm:"Сначала подтверди почту: ссылка в письме.",
@@ -260,7 +265,7 @@ kk:{titleLogin:"ICity-ге кіру",titleSignup:"ICity-де тіркелу",lea
  checkTitle:"Поштаңды тексер",checkText:"Сілтемені мына мекенжайға жібердік:",checkText2:"Аяқтау үшін хатты ашып, сілтемеге өт.",back:"Кіруге оралу",
  forgotTitle:"Құпиясөзді қалпына келтіру",forgotLead:"Тіркелген нөмірді немесе поштаны енгіз. Телефонға SMS-код, поштаға сілтеме келеді.",restore:"Қалпына келтіру",
  resetTitle:"Жаңа құпиясөз",newPassword:"Жаңа құпиясөз",savePw:"Құпиясөзді сақтау",pwSaved:"Құпиясөз жаңартылды.",
- accTitle:"Сенің профилің",accVia:"Кіру тәсілі",accSince:"Бізбен бірге",openMap:"Картаны ашу",logout:"Шығу",viaEmail:"Пошта",viaPhone:"Телефон",none:"көрсетілмеген",
+ mobLabel:"Жүріп-тұру ерекшелігі",mobHelp:"Карта бағытты соған қарай таңдайды: еңіс, баспалдақ, бордюр. Аккаунтта сақталады.",mobSaved:"Сақталды",accTitle:"Сенің профилің",accVia:"Кіру тәсілі",accSince:"Бізбен бірге",openMap:"Картаны ашу",logout:"Шығу",viaEmail:"Пошта",viaPhone:"Телефон",none:"көрсетілмеген",
  offTitle:"Кіру жақында іске қосылады",offText:"Тіркелу уақытша қолжетімсіз. Картаны аккаунтсыз да қолдануға болады.",
  eIdent:"Нөмірді +7 701 123 45 67 түрінде немесе поштаны енгіз.",eName:"Атыңды жаз.",ePhone:"Нөмір +7-ден кейін 10 цифрдан тұруы керек.",eEmail:"Поштаны name@mail.kz түрінде енгіз.",ePw:"Құпиясөз кемінде 8 таңба болуы керек.",
  eCreds:"Телефон, пошта немесе құпиясөз қате.",eExists:"Бұл нөмір немесе пошта тіркелген. Кіріп көр.",eConfirm:"Алдымен поштаңды раста: сілтеме хатта.",
@@ -277,7 +282,7 @@ en:{titleLogin:"Sign in to ICity",titleSignup:"Join ICity",leadLogin:"Save your 
  checkTitle:"Check your email",checkText:"We sent a link to",checkText2:"Open it to finish.",back:"Back to sign in",
  forgotTitle:"Reset password",forgotLead:"Enter the phone or email you signed up with. A phone gets an SMS code, an email gets a link.",restore:"Reset",
  resetTitle:"New password",newPassword:"New password",savePw:"Save password",pwSaved:"Password updated.",
- accTitle:"Your account",accVia:"Signed in with",accSince:"Member since",openMap:"Open the map",logout:"Sign out",viaEmail:"Email",viaPhone:"Phone",none:"not set",
+ mobLabel:"Mobility profile",mobHelp:"The map uses it to plan routes: slopes, steps, kerbs. Saved to your account.",mobSaved:"Profile saved",accTitle:"Your account",accVia:"Signed in with",accSince:"Member since",openMap:"Open the map",logout:"Sign out",viaEmail:"Email",viaPhone:"Phone",none:"not set",
  offTitle:"Sign-in is coming soon",offText:"Accounts are temporarily unavailable. You can use the map without one.",
  eIdent:"Enter a phone like +7 701 123 45 67 or an email.",eName:"Tell us your name.",ePhone:"The number needs 10 digits after +7.",eEmail:"Enter an email like name@mail.kz.",ePw:"Password must be at least 8 characters.",
  eCreds:"Wrong phone, email or password.",eExists:"This phone or email is already registered. Try signing in.",eConfirm:"Confirm your email first: the link is in your inbox.",
@@ -290,6 +295,12 @@ const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
 const t=k=>(T[lang]&&T[lang][k])||T.ru[k]||k;
+document.addEventListener("change",async e=>{
+  if(!e.target||e.target.id!=="accMob") return;
+  const v=e.target.value; try{ localStorage.setItem("ic_profile",v); }catch(err){}
+  try{ if(typeof sb!=="undefined"&&sb){ const {data,error}=await sb.auth.updateUser({data:{mobility:v}}); if(!error&&data&&data.user) currentUser=data.user; } }catch(err){}
+  if(typeof msg==="function") msg(t("mobSaved"),"ok");
+});
 let mode=location.hash==="#signup"?"signup":"login";
 let method="phone";          // способ регистрации: phone | email
 let currentUser=null;
@@ -370,7 +381,23 @@ function errText(e){
 }
 function busy(form,on){form.querySelectorAll("button[type=submit]").forEach(b=>b.disabled=on)}
 
+// Профиль передвижения — тот же список, что на карте; хранится в аккаунте (user_metadata.mobility) и в этом браузере (ic_profile)
+const MOB={wheelchair_manual:["Кресло-коляска (механическая)","Механикалық арба","Manual wheelchair"],
+  wheelchair_power:["Кресло-коляска (электрическая)","Электр арба","Power wheelchair"],
+  crutches:["Трость, ходунки, костыли","Таяқ, жүргіш","Cane, walker, crutches"],
+  blind:["Незрячий / слабовидящий","Көзі нашар көретін","Blind / low vision"],
+  deaf:["Глухой / слабослышащий","Естімейтін","Deaf / hard of hearing"],
+  stroller:["С детской коляской","Бала арбасымен","With a stroller"],
+  temporary:["Временная травма","Уақытша жарақат","Temporary injury"]};
+function fillMob(u){
+  const sel=$("accMob"); if(!sel) return; const li={ru:0,kk:1,en:2}[lang]||0;
+  let cur=(u&&u.user_metadata&&u.user_metadata.mobility)||""; try{ cur=cur||localStorage.getItem("ic_profile")||""; }catch(e){}
+  if(!MOB[cur]) cur="wheelchair_manual";
+  sel.innerHTML=Object.entries(MOB).map(([k,v])=>`<option value="${k}">${v[li]}</option>`).join(""); sel.value=cur;
+  try{ localStorage.setItem("ic_profile",cur); }catch(e){}
+}
 function fillAccount(u){
+  fillMob(u);
   const meta=u.user_metadata||{};
   const name=meta.full_name||meta.name||(u.email||"").split("@")[0]||fmtPhone(u.phone);
   $("accName").textContent=name;

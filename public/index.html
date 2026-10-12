@@ -10,6 +10,9 @@
 <meta name="description" content="ICity — доступная карта Казахстана для людей с инвалидностью: безбарьерные маршруты, автобусы и такси, пандусы, лифты и жалобы на барьеры в 22 городах.">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+<link rel="dns-prefetch" href="https://server.arcgisonline.com">
+<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 :root{
@@ -205,9 +208,12 @@ h1.title{font-size:1.4rem;line-height:1.2;margin:0 0 14px;letter-spacing:-.5px}
 }
 
 /* ===== 3D-вид — прямо на месте карты, весь интерфейс остаётся поверх (как в 2ГИС) ===== */
-.view3d{position:absolute;inset:0;z-index:450;background:#cfd9e2}
+.view3d{position:absolute;inset:0;z-index:450;background:transparent;opacity:0;transition:opacity .35s ease}
+body.is3d-ready .view3d{opacity:1;background:#cfd9e2}
+html[data-motion="off"] .view3d{transition:none}
 .view3d[hidden]{display:none}
-body.is3d #map,body.is3d .img-info{visibility:hidden}
+/* обычная карта прячется только когда 3D уже нарисовалась — во время перехода ничего не пропадает */
+body.is3d-ready #map,body.is3d-ready .img-info{visibility:hidden}
 #map3d{position:absolute;inset:0}
 .v3-btn{min-width:var(--tap);min-height:var(--tap);border-radius:12px;border:1px solid var(--line);
   background:var(--card);color:var(--ink);font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
@@ -629,7 +635,22 @@ html[data-theme="dark"] .sk-send{color:#04121f}
 }
 /* Голосовые подсказки: подсветка элемента, который сейчас назван */
 .hint-armed{outline:3px solid var(--focus)!important;outline-offset:2px}
+/* 3D включается жестом (два пальца вверх / правая кнопка мыши), отдельные кнопки 3D не нужны */
+.map-btn.map-3d,#quick3d{display:none!important}
 html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summary,html[data-hints="on"] label{touch-action:manipulation}
+.prof-chip{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;text-align:left;cursor:pointer}
+.prof-chip .ic{width:22px;height:22px;flex:none;color:var(--blue)}
+#profChipIco{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue-weak);flex:none}
+.prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.prof-opt{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:.86rem;text-align:left;cursor:pointer;line-height:1.25}
+.prof-opt .ic{width:26px;height:26px;flex:none;color:var(--blue)}
+.prof-opt[aria-checked="true"]{border-color:var(--blue);background:var(--blue-weak);box-shadow:inset 0 0 0 1px var(--blue);font-weight:700}
+/* «Схема / Спутник» — теперь в Настройках → Вид карты, на самой карте не мешают */
+.basemap-ctl{display:none!important}
+/* в шторке телефона тоже: вид карты, тема, язык — всё в «Настройках» и в меню «три линии» */
+.m-menu{display:none!important}
+.prof-chip>span:nth-of-type(1){flex:1;min-width:0}
+.prof-edit{color:var(--blue);font-weight:700;font-size:.85rem;flex:none}
 .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* Фото и отзывы в карточке места */
 .pc-media[hidden]{display:none}
@@ -758,13 +779,10 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
     <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
 
 
-    <div class="card">
-      <h2 data-i18n="profileTitle">Ваш профиль передвижения</h2>
-      <p class="small muted" data-i18n="profileHelp">От него зависят предупреждения о склонах, ступенях и порогах.</p>
-      <label class="field" for="profileSel"><span data-i18n="profileLabel">Профиль</span></label>
-      <select id="profileSel" onchange="setProfile(this.value)"></select>
-      <p class="small muted" id="profileNote" style="margin-top:8px"></p>
-    </div>
+    <!-- Профиль передвижения живёт в настройках аккаунта; здесь — только напоминание, по какому профилю строим -->
+    <button type="button" class="prof-chip" onclick="openProfileSettings()" aria-describedby="profChipHint">
+      <span id="profChipIco"><i data-ic="wc"></i></span><span><span data-i18n="profileLabel">Профиль</span>: <b id="profChip"></b></span><span class="prof-edit" id="profChipHint" data-i18n="profEdit">Изменить</span>
+    </button>
 
     <label class="field" for="start"><span data-i18n="from">Откуда</span></label>
     <div class="row">
@@ -917,11 +935,13 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
       <p class="gl-hint" data-i18n="glHint">Крутите Землю пальцем или мышью. Приблизьте — откроется карта.</p>
       <p class="gl-load" id="globeLoad" data-i18n="glLoading">Загружаем Землю…</p>
       <div class="gl-ui">
+        <button type="button" class="gl-btn" onclick="globeShow('sun')" data-i18n-aria="glSunBtn" aria-label="Показать Солнце">☀</button>
+        <button type="button" class="gl-btn" onclick="globeShow('moon')" data-i18n-aria="glMoonBtn" aria-label="Показать Луну">☾</button>
         <button type="button" class="gl-btn" onclick="globeZoom(.8)" data-i18n-aria="glIn" aria-label="Приблизить">+</button>
         <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить">−</button>
         <button type="button" class="gl-btn wide" onclick="globeToMap()" data-i18n="glBack">К карте</button>
       </div>
-      <p class="gl-attr">NASA Blue Marble · Earth at Night · Moon: NASA / three.js</p>
+      <p class="gl-attr">NASA Blue Marble · Black Marble · Moon, clouds: NASA / three.js · Sky: three-globe</p>
     </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
@@ -942,6 +962,15 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
     </div>
     <!-- Настройки разделами: открывается только тот, на который нажали -->
     <div class="settings-grid" id="setSecs">
+      <details class="set-sec" name="settings" id="secProfile">
+        <summary><span data-i18n="profileTitle">Ваш профиль передвижения</span><b class="set-val" id="svProfile"></b></summary>
+        <div class="set-body">
+          <p class="small muted" style="margin:0 0 8px" data-i18n="profileHelp">От него зависят предупреждения о склонах, ступенях и порогах.</p>
+          <div class="prof-grid" id="profGrid" role="radiogroup" data-i18n-aria="profileLabel" aria-label="Профиль"></div>
+          <p class="small muted" id="profileNote" style="margin-top:8px"></p>
+          <p class="small" style="margin:6px 0 0"><a href="/account" data-i18n="profSync">Сохранить в аккаунте</a></p>
+        </div>
+      </details>
       <details class="set-sec" name="settings">
         <summary><span data-i18n="basemapLabel">Вид карты</span><b class="set-val" id="svMap"></b></summary>
         <div class="set-body"><div class="m-maps set-maps" id="setMaps" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты"></div></div>
@@ -1124,6 +1153,12 @@ const ICONS={
   flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
   stop:'<path d="M12 21V10"/><rect x="6.5" y="3" width="11" height="7" rx="1.5"/><path d="M9.5 6.5h5"/>',
   wc:'<circle cx="11" cy="4" r="1.8"/><path d="M11 7v6h5l2 5M11 10h4"/><path d="M8.5 11.2A5 5 0 1 0 14.8 18"/>',
+  wcp:'<circle cx="10" cy="4" r="1.8"/><path d="M10 7v6h5l2 5M10 10h4"/><path d="M7.5 11.2A5 5 0 1 0 13.8 18"/><path d="M20 2l-2.2 3.6h2.6L18 9.5"/>',
+  stroller:'<path d="M2.5 4.5H5l1.6 4.5"/><path d="M6 9h13a6.5 6.5 0 0 1-13 0z"/><path d="M12.5 9V2.5A6.5 6.5 0 0 1 19 9"/><circle cx="8.5" cy="19.5" r="1.8"/><circle cx="16.5" cy="19.5" r="1.8"/>',
+  cane:'<circle cx="10" cy="3.8" r="1.8"/><path d="M10 7l-1 6 2.5 3 1 5M9 13l-2.5 8M9.5 8.5l4.5 2.5"/><path d="M14 11v10"/>',
+  blind:'<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 3.5 20 20.5"/>',
+  deaf:'<path d="M7 9.5a5 5 0 0 1 10 0c0 3.2-3 4-3 7a3 3 0 0 1-5.6 1.5"/><path d="M10 9.5a2 2 0 0 1 4 0c0 1.6-1.6 2-1.6 3.4"/><path d="M3.5 3.5 20.5 20.5"/>',
+  crutch:'<path d="M8.5 3h7M12 3v16M9.5 10h5M9.5 21h5"/><path d="M12 19v2"/>',
   car:'<path d="M5 16.5V12l2-5h10l2 5v4.5z"/><path d="M5 12h14M7.5 16.5V19M16.5 16.5V19M8 14h.01M16 14h.01"/>',
   map:'<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>',
   sat:'<rect x="9.2" y="9.2" width="5.6" height="5.6" rx="1" transform="rotate(45 12 12)"/><path d="m3 9 5.5-5.5M15.5 20.5 21 15M6 6l3 3M15 15l3 3"/>',
@@ -1182,7 +1217,7 @@ ru:{
  busSearching:"Ищем автобусы…", busNone:"Автобусов не нашли — даже с пересадками", busFewRoutes:"В открытых картах OpenStreetMap у этого города всего {n} маршр. — поездку с пересадками построить не из чего. Точные маршруты и время — в 2ГИС, Яндексе или Avtobys ниже.", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты этого города ещё готовятся",
  busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
- busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной, как в 2ГИС", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
+ busWalkTo:"Пешком {m} м до остановки «{s}»", busRide:"{n} ост.", busToward:"в сторону «{d}»", busTransfer:"Пересадка: выйдите на «{s1}», пройдите {m} м до «{s2}»", busDirect:"без пересадок", busOneChange:"с одной пересадкой", busChanges:"пересадок: {n}", view3dTitle:"3D-вид", v3Hint:"Двумя пальцами: вверх-вниз — наклон, вращение — поворот. Опустите карту до плоской — вернётесь в обычный вид.", tiltHint:"Проведите двумя пальцами вверх — карта станет объёмной", tiltHintPc:"Зажмите правую кнопку мыши и потяните вверх — карта станет объёмной", walk:"Прогулка", walkFwd:"Вперёд", walkBack:"Назад", walkLeft:"Повернуть налево", walkRight:"Повернуть направо", noWebgl:"На этом устройстве 3D недоступен", imgInfo:"Снимок: {date} · {res} см/пикс", busNote2gis:"Маршруты и время в пути — по данным 2ГИС.",
  busGetOff:"Выйдите на «{s}» и пройдите {m} м", busNote:"Маршруты автобусов — по данным OpenStreetMap, расписание и пробки не учитываются.",
  busOptions:"Другие варианты", pcLoading:"Ищем адрес и сведения о месте…", pcPoint:"Точка на карте", pcHours:"Часы работы", pcWa:"WhatsApp", pcIg:"Instagram", pcTg:"Telegram", pcSite:"Сайт", pc2gis:"Отзывы и фото в 2ГИС", pcOk:"Доступно для коляски", pcLimited:"Доступно частично", pcNo:"Недоступно для коляски", pcUnknown:"Нет данных о доступности", pcNoData:"Подробностей о доступности пока нет — помогите их добавить.", pcRoute:"Маршрут сюда", pcBarrier:"Барьер здесь", pcCall:"Позвонить", pcEdit:"Исправить данные в OpenStreetMap", pcfWc:"Вход для коляски", pcfWcL:"Вход частично доступен", pcfWcNo:"Вход недоступен", pcfRamp:"Есть пандус", pcfRampL:"Пандус неудобный", pcfRampNo:"Нет пандуса", pcfToilet:"Доступный туалет", pcfToiletL:"Туалет частично доступен", pcfToiletNo:"Нет доступного туалета", pcfLift:"Есть лифт", pcfLiftL:"Лифт работает не всегда", pcfLiftNo:"Нет лифта", pcfTactile:"Тактильная плитка", pcfTactileL:"Плитка частично", pcfTactileNo:"Нет тактильной плитки", pcfSound:"Звуковой сигнал", pcfSoundL:"Звук частично", pcfSoundNo:"Без звука", pcfDoor:"Дверь {w} м", pcfSteps:"Ступенек: {n}", pcfKerb:"Бордюр: {v}", pcfParking:"Мест для инвалидов: {n}", busAutoRetry:"Обновим сами через несколько секунд. А пока поездку можно посмотреть здесь:", wbTitle:"История снимков", wbNow:"Сейчас", wbLoading:"Ищем снимки этого места…", wbFail:"Архив снимков сейчас недоступен", wbShown:"Архивный снимок: {d}", wbNote:"Даты, когда снимок этого места обновлялся. Архив Esri Wayback.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Вид транспорта", busKindAll:"Все", busKindB:"Автобусы", busKindT:"Троллейбусы", busKindM:"Маршрутки", busKindR:"Трамваи", busKindNone:"На этом виде транспорта поездку не нашли", busNoDataHelp:"В открытых картах OpenStreetMap маршруты этого города ещё не нарисованы. Номера автобусов и время смотрите в 2ГИС, Яндексе или Avtobys — ниже ближайшие остановки.", busNearStart:"Ближайшая остановка к вам: «{s}», {m} м", busNearEnd:"У места назначения: «{s}», {m} м", busLive:"Автобусы онлайн и расписание:", bus2gis:"Открыть в 2ГИС", bus2gisSub:"все маршруты города, пересадки", busYandex:"Яндекс Карты", busYandexSub:"транспорт в реальном времени", busAvtobys:"Avtobys", busAvtobysSub:"где автобус сейчас, оплата проезда", busArrive:"прибытие в {t}", busWalkTotal:"пешком {m} м", busWalkFaster:"Пешком примерно столько же — ~{n} мин", busStop:"Остановка", wcOk:"остановка отмечена как доступная", wcNo:"остановка отмечена как недоступная для коляски",
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
@@ -1209,7 +1244,7 @@ ru:{
  viewList:"Текстовый режим", viewMap:"Карта",
  acctLogin:"Войти", acctProfile:"Профиль", aboutShort:"О проекте",
  mmSignin:"Вход и регистрация", mmGuestSub:"Сохраняй маршруты и жалобы", mmMenu:"Меню",
- profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль",
+ profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль", profEdit:"Изменить", profSync:"Сохранить в аккаунте",
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
  noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
  nearbyTitle:"Объекты рядом", nearbyHelp:"Включите слои кнопками на карте — список появится здесь и в текстовом режиме.",
@@ -1268,7 +1303,7 @@ kk:{
  busSearching:"Автобустар ізделуде…", busNone:"Ауысумен де автобус табылмады", busFewRoutes:"OpenStreetMap-те бұл қалада тек {n} бағыт бар — ауысумен жол құру мүмкін емес. Нақты бағыттар — төмендегі 2ГИС, Яндекс немесе Avtobys-та.", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың бағыттары әлі дайындалуда",
  busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
- busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
+ busWalkTo:"«{s}» аялдамасына дейін жаяу {m} м", busRide:"{n} аялдама", busToward:"«{d}» бағытында", busTransfer:"Ауысу: «{s1}» аялдамасында түсіп, «{s2}» аялдамасына дейін {m} м жүріңіз", busDirect:"ауысусыз", busOneChange:"бір ауысумен", busChanges:"ауысу саны: {n}", view3dTitle:"3D көрініс", v3Hint:"Екі саусақпен: жоғары-төмен — еңкейту, айналдыру — бұру. Картаны жазық күйге түсірсеңіз — кәдімгі көрініске ораласыз.", tiltHint:"Екі саусақпен жоғары жүргізіңіз — карта көлемді болады", tiltHintPc:"Тінтуірдің оң жақ батырмасын басып, жоғары тартыңыз — карта көлемді болады", walk:"Серуен", walkFwd:"Алға", walkBack:"Артқа", walkLeft:"Солға бұрылу", walkRight:"Оңға бұрылу", noWebgl:"Бұл құрылғыда 3D қолжетімсіз", imgInfo:"Сурет: {date} · {res} см/пикс", busNote2gis:"Бағыттар мен жол уақыты — 2ГИС деректері бойынша.",
  busGetOff:"«{s}» аялдамасында түсіп, {m} м жүріңіз", busNote:"Автобус бағыттары OpenStreetMap деректері бойынша, кесте мен кептеліс есептелмейді.",
  busOptions:"Басқа нұсқалар", pcLoading:"Мекенжай мен мәлімет ізделуде…", pcPoint:"Картадағы нүкте", pcHours:"Жұмыс уақыты", pcWa:"WhatsApp", pcIg:"Instagram", pcTg:"Telegram", pcSite:"Сайт", pc2gis:"2ГИС-тегі пікірлер мен фото", pcOk:"Арбаға қолжетімді", pcLimited:"Ішінара қолжетімді", pcNo:"Арбаға қолжетімсіз", pcUnknown:"Қолжетімділік туралы дерек жоқ", pcNoData:"Қолжетімділік туралы толық мәлімет әзірге жоқ — қосуға көмектесіңіз.", pcRoute:"Осында бағыт", pcBarrier:"Мұнда кедергі", pcCall:"Қоңырау шалу", pcEdit:"OpenStreetMap-те түзету", pcfWc:"Арбамен кіруге болады", pcfWcL:"Кіреберіс ішінара қолжетімді", pcfWcNo:"Кіреберіс қолжетімсіз", pcfRamp:"Пандус бар", pcfRampL:"Пандус ыңғайсыз", pcfRampNo:"Пандус жоқ", pcfToilet:"Қолжетімді дәретхана", pcfToiletL:"Дәретхана ішінара қолжетімді", pcfToiletNo:"Қолжетімді дәретхана жоқ", pcfLift:"Лифт бар", pcfLiftL:"Лифт үнемі жұмыс істемейді", pcfLiftNo:"Лифт жоқ", pcfTactile:"Тактильді жол", pcfTactileL:"Тактильді жол ішінара", pcfTactileNo:"Тактильді жол жоқ", pcfSound:"Дыбыстық белгі", pcfSoundL:"Дыбыс ішінара", pcfSoundNo:"Дыбыссыз", pcfDoor:"Есік {w} м", pcfSteps:"Баспалдақ: {n}", pcfKerb:"Жиек тас: {v}", pcfParking:"Мүгедектерге орын: {n}", busAutoRetry:"Бірнеше секундтан кейін өзіміз жаңартамыз. Әзірге жолды мұнда қарауға болады:", wbTitle:"Суреттер тарихы", wbNow:"Қазір", wbLoading:"Осы жердің суреттері ізделуде…", wbFail:"Суреттер мұрағаты қазір қолжетімсіз", wbShown:"Мұрағат суреті: {d}", wbNote:"Осы жердің суреті жаңарған күндер. Esri Wayback мұрағаты.", kindBus:"Автобус", kindTrolley:"Троллейбус", kindMinibus:"Маршрутка", kindTram:"Трамвай", busKindLabel:"Көлік түрі", busKindAll:"Барлығы", busKindB:"Автобустар", busKindT:"Троллейбустар", busKindM:"Маршруткалар", busKindR:"Трамвайлар", busKindNone:"Бұл көлік түрімен жол табылмады", busNoDataHelp:"OpenStreetMap ашық карталарында бұл қаланың бағыттары әлі жоқ. Автобус нөмірлері мен уақытын 2ГИС, Яндекс немесе Avtobys-тан қараңыз — төменде ең жақын аялдамалар.", busNearStart:"Сізге ең жақын аялдама: «{s}», {m} м", busNearEnd:"Баратын жерге жақын: «{s}», {m} м", busLive:"Автобустар онлайн және кесте:", bus2gis:"2ГИС-те ашу", bus2gisSub:"қаланың барлық бағыттары", busYandex:"Яндекс Карталар", busYandexSub:"көлік нақты уақытта", busAvtobys:"Avtobys", busAvtobysSub:"автобус қазір қайда, жол ақысы", busArrive:"{t} жетесіз", busWalkTotal:"жаяу {m} м", busWalkFaster:"Жаяу шамамен осынша — ~{n} мин", busStop:"Аялдама", wcOk:"аялдама қолжетімді деп белгіленген", wcNo:"аялдама арбаға қолжетімсіз деп белгіленген",
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
@@ -1295,7 +1330,7 @@ kk:{
  viewList:"Мәтіндік режим", viewMap:"Карта",
  acctLogin:"Кіру", acctProfile:"Профиль", aboutShort:"Жоба туралы",
  mmSignin:"Кіру және тіркелу", mmGuestSub:"Бағыттар мен шағымдарды сақта", mmMenu:"Мәзір",
- profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль",
+ profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль", profEdit:"Өзгерту", profSync:"Аккаунтта сақтау",
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
  noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
  nearbyTitle:"Жақын маңдағы нысандар", nearbyHelp:"Картадағы түймелер арқылы қабаттарды қосыңыз — тізім осы жерде және мәтіндік режимде шығады.",
@@ -1355,7 +1390,7 @@ en:{
  busSearching:"Looking for buses…", busNone:"No buses found, even with transfers", busFewRoutes:"OpenStreetMap has only {n} routes for this city, too few to build a trip with transfers. See exact routes in 2GIS, Yandex or Avtobys below.", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Routes for this city are still being prepared",
  busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
- busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
+ busWalkTo:"Walk {m} m to the «{s}» stop", busRide:"{n} stops", busToward:"towards «{d}»", busTransfer:"Change: get off at «{s1}», walk {m} m to «{s2}»", busDirect:"no changes", busOneChange:"one change", busChanges:"{n} changes", view3dTitle:"3D view", v3Hint:"Two fingers: up and down to tilt, twist to rotate. Tilt all the way back down to return to the flat map.", tiltHint:"Swipe up with two fingers to see the map in 3D", tiltHintPc:"Hold the right mouse button and drag up to see the map in 3D", walk:"Walk", walkFwd:"Forward", walkBack:"Back", walkLeft:"Turn left", walkRight:"Turn right", noWebgl:"3D is not available on this device", imgInfo:"Imagery: {date} · {res} cm/px", busNote2gis:"Routes and travel times come from 2GIS.",
  busGetOff:"Get off at «{s}» and walk {m} m", busNote:"Bus routes come from OpenStreetMap; timetables and traffic are not considered.",
  busOptions:"Other options", pcLoading:"Looking up the address and details…", pcPoint:"Point on the map", pcHours:"Opening hours", pcWa:"WhatsApp", pcIg:"Instagram", pcTg:"Telegram", pcSite:"Website", pc2gis:"Reviews and photos in 2GIS", pcOk:"Wheelchair accessible", pcLimited:"Partly accessible", pcNo:"Not wheelchair accessible", pcUnknown:"No accessibility data", pcNoData:"No accessibility details yet — help add them.", pcRoute:"Route here", pcBarrier:"Barrier here", pcCall:"Call", pcEdit:"Fix the data in OpenStreetMap", pcfWc:"Step-free entrance", pcfWcL:"Entrance partly accessible", pcfWcNo:"Entrance not accessible", pcfRamp:"Has a ramp", pcfRampL:"Ramp is awkward", pcfRampNo:"No ramp", pcfToilet:"Accessible toilet", pcfToiletL:"Toilet partly accessible", pcfToiletNo:"No accessible toilet", pcfLift:"Has an elevator", pcfLiftL:"Elevator not always working", pcfLiftNo:"No elevator", pcfTactile:"Tactile paving", pcfTactileL:"Partial tactile paving", pcfTactileNo:"No tactile paving", pcfSound:"Audible signal", pcfSoundL:"Partly audible", pcfSoundNo:"No sound", pcfDoor:"Door {w} m", pcfSteps:"Steps: {n}", pcfKerb:"Kerb: {v}", pcfParking:"Disabled spaces: {n}", busAutoRetry:"We will refresh this automatically in a few seconds. Meanwhile you can check the trip here:", wbTitle:"Imagery history", wbNow:"Now", wbLoading:"Looking for images of this place…", wbFail:"The imagery archive is unavailable right now", wbShown:"Archive image: {d}", wbNote:"Dates when imagery of this place was updated. Esri Wayback archive.", kindBus:"Bus", kindTrolley:"Trolleybus", kindMinibus:"Minibus", kindTram:"Tram", busKindLabel:"Transport type", busKindAll:"All", busKindB:"Buses", busKindT:"Trolleybuses", busKindM:"Minibuses", busKindR:"Trams", busKindNone:"No trip found with this type of transport", busNoDataHelp:"OpenStreetMap does not have this city's bus routes yet. Check numbers and times in 2GIS, Yandex or Avtobys — the nearest stops are below.", busNearStart:"Nearest stop to you: «{s}», {m} m", busNearEnd:"Near your destination: «{s}», {m} m", busLive:"Live buses and timetables:", bus2gis:"Open in 2GIS", bus2gisSub:"every route in the city, transfers", busYandex:"Yandex Maps", busYandexSub:"real-time transit", busAvtobys:"Avtobys", busAvtobysSub:"where the bus is now, fare payment", busArrive:"arrive at {t}", busWalkTotal:"{m} m on foot", busWalkFaster:"Walking takes about as long — ~{n} min", busStop:"Stop", wcOk:"stop is marked accessible", wcNo:"stop is marked not wheelchair accessible",
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
@@ -1382,7 +1417,7 @@ en:{
  viewList:"Text mode", viewMap:"Map",
  acctLogin:"Sign in", acctProfile:"Account", aboutShort:"About",
  mmSignin:"Sign in / Sign up", mmGuestSub:"Save routes and reports", mmMenu:"Menu",
- profileTitle:"Your mobility profile", profileLabel:"Profile",
+ profileTitle:"Your mobility profile", profileLabel:"Profile", profEdit:"Change", profSync:"Save to your account",
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
  noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
  nearbyTitle:"Places nearby", nearbyHelp:"Turn layers on with the buttons on the map — the list appears here and in text mode.",
@@ -1426,6 +1461,7 @@ en:{
 }};
 
 /* ============ Профили передвижения ============ */
+const PROFILE_ICON={wheelchair_manual:"wc", wheelchair_power:"wcp", crutches:"cane", blind:"blind", deaf:"deaf", stroller:"stroller", temporary:"crutch"};
 const PROFILES = {
   wheelchair_manual:{ru:"Кресло-коляска (механическая)",kk:"Механикалық арба",en:"Manual wheelchair", maxSlope:5, maxStep:2, avoidStairs:true, speed:0.9},
   wheelchair_power:{ru:"Кресло-коляска (электрическая)",kk:"Электр арба",en:"Power wheelchair", maxSlope:8, maxStep:4, avoidStairs:true, speed:1.2},
@@ -1531,7 +1567,7 @@ const BASEMAPS = {
         url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }
 };
-let baseLayer=null, baseOverlay=null;
+let baseLayer=null, baseOverlay=null, basePreview=null;
 function setBasemap(key){
   if(key==="satlab") key="sat";   // старый сохранённый выбор переносим на единый спутник
   if(!BASEMAPS[key]) key="osm";
@@ -1541,6 +1577,7 @@ function setBasemap(key){
   if(!mapReady) return;
   const def=BASEMAPS[key];
   if(baseLayer) map.removeLayer(baseLayer);
+  if(basePreview){ map.removeLayer(basePreview); basePreview=null; }
   if(baseOverlay){ map.removeLayer(baseOverlay); baseOverlay=null; }
   if(glLayer){ map.removeLayer(glLayer); glLayer=null; }
   const opts={maxZoom:def.max, attribution:def.attr, maxNativeZoom: def.max>19 ? 19 : def.max};
@@ -1553,7 +1590,17 @@ function setBasemap(key){
     opts.maxNativeZoom = (satNative || city().sz || 17) - (L.Browser.retina ? 1 : 0);
     opts.detectRetina = true;   // на Retina-экранах плитки на уровень детальнее — снимок не «мылит»
   }
-  baseLayer=L.tileLayer(def.imagery && waybackRel ? WB_TILE.replace("{rel}",waybackRel) : def.url, opts).addTo(map);
+  const tileUrl=def.imagery && waybackRel ? WB_TILE.replace("{rel}",waybackRel) : def.url;
+  if(def.imagery){
+    // Спутник быстрее: сразу под снимком — «эскиз» из плиток на 2 уровня крупнее (в 16 раз меньше запросов),
+    // он появляется почти мгновенно, а чёткие плитки догружаются поверх. Плитки грузим и во время движения.
+    opts.updateWhenIdle=false; opts.keepBuffer=3;
+    if(sheetMode() && navigator.connection && /2g|3g/.test(navigator.connection.effectiveType||"")) opts.detectRetina=false;
+    basePreview=L.tileLayer(tileUrl,{tileSize:1024, zoomOffset:-2, maxNativeZoom:Math.max(3,(opts.maxNativeZoom||17)), minNativeZoom:2,
+      maxZoom:def.max, keepBuffer:1, updateWhenIdle:false, className:def.cls||""}).addTo(map);
+    basePreview.setZIndex(-1);
+  }
+  baseLayer=L.tileLayer(tileUrl, opts).addTo(map);
   const wb=document.getElementById("wbBtn"); if(wb) wb.hidden=!def.imagery;
   if(!def.imagery) toggleWayback(false);
   if(baseLayer.setZIndex) baseLayer.setZIndex(0);
@@ -1835,6 +1882,8 @@ async function open3D(fromGesture, cam){
       if(at) at.classList.remove("maplibregl-compact-show");
       m3Sig=""; m3Pins=[]; m3Lines={}; mirror3D();
       clearInterval(m3Sync); m3Sync=setInterval(mirror3D, 1200);
+      m.once("idle", ()=>{ if(map3d===m) document.body.classList.add("is3d-ready"); });
+      setTimeout(()=>{ if(map3d===m) document.body.classList.add("is3d-ready"); }, 2500);
     });
     // Как в 2ГИС: опустили карту двумя пальцами до плоской — снова обычная карта
     m.on("pitchend", ()=>{ if(map3d===m && !walking && m.getPitch()<6) close3D(); });
@@ -1858,7 +1907,7 @@ function close3D(){
   m3Seq++;
   clearInterval(m3Sync); m3Sync=null;
   if(walking) toggleWalk();
-  document.body.classList.remove("is3d"); set3DButtons(false);
+  document.body.classList.remove("is3d","is3d-ready"); set3DButtons(false);
   document.getElementById("view3d").hidden=true;
   if(m3Popup){ m3Popup.remove(); m3Popup=null; }
   m3Pins.forEach(p=>p.remove()); m3Pins=[];
@@ -1988,8 +2037,15 @@ function initTiltGesture(){
     if(up>45 && Math.abs(m.d-st.d)<35 && Math.abs(m.x-st.x)<up*0.7){ st=null; open3D(true); }
   }, {passive:true});
   el.addEventListener("touchend", ()=>{ st=null; }, {passive:true});
+  // на компьютере: зажать правую кнопку мыши и потянуть вверх — тот же наклон, что и в 3D
+  let ms=null, tilted=false;
+  el.addEventListener("mousedown", e=>{ if(e.button===2 || (e.button===0 && e.ctrlKey)){ ms={x:e.clientX,y:e.clientY}; tilted=false; } });
+  el.addEventListener("mousemove", e=>{ if(!ms) return; const up=ms.y-e.clientY;
+    if(up>40 && Math.abs(e.clientX-ms.x)<up){ ms=null; tilted=true; open3D(true); } });
+  addEventListener("mouseup", ()=>{ ms=null; });
+  el.addEventListener("contextmenu", e=>{ if(tilted){ e.preventDefault(); tilted=false; } });
   // один раз подсказываем, что так можно
-  if(sheetMode() && !read("tiltHint","")){ store("tiltHint","1"); setTimeout(()=>toast(t("tiltHint")), 4000); }
+  if(!read("tiltHint","")){ store("tiltHint","1"); setTimeout(()=>toast(t(sheetMode()?"tiltHint":"tiltHintPc")), 4000); }
 }
 document.addEventListener("keydown", e=>{
   const box=document.getElementById("view3d");
@@ -2303,6 +2359,7 @@ function updateSetVals(){
   put("svContrast", t(S.contrast==="high"?"contrastHigh":"contrastNormal"));
   put("svVoice", t(S.voice==="off"?"voiceOff":"voiceOn"));
   put("svHints", t(S.hints==="on"?"hintsOn":"hintsOff"));
+  { const pr=PROFILES[S.profile]; if(pr) put("svProfile", pr[S.lang]||pr.ru); }
 }
 function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") stopSpeak(); }
 function setLang(v){
@@ -2335,7 +2392,16 @@ function setProfile(v){
     S.lang==="ru" ? `Максимальный уклон ${p.maxSlope}%` + (noLimit? ". Ступени не блокируют маршрут — предупреждаем о них отдельно." : `, порог до ${p.maxStep} см.`) :
     S.lang==="kk" ? `Ең үлкен еңіс ${p.maxSlope}%` + (noLimit? ". Баспалдақтар бағытты бөгемейді — бөлек ескертеміз." : `, табалдырық ${p.maxStep} см дейін.`) :
                     `Max slope ${p.maxSlope}%` + (noLimit? ". Steps don't block the route — we warn about them separately." : `, threshold up to ${p.maxStep} cm.`);
+  const pn=p[S.lang]||p.ru, ch=document.getElementById("profChip"); if(ch) ch.textContent=pn;
+  const ci=document.getElementById("profChipIco"); if(ci) ci.innerHTML=svgI(PROFILE_ICON[v]||"wc");
+  document.querySelectorAll("#profGrid .prof-opt").forEach(b=>{ const on=b.dataset.v===v; b.setAttribute("aria-checked",String(on)); b.tabIndex=on?0:-1; });
+  const sv=document.getElementById("svProfile"); if(sv) sv.textContent=pn;
   if(p.textFirst && S.view==="map"){ setView("list"); }
+}
+// Профиль на карте берётся из настроек аккаунта; из «Куда едем?» — короткий переход прямо к нужному разделу
+function openProfileSettings(){
+  openModal("settingsModal");
+  const d=document.getElementById("secProfile"); if(d){ d.open=true; const sel=document.querySelector("#profGrid .prof-opt[aria-checked='true']"); if(sel) setTimeout(()=>sel.focus(),60); }
 }
 function locale(){ return S.lang==="kk" ? "kk-KZ" : S.lang==="en" ? "en-US" : "ru-RU"; }
 function renderTexts(){
@@ -2359,12 +2425,15 @@ function renderTexts(){
   vt.setAttribute("title", label);
   vt.setAttribute("aria-pressed", String(S.view==="list"));
 }
+// Профиль выбирается карточками со своим значком (коляска, детская коляска, трость, глаз, ухо…)
 function buildProfileSelect(){
-  const sel=document.getElementById("profileSel"); sel.innerHTML="";
+  const g=document.getElementById("profGrid"); if(!g) return; g.innerHTML="";
   Object.entries(PROFILES).forEach(([k,p])=>{
-    const o=document.createElement("option"); o.value=k; o.textContent=p[S.lang]||p.ru; sel.appendChild(o);
+    const b=document.createElement("button"); b.type="button"; b.className="prof-opt"; b.dataset.v=k;
+    b.setAttribute("role","radio"); b.innerHTML=svgI(PROFILE_ICON[k]||"wc")+`<span>${esc(p[S.lang]||p.ru)}</span>`;
+    b.onclick=()=>setProfile(k); g.appendChild(b);
   });
-  sel.value=S.profile; setProfile(S.profile);
+  setProfile(S.profile);
 }
 function buildBarrierSelect(){
   const sel=document.getElementById("barrierType"); sel.innerHTML="";
@@ -2835,7 +2904,7 @@ function showPlace(p){
     ${facts.length?`<ul class="pc-facts">${facts.map(([ic,txt,c])=>`<li class="${c}">${svgI(PC_ICON[ic]||"map")}<span>${esc(txt)}</span></li>`).join("")}</ul>`:""}
     ${desc?`<p class="pc-desc">${esc(desc)}</p>`:""}
     <div class="pc-media" id="pcMedia" hidden></div>
-    ${contactsHtml(tg, p.name)}
+    <div id="pcContacts">${contactsHtml(tg, p.name)}</div>
     <div class="pc-actions">
       <button type="button" class="btn-dark" onclick="placeRoute()">${svgI("walk")} ${esc(t("pcRoute"))}</button>
       <button type="button" class="btn-ghost" onclick="placeBarrier()">${svgI("warn")} ${esc(t("pcBarrier"))}</button>
@@ -2844,6 +2913,7 @@ function showPlace(p){
   const card=document.getElementById("placeCard"); card.hidden=false;
   document.body.classList.add("place-open");
   placeMedia(p);
+  placeEnrichContacts(p);
 }
 // Контакты: телефон, WhatsApp, Instagram, Telegram, сайт (фото и отзывы — прямо в карточке, см. placeMedia)
 function contactsHtml(tg, name){
@@ -2887,6 +2957,17 @@ function glPoiAt(latlng){
     return {name: pr["name:"+S.lang]||pr.name, raw:pr.name, cls:pr.subclass||pr.class, lat:near.geometry.coordinates[1], lon:near.geometry.coordinates[0]};
   }catch(e){ return null; }
 }
+// Сведения о заведении из OpenStreetMap через Nominatim: телефон, сайт, часы, фото (быстрее и надёжнее Overpass)
+async function nominatimPlace(name,lat,lon){
+  const d=0.003, u=`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(name)}&viewbox=${lon-d},${lat+d},${lon+d},${lat-d}&bounded=1&limit=5&extratags=1&namedetails=1&accept-language=${S.lang}`;
+  const r=await fetch(u); if(!r.ok) return null;
+  const best=(await r.json()).map(x=>({x, d:haversine([lat,lon],[+x.lat,+x.lon])})).filter(o=>o.d<180).sort((a,b)=>a.d-b.d)[0];
+  if(!best) return null;
+  const x=best.x, tg=Object.assign({}, x.extratags||{});
+  if(x.namedetails&&x.namedetails.name) tg.name=x.namedetails.name;
+  if(x.category&&x.type) tg[x.category]=tg[x.category]||x.type;
+  return {tags:tg, osm_type:x.osm_type, osm_id:x.osm_id};
+}
 async function placeAt(latlng){
   const seq=++placeSeq;
   const poi=glPoiAt(latlng);
@@ -2895,10 +2976,11 @@ async function placeAt(latlng){
   placePin=L.marker([lat,lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[18,18],iconAnchor:[9,9]}), interactive:false}).addTo(map);
   showPlace({lat,lon,name:poi?poi.name:"", cat:poi?placeKind({},poi.cls):"", tags:{}, loading:true, layer:false});
   const q=poi ? `[out:json][timeout:12];nwr(around:45,${lat},${lon})["name"="${String(poi.raw).replace(/["\\]/g,"")}"];out tags center 1;` : null;
-  const [rv, ov]=await Promise.all([reverseGeo(lat,lon).catch(()=>null), q?overpassQuery(q,12000).catch(()=>null):null]);
+  const [rv, ov, nm]=await Promise.all([reverseGeo(lat,lon).catch(()=>null), q?overpassQuery(q,9000).catch(()=>null):null,
+    poi?nominatimPlace(poi.raw||poi.name,lat,lon).catch(()=>null):null]);
   if(seq!==placeSeq) return;
-  const el=ov&&ov.elements&&ov.elements[0];
-  const tags=Object.assign({}, (rv&&rv.extratags)||{}, el?el.tags:{});
+  const el=(ov&&ov.elements&&ov.elements[0]) || (nm?{type:nm.osm_type,id:nm.osm_id,tags:nm.tags}:null);
+  const tags=Object.assign({}, (rv&&rv.extratags)||{}, (nm&&nm.tags)||{}, el?el.tags:{});
   const rvName=rv&&((rv.namedetails&&(rv.namedetails["name:"+S.lang]||rv.namedetails.name))||rv.name);
   const name=poi?poi.name:(rv&&rv.category!=="highway"&&rv.category!=="place"&&rv.category!=="building"?rvName:"");
   const addr=rv?revAddr(rv):"";
@@ -4475,15 +4557,15 @@ document.addEventListener("click",e=>{
   if(!p.hidden && e.target instanceof Element && !e.target.closest("#serik,#serikBtn,#miniMenu") && !e.target.closest(".modal")) serikClose(false);
 });
 
-Object.assign(I18N.ru,{ pmReviews:"отзывов: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Отзывы", pmMore:"Ещё отзывы", pmFromGoogle:"Фото и отзывы: Google", pmFromCommons:"Фото: Wikimedia Commons",
+Object.assign(I18N.ru,{ pmReviews:"отзывов: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Отзывы", pmMore:"Ещё отзывы", pmFromGoogle:"Фото и отзывы: Google", pmFromCommons:"Фото: Wikimedia Commons, Panoramax",
   pmBy:"Автор фото: {a}", pmPrev:"Предыдущее фото", pmNext:"Следующее фото", pmViewer:"Фото места",
-  glTitle:"Глобус", glHint:"Крутите Землю пальцем или мышью. Приблизьте или нажмите на точку города — откроется карта.", glLoading:"Загружаем Землю…", glIn:"Приблизить", glOut:"Отдалить", glBack:"К карте" });
-Object.assign(I18N.kk,{ pmReviews:"пікір: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Пікірлер", pmMore:"Тағы пікірлер", pmFromGoogle:"Фото мен пікірлер: Google", pmFromCommons:"Фото: Wikimedia Commons",
+  glTitle:"Глобус", glHint:"День, ночь и Луна — как прямо сейчас. Крутите Землю пальцем или мышью; ☀ и ☾ покажут Солнце и Луну. Приблизьте или нажмите на точку города — откроется карта.", glSunBtn:"Показать Солнце", glMoonBtn:"Показать Луну", glSun:"Солнце выглядывает из-за Земли", glMoon:"Луна сейчас здесь, видна её настоящая фаза", glLoading:"Загружаем Землю…", glIn:"Приблизить", glOut:"Отдалить", glBack:"К карте" });
+Object.assign(I18N.kk,{ pmReviews:"пікір: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Пікірлер", pmMore:"Тағы пікірлер", pmFromGoogle:"Фото мен пікірлер: Google", pmFromCommons:"Фото: Wikimedia Commons, Panoramax",
   pmBy:"Фото авторы: {a}", pmPrev:"Алдыңғы фото", pmNext:"Келесі фото", pmViewer:"Орын фотосы",
-  glTitle:"Глобус", glHint:"Жерді саусақпен не тінтуірмен айналдырыңыз. Жақындатыңыз не қала нүктесін басыңыз — карта ашылады.", glLoading:"Жер жүктелуде…", glIn:"Жақындату", glOut:"Алыстату", glBack:"Картаға" });
-Object.assign(I18N.en,{ pmReviews:"{n} reviews", pmPhoto:"Photo {n}: {name}", pmReviewsH:"Reviews", pmMore:"More reviews", pmFromGoogle:"Photos and reviews: Google", pmFromCommons:"Photos: Wikimedia Commons",
+  glTitle:"Глобус", glHint:"Күн мен түн, Ай — дәл қазіргідей. Жерді саусақпен не тінтуірмен айналдырыңыз; ☀ және ☾ Күн мен Айды көрсетеді. Жақындатыңыз не қала нүктесін басыңыз — карта ашылады.", glSunBtn:"Күнді көрсету", glMoonBtn:"Айды көрсету", glSun:"Күн Жердің арғы жағынан көрінеді", glMoon:"Ай қазір осында, оның нақты фазасы көрінеді", glLoading:"Жер жүктелуде…", glIn:"Жақындату", glOut:"Алыстату", glBack:"Картаға" });
+Object.assign(I18N.en,{ pmReviews:"{n} reviews", pmPhoto:"Photo {n}: {name}", pmReviewsH:"Reviews", pmMore:"More reviews", pmFromGoogle:"Photos and reviews: Google", pmFromCommons:"Photos: Wikimedia Commons, Panoramax",
   pmBy:"Photo by {a}", pmPrev:"Previous photo", pmNext:"Next photo", pmViewer:"Place photo",
-  glTitle:"Globe", glHint:"Spin the Earth with your finger or mouse. Zoom in or tap a city dot to open the map.", glLoading:"Loading the Earth…", glIn:"Zoom in", glOut:"Zoom out", glBack:"Back to map" });
+  glTitle:"Globe", glHint:"Day, night and the Moon as they are right now. Spin the Earth with your finger or mouse; ☀ and ☾ show the Sun and the Moon. Zoom in or tap a city dot to open the map.", glSunBtn:"Show the Sun", glMoonBtn:"Show the Moon", glSun:"The Sun peeking from behind the Earth", glMoon:"This is where the Moon is now, in its real phase", glLoading:"Loading the Earth…", glIn:"Zoom in", glOut:"Zoom out", glBack:"Back to map" });
 /* ============ Телефоны: всегда +7 XXX XXX XX XX ============ */
 // В OpenStreetMap номера записаны по-разному: «8 7132 …», «+7 8 7132 …», «+7(7132)…» — приводим к одному виду
 function kzPhone(raw){
@@ -4519,7 +4601,18 @@ async function freePhotos(tg){
       if(f) add(f);
     }catch(e){}
   }
-  return out.slice(0,4);
+  // уличные снимки Panoramax рядом с местом (открытые, без ключа): видно вход, ступени, бордюры
+  if(out.length<2){
+    try{
+      const lat=+tg.__lat, lon=+tg.__lon, d=0.0006;
+      if(isFinite(lat)&&isFinite(lon)){
+        const j=await fetch(`https://api.panoramax.xyz/api/search?bbox=${lon-d},${lat-d},${lon+d},${lat+d}&limit=3`).then(r=>r.json());
+        (j.features||[]).forEach(f=>{ const a=f.assets||{}, th=(a.sd||a.thumb||{}).href, hd=(a.hd||a.sd||{}).href;
+          if(th) out.push({src:th, big:hd||th, credit:"Panoramax"+(f.providers&&f.providers[0]&&f.providers[0].name?" · "+f.providers[0].name:""), href:"https://api.panoramax.xyz/#focus=pic&pic="+encodeURIComponent(f.id)}); });
+      }
+    }catch(e){}
+  }
+  return out.slice(0,5);
 }
 function pmKey(p){ return [p.name||"",(+p.lat).toFixed(4),(+p.lon).toFixed(4),S.lang].join("|"); }
 function placeMedia(p){
@@ -4534,7 +4627,7 @@ function placeMedia(p){
         try{ const r=await fetch(`/api/place-info?name=${encodeURIComponent(p.name)}&lat=${(+p.lat).toFixed(6)}&lon=${(+p.lon).toFixed(6)}&lang=${S.lang}`);
              const j=await r.json(); if(r.ok){ pmEnabled=!!j.enabled; g=j.place||null; } }catch(e){}
       }
-      return {g, free:await freePhotos(p.tags||{})};
+      return {g, free:await freePhotos(Object.assign({__lat:p.lat,__lon:p.lon}, p.tags||{}))};
     })());
   }
   PM_CACHE.get(key).then(d=>{ const b=document.getElementById("pcMedia"); if(b && b.dataset.key===key) renderMedia(b,d,p); });
@@ -4576,18 +4669,62 @@ document.addEventListener("keydown",e=>{
   v.addEventListener("pointerdown",e=>{ x0=e.clientX; });
   v.addEventListener("pointerup",e=>{ if(x0==null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>50 && PM_VIEW && PM_VIEW.photos.length>1) pmOpen(PM_VIEW.i+(dx<0?1:-1)); });
 })();
+/* ============ Контакты заведений из Overture Maps ============ */
+// В OpenStreetMap телефон есть лишь у ~8% заведений Казахстана. Открытые данные Overture Maps (CDLA-Permissive-2.0)
+// раз в месяц выгружаются GitHub Actions в /places/<город>.json; если у места в OSM нет номера — ищем его там.
+const PLACES_DB={};
+function placesDb(key){ if(!PLACES_DB[key]) PLACES_DB[key]=fetch(`/places/${key}.json`).then(r=>r.ok?r.json():null).catch(()=>null); return PLACES_DB[key]; }
+function nearestCityKey(lat,lon){ let best=S.city, bd=1e18; for(const [k,c] of Object.entries(CITIES)){ const d=(c.c[0]-lat)**2+((c.c[1]-lon)*Math.cos(lat*Math.PI/180))**2; if(d<bd){ bd=d; best=k; } } return best; }
+function normName(s){
+  return String(s||"").toLowerCase().replace(/ё/g,"е")
+    .replace(/["«»“”'`.,:;!?()\[\]\-–—&+№#]/g," ")
+    .replace(/(^|\s)(тоо|ип|ао|llp|llc|кафе|cafe|кофейня|coffee|ресторан|restaurant|аптека|pharmacy|магазин|shop|салон|бар|bar)(?=\s|$)/g," ")
+    .replace(/\s+/g," ").trim();
+}
+function nameSim(a,b){
+  if(!a||!b) return 0; if(a===b) return 1;
+  if((a.includes(b)||b.includes(a)) && Math.min(a.length,b.length)>=3) return .85;
+  const A=new Set(a.split(" ")), B=new Set(b.split(" ")); let n=0; A.forEach(w=>{ if(w.length>1 && B.has(w)) n++; });
+  return n/Math.max(A.size,B.size);
+}
+async function placeEnrichContacts(p){
+  const tg=p.tags||{}, box=document.getElementById("pcContacts");
+  if(!box || p.loading || !p.name) return;
+  if(tg.phone||tg["contact:phone"]||tg["contact:mobile"]) return;
+  const db=await placesDb(nearestCityKey(p.lat,p.lon)); if(!db||!db.p||!db.p.length) return;
+  const nm=normName(p.name); let best=null, bs=1e9;
+  for(const r of db.p){
+    if(Math.abs(r[1]-p.lat)>.0025 || Math.abs(r[2]-p.lon)>.004) continue;
+    const d=haversine([p.lat,p.lon],[r[1],r[2]]); if(d>180) continue;
+    const sim=nameSim(normName(r[0]),nm); if(sim<.6) continue;
+    const score=d*(1.7-sim); if(score<bs){ bs=score; best=r; }
+  }
+  if(!best || placeNow!==p) return;
+  const extra=Object.assign({}, tg);
+  if(best[3]) extra.phone=best[3];
+  if(best[4] && !tg.website && !tg["contact:website"]) extra.website=best[4];
+  if(best[5] && !tg["contact:instagram"] && !tg.instagram) extra["contact:instagram"]=best[5];
+  const b=document.getElementById("pcContacts"); if(!b) return;
+  b.innerHTML=contactsHtml(extra,p.name)+`<p class="pm-src">${esc(t("pcFromOverture"))}</p>`;
+}
+Object.assign(I18N.ru,{pcFromOverture:"Контакты: Overture Maps (открытые данные)"});
+Object.assign(I18N.kk,{pcFromOverture:"Байланыс: Overture Maps (ашық деректер)"});
+Object.assign(I18N.en,{pcFromOverture:"Contacts: Overture Maps (open data)"});
 /* ============ Глобус: при сильном отдалении вместо «атласа» — Земля в космосе ============ */
-// Земля (NASA Blue Marble + ночные огни), звёзды, Солнце и Луна. Крутится пальцем/мышью, колесо и щипок — масштаб.
-// Приблизили — снова обычная карта в этом месте. three.js r128 грузится только при первом открытии.
+// Всё как на самом деле «сейчас»: день и ночь на Земле по реальному положению Солнца, облака, блики океана,
+// Млечный Путь, Луна в своём настоящем направлении и фазе. Размеры Солнца и Луны — настоящие угловые,
+// только расстояние до Луны сжато в ~4 раза, чтобы её было видно рядом с Землёй (по-честному она в 60 радиусах Земли).
+// three.js r128 и текстуры грузятся только при первом открытии.
 const GLOBE_THREE="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
 const GLOBE_TEX="https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/";
-const GLOBE_MOON="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/moon_1024.jpg";
+const GLOBE_PL="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/";
 const GLOBE_OPEN_Z=3;          // карта на этом зуме и меньше → глобус
+const MOON_DIST=14;            // в радиусах Земли (настоящее ≈ 60)
 let GL3=null;                  // состояние глобуса
 function globeOpen(){ return document.body.classList.contains("globe-on"); }
 function loadScriptOnce(src){
   return new Promise((ok,fail)=>{
-    if([...document.scripts].some(s=>s.src===src) && window.THREE) return ok();
+    if(window.THREE) return ok();
     const s=document.createElement("script"); s.src=src; s.async=true; s.onload=()=>ok(); s.onerror=()=>fail(new Error("load "+src)); document.head.appendChild(s);
   });
 }
@@ -4595,16 +4732,26 @@ function llVec(lat,lon,r){
   const la=lat*Math.PI/180, lo=lon*Math.PI/180, c=Math.cos(la);
   return new THREE.Vector3(Math.cos(lo)*c*r, Math.sin(la)*r, -Math.sin(lo)*c*r);
 }
-function vecLL(v){
-  const n=v.clone().normalize();
-  return [Math.asin(Math.max(-1,Math.min(1,n.y)))*180/Math.PI, Math.atan2(-n.z,n.x)*180/Math.PI];
+function vecLL(v){ const n=v.clone().normalize(); return [Math.asin(Math.max(-1,Math.min(1,n.y)))*180/Math.PI, Math.atan2(-n.z,n.x)*180/Math.PI]; }
+// Где сейчас Солнце и Луна над Землёй (подсолнечная и подлунная точки). Упрощённые формулы, точность ~0.5–1°.
+function globeAstro(date){
+  const r=Math.PI/180, d=date.getTime()/864e5+2440587.5-2451545.0;
+  const gmst=(280.46061837+360.98564736629*d)%360, eps=(23.439-3.6e-7*d)*r;
+  const g=(357.529+0.98560028*d)*r, q=280.459+0.98564736*d, L=(q+1.915*Math.sin(g)+0.020*Math.sin(2*g))*r;
+  const sRA=Math.atan2(Math.cos(eps)*Math.sin(L),Math.cos(L)), sDec=Math.asin(Math.sin(eps)*Math.sin(L));
+  const L0=218.316+13.176396*d, M=(134.963+13.064993*d)*r, F=(93.272+13.229350*d)*r;
+  const ml=(L0+6.289*Math.sin(M))*r, mb=5.128*Math.sin(F)*r;
+  const mRA=Math.atan2(Math.sin(ml)*Math.cos(eps)-Math.tan(mb)*Math.sin(eps),Math.cos(ml));
+  const mDec=Math.asin(Math.sin(mb)*Math.cos(eps)+Math.cos(mb)*Math.sin(eps)*Math.sin(ml));
+  const wrap=x=>((x+540)%360)-180;
+  return {sun:[sDec/r, wrap(sRA/r-gmst)], moon:[mDec/r, wrap(mRA/r-gmst)]};
 }
-function globeTexture(url,small){
+function globeTexture(url,small,wSmall){
   return new Promise(ok=>{
     const img=new Image(); img.crossOrigin="anonymous";
     img.onload=()=>{
       let src=img;
-      if(small){ const c=document.createElement("canvas"); c.width=2048; c.height=1024; c.getContext("2d").drawImage(img,0,0,2048,1024); src=c; }
+      if(small && img.width>(wSmall||2048)){ const w=wSmall||2048, c=document.createElement("canvas"); c.width=w; c.height=w/2; c.getContext("2d").drawImage(img,0,0,w,w/2); src=c; }
       const tx=new THREE.Texture(src); tx.needsUpdate=true; tx.anisotropy=4; ok(tx);
     };
     img.onerror=()=>ok(null); img.src=url;
@@ -4617,16 +4764,7 @@ function glowSprite(stops,size){
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
   sp.scale.set(size,size,1); return sp;
 }
-function moonTexture(){
-  const c=document.createElement("canvas"); c.width=512; c.height=256; const g=c.getContext("2d");
-  g.fillStyle="#9a9a98"; g.fillRect(0,0,512,256);
-  let seed=7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
-  for(let i=0;i<18;i++){ g.fillStyle=`rgba(70,70,72,${.25+rnd()*.3})`; g.beginPath(); g.ellipse(rnd()*512,40+rnd()*170,30+rnd()*60,20+rnd()*40,rnd()*3,0,7); g.fill(); }   // «моря»
-  for(let i=0;i<260;i++){ const x=rnd()*512,y=rnd()*256,r=1+Math.pow(rnd(),3)*14;
-    g.fillStyle=`rgba(40,40,40,${.18+rnd()*.25})`; g.beginPath(); g.arc(x,y,r,0,7); g.fill();
-    g.strokeStyle=`rgba(220,220,215,${.15+rnd()*.25})`; g.lineWidth=Math.max(.6,r*.25); g.beginPath(); g.arc(x-r*.15,y-r*.15,r,3.4,5.6); g.stroke(); }
-  return new THREE.CanvasTexture(c);
-}
+function flatTex(col){ const c=document.createElement("canvas"); c.width=c.height=2; const g=c.getContext("2d"); g.fillStyle=col; g.fillRect(0,0,2,2); return new THREE.CanvasTexture(c); }
 async function globeInit(){
   await loadScriptOnce(GLOBE_THREE);
   const box=document.getElementById("globe"), cv=document.getElementById("globeCv");
@@ -4634,38 +4772,54 @@ async function globeInit(){
   const renderer=new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
   const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(42,1,0.05,2000); scene.add(camera);
-  // Звёзды — неподвижны относительно Земли, поэтому «плывут», когда её крутишь
-  { const n=small?1800:3200, pos=new Float32Array(n*3), col=new Float32Array(n*3);
-    for(let i=0;i<n;i++){ const v=new THREE.Vector3().randomDirection? new THREE.Vector3().randomDirection() : new THREE.Vector3(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize();
-      v.multiplyScalar(600+Math.random()*300); pos.set([v.x,v.y,v.z],i*3);
-      const w=.6+Math.random()*.4, tint=Math.random(); col.set(tint<.15?[w,w*.85,w*.7]:tint<.3?[w*.8,w*.88,w]:[w,w,w],i*3); }
-    const gm=new THREE.BufferGeometry(); gm.setAttribute("position",new THREE.BufferAttribute(pos,3)); gm.setAttribute("color",new THREE.BufferAttribute(col,3));
-    scene.add(new THREE.Points(gm,new THREE.PointsMaterial({size:1.6, sizeAttenuation:false, vertexColors:true, transparent:true, opacity:.9}))); }
-  // Земля: день + ночные огни на теневой стороне
-  const [day,night]=await Promise.all([globeTexture(GLOBE_TEX+"earth-blue-marble.jpg",small), globeTexture(GLOBE_TEX+"earth-night.jpg",small)]);
+  const camera=new THREE.PerspectiveCamera(42,1,0.05,4000); scene.add(camera);
+  const [day,night,spec,clouds,sky]=await Promise.all([
+    globeTexture(GLOBE_TEX+"earth-blue-marble.jpg",small), globeTexture(GLOBE_TEX+"earth-night.jpg",small),
+    globeTexture(GLOBE_PL+"earth_specular_2048.jpg",small,1024), globeTexture(GLOBE_PL+"earth_clouds_1024.png"),
+    globeTexture(GLOBE_TEX+"night-sky.png",small)]);
+  // Млечный Путь и звёзды — огромная сфера вокруг
+  const skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2500,64,32), new THREE.MeshBasicMaterial({map:sky||flatTex("#000"), side:THREE.BackSide, color:0x9a9a9a, depthWrite:false}));
+  scene.add(skyMesh);
+  const sunU={value:new THREE.Vector3(1,0,0)}, camU={value:new THREE.Vector3()};
+  // Земля: день, ночные огни, блик Солнца на воде, голубоватая дымка у края и закатная полоса у терминатора
   const earthMat=new THREE.ShaderMaterial({
-    uniforms:{day:{value:day}, night:{value:night}, sun:{value:new THREE.Vector3(1,0,0)}, hasNight:{value:night?1:0}},
-    vertexShader:`varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader:`uniform sampler2D day; uniform sampler2D night; uniform vec3 sun; uniform float hasNight; varying vec2 vUv; varying vec3 vN;
-      void main(){ float d=dot(normalize(vN),normalize(sun)); vec3 dc=texture2D(day,vUv).rgb; vec3 nc=texture2D(night,vUv).rgb;
-        float lit=smoothstep(-0.18,0.35,d); vec3 c=dc*(0.06+1.05*max(d,0.0)+0.12*lit) + nc*hasNight*(1.0-lit)*1.25;
+    uniforms:{day:{value:day||flatTex("#1d4f7a")}, night:{value:night||flatTex("#000")}, spec:{value:spec||flatTex("#000")}, sun:sunU, cam:camU},
+    vertexShader:`varying vec2 vUv; varying vec3 vN; varying vec3 vW; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); vW=(modelMatrix*vec4(position,1.0)).xyz; gl_Position=projectionMatrix*viewMatrix*vec4(vW,1.0); }`,
+    fragmentShader:`uniform sampler2D day; uniform sampler2D night; uniform sampler2D spec; uniform vec3 sun; uniform vec3 cam; varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+      void main(){ vec3 N=normalize(vN), L=normalize(sun), V=normalize(cam-vW); float d=dot(N,L);
+        vec3 dc=texture2D(day,vUv).rgb, nc=texture2D(night,vUv).rgb; float water=texture2D(spec,vUv).r;
+        float lit=smoothstep(-0.08,0.18,d);
+        vec3 c=dc*(0.012+1.15*max(d,0.0));
+        vec3 H=normalize(L+V); c+=vec3(1.0,0.93,0.8)*pow(max(dot(N,H),0.0),55.0)*water*0.75*lit;
+        c+=nc*vec3(1.0,0.85,0.6)*(1.0-lit)*1.35;
+        c+=vec3(1.0,0.42,0.15)*exp(-pow(d/0.07,2.0))*0.10;
+        float fr=pow(1.0-max(dot(N,V),0.0),2.5); c+=vec3(0.32,0.55,1.0)*fr*0.55*smoothstep(-0.2,0.5,d);
         gl_FragColor=vec4(c,1.0); }`
   });
-  if(!day) earthMat.uniforms.day.value=new THREE.CanvasTexture((()=>{ const c=document.createElement("canvas"); c.width=c.height=2; const g=c.getContext("2d"); g.fillStyle="#1d4f7a"; g.fillRect(0,0,2,2); return c; })());
   const earth=new THREE.Mesh(new THREE.SphereGeometry(1,small?72:110,small?48:72), earthMat); scene.add(earth);
-  // Атмосфера — голубое свечение по краю
-  const atm=new THREE.Mesh(new THREE.SphereGeometry(1.13,64,48), new THREE.ShaderMaterial({
-    side:THREE.BackSide, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:`varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader:`varying vec3 vN; void main(){ float f=pow(clamp(0.7-dot(vN,vec3(0.0,0.0,1.0)),0.0,1.0),3.2); gl_FragColor=vec4(0.32,0.6,1.0,1.0)*f*0.9; }`
+  // Облака — отдельный слой чуть выше поверхности, медленно плывут; ночью почти не видны
+  let cloudMesh=null;
+  if(clouds){
+    cloudMesh=new THREE.Mesh(new THREE.SphereGeometry(1.008,small?64:96,small?40:64), new THREE.ShaderMaterial({
+      uniforms:{tex:{value:clouds}, sun:sunU}, transparent:true, depthWrite:false,
+      vertexShader:`varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+      fragmentShader:`uniform sampler2D tex; uniform vec3 sun; varying vec2 vUv; varying vec3 vN;
+        void main(){ vec4 t=texture2D(tex,vUv); float d=dot(normalize(vN),normalize(sun)); float a=t.a*0.95;
+          vec3 c=vec3(1.0)*(0.02+1.05*max(d,0.0)) + vec3(1.0,0.5,0.25)*exp(-pow(d/0.08,2.0))*0.25;
+          gl_FragColor=vec4(c, a*(0.12+0.88*smoothstep(-0.12,0.2,d))); }`
+    })); scene.add(cloudMesh);
+  }
+  // Атмосфера — тонкая светящаяся оболочка, ярче на дневной стороне
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(1.1,64,48), new THREE.ShaderMaterial({
+    uniforms:{sun:sunU}, side:THREE.BackSide, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec3 vN; varying vec3 vNW; void main(){ vN=normalize(normalMatrix*normal); vNW=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`uniform vec3 sun; varying vec3 vN; varying vec3 vNW; void main(){ float f=pow(clamp(0.68-dot(vN,vec3(0.0,0.0,1.0)),0.0,1.0),3.4);
+      float day=0.15+0.85*smoothstep(-0.35,0.35,dot(-vNW,normalize(sun))); gl_FragColor=vec4(0.3,0.58,1.0,1.0)*f*day*1.05; }`
   })); scene.add(atm);
   // Точки 22 городов ICity
   const cityDots=[], dotMat=new THREE.MeshBasicMaterial({color:0x5fd3ff});
-  Object.entries(CITIES).forEach(([k,c])=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6), dotMat); m.position.copy(llVec(c.c[0],c.c[1],1.002)); m.userData.key=k; earth.add(m); cityDots.push(m); });
-  // Солнце и Луна — «на фоне», в кадре камеры; свет идёт от того же Солнца
-  const sunLocal=new THREE.Vector3(-0.62,0.4,-1);       // направление на Солнце в системе камеры
-  // Солнце — настоящий 3D-шар: «кипящая» плазма (шейдер с шумом), потемнение к краю, корона и лучи
+  Object.entries(CITIES).forEach(([k,c])=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6), dotMat); m.position.copy(llVec(c.c[0],c.c[1],1.004)); m.userData.key=k; earth.add(m); cityDots.push(m); });
+  // Солнце — далеко, с настоящим угловым размером (~0.5°): «кипящая» плазма и слепящее сияние
   const sun=new THREE.Group();
   const sunMat=new THREE.ShaderMaterial({
     uniforms:{time:{value:0}},
@@ -4676,69 +4830,86 @@ async function globeInit(){
         return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
                    mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z); }
       float fbm(vec3 p){ float v=0.0,a=0.5; for(int k=0;k<5;k++){ v+=a*n(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=0.5; } return v; }
-      void main(){ vec3 p=normalize(vP);
-        float g=fbm(p*4.0+vec3(0.0,time*0.06,time*0.04)); float c=fbm(p*12.0-vec3(time*0.1)+g*1.5);
-        float t=clamp(g*0.55+c*0.6,0.0,1.0);
-        vec3 col=mix(vec3(0.95,0.38,0.04),vec3(1.0,0.72,0.2),t); col=mix(col,vec3(1.0,0.96,0.78),smoothstep(0.55,0.9,t));
-        float mu=clamp(dot(vN,vV),0.0,1.0); col*=0.55+0.6*pow(mu,0.45);       // потемнение к краю диска
-        col+=vec3(1.0,0.55,0.15)*pow(1.0-mu,3.0)*0.6;
-        gl_FragColor=vec4(col*1.25,1.0); }`
+      void main(){ vec3 p=normalize(vP); float g=fbm(p*4.0+vec3(0.0,time*0.06,time*0.04)); float c=fbm(p*12.0-vec3(time*0.1)+g*1.5);
+        float t=clamp(g*0.55+c*0.6,0.0,1.0); vec3 col=mix(vec3(1.0,0.55,0.12),vec3(1.0,0.85,0.45),t); col=mix(col,vec3(1.0,0.98,0.9),smoothstep(0.45,0.85,t));
+        float mu=clamp(dot(vN,vV),0.0,1.0); col*=0.6+0.55*pow(mu,0.4); gl_FragColor=vec4(col*1.6,1.0); }`
   });
-  const sunBall=new THREE.Mesh(new THREE.SphereGeometry(3.2,64,48), sunMat); sun.add(sunBall);
-  sun.add(glowSprite([[0,"rgba(255,230,170,.0)"],[.26,"rgba(255,210,120,.55)"],[.38,"rgba(255,160,60,.22)"],[.7,"rgba(255,120,40,.06)"],[1,"rgba(255,100,30,0)"]],26));
-  sun.add(glowSprite([[0,"rgba(255,235,190,.22)"],[.4,"rgba(255,190,110,.07)"],[1,"rgba(0,0,0,0)"]],110));
-  // мягкое сияние вместо «нарисованных» лучей: несколько слоёв короны
-  const rays=new THREE.Group();
-  rays.add(glowSprite([[0,"rgba(255,245,220,.0)"],[.3,"rgba(255,236,190,.35)"],[.55,"rgba(255,190,110,.10)"],[1,"rgba(255,150,60,0)"]],44));
-  rays.add(glowSprite([[0,"rgba(255,250,235,.10)"],[.25,"rgba(255,220,160,.05)"],[1,"rgba(0,0,0,0)"]],220));
-  sun.add(rays);
-  camera.add(sun);
-  const light=new THREE.DirectionalLight(0xffffff,1.25); camera.add(light); camera.add(light.target);
-  scene.add(new THREE.AmbientLight(0x404050,.45));
-  // Луна — 3D-шар с настоящей картой поверхности (NASA, из примеров three.js) и рельефом кратеров;
-  // освещена тем же Солнцем, поэтому видна её фаза
-  const moonMat=new THREE.MeshPhongMaterial({map:moonTexture(), shininess:2, specular:0x000000});
-  const moon=new THREE.Mesh(new THREE.SphereGeometry(.3,64,48), moonMat);
-  camera.add(moon);
-  new THREE.TextureLoader().setCrossOrigin("anonymous").load(GLOBE_MOON,tx=>{ moonMat.map=tx; moonMat.bumpMap=tx; moonMat.bumpScale=.012; moonMat.needsUpdate=true; });
-  GL3={renderer,scene,camera,earth,earthMat,cityDots,sun,sunLocal,light,moon,box,cv,sunMat,sunBall,rays,
-       lat:45, lon:68, dist:3.1, fitDist:3.1, vLat:0, vLon:0, target:null, t0:performance.now(), raf:0, closing:false};
+  const SUN_D=900, sunBall=new THREE.Mesh(new THREE.SphereGeometry(SUN_D*Math.tan(0.267*Math.PI/180),48,32), sunMat); sun.add(sunBall);
+  sun.add(glowSprite([[0,"rgba(255,255,250,1)"],[.06,"rgba(255,250,235,.9)"],[.16,"rgba(255,225,170,.35)"],[.4,"rgba(255,190,120,.08)"],[1,"rgba(255,160,90,0)"]],SUN_D*.14));
+  sun.add(glowSprite([[0,"rgba(255,245,225,.30)"],[.2,"rgba(255,220,170,.08)"],[.6,"rgba(255,200,140,.02)"],[1,"rgba(0,0,0,0)"]],SUN_D*.6));
+  scene.add(sun);
+  // Свет от Солнца (для Луны) — Земля освещается своим шейдером из той же точки
+  const light=new THREE.DirectionalLight(0xffffff,1.35); scene.add(light); scene.add(light.target);
+  scene.add(new THREE.AmbientLight(0x111118,1));
+  // Луна — настоящий относительный размер (0.273 радиуса Земли), карта поверхности NASA, кратеры; повернута к Земле одной стороной
+  const moonMat=new THREE.MeshPhongMaterial({color:0xbdbdb8, shininess:1, specular:0x000000});
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(.273,64,48), moonMat); scene.add(moon);
+  new THREE.TextureLoader().setCrossOrigin("anonymous").load(GLOBE_PL+"moon_1024.jpg",tx=>{ moonMat.map=tx; moonMat.bumpMap=tx; moonMat.bumpScale=.006; moonMat.color.set(0xffffff); moonMat.needsUpdate=true; });
+  GL3={renderer,scene,camera,earth,earthMat,cloudMesh,cityDots,sun,sunMat,sunBall,light,moon,sunU,camU,box,cv,
+       lat:45, lon:68, dist:3.1, fitDist:3.1, vLat:0, vLon:0, target:null, fly:null, spin:true, t0:performance.now(), astroAt:0, raf:0, closing:false};
   const resize=()=>{ const w=box.clientWidth||innerWidth, h=box.clientHeight||innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
-    const depth=60, hh=depth*Math.tan(camera.fov*Math.PI/360), hw=hh*camera.aspect;
-    sun.position.set(-hw*(camera.aspect<.8?.58:.74),hh*.64,-depth);                      // левый верхний угол, далеко за Землёй
-    GL3.sunDirCam=new THREE.Vector3(-0.72,0.48,0.42).normalize();   // свет слева сверху и чуть спереди: видна дневная сторона, справа — огни ночных городов
-    // Земля целиком в кадре и на телефоне (узкий экран), и на компьютере
     const half=Math.min(camera.fov/2, Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI)*Math.PI/180;
-    GL3.fitDist=Math.max(2.2,Math.min(6,1.12/Math.sin(half)));
-    light.position.copy(sun.position); light.target.position.set(0,0,-GL3.dist); };
+    GL3.fitDist=Math.max(2.2,Math.min(6,1.12/Math.sin(half))); };
   GL3.resize=resize; addEventListener("resize",()=>{ if(globeOpen()) resize(); });
-  globeInput(); resize();
+  globeAstroUpdate(); globeInput(); resize();
+}
+function globeAstroUpdate(){
+  const g=GL3, a=globeAstro(new Date()); g.astro=a;
+  const s=llVec(a.sun[0],a.sun[1],1); g.sunU.value.copy(s);
+  g.sun.position.copy(s).multiplyScalar(900); g.light.position.copy(s).multiplyScalar(100); g.light.target.position.set(0,0,0);
+  g.moon.position.copy(llVec(a.moon[0],a.moon[1],MOON_DIST)); g.moon.lookAt(0,0,0); g.moon.rotateY(-Math.PI/2);
+  g.astroAt=Date.now();
 }
 function globeFrame(now){
   const g=GL3; if(!g || !globeOpen()) return;
   const motion=S.motion!=="off";
-  if(!g.drag){ g.lat+=g.vLat; g.lon+=g.vLon; g.vLat*=.9; g.vLon*=.9; if(motion && Math.abs(g.vLon)<.002 && !g.target) g.lon+=.012; }
+  if(Date.now()-g.astroAt>60000) globeAstroUpdate();
+  if(g.fly){ const f=g.fly, k=motion?.06:1; let dl=((f.lon-g.lon+540)%360)-180;
+    g.lat+=(f.lat-g.lat)*k; g.lon+=dl*k; g.dist+=(f.dist-g.dist)*k;
+    if(Math.abs(f.lat-g.lat)<.05 && Math.abs(dl)<.05 && Math.abs(f.dist-g.dist)<.005) g.fly=null; }
+  else if(!g.drag){ g.lat+=g.vLat; g.lon+=g.vLon; g.vLat*=.9; g.vLon*=.9; if(motion && g.spin && Math.abs(g.vLon)<.002 && !g.target) g.lon+=.01; }
   if(g.target){ const k=motion?.08:1; g.dist+=(g.target-g.dist)*k; if(Math.abs(g.target-g.dist)<.003){ g.dist=g.target; g.target=null; if(g.onArrive){ const f=g.onArrive; g.onArrive=null; f(); } } }
   g.lat=Math.max(-82,Math.min(82,g.lat)); g.lon=((g.lon+540)%360)-180;
   g.camera.position.copy(llVec(g.lat,g.lon,g.dist)); g.camera.up.set(0,1,0); g.camera.lookAt(0,0,0); g.camera.updateMatrixWorld();
-  // свет и Солнце — от левого верхнего угла кадра; Луна медленно ходит вокруг Земли (в кадре)
-  const sw=g.sunDirCam.clone().applyQuaternion(g.camera.quaternion); g.earthMat.uniforms.sun.value.copy(sw);
-  g.light.target.position.set(0,0,-g.dist); g.light.position.copy(g.sunDirCam).multiplyScalar(20); g.light.position.z-=g.dist;
-  const tt=motion?(now-g.t0)/1000:0, md=g.dist+1.2, mh=md*Math.tan(g.camera.fov*Math.PI/360), mw=mh*g.camera.aspect;
-  g.moon.position.set(mw*.74+Math.sin(tt*.15)*.06, mh*.36+Math.cos(tt*.12)*.05, -md);   // справа сверху, чуть «дышит»
-  g.moon.rotation.y=.8+tt*.03;
-  g.sunMat.uniforms.time.value=tt; g.sunBall.rotation.y=tt*.02; g.rays.rotation.z=tt*.01;
+  g.camU.value.copy(g.camera.position);
+  const tt=motion?(now-g.t0)/1000:0;
+  g.sunMat.uniforms.time.value=tt; g.sunBall.rotation.y=tt*.02;
+  if(g.cloudMesh) g.cloudMesh.rotation.y=tt*.0035;
   g.renderer.render(g.scene,g.camera);
   g.raf=requestAnimationFrame(globeFrame);
 }
-function globeZoom(f){ const g=GL3; if(!g) return; const nd=Math.max(1.12,Math.min(7,(g.target||g.dist)*f)); g.target=nd; if(nd<=1.35) globeToMap(); }
+// Показать Солнце или Луну: облетаем Землю так, чтобы светило выглянуло из-за края
+function globeShow(what){
+  const g=GL3; if(!g || !g.astro) return; g.spin=false; g.vLat=g.vLon=0; g.target=null;
+  const [la,lo]=g.astro[what];
+  let fly;
+  if(what==="sun"){
+    // встаём на ночную сторону так, чтобы Солнце выглянуло из-за края Земли
+    const dist=4.6, alat=-la, alon=((lo+360)%360)-180, th=Math.asin(1/dist)*180/Math.PI+2.5;
+    fly={lat:alat-th>-80?alat-th:alat+th, lon:alon, dist};
+  } else {
+    // встаём за Луной и смотрим на Землю: Луна на переднем плане, Земля за ней (как снимок «Восход Земли»)
+    const dist=24, moonP=llVec(la,lo,MOON_DIST); let best={err:1e9};
+    for(let th=0.5; th<=30; th+=0.25){
+      const clat=la-th>-80?la-th:la+th, c=llVec(clat,lo,dist);
+      const toM=moonP.clone().sub(c), view=c.clone().negate().normalize();
+      const ang=Math.acos(Math.max(-1,Math.min(1,toM.clone().normalize().dot(view))))*180/Math.PI;
+      const want=Math.asin(1/dist)*180/Math.PI+Math.atan(.273/toM.length())*180/Math.PI+2.5;
+      if(Math.abs(ang-want)<best.err) best={err:Math.abs(ang-want), lat:clat};
+    }
+    fly={lat:best.lat, lon:lo, dist};
+  }
+  g.fly=fly;
+  announce(t(what==="sun"?"glSun":"glMoon"));
+}
+function globeZoom(f){ const g=GL3; if(!g) return; g.fly=null; const nd=Math.max(1.12,Math.min(26,(g.target||g.dist)*f)); g.target=nd; if(nd<=1.35) globeToMap(); }
 function globeInput(){
   const g=GL3, cv=g.cv; let pts=new Map(), pinch0=0, dist0=0, moved=0, downAt=0;
   const rate=()=>0.1*(g.dist-0.95);
-  cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,[e.clientX,e.clientY]); g.drag=true; moved=0; downAt=Date.now();
+  cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,[e.clientX,e.clientY]); g.drag=true; g.spin=false; g.fly=null; moved=0; downAt=Date.now();
     if(pts.size===2){ const [a,b]=[...pts.values()]; pinch0=Math.hypot(a[0]-b[0],a[1]-b[1]); dist0=g.dist; } });
   cv.addEventListener("pointermove",e=>{ if(!pts.has(e.pointerId)) return; const p=pts.get(e.pointerId), dx=e.clientX-p[0], dy=e.clientY-p[1]; pts.set(e.pointerId,[e.clientX,e.clientY]);
-    if(pts.size===2){ const [a,b]=[...pts.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(pinch0){ g.target=null; g.dist=Math.max(1.12,Math.min(7,dist0*pinch0/d)); if(g.dist<=1.35) globeToMap(); } return; }
+    if(pts.size===2){ const [a,b]=[...pts.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(pinch0){ g.target=null; g.dist=Math.max(1.12,Math.min(26,dist0*pinch0/d)); if(g.dist<=1.35) globeToMap(); } return; }
     moved+=Math.abs(dx)+Math.abs(dy); const r=rate(); g.lon-=dx*r; g.lat+=dy*r; g.vLon=-dx*r*.25; g.vLat=dy*r*.25; });
   const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch0=0; if(!pts.size) g.drag=false;
     if(moved<6 && Date.now()-downAt<400 && e.type==="pointerup") globeTap(e); };
@@ -4749,7 +4920,7 @@ function globeInput(){
     const k=e.key, s=4; if(!globeOpen()) return;
     if(k==="ArrowLeft"){ g.lon-=s; } else if(k==="ArrowRight"){ g.lon+=s; } else if(k==="ArrowUp"){ g.lat+=s; } else if(k==="ArrowDown"){ g.lat-=s; }
     else if(k==="+"||k==="="){ globeZoom(.8); } else if(k==="-"){ globeZoom(1.25); } else if(k==="Enter"){ globeToMap(); } else return;
-    e.preventDefault(); g.vLat=g.vLon=0;
+    e.preventDefault(); g.vLat=g.vLon=0; g.spin=false; g.fly=null;
   });
 }
 // Нажали на точку города — летим в этот город
@@ -4767,16 +4938,17 @@ async function openGlobe(){
   try{ if(!GL3) await globeInit(); }catch(e){ console.warn("globe",e); closeGlobeQuick(); return; }
   document.getElementById("globeLoad").hidden=true;
   const c=mapReady?map.getCenter():{lat:city().c[0],lng:city().c[1]};
-  GL3.lat=c.lat; GL3.lon=c.lng; GL3.vLat=GL3.vLon=0; GL3.resize(); GL3.dist=1.5; GL3.target=GL3.fitDist; GL3.closing=false;
+  GL3.lat=c.lat; GL3.lon=c.lng; GL3.vLat=GL3.vLon=0; GL3.fly=null; GL3.spin=true; GL3.resize(); GL3.dist=1.5; GL3.target=GL3.fitDist; GL3.closing=false;
+  globeAstroUpdate();
   cancelAnimationFrame(GL3.raf); GL3.raf=requestAnimationFrame(globeFrame);
   box.focus({preventScroll:true});
-  const hint=box.querySelector(".gl-hint"); hint.hidden=false; clearTimeout(hint._t); hint._t=setTimeout(()=>{ hint.hidden=true; },7000);
+  const hint=box.querySelector(".gl-hint"); hint.hidden=false; clearTimeout(hint._t); hint._t=setTimeout(()=>{ hint.hidden=true; },8000);
   announce(t("glTitle")+". "+t("glHint"));
 }
 function closeGlobeQuick(){ document.body.classList.remove("globe-on"); document.getElementById("globe").hidden=true; if(GL3) cancelAnimationFrame(GL3.raf); }
 // Вернуться на карту в той точке, на которую смотрим (или в выбранный город)
 function globeToMap(cityKey){
-  const g=GL3; if(!g || g.closing) return; g.closing=true;
+  const g=GL3; if(!g || g.closing) return; g.closing=true; g.fly=null;
   const lat=g.lat, lon=g.lon;
   const done=()=>{
     closeGlobeQuick();
@@ -4789,7 +4961,9 @@ function globeToMap(cityKey){
 }
 
 (function init(){
-  S.lang=read("lang","ru"); S.profile=read("profile","wheelchair_manual");
+  S.lang=read("lang","ru"); S.profile=read("profile","");
+  if(!S.profile){ try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); const m=v&&v.user&&v.user.user_metadata&&v.user.user_metadata.mobility; if(m) S.profile=m; } } }catch(e){} }
+  if(!PROFILES[S.profile]) S.profile="wheelchair_manual";
   S.theme=read("theme", (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
   S.font=read("font","normal"); S.contrast=read("contrast","normal");
   S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
