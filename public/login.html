@@ -406,6 +406,10 @@ if(!cfg.url||!cfg.anonKey||!window.supabase||!window.supabase.createClient){
   return;
 }
 const sb=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+/* пока SMS не подключены, регистрируем по почте, а вкладка «По телефону» объясняет почему */
+fetch(cfg.url+"/auth/v1/settings",{headers:{apikey:cfg.anonKey}}).then(r=>r.json()).then(j=>{
+  if(j&&j.external&&j.external.phone===false){setMethod("email",true);$("mPhone").onclick=()=>msg(t("ePhoneOff"),"ok");}
+}).catch(()=>{});
 const params=new URLSearchParams(location.search);
 const wantReset=params.get("reset")==="1";
 const urlErr=params.get("error_description")||new URLSearchParams(location.hash.slice(1)).get("error_description");

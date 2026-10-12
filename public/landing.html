@@ -98,7 +98,18 @@ footer{position:relative;z-index:2;text-align:center;padding:0 16px 40px;font-fa
   .hero{padding-bottom:12vh}
   .brand small{display:none}
 }
-@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.hint i{animation:none}}
+.intro{opacity:0;transform:translateY(18px);animation:introUp 1.4s cubic-bezier(.22,.61,.36,1) forwards}
+.intro.d1{animation-delay:1.6s}.intro.d2{animation-delay:2.3s}.intro.d3{animation-delay:3.1s}.intro.d4{animation-delay:3.9s}
+@keyframes introUp{to{opacity:1;transform:none}}
+.join{min-height:100vh;flex-direction:column;justify-content:center;text-align:center;gap:18px}
+.join h2{font-size:clamp(34px,6vw,72px)}
+.join .bar{width:min(280px,70vw);height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px auto 0}
+.join .bar i{display:block;height:100%;width:0;background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.join.go .bar i{width:100%;transition:width 1.6s linear}
+.join .muted{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#fade{position:fixed;inset:0;z-index:9;background:var(--ink);opacity:0;pointer-events:none;transition:opacity .7s ease}
+#fade.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.hint i{animation:none}.intro{animation:none;opacity:1;transform:none}.join.go .bar i{transition:none}}
 .top-actions{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:max(16px,3vw);z-index:4;display:flex;gap:8px}
 .top-actions .btn{padding:10px 16px;font-size:14px;background:rgba(7,11,18,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .top-actions .btn.primary{background:var(--ok)}
@@ -127,15 +138,16 @@ footer{position:relative;z-index:2;text-align:center;padding:0 16px 40px;font-fa
   <a href="#s8"><span>Жалобы</span><i></i></a>
   <a href="#s9"><span>Города</span><i></i></a>
   <a href="#s10"><span>Открыть</span><i></i></a>
+  <a href="#s11"><span>Регистрация</span><i></i></a>
 </nav>
 
 <main>
   <section id="s0" class="hero">
     <div class="panel">
-      <p class="eyebrow">Доступная карта Казахстана</p>
-      <h1 aria-label="ICity"><span class="i">I</span><span class="c">City</span></h1>
-      <p class="lead">Помогаем заранее узнать, как добраться до места без лестниц, высоких бордюров и других барьеров. На коляске, с тростью, с детской коляской и без зрения.</p>
-      <div class="hint"><i></i>Листай вниз</div>
+      <p class="eyebrow intro d1">Доступная карта Казахстана</p>
+      <h1 aria-label="ICity" class="intro d2"><span class="i">I</span><span class="c">City</span></h1>
+      <p class="lead intro d3">Помогаем заранее узнать, как добраться до места без лестниц, высоких бордюров и других барьеров. На коляске, с тростью, с детской коляской и без зрения.</p>
+      <div class="hint intro d4"><i></i>Листай вниз</div>
     </div>
   </section>
 
@@ -251,7 +263,17 @@ footer{position:relative;z-index:2;text-align:center;padding:0 16px 40px;font-fa
       </div>
     </div>
   </section>
+
+  <section id="s11" class="join">
+    <p class="eyebrow">Присоединяйся</p>
+    <h2>Создай аккаунт в ICity</h2>
+    <p style="margin-inline:auto">Сохраняй маршруты и следи за своими жалобами на барьеры.</p>
+    <div class="bar" aria-hidden="true"><i></i></div>
+    <p class="muted" id="joinNote">Открываем регистрацию…</p>
+    <a class="btn primary" href="/login#signup" style="margin-inline:auto">Перейти сейчас</a>
+  </section>
 </main>
+<div id="fade" aria-hidden="true"></div>
 <footer>ICity · inclusivecity.uk</footer>
 <script>
 /* Если человек уже вошёл (сессия Supabase в localStorage), показываем «Профиль» вместо «Войти» */
@@ -267,6 +289,23 @@ C.forEach(c=>{const x=X(c[2]),y=Y(c[1]);s+=`<circle cx="${x.toFixed(1)}" cy="${y
 svg.innerHTML=s;
 })();
 </script>
+<script>
+/* Конец лендинга: если человек долистал до «Создай аккаунт», сами открываем регистрацию */
+(function(){
+  const sec=document.getElementById('s11'),fade=document.getElementById('fade'),note=document.getElementById('joinNote');
+  let signedIn=false;
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k)||"null");if(v&&v.user){signedIn=true;break;}}}}catch(e){}
+  if(signedIn){sec.querySelector('h2').textContent='Ты уже в ICity';note.textContent='Твой профиль сохранён';const a=sec.querySelector('a.btn');a.textContent='Открыть профиль';a.href='/account';sec.querySelector('.bar').hidden=true;return;}
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let t1=null,t2=null;
+  const go=()=>{fade.classList.add('on');t2=setTimeout(()=>{location.href='/login#signup';},reduce?0:700);};
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){sec.classList.add('go');clearTimeout(t1);t1=setTimeout(go,reduce?300:1700);}
+    else{sec.classList.remove('go');clearTimeout(t1);clearTimeout(t2);fade.classList.remove('on');}
+  }),{threshold:.7}).observe(sec);
+  addEventListener('pageshow',e=>{if(e.persisted){fade.classList.remove('on');sec.classList.remove('go');scrollTo({top:document.getElementById('s10').offsetTop,behavior:'auto'});}});
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -278,9 +317,12 @@ const railLinks=[...document.querySelectorAll('.rail a')];
 const secs=[...document.querySelectorAll('main section')];
 
 let p=0,target=0;
+let rise=0;
 function readScroll(){
-  const max=document.documentElement.scrollHeight-innerHeight;
+  const s10=document.getElementById('s10'),s11=document.getElementById('s11');
+  const max=s10.offsetTop;
   target=max>0?Math.min(1,Math.max(0,scrollY/max)):0;
+  rise=Math.min(1,Math.max(0,(scrollY-max)/Math.max(1,s11.offsetTop-max)));
   const mid=scrollY+innerHeight/2;let idx=0;
   secs.forEach((s,i)=>{if(s.offsetTop<=mid)idx=i});
   railLinks.forEach((a,i)=>a.classList.toggle('on',i===idx));
@@ -466,10 +508,13 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);resize();
 
 const lookV=new THREE.Vector3(),tan=new THREE.Vector3(),chaseP=new THREE.Vector3(),chaseL=new THREE.Vector3(),camP=new THREE.Vector3(),camL=new THREE.Vector3();
-let t0=performance.now();
+let t0=performance.now(),riseP=0;
+const introFrom=new THREE.Vector3(-30,300,320),introLook=new THREE.Vector3(0,0,0);
+const easeIO=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function frame(now){
   const time=(now-t0)/1000;
-  p+=reduce?(target-p):(target-p)*0.07;
+  p+=reduce?(target-p):(target-p)*0.035;
+  riseP+=reduce?(rise-riseP):(rise-riseP)*0.05;
   const u=Math.min(1,Math.max(0,p));
 
   /* wheelchair along route */
@@ -493,9 +538,12 @@ function frame(now){
   }
   camera.position.copy(camP);
   if(!reduce){camera.position.x+=Math.sin(time*.3)*.6*(1-wch);camera.position.y+=Math.sin(time*.4)*.3*(1-wch);}
+  const ie=reduce?1:easeIO(Math.min(1,(now-t0)/5200));
+  if(ie<1){camera.position.lerpVectors(introFrom,camera.position,ie);camL.lerpVectors(introLook,camL,ie);}
+  if(riseP>0){camera.position.y+=riseP*120;camera.position.z+=riseP*60;}
   camera.lookAt(camL);
 
-  cloudMat.opacity=.11*(1-ss(.06,.14,u))+.03+.06*ss(.85,.9,u)*(1-ss(.95,1,u));
+  cloudMat.opacity=.11*(1-ss(.06,.14,u))+.03+.06*ss(.85,.9,u)*(1-ss(.95,1,u))+(reduce?0:.14*(1-ie))+.16*riseP;
   clouds.rotation.y=time*.01;
 
   /* scan */
