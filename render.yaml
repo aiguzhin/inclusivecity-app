@@ -17,6 +17,9 @@ services:
       # ИИ-помощник Серік (console.anthropic.com → API Keys)
       - key: ANTHROPIC_API_KEY
         sync: false
+      # Фото и отзывы заведений (Google Cloud → Places API (New) → ключ)
+      - key: GOOGLE_PLACES_KEY
+        sync: false
     # На бесплатном плане Render постоянный диск недоступен — данные и фото
     # обнуляются при каждом передеплое/перезапуске. Чтобы это исправить,
     # перейдите на платный план и раскомментируйте блок ниже:
