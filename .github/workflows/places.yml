@@ -1,0 +1,28 @@
+# Контакты заведений (телефон, сайт, Instagram) из открытых данных Overture Maps для 22 городов.
+# Запуск: вкладка Actions → «Places from Overture» → Run workflow; дальше — сам, 1-го числа каждого месяца.
+name: Places from Overture
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 1 * *'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install duckdb==1.1.3
+      - run: python tools/overture_places.py
+      - name: Commit
+        run: |
+          git config user.name "icity-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/places
+          git diff --cached --quiet && echo "без изменений" && exit 0
+          git commit -m "Контакты заведений из Overture Maps"
+          git push
