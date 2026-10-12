@@ -33,7 +33,12 @@
 - `placeinfo.js` — `/api/place-info` и `/api/place-photo`: фото, рейтинг и отзывы заведений в карточке места
   (Google Places API (New), ключ `GOOGLE_PLACES_KEY`, кэш на неделю); без ключа — фото Wikimedia Commons по тегам OSM.
   Ссылку на 2ГИС в карточке места убрали. Телефоны приводятся к виду `+7 XXX XXX XX XX` (`kzPhone`).
-- Глобус (`openGlobe` в `index.html`): при зуме ≤ 3 вместо карты — Земля на three.js с космосом, Солнцем и Луной.
+- Контакты заведений: `tools/overture_places.py` (DuckDB, Overture Maps places) по workflow `places.yml` пишет
+  `public/places/<город>.json`; `placeEnrichContacts` в `index.html` подставляет телефон/сайт/Instagram, если их нет в OSM.
+- Профиль передвижения — в настройках (`#secProfile`) и на `/account` (`user_metadata.mobility`), в «Куда едем?» — `.prof-chip`.
+- Глобус (`openGlobe` в `index.html`): при зуме ≤ 3 вместо карты — Земля на three.js: реальные день/ночь по времени,
+  облака, Млечный Путь, Солнце и Луна в настоящих направлениях (`globeAstro`), кнопки ☀ и ☾.
+- 3D — только жестом (два пальца вверх, правая кнопка мыши); обычная карта прячется лишь когда 3D дорисовалась (`is3d-ready`).
 - Голосовые подсказки для незрячих (`S.hints` в `index.html`): первое касание называет элемент, второе нажимает.
 - `public/sw.js` — офлайн-кэш; при каждом изменении фронтенда поднимать `CACHE` (`ic-vN`).
 - `data/` на бесплатном Render не сохраняется между деплоями (нет диска) — кэши пересобираются,
