@@ -712,7 +712,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Главная — лендинг, приложение с картой — /map (старый /index.html тоже открывает карту)
-    if (pathname === '/') return serveFile(res, path.join(PUBLIC_DIR, 'landing.html'));
+    if (pathname === '/' || pathname === '/about' || pathname === '/about/') return serveFile(res, path.join(PUBLIC_DIR, 'landing.html'));
     if (pathname === '/map' || pathname === '/map/') return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
     if (pathname === '/login' || pathname === '/account') return serveFile(res, path.join(PUBLIC_DIR, 'login.html'));
     // Ключи Supabase для входа: берутся из переменных окружения Render (anon-ключ публичный по замыслу Supabase)
