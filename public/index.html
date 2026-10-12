@@ -921,7 +921,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
         <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить">−</button>
         <button type="button" class="gl-btn wide" onclick="globeToMap()" data-i18n="glBack">К карте</button>
       </div>
-      <p class="gl-attr">NASA Blue Marble · Earth at Night</p>
+      <p class="gl-attr">NASA Blue Marble · Earth at Night · Moon: NASA / three.js</p>
     </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
@@ -4581,6 +4581,7 @@ document.addEventListener("keydown",e=>{
 // Приблизили — снова обычная карта в этом месте. three.js r128 грузится только при первом открытии.
 const GLOBE_THREE="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
 const GLOBE_TEX="https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/";
+const GLOBE_MOON="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/moon_1024.jpg";
 const GLOBE_OPEN_Z=3;          // карта на этом зуме и меньше → глобус
 let GL3=null;                  // состояние глобуса
 function globeOpen(){ return document.body.classList.contains("globe-on"); }
@@ -4664,19 +4665,47 @@ async function globeInit(){
   Object.entries(CITIES).forEach(([k,c])=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6), dotMat); m.position.copy(llVec(c.c[0],c.c[1],1.002)); m.userData.key=k; earth.add(m); cityDots.push(m); });
   // Солнце и Луна — «на фоне», в кадре камеры; свет идёт от того же Солнца
   const sunLocal=new THREE.Vector3(-0.62,0.4,-1);       // направление на Солнце в системе камеры
+  // Солнце — настоящий 3D-шар: «кипящая» плазма (шейдер с шумом), потемнение к краю, корона и лучи
   const sun=new THREE.Group();
-  sun.add(glowSprite([[0,"rgba(255,255,250,1)"],[.12,"rgba(255,250,225,1)"],[.2,"rgba(255,214,140,.55)"],[.45,"rgba(255,170,80,.16)"],[1,"rgba(255,140,60,0)"]],34));
-  sun.add(glowSprite([[0,"rgba(255,240,200,.18)"],[.5,"rgba(255,200,120,.05)"],[1,"rgba(0,0,0,0)"]],120));
+  const sunMat=new THREE.ShaderMaterial({
+    uniforms:{time:{value:0}},
+    vertexShader:`varying vec3 vP; varying vec3 vN; varying vec3 vV; void main(){ vP=position; vec4 mv=modelViewMatrix*vec4(position,1.0); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
+    fragmentShader:`uniform float time; varying vec3 vP; varying vec3 vN; varying vec3 vV;
+      float h(vec3 p){ p=fract(p*0.3183099+0.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+      float n(vec3 x){ vec3 i=floor(x), f=fract(x); f=f*f*(3.0-2.0*f);
+        return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
+                   mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z); }
+      float fbm(vec3 p){ float v=0.0,a=0.5; for(int k=0;k<5;k++){ v+=a*n(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=0.5; } return v; }
+      void main(){ vec3 p=normalize(vP);
+        float g=fbm(p*4.0+vec3(0.0,time*0.06,time*0.04)); float c=fbm(p*12.0-vec3(time*0.1)+g*1.5);
+        float t=clamp(g*0.55+c*0.6,0.0,1.0);
+        vec3 col=mix(vec3(0.95,0.38,0.04),vec3(1.0,0.72,0.2),t); col=mix(col,vec3(1.0,0.96,0.78),smoothstep(0.55,0.9,t));
+        float mu=clamp(dot(vN,vV),0.0,1.0); col*=0.55+0.6*pow(mu,0.45);       // потемнение к краю диска
+        col+=vec3(1.0,0.55,0.15)*pow(1.0-mu,3.0)*0.6;
+        gl_FragColor=vec4(col*1.25,1.0); }`
+  });
+  const sunBall=new THREE.Mesh(new THREE.SphereGeometry(3.2,64,48), sunMat); sun.add(sunBall);
+  sun.add(glowSprite([[0,"rgba(255,230,170,.0)"],[.26,"rgba(255,210,120,.55)"],[.38,"rgba(255,160,60,.22)"],[.7,"rgba(255,120,40,.06)"],[1,"rgba(255,100,30,0)"]],26));
+  sun.add(glowSprite([[0,"rgba(255,235,190,.22)"],[.4,"rgba(255,190,110,.07)"],[1,"rgba(0,0,0,0)"]],110));
+  // мягкое сияние вместо «нарисованных» лучей: несколько слоёв короны
+  const rays=new THREE.Group();
+  rays.add(glowSprite([[0,"rgba(255,245,220,.0)"],[.3,"rgba(255,236,190,.35)"],[.55,"rgba(255,190,110,.10)"],[1,"rgba(255,150,60,0)"]],44));
+  rays.add(glowSprite([[0,"rgba(255,250,235,.10)"],[.25,"rgba(255,220,160,.05)"],[1,"rgba(0,0,0,0)"]],220));
+  sun.add(rays);
   camera.add(sun);
   const light=new THREE.DirectionalLight(0xffffff,1.25); camera.add(light); camera.add(light.target);
   scene.add(new THREE.AmbientLight(0x404050,.45));
-  const moon=new THREE.Mesh(new THREE.SphereGeometry(.27,48,32), new THREE.MeshLambertMaterial({map:moonTexture()}));
+  // Луна — 3D-шар с настоящей картой поверхности (NASA, из примеров three.js) и рельефом кратеров;
+  // освещена тем же Солнцем, поэтому видна её фаза
+  const moonMat=new THREE.MeshPhongMaterial({map:moonTexture(), shininess:2, specular:0x000000});
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(.3,64,48), moonMat);
   camera.add(moon);
-  GL3={renderer,scene,camera,earth,earthMat,cityDots,sun,sunLocal,light,moon,box,cv,
+  new THREE.TextureLoader().setCrossOrigin("anonymous").load(GLOBE_MOON,tx=>{ moonMat.map=tx; moonMat.bumpMap=tx; moonMat.bumpScale=.012; moonMat.needsUpdate=true; });
+  GL3={renderer,scene,camera,earth,earthMat,cityDots,sun,sunLocal,light,moon,box,cv,sunMat,sunBall,rays,
        lat:45, lon:68, dist:3.1, fitDist:3.1, vLat:0, vLon:0, target:null, t0:performance.now(), raf:0, closing:false};
   const resize=()=>{ const w=box.clientWidth||innerWidth, h=box.clientHeight||innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
     const depth=60, hh=depth*Math.tan(camera.fov*Math.PI/360), hw=hh*camera.aspect;
-    sun.position.set(-hw*.68,hh*.62,-depth);                      // левый верхний угол, далеко за Землёй
+    sun.position.set(-hw*(camera.aspect<.8?.58:.74),hh*.64,-depth);                      // левый верхний угол, далеко за Землёй
     GL3.sunDirCam=new THREE.Vector3(-0.72,0.48,0.42).normalize();   // свет слева сверху и чуть спереди: видна дневная сторона, справа — огни ночных городов
     // Земля целиком в кадре и на телефоне (узкий экран), и на компьютере
     const half=Math.min(camera.fov/2, Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI)*Math.PI/180;
@@ -4697,7 +4726,8 @@ function globeFrame(now){
   g.light.target.position.set(0,0,-g.dist); g.light.position.copy(g.sunDirCam).multiplyScalar(20); g.light.position.z-=g.dist;
   const tt=motion?(now-g.t0)/1000:0, md=g.dist+1.2, mh=md*Math.tan(g.camera.fov*Math.PI/360), mw=mh*g.camera.aspect;
   g.moon.position.set(mw*.74+Math.sin(tt*.15)*.06, mh*.36+Math.cos(tt*.12)*.05, -md);   // справа сверху, чуть «дышит»
-  g.moon.rotation.y=tt*.02;
+  g.moon.rotation.y=.8+tt*.03;
+  g.sunMat.uniforms.time.value=tt; g.sunBall.rotation.y=tt*.02; g.rays.rotation.z=tt*.01;
   g.renderer.render(g.scene,g.camera);
   g.raf=requestAnimationFrame(globeFrame);
 }
