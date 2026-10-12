@@ -83,6 +83,27 @@ html[data-theme="dark"] .btn-primary{color:#04121f}
 .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn-dark{background:var(--ink);color:var(--paper)}
 .btn-danger{background:var(--red-weak);color:var(--red);border:1px solid var(--red)}
+.mini-menu{position:fixed;z-index:3000;top:calc(env(safe-area-inset-top,0px) + 52px);left:10px;width:min(280px,calc(100vw - 20px));
+  background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(16,42,67,.22);padding:6px;
+  transform-origin:top left;animation:mmIn .16s ease-out}
+.mini-menu[hidden]{display:none}
+@keyframes mmIn{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:none}}
+html[data-motion="off"] .mini-menu{animation:none}
+.mini-menu>button,.mini-menu>a{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 10px;border:0;border-radius:10px;
+  background:transparent;color:inherit;font:inherit;font-size:.92rem;text-align:left;text-decoration:none;cursor:pointer}
+.mini-menu>button:hover,.mini-menu>a:hover,.mini-menu>button:focus-visible,.mini-menu>a:focus-visible{background:var(--blue-weak);outline:none}
+.mini-menu .ic{width:20px;height:20px;flex:none;color:var(--ink-soft)}
+.mini-menu .mm-acct{min-height:56px}
+.mm-ava{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--blue-weak);color:var(--blue-ink);font-weight:800;overflow:hidden}
+.mm-ava img{width:100%;height:100%;object-fit:cover}
+.mm-ava .ic{color:var(--blue-ink)}
+.mm-who{display:grid;min-width:0}
+.mm-who b{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm-who small{color:var(--ink-soft);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm-sep{height:1px;background:var(--line);margin:4px 6px}
+.mm-lang{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px}
+.mm-lang button{min-height:36px;border-radius:9px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}
+.mm-lang button[aria-pressed="true"]{background:var(--blue-weak);border-color:var(--blue);color:var(--blue-ink)}
 .acct-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:650}
 .btn-sm{min-height:36px;padding:6px 10px;font-size:.82rem;border-radius:8px}
 .icon-btn{min-width:var(--tap);padding:8px 10px}
@@ -562,8 +583,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
 <a class="skip" href="#main" data-i18n="skip">Перейти к содержимому</a>
 
 <header class="top">
-  <button type="button" class="hamburger" id="sheetBtn" onclick="toggleSheet()"
-          aria-expanded="false" aria-controls="sidePanel" data-i18n-aria="menuBtn" aria-label="Панель управления">
+  <button type="button" class="hamburger" id="sheetBtn" onclick="toggleMiniMenu(event)"
+          aria-expanded="false" aria-controls="miniMenu" aria-haspopup="menu" data-i18n-aria="menuBtn" aria-label="Панель управления">
     <span class="bars" aria-hidden="true"></span>
   </button>
   <div class="brand">I<b>City</b></div>
@@ -581,6 +602,26 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
     <a class="btn-ghost btn-sm acct-link" id="acctBtn" href="/login" data-i18n="acctLogin">Войти</a>
   </div>
 </header>
+
+<!-- Мини-меню под «тремя линиями»: аккаунт и быстрые действия, не закрывает карту -->
+<div class="mini-menu" id="miniMenu" role="menu" hidden>
+  <a class="mm-acct" id="mmAcct" href="/login" role="menuitem">
+    <span class="mm-ava" id="mmAva"><i data-ic="user"></i></span>
+    <span class="mm-who"><b id="mmName" data-i18n="mmSignin">Вход и регистрация</b><small id="mmSub" data-i18n="mmGuestSub">Сохраняй маршруты и жалобы</small></span>
+  </a>
+  <div class="mm-sep" role="separator"></div>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="walk"></i><span data-i18n="eyebrow">Маршрут и доступность</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
+  <a role="menuitem" href="/dashboard.html"><i data-ic="chart"></i><span data-i18n="statsShort">Статистика</span></a>
+  <a role="menuitem" href="/"><i data-ic="info"></i><span data-i18n="aboutShort">О проекте</span></a>
+  <div class="mm-sep" role="separator"></div>
+  <div class="mm-lang" role="group" aria-label="Тіл / Язык / Language">
+    <button type="button" data-lang="ru" onclick="mmDo(()=>setLang('ru'))">RU</button>
+    <button type="button" data-lang="kk" onclick="mmDo(()=>setLang('kk'))">KZ</button>
+    <button type="button" data-lang="en" onclick="mmDo(()=>setLang('en'))">EN</button>
+  </div>
+</div>
 
 <main class="app" id="main">
   <aside class="side" id="sidePanel" aria-label="Панель управления">
@@ -608,10 +649,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
       <div class="m-row">
         <button type="button" class="btn-ghost" onclick="toggleView()"><i data-ic="list"></i> <span data-i18n="viewList">Текстовый режим</span></button>
         <a class="btn-ghost m-link" href="/dashboard.html"><i data-ic="chart"></i> <span data-i18n="statsShort">Статистика</span></a>
-      </div>
-      <div class="m-row">
-        <a class="btn-ghost m-link acct-link" id="acctBtn2" href="/login"><span data-i18n="acctLogin">Войти</span></a>
-        <a class="btn-ghost m-link" href="/"><span data-i18n="aboutShort">О проекте</span></a>
       </div>
     </section>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
@@ -961,6 +998,8 @@ const ICONS={
   insta:'<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><path d="M16.8 7.2h.01"/>',
   send:'<path d="M21 4 3 11l7 2.5L12.5 21z"/><path d="m10 13.5 4-4"/>',
   globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>',
+  user:'<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c1.2-3.8 4-5.8 7.5-5.8s6.3 2 7.5 5.8"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/>',
   storm:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="m13 14.5-2.5 4h3.2L11.5 22.5"/>'
 };
 const svgI=(n,cls)=>`<svg class="ic ${cls||""}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||ICONS.b}</svg>`;
@@ -1013,6 +1052,7 @@ ru:{
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
  viewList:"Текстовый режим", viewMap:"Карта",
  acctLogin:"Войти", acctProfile:"Профиль", aboutShort:"О проекте",
+ mmSignin:"Вход и регистрация", mmGuestSub:"Сохраняй маршруты и жалобы", mmMenu:"Меню",
  profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль",
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
  noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
@@ -1098,6 +1138,7 @@ kk:{
  hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
  viewList:"Мәтіндік режим", viewMap:"Карта",
  acctLogin:"Кіру", acctProfile:"Профиль", aboutShort:"Жоба туралы",
+ mmSignin:"Кіру және тіркелу", mmGuestSub:"Бағыттар мен шағымдарды сақта", mmMenu:"Мәзір",
  profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль",
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
  noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
@@ -1184,6 +1225,7 @@ en:{
  hint:"Type a place, pick a point on the map, or use your location.",
  viewList:"Text mode", viewMap:"Map",
  acctLogin:"Sign in", acctProfile:"Account", aboutShort:"About",
+ mmSignin:"Sign in / Sign up", mmGuestSub:"Save routes and reports", mmMenu:"Menu",
  profileTitle:"Your mobility profile", profileLabel:"Profile",
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
  noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
@@ -2228,7 +2270,7 @@ let sheetReturn=null;
 function openSheet(full){
   document.body.classList.add("sheet-open");
   document.body.classList.toggle("sheet-full", full===true);
-  const b=document.getElementById("sheetBtn"), p=document.getElementById("peekSearch");
+  const b=null, p=document.getElementById("peekSearch");
   if(b) b.setAttribute("aria-expanded","true");
   if(p) p.setAttribute("aria-expanded","true");
   sheetReturn = document.activeElement;
@@ -2237,7 +2279,7 @@ function openSheet(full){
 }
 function closeSheet(){
   document.body.classList.remove("sheet-open","sheet-full");
-  const b=document.getElementById("sheetBtn"), p=document.getElementById("peekSearch");
+  const b=null, p=document.getElementById("peekSearch");
   if(b) b.setAttribute("aria-expanded","false");
   if(p) p.setAttribute("aria-expanded","false");
   if(sheetReturn && document.body.contains(sheetReturn)){ try{ sheetReturn.focus(); }catch(e){} }
@@ -3984,6 +4026,34 @@ function toast(s){
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),3800);
 }
 
+/* ============ Мини-меню «три линии» ============ */
+function miniMenuOpen(){ return !document.getElementById("miniMenu").hidden; }
+function closeMiniMenu(focusBtn){
+  const m=document.getElementById("miniMenu"); if(m.hidden) return;
+  m.hidden=true; document.getElementById("sheetBtn").setAttribute("aria-expanded","false");
+  if(focusBtn) document.getElementById("sheetBtn").focus();
+}
+function toggleMiniMenu(ev){
+  if(ev) ev.stopPropagation();
+  const m=document.getElementById("miniMenu");
+  if(!m.hidden){ closeMiniMenu(true); return; }
+  if(document.body.classList.contains("sheet-open")) closeSheet();
+  m.querySelectorAll(".mm-lang button").forEach(x=>x.setAttribute("aria-pressed", String(x.dataset.lang===S.lang)));
+  m.hidden=false; document.getElementById("sheetBtn").setAttribute("aria-expanded","true");
+  const f=m.querySelector("a,button"); if(f) f.focus();
+}
+function mmDo(fn){ closeMiniMenu(false); fn(); }
+document.addEventListener("click",e=>{ if(miniMenuOpen() && !e.target.closest("#miniMenu,#sheetBtn")) closeMiniMenu(false); });
+document.addEventListener("keydown",e=>{
+  if(!miniMenuOpen()) return;
+  if(e.key==="Escape"){ e.preventDefault(); closeMiniMenu(true); return; }
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+    const items=[...document.querySelectorAll("#miniMenu a, #miniMenu button")];
+    const i=items.indexOf(document.activeElement); e.preventDefault();
+    const n=e.key==="ArrowDown"?(i+1)%items.length:(i-1+items.length)%items.length; items[n].focus();
+  }
+});
+
 /* ============ Старт ============ */
 (function init(){
   S.lang=read("lang","ru"); S.profile=read("profile","wheelchair_manual");
@@ -4034,18 +4104,26 @@ function toast(s){
   if("serviceWorker" in navigator){
     window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
   }
-  // Кнопка «Войти» / «Профиль»: сессию Supabase хранит в localStorage под ключом sb-…-auth-token
+  // Аккаунт: сессию Supabase хранит в localStorage под ключом sb-…-auth-token
   step("account", ()=>{
-    let signedIn=false;
+    let u=null;
     try{
       for(let i=0;i<localStorage.length;i++){
         const k=localStorage.key(i);
-        if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); if(v && v.user){ signedIn=true; break; } }
+        if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); if(v && v.user){ u=v.user; break; } }
       }
     }catch(e){}
-    if(!signedIn) return;
+    if(!u) return;
+    const meta=u.user_metadata||{};
+    const ph=u.phone?("+"+String(u.phone).replace(/^\+/,"")):"";
+    const name=meta.full_name||meta.name||(u.email||"").split("@")[0]||ph;
     const b=document.getElementById("acctBtn"); if(b){ b.setAttribute("data-i18n","acctProfile"); b.textContent=t("acctProfile"); b.href="/account"; }
-    const b2=document.getElementById("acctBtn2"); if(b2){ b2.href="/account"; const sp=b2.querySelector("span"); if(sp){ sp.setAttribute("data-i18n","acctProfile"); sp.textContent=t("acctProfile"); } }
+    const a=document.getElementById("mmAcct"); a.href="/account";
+    const n=document.getElementById("mmName"); n.removeAttribute("data-i18n"); n.textContent=name;
+    const sub=document.getElementById("mmSub"); sub.removeAttribute("data-i18n"); sub.textContent=u.email||ph;
+    const ava=document.getElementById("mmAva");
+    if(meta.avatar_url){ ava.innerHTML=""; const im=new Image(); im.alt=""; im.referrerPolicy="no-referrer"; im.src=meta.avatar_url; ava.appendChild(im); }
+    else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
   });
 })();
 </script>
