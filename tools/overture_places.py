@@ -48,13 +48,21 @@ def main():
     if src.startswith('s3://'):
         con.execute("INSTALL httpfs; LOAD httpfs; SET s3_region='us-west-2';")
     print('Overture', rel, src, file=sys.stderr)
+    # схема Overture меняется между релизами (categories → basic_category/taxonomy) — берём то, что есть
+    cols = {r[0] for r in con.execute(f"DESCRIBE SELECT * FROM read_parquet('{src}', hive_partitioning=1)").fetchall()}
+    print('колонки:', sorted(cols), file=sys.stderr)
+    cat = ('basic_category' if 'basic_category' in cols else
+           'categories.primary' if 'categories' in cols else
+           'taxonomy.primary' if 'taxonomy' in cols else "''")
+    lst = lambda c: c if c in cols else 'CAST([] AS VARCHAR[])'
+    conf = 'confidence' if 'confidence' in cols else '1.0'
     rows = con.execute(f"""
       SELECT names.primary AS name, (bbox.ymin+bbox.ymax)/2 AS lat, (bbox.xmin+bbox.xmax)/2 AS lon,
-             phones, websites, socials, categories.primary AS cat, confidence
+             {lst('phones')} AS phones, {lst('websites')} AS websites, {lst('socials')} AS socials, {cat} AS cat, {conf} AS confidence
       FROM read_parquet('{src}', hive_partitioning=1)
       WHERE bbox.xmin BETWEEN {lon0} AND {lon1} AND bbox.ymin BETWEEN {lat0} AND {lat1}
-        AND names.primary IS NOT NULL AND confidence >= 0.4
-        AND (len(phones) > 0 OR len(websites) > 0 OR len(socials) > 0)
+        AND names.primary IS NOT NULL AND {conf} >= 0.4
+        AND (len({lst('phones')}) > 0 OR len({lst('websites')}) > 0 OR len({lst('socials')}) > 0)
     """).fetchall()
     print('строк в рамке Казахстана:', len(rows), file=sys.stderr)
     os.makedirs(OUT, exist_ok=True)
