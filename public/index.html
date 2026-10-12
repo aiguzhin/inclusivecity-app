@@ -444,6 +444,16 @@ ol.steps li{margin-bottom:8px}
 .leaflet-popup-content img{max-width:100%;border-radius:8px;margin:6px 0;display:block}
 
 .settings-grid{display:grid;gap:4px}
+.set-sec{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.set-sec>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:10px 14px;cursor:pointer;font-weight:700;user-select:none}
+.set-sec>summary::-webkit-details-marker{display:none}
+.set-sec>summary:focus-visible{outline:3px solid var(--focus);outline-offset:-3px;border-radius:12px}
+.set-sec>summary .set-val{margin-left:auto;max-width:55%;font-weight:500;font-size:.9rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-sec>summary::after{content:"";flex:none;width:8px;height:8px;margin:0 2px 4px 4px;border-right:2px solid var(--ink-soft);border-bottom:2px solid var(--ink-soft);transform:rotate(45deg);transition:transform .2s}
+.set-sec[open]>summary::after{transform:rotate(-135deg);margin-bottom:-4px}
+.set-sec[open]>summary{border-bottom:1px solid var(--line)}
+.set-sec .set-body{padding:12px 14px 14px}
+.settings-grid{gap:8px}
 .settings-grid label.field{margin:12px 0 6px;font-size:.78rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-soft)}
 /* Переключатели — одной компактной полоской, как в iOS */
 .seg{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
@@ -825,61 +835,63 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
       <h2 id="setTitle" data-i18n="setTitle">Настройки</h2>
       <button class="btn-ghost btn-sm" onclick="closeModal('settingsModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
-    <div class="settings-grid">
-      <!-- Город обычно определяется сам по геопозиции; здесь — ручной выбор -->
-      <div>
-        <label class="field" for="citySel"><span data-i18n="cityLabel">Город</span></label>
-        <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
-        <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)"><i data-ic="pin"></i> <span data-i18n="cityAuto">Определить по геопозиции</span></button>
-      </div>
-      <div>
-        <label class="field">Тіл · Язык · Language</label>
-        <div class="seg" id="segLang">
+    <!-- Настройки разделами: открывается только тот, на который нажали -->
+    <div class="settings-grid" id="setSecs">
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="basemapLabel">Вид карты</span><b class="set-val" id="svMap"></b></summary>
+        <div class="set-body"><div class="m-maps set-maps" id="setMaps" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты"></div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="myCity">Мой город</span><b class="set-val" id="svCity"></b></summary>
+        <div class="set-body">
+          <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
+          <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)"><i data-ic="pin"></i> <span data-i18n="cityAuto">Определить по геопозиции</span></button>
+        </div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span>Тіл · Язык · Language</span><b class="set-val" id="svLang"></b></summary>
+        <div class="set-body"><div class="seg" id="segLang">
           <button onclick="setLang('kk')" data-v="kk" lang="kk">Қазақша</button>
           <button onclick="setLang('ru')" data-v="ru" lang="ru">Русский</button>
           <button onclick="setLang('en')" data-v="en" lang="en">English</button>
-        </div>
-      </div>
-      <div>
-        <label class="field" data-i18n="basemapLabel">Вид карты</label>
-        <div class="m-maps set-maps" id="setMaps" role="group" data-i18n-aria="basemapLabel" aria-label="Вид карты"></div>
-      </div>
-      <div>
-        <label class="field" data-i18n="setFont">Размер текста</label>
-        <div class="seg" id="segFont">
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setMotion">Анимации</span><b class="set-val" id="svMotion"></b></summary>
+        <div class="set-body"><div class="seg" id="segMotion">
+          <button onclick="setMotion('on')" data-v="on" data-i18n="motionOn">Включены</button>
+          <button onclick="setMotion('off')" data-v="off" data-i18n="motionOff">Отключены</button>
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setFont">Размер текста</span><b class="set-val" id="svFont"></b></summary>
+        <div class="set-body"><div class="seg" id="segFont">
           <button onclick="setFont('normal')" data-v="normal" data-i18n="fontNormal">Обычный</button>
           <button onclick="setFont('large')" data-v="large" data-i18n="fontLarge">Крупный</button>
           <button onclick="setFont('xlarge')" data-v="xlarge" data-i18n="fontXlarge">Очень крупный</button>
-        </div>
-      </div>
-      <div>
-        <label class="field" data-i18n="setTheme">Тема</label>
-        <div class="seg" id="segTheme">
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setTheme">Тема</span><b class="set-val" id="svTheme"></b></summary>
+        <div class="set-body"><div class="seg" id="segTheme">
           <button onclick="setTheme('light')" data-v="light" data-i18n="themeLight">Светлая</button>
           <button onclick="setTheme('dark')" data-v="dark" data-i18n="themeDark">Тёмная</button>
-        </div>
-      </div>
-      <div>
-        <label class="field" data-i18n="setContrast">Контраст</label>
-        <div class="seg" id="segContrast">
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setContrast">Контраст</span><b class="set-val" id="svContrast"></b></summary>
+        <div class="set-body"><div class="seg" id="segContrast">
           <button onclick="setContrast('normal')" data-v="normal" data-i18n="contrastNormal">Обычный</button>
           <button onclick="setContrast('high')" data-v="high" data-i18n="contrastHigh">Высокий</button>
-        </div>
-      </div>
-      <div>
-        <label class="field" data-i18n="setMotion">Анимации</label>
-        <div class="seg" id="segMotion">
-          <button onclick="setMotion('on')" data-v="on" data-i18n="motionOn">Включены</button>
-          <button onclick="setMotion('off')" data-v="off" data-i18n="motionOff">Отключены</button>
-        </div>
-      </div>
-      <div>
-        <label class="field" data-i18n="setVoice">Озвучка маршрута</label>
-        <div class="seg" id="segVoice">
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setVoice">Озвучка маршрута</span><b class="set-val" id="svVoice"></b></summary>
+        <div class="set-body"><div class="seg" id="segVoice">
           <button onclick="setVoice('on')" data-v="on" data-i18n="voiceOn">Включена</button>
           <button onclick="setVoice('off')" data-v="off" data-i18n="voiceOff">Выключена</button>
-        </div>
-      </div>
+        </div></div>
+      </details>
     </div>
     <p class="small muted" style="margin-top:14px" data-i18n="setSaved">Настройки сохраняются в этом браузере.</p>
   </div>
@@ -1012,7 +1024,7 @@ ru:{
  basemapLabel:"Вид карты", acNoResults:"Ничего не найдено",
  mapPlain:"Схема", mapSat:"Спутник",
  satLimit:"Подробнее этот город со спутника не снят — показываем крупнее последний доступный снимок. Схема остаётся чёткой.",
- cityLabel:"Город", docTitle:"доступная карта", mapLabel:"Карта",
+ cityLabel:"Город", myCity:"Мой город", docTitle:"доступная карта", mapLabel:"Карта",
  variantsTitle:"Варианты пути", vFastest:"быстрее всех", vStairs:"лестниц без пандуса",
  stairs1:"лестница", stairs2:"лестницы", stairs5:"лестниц", vNoRamp:"без пандуса",
  warn1:"предупреждение", warn2:"предупреждения", warn5:"предупреждений", vLeastBad:"меньше всего барьеров",
@@ -1098,7 +1110,7 @@ kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
  mapPlain:"Сызба", mapSat:"Спутник",
  satLimit:"Бұл қала спутниктен бұдан егжей-тегжейлі түсірілмеген — соңғы қолжетімді суретті үлкейтіп көрсетеміз. Сызба анық күйінде қалады.",
- cityLabel:"Қала", docTitle:"қолжетімді карта", mapLabel:"Карта",
+ cityLabel:"Қала", myCity:"Менің қалам", docTitle:"қолжетімді карта", mapLabel:"Карта",
  variantsTitle:"Жол нұсқалары", vFastest:"ең жылдам", vStairs:"пандуссыз баспалдақ",
  stairs1:"баспалдақ", stairs2:"баспалдақ", stairs5:"баспалдақ", vNoRamp:"пандуссыз",
  warn1:"ескерту", warn2:"ескерту", warn5:"ескерту", vLeastBad:"кедергісі ең аз",
@@ -1185,7 +1197,7 @@ en:{
  basemapLabel:"Map type", acNoResults:"Nothing found",
  mapPlain:"Map", mapSat:"Satellite",
  satLimit:"No closer satellite imagery exists for this city — we enlarge the last available shot. The street map stays sharp.",
- cityLabel:"City", docTitle:"accessible map", mapLabel:"Map",
+ cityLabel:"City", myCity:"My city", docTitle:"accessible map", mapLabel:"Map",
  variantsTitle:"Route options", vFastest:"fastest", vStairs:"stairs without a ramp",
  stairs1:"staircase", stairs2:"staircases", stairs5:"staircases", vNoRamp:"without a ramp",
  warn1:"warning", warn2:"warnings", warn5:"warnings", vLeastBad:"fewest barriers",
@@ -1381,7 +1393,7 @@ function setBasemap(key){
   if(!BASEMAPS[key]) key="osm";
   S.basemap=key; store("basemap",key);
   const sel=document.getElementById("basemapSel"); if(sel) sel.value=key;
-  syncBasemapButtons(key);
+  syncBasemapButtons(key); updateSetVals();
   if(!mapReady) return;
   const def=BASEMAPS[key];
   if(baseLayer) map.removeLayer(baseLayer);
@@ -2122,6 +2134,7 @@ function applyAll(){
   document.body.setAttribute("data-view",S.view);
   mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
   mark("segMotion",S.motion); mark("segVoice",S.voice); mark("segLang",S.lang);
+  updateSetVals();
   renderTexts();
   syncPeekHeight();   // крупный шрифт делает плашку выше
 }
@@ -2133,6 +2146,18 @@ function setFont(v){ S.font=v; store("font",v); applyAll(); }
 function setTheme(v){ S.theme=v; store("theme",v); applyAll(); }
 function setContrast(v){ S.contrast=v; store("contrast",v); applyAll(); }
 function setMotion(v){ S.motion=v; store("motion",v); applyAll(); }
+/* Текущие значения на заголовках разделов настроек */
+function updateSetVals(){
+  const put=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v||""; };
+  const bm=BASEMAPS[S.basemap]; put("svMap", bm ? (bm[S.lang]||bm.ru) : "");
+  try{ put("svCity", cityName()); }catch(e){}
+  put("svLang", {ru:"Русский",kk:"Қазақша",en:"English"}[S.lang]);
+  put("svMotion", t(S.motion==="off"?"motionOff":"motionOn"));
+  put("svFont", t(S.font==="xlarge"?"fontXlarge":S.font==="large"?"fontLarge":"fontNormal"));
+  put("svTheme", t(S.theme==="dark"?"themeDark":"themeLight"));
+  put("svContrast", t(S.contrast==="high"?"contrastHigh":"contrastNormal"));
+  put("svVoice", t(S.voice==="off"?"voiceOff":"voiceOn"));
+}
 function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") stopSpeak(); }
 function setLang(v){
   S.lang=v; store("lang",v);
@@ -2409,7 +2434,7 @@ function setCity(key){
   const changed = key!==S.city;
   S.city=key; store("city",key);
   const sel=document.getElementById("citySel"); if(sel) sel.value=key;
-  applyCityTexts();
+  applyCityTexts(); updateSetVals();
   if(!changed) return;
   // Всё, что было привязано к прежнему городу, сбрасываем, чтобы не вести
   // маршрут из Алматы в Астану и не показывать чужие подсказки.
@@ -4008,6 +4033,7 @@ let lastFocus=null;
 function openModal(id){
   lastFocus=document.activeElement;
   const m=document.getElementById(id); m.classList.add("open");
+  if(id==="settingsModal"){ m.querySelectorAll("details.set-sec").forEach(d=>d.open=false); updateSetVals(); }
   const f=m.querySelector("button,select,input,textarea"); if(f) f.focus();
 }
 function closeModal(id){
@@ -4025,6 +4051,12 @@ function toast(s){
   el.textContent=s; el.classList.add("show");
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),3800);
 }
+
+/* Разделы настроек: открыт только один (на случай браузеров без <details name>) */
+document.addEventListener("toggle",e=>{
+  const d=e.target; if(!(d instanceof HTMLDetailsElement) || !d.classList.contains("set-sec") || !d.open) return;
+  document.querySelectorAll("details.set-sec").forEach(x=>{ if(x!==d) x.open=false; });
+},true);
 
 /* ============ Мини-меню «три линии» ============ */
 function miniMenuOpen(){ return !document.getElementById("miniMenu").hidden; }
