@@ -123,6 +123,12 @@ body.about .contact{display:grid;gap:12px;justify-items:center;margin-top:22px}
 .contact .mail{font:700 clamp(17px,3vw,26px)/1.2 var(--f-display);color:var(--ok);text-decoration:none;word-break:break-all}
 .contact .mail:hover{text-decoration:underline}
 body.about #s10 .actions,body.about #s11,body.about .rail a[href="#s11"]{display:none}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);z-index:20;transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:99px;background:var(--ok);color:#04201a;font:600 15px/1 var(--f-body);
+  box-shadow:0 8px 30px rgba(0,0,0,.35);transition:opacity .25s ease,transform .25s ease}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast svg{width:18px;height:18px;flex:none}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
 </style>
 </head>
 <body>
@@ -290,6 +296,7 @@ body.about #s10 .actions,body.about #s11,body.about .rail a[href="#s11"]{display
   </section>
 </main>
 <div id="fade" aria-hidden="true"></div>
+<div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span></span></div>
 <footer>ICity · inclusivecity.uk</footer>
 <script>
 /* Если человек уже вошёл (сессия Supabase в localStorage), показываем «Профиль» вместо «Войти» */
@@ -344,10 +351,23 @@ window.icSetLang=apply;
 document.querySelectorAll('.lang-sw button').forEach(b=>b.onclick=()=>{apply(b.dataset.lang);try{localStorage.setItem('ic_lang',b.dataset.lang)}catch(e){}});
 let l='ru';try{l=localStorage.getItem('ic_lang')||'ru'}catch(e){}
 apply(['ru','kk','en'].includes(l)?l:'ru');
-const cb=document.getElementById('copyMail');
-cb.onclick=()=>{
-  const t=cb.firstChild,done=()=>{t.__ru='Скопировано';apply(window.icLang);setTimeout(()=>{t.__ru='Скопировать';apply(window.icLang);},2000);};
-  try{navigator.clipboard.writeText('inclusivecityimpact@gmail.com').then(done,()=>{const r=document.createRange();r.selectNodeContents(document.querySelector('.contact .mail'));const s=getSelection();s.removeAllRanges();s.addRange(r);});}catch(e){}
+const cb=document.getElementById('copyMail'),MAIL='inclusivecityimpact@gmail.com';
+const TOAST={ru:'Скопировано!',kk:'Көшірілді!',en:'Copied!'},FAIL={ru:'Не удалось скопировать',kk:'Көшіру мүмкін болмады',en:"Couldn't copy"};
+const toast=document.getElementById('toast');let tt=null;
+function showToast(map){toast.querySelector('span').textContent=map[window.icLang]||map.ru;toast.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('on'),2200);}
+/* запасной способ: невидимое поле + execCommand, без видимого выделения на странице */
+function legacyCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);const sel=getSelection(),prev=sel.rangeCount?sel.getRangeAt(0):null;
+  ta.select();ta.setSelectionRange(0,text.length);let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);sel.removeAllRanges();if(prev)sel.addRange(prev);cb.focus();return ok;
+}
+cb.onclick=async()=>{
+  let ok=false;
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(MAIL);ok=true;}}catch(e){}
+  if(!ok)ok=legacyCopy(MAIL);
+  showToast(ok?TOAST:FAIL);
 };
 })();
 </script>
