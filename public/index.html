@@ -631,6 +631,50 @@ html[data-theme="dark"] .sk-send{color:#04121f}
 .hint-armed{outline:3px solid var(--focus)!important;outline-offset:2px}
 html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summary,html[data-hints="on"] label{touch-action:manipulation}
 .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* Фото и отзывы в карточке места */
+.pc-media[hidden]{display:none}
+.pc-media{margin:12px 0 4px}
+.pm-skel{display:flex;gap:6px}.pm-skel span{flex:none;width:118px;height:84px;border-radius:12px;background:linear-gradient(90deg,var(--paper),var(--line),var(--paper));background-size:200% 100%;animation:pmSk 1.2s linear infinite}
+@keyframes pmSk{to{background-position:-200% 0}}
+html[data-motion="off"] .pm-skel span{animation:none}
+.pm-rating{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:.9rem}
+.pm-rating b{font-size:1.05rem}
+.pm-stars{color:#f5a623;letter-spacing:1px;font-size:.9rem}
+.pm-photos{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;margin:0 -2px;overscroll-behavior-x:contain}
+.pm-ph{flex:none;width:132px;height:96px;padding:0;border:0;border-radius:12px;overflow:hidden;background:var(--paper);cursor:zoom-in;scroll-snap-align:start}
+.pm-ph:first-child{width:180px}
+.pm-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.pm-h{margin:10px 0 6px;font-weight:750;font-size:.9rem}
+.pm-rv{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:0 0 6px;background:var(--paper)}
+.pm-rv-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 3px;font-size:.82rem}
+.pm-rv-text{margin:0;font-size:.86rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.pm-more summary{cursor:pointer;font-size:.85rem;color:var(--blue);margin:2px 0 6px}
+.pm-src{margin:4px 0 0;font-size:.72rem;color:var(--ink-soft)}
+.pm-src a{color:inherit}
+.pm-view{position:fixed;inset:0;z-index:4000;background:rgba(3,8,14,.94);display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.pm-view[hidden]{display:none}
+.pm-view img{max-width:96vw;max-height:80vh;object-fit:contain;border-radius:8px}
+.pm-view .pm-x,.pm-view .pm-nav{position:absolute;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1.3rem;cursor:pointer}
+.pm-view .pm-x{top:calc(env(safe-area-inset-top,0px) + 12px);right:12px}
+.pm-view .pm-nav{top:50%;transform:translateY(-50%)}
+.pm-view .pm-nav[hidden]{display:none}
+#pmPrev{left:10px}#pmNext{right:10px}
+.pm-foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:#d8e2ec;font-size:.8rem;display:grid;gap:4px}
+.pm-foot a{color:#d8e2ec}
+/* Глобус вместо «атласа» при сильном отдалении */
+.globe{position:absolute;inset:0;z-index:455;background:radial-gradient(ellipse at 30% 20%,#0d1a33 0%,#050a16 55%,#010205 100%);outline:none}
+.globe[hidden]{display:none}
+.globe canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.globe canvas:active{cursor:grabbing}
+body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:hidden}
+.gl-ui{position:absolute;right:10px;bottom:96px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.gl-btn{min-width:46px;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(10,20,36,.72);color:#fff;font:inherit;font-weight:750;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px)}
+.gl-btn.wide{font-size:.9rem;padding:0 14px}
+.gl-hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);max-width:min(420px,calc(100% - 32px));margin:0;padding:8px 14px;border-radius:99px;background:rgba(10,20,36,.6);color:#dbe6f3;font-size:.82rem;text-align:center;z-index:2;pointer-events:none}
+.gl-load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#c9d6e6;font-size:.9rem;z-index:2}
+.gl-load[hidden],.gl-hint[hidden]{display:none}
+.gl-attr{position:absolute;left:8px;bottom:6px;margin:0;font-size:.65rem;color:rgba(220,230,240,.55);z-index:2}
+@media(max-width:860px){ .gl-ui{bottom:calc(var(--peek-h) + 108px)} .gl-attr{bottom:calc(var(--peek-h) + 6px)} }
 </style>
 </head>
 <body data-view="map">
@@ -867,6 +911,18 @@ html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summa
         </div>
       </div>
     </div>
+    <!-- Глобус: Земля в космосе при сильном отдалении карты -->
+    <div class="globe" id="globe" hidden tabindex="-1" role="application" data-i18n-aria="glTitle" aria-label="Глобус">
+      <canvas id="globeCv" aria-hidden="true"></canvas>
+      <p class="gl-hint" data-i18n="glHint">Крутите Землю пальцем или мышью. Приблизьте — откроется карта.</p>
+      <p class="gl-load" id="globeLoad" data-i18n="glLoading">Загружаем Землю…</p>
+      <div class="gl-ui">
+        <button type="button" class="gl-btn" onclick="globeZoom(.8)" data-i18n-aria="glIn" aria-label="Приблизить">+</button>
+        <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить">−</button>
+        <button type="button" class="gl-btn wide" onclick="globeToMap()" data-i18n="glBack">К карте</button>
+      </div>
+      <p class="gl-attr">NASA Blue Marble · Earth at Night</p>
+    </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <h2 data-i18n="listTitle">Текстовый режим</h2>
       <p class="small muted" data-i18n="listHelp">Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.</p>
@@ -1021,6 +1077,14 @@ html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summa
   </div>
 </div>
 
+<!-- Фото места на весь экран -->
+<div class="pm-view" id="pmView" hidden role="dialog" aria-modal="true" data-i18n-aria="pmViewer" aria-label="Фото места" onclick="if(event.target===this)pmClose()">
+  <img id="pmImg" alt="">
+  <button type="button" class="pm-x" id="pmClose" onclick="pmClose()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+  <button type="button" class="pm-nav" id="pmPrev" onclick="pmOpen(PM_VIEW.i-1)" data-i18n-aria="pmPrev" aria-label="Предыдущее фото">‹</button>
+  <button type="button" class="pm-nav" id="pmNext" onclick="pmOpen(PM_VIEW.i+1)" data-i18n-aria="pmNext" aria-label="Следующее фото">›</button>
+  <div class="pm-foot"><span id="pmCount"></span><span id="pmCredit"></span></div>
+</div>
 <!-- Серік — ИИ-помощник: гид и поддержка -->
 <section class="serik" id="serik" role="dialog" aria-modal="false" aria-labelledby="skTitle" hidden>
   <div class="sk-head">
@@ -2543,7 +2607,7 @@ function setCity(key){
 
 function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
-  map=L.map("map",{zoomControl:false}).setView(city().c, city().z);
+  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z}).setView(city().c, city().z);
   L.control.zoom({position:"bottomright"}).addTo(map);
   // на телефоне подпись источников свёрнута в строку — раскрываем по нажатию
   map.attributionControl.getContainer().addEventListener("click", e=>{
@@ -2554,6 +2618,7 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
+  map.on("zoomend",()=>{ if(map.getZoom()<=GLOBE_OPEN_Z && !globeOpen()) openGlobe(); });
   map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D();
     const wp=document.getElementById("wbPanel"); if(wp && !wp.hidden){ clearTimeout(wbTimer); wbTimer=setTimeout(refreshWayback,700); } });
   mapReady=true;
@@ -2699,7 +2764,7 @@ function tagFacts(tg){
   if(tg["toilets:wheelchair"]) f.push(`<span class="fact good">WC</span>`);
   if(tg.tactile_paving) f.push(`<span class="fact good">tactile</span>`);
   if(tg.opening_hours) f.push(`<span class="fact">${esc(tg.opening_hours)}</span>`);
-  if(tg.phone) f.push(`<span class="fact">${esc(tg.phone)}</span>`);
+  if(tg.phone) f.push(`<span class="fact">${esc(kzPhone(String(tg.phone).split(/[;,]/)[0]).label)}</span>`);
   return f.join("")||`<span class="fact">—</span>`;
 }
 
@@ -2769,6 +2834,7 @@ function showPlace(p){
     ${hasAccess||p.layer!==false?`<p class="pc-status ${cls}">${svgI("wc")} ${esc(t(key))}</p>`:""}
     ${facts.length?`<ul class="pc-facts">${facts.map(([ic,txt,c])=>`<li class="${c}">${svgI(PC_ICON[ic]||"map")}<span>${esc(txt)}</span></li>`).join("")}</ul>`:""}
     ${desc?`<p class="pc-desc">${esc(desc)}</p>`:""}
+    <div class="pc-media" id="pcMedia" hidden></div>
     ${contactsHtml(tg, p.name)}
     <div class="pc-actions">
       <button type="button" class="btn-dark" onclick="placeRoute()">${svgI("walk")} ${esc(t("pcRoute"))}</button>
@@ -2777,15 +2843,17 @@ function showPlace(p){
     ${p.osm?`<a class="pc-edit" href="https://www.openstreetmap.org/${esc(p.osm)}" target="_blank" rel="noopener">${esc(t("pcEdit"))} ↗</a>`:""}`;
   const card=document.getElementById("placeCard"); card.hidden=false;
   document.body.classList.add("place-open");
+  placeMedia(p);
 }
-// Контакты: телефон, WhatsApp, Instagram, Telegram, сайт; для заведений — ещё 2ГИС с отзывами и фото
+// Контакты: телефон, WhatsApp, Instagram, Telegram, сайт (фото и отзывы — прямо в карточке, см. placeMedia)
 function contactsHtml(tg, name){
   const out=[], link=(cls,href,ico,label)=>out.push(`<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener">${svgI(ico)}${esc(label)}</a>`);
   const phones=String(tg.phone||tg["contact:phone"]||tg["contact:mobile"]||"").split(/[;,]/).map(x=>x.trim()).filter(Boolean).slice(0,2);
-  phones.forEach(ph=>link("ph","tel:"+ph.replace(/[^\d+]/g,""),"phone",ph));
+  const nice=phones.map(kzPhone);
+  nice.forEach(ph=>link("ph","tel:"+ph.tel,"phone",ph.label));
   let wa=tg["contact:whatsapp"]||tg.whatsapp;
   // мобильные номера Казахстана (70x, 747, 75x, 76x, 771, 775–778) почти всегда есть в WhatsApp; городские (727, 717…) — нет
-  if(!wa){ const mob=phones.find(ph=>/^(\+?7|8)(70\d|747|75[01]|76[0-4]|771|77[5-8])\d{7}$/.test(ph.replace(/[\s()-]/g,""))); if(mob) wa=mob; }
+  if(!wa){ const mob=nice.find(ph=>ph.mobile); if(mob) wa=mob.tel; }
   if(wa) link("wa", /^https?:/.test(wa)?wa:"https://wa.me/"+String(wa).replace(/\D/g,""), "chat", t("pcWa"));
   const ig=tg["contact:instagram"]||tg.instagram;
   if(ig) link("ig", /^https?:/.test(ig)?ig:"https://instagram.com/"+String(ig).replace(/^@/,""), "insta", t("pcIg"));
@@ -2793,9 +2861,6 @@ function contactsHtml(tg, name){
   if(tgm) link("tg", /^https?:/.test(tgm)?tgm:"https://t.me/"+String(tgm).replace(/^@/,""), "send", t("pcTg"));
   const site=tg.website||tg["contact:website"]||tg.url;
   if(site) link("", /^https?:/.test(site)?site:"https://"+site, "globe", t("pcSite"));
-  if(name){
-    const slug=DGIS_SLUG[S.city]; if(slug) link("", `https://2gis.kz/${slug}/search/${encodeURIComponent(name)}`, "map", t("pc2gis"));
-  }
   return out.length?`<div class="pc-contacts">${out.join("")}</div>`:"";
 }
 async function reverseGeo(lat,lon){
@@ -4409,6 +4474,289 @@ document.addEventListener("click",e=>{
   const p=document.getElementById("serik");
   if(!p.hidden && e.target instanceof Element && !e.target.closest("#serik,#serikBtn,#miniMenu") && !e.target.closest(".modal")) serikClose(false);
 });
+
+Object.assign(I18N.ru,{ pmReviews:"отзывов: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Отзывы", pmMore:"Ещё отзывы", pmFromGoogle:"Фото и отзывы: Google", pmFromCommons:"Фото: Wikimedia Commons",
+  pmBy:"Автор фото: {a}", pmPrev:"Предыдущее фото", pmNext:"Следующее фото", pmViewer:"Фото места",
+  glTitle:"Глобус", glHint:"Крутите Землю пальцем или мышью. Приблизьте или нажмите на точку города — откроется карта.", glLoading:"Загружаем Землю…", glIn:"Приблизить", glOut:"Отдалить", glBack:"К карте" });
+Object.assign(I18N.kk,{ pmReviews:"пікір: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Пікірлер", pmMore:"Тағы пікірлер", pmFromGoogle:"Фото мен пікірлер: Google", pmFromCommons:"Фото: Wikimedia Commons",
+  pmBy:"Фото авторы: {a}", pmPrev:"Алдыңғы фото", pmNext:"Келесі фото", pmViewer:"Орын фотосы",
+  glTitle:"Глобус", glHint:"Жерді саусақпен не тінтуірмен айналдырыңыз. Жақындатыңыз не қала нүктесін басыңыз — карта ашылады.", glLoading:"Жер жүктелуде…", glIn:"Жақындату", glOut:"Алыстату", glBack:"Картаға" });
+Object.assign(I18N.en,{ pmReviews:"{n} reviews", pmPhoto:"Photo {n}: {name}", pmReviewsH:"Reviews", pmMore:"More reviews", pmFromGoogle:"Photos and reviews: Google", pmFromCommons:"Photos: Wikimedia Commons",
+  pmBy:"Photo by {a}", pmPrev:"Previous photo", pmNext:"Next photo", pmViewer:"Place photo",
+  glTitle:"Globe", glHint:"Spin the Earth with your finger or mouse. Zoom in or tap a city dot to open the map.", glLoading:"Loading the Earth…", glIn:"Zoom in", glOut:"Zoom out", glBack:"Back to map" });
+/* ============ Телефоны: всегда +7 XXX XXX XX XX ============ */
+// В OpenStreetMap номера записаны по-разному: «8 7132 …», «+7 8 7132 …», «+7(7132)…» — приводим к одному виду
+function kzPhone(raw){
+  let d=String(raw||"").replace(/\D/g,"");
+  if(d.length===11 && d[0]==="8") d="7"+d.slice(1);
+  else if(d.length===12 && d.startsWith("78")) d="7"+d.slice(2);     // «+7 8 …» — лишняя восьмёрка
+  else if(d.length===10) d="7"+d;
+  if(d.length!==11 || d[0]!=="7") return {tel:String(raw||"").replace(/[^\d+]/g,""), label:String(raw||"").trim(), mobile:false};
+  const mobile=/^7(70\d|747|75[01]|76[0-4]|771|77[5-8])/.test(d), c3=mobile||/^7727/.test(d)||/^77[0-9]{2}/.test(d)&&!/^77[12]/.test(d);
+  // мобильные и Алматы (727) — код из 3 цифр, остальные города (7132 Актобе, 7172 Астана…) — из 4
+  const label=c3 ? `+7 ${d.slice(1,4)} ${d.slice(4,7)} ${d.slice(7,9)} ${d.slice(9)}` : `+7 ${d.slice(1,5)} ${d.slice(5,7)} ${d.slice(7,9)} ${d.slice(9)}`;
+  return {tel:"+"+d, label, mobile};
+}
+
+/* ============ Фото и отзывы прямо в карточке места ============ */
+// Google Places (через наш сервер, если на нём есть ключ) + свободные фото Wikimedia Commons по тегам OSM
+const PM_CACHE=new Map(); let pmEnabled=null, PM_VIEW=null;
+function commonsThumb(file,w){
+  file=decodeURIComponent(String(file).replace(/^https?:\/\/commons\.wikimedia\.org\/wiki\//i,"").replace(/^File:/i,"")).replace(/ /g,"_");
+  return "https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(file)+"?width="+w;
+}
+async function freePhotos(tg){
+  const out=[], add=(file)=>out.push({src:commonsThumb(file,640), big:commonsThumb(file,1280), credit:"Wikimedia Commons", href:"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(String(file).replace(/^File:/i,"").replace(/ /g,"_"))});
+  const img=tg.image||"";
+  if(/commons\.wikimedia\.org\/wiki\/File:/i.test(img)) add(img.replace(/^.*\/wiki\//i,""));
+  else if(/^https:\/\/\S+\.(jpe?g|png|webp)(\?\S*)?$/i.test(img)) out.push({src:img, big:img, credit:(()=>{ try{ return new URL(img).hostname; }catch(e){ return ""; } })(), href:img});
+  if(/^File:/i.test(tg.wikimedia_commons||"")) add(tg.wikimedia_commons);
+  if(!out.length && /^Q\d+$/.test(tg.wikidata||"")){
+    try{
+      const j=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${tg.wikidata}.json`).then(r=>r.json());
+      const e=j.entities&&j.entities[tg.wikidata], cl=e&&e.claims&&e.claims.P18;
+      const f=cl&&cl[0]&&cl[0].mainsnak&&cl[0].mainsnak.datavalue&&cl[0].mainsnak.datavalue.value;
+      if(f) add(f);
+    }catch(e){}
+  }
+  return out.slice(0,4);
+}
+function pmKey(p){ return [p.name||"",(+p.lat).toFixed(4),(+p.lon).toFixed(4),S.lang].join("|"); }
+function placeMedia(p){
+  const box=document.getElementById("pcMedia"); if(!box) return;
+  const key=pmKey(p); box.dataset.key=key;
+  if(p.loading && !PM_CACHE.has(key)) return;          // ждём полных сведений о месте
+  if(!PM_CACHE.has(key)){
+    box.innerHTML=`<div class="pm-skel" aria-hidden="true"><span></span><span></span><span></span></div>`;
+    PM_CACHE.set(key,(async()=>{
+      let g=null;
+      if(p.name && pmEnabled!==false){
+        try{ const r=await fetch(`/api/place-info?name=${encodeURIComponent(p.name)}&lat=${(+p.lat).toFixed(6)}&lon=${(+p.lon).toFixed(6)}&lang=${S.lang}`);
+             const j=await r.json(); if(r.ok){ pmEnabled=!!j.enabled; g=j.place||null; } }catch(e){}
+      }
+      return {g, free:await freePhotos(p.tags||{})};
+    })());
+  }
+  PM_CACHE.get(key).then(d=>{ const b=document.getElementById("pcMedia"); if(b && b.dataset.key===key) renderMedia(b,d,p); });
+}
+function pmStars(n){ const r=Math.round(n); return "★★★★★".slice(0,r)+"☆☆☆☆☆".slice(0,5-r); }
+function renderMedia(box,d,p){
+  const g=d.g;
+  const photos=[...((g&&g.photos)||[]).map(ph=>({src:`/api/place-photo?ref=${encodeURIComponent(ph.ref)}&w=640`, big:`/api/place-photo?ref=${encodeURIComponent(ph.ref)}&w=1200`, credit:ph.author, href:ph.authorUrl})), ...d.free];
+  let h="";
+  if(g&&g.rating) h+=`<p class="pm-rating"><b>${g.rating.toFixed(1)}</b><span class="pm-stars" aria-hidden="true">${pmStars(g.rating)}</span><span class="muted">${esc(t("pmReviews").replace("{n}",g.count))}</span></p>`;
+  if(photos.length) h+=`<div class="pm-photos">${photos.map((ph,i)=>`<button type="button" class="pm-ph" onclick="pmOpen(${i})" aria-label="${esc(t("pmPhoto").replace("{n}",i+1).replace("{name}",p.name||""))}"><img src="${esc(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></button>`).join("")}</div>`;
+  const rv=(g&&g.reviews)||[];
+  if(rv.length) h+=`<div class="pm-reviews"><p class="pm-h">${esc(t("pmReviewsH"))}</p>${rv.slice(0,3).map(r=>`<div class="pm-rv"><p class="pm-rv-top"><b>${esc(r.author)}</b>${r.rating?`<span class="pm-stars" role="img" aria-label="${r.rating}/5">${pmStars(r.rating)}</span>`:""}<span class="muted">${esc(r.when)}</span></p><p class="pm-rv-text">${esc(r.text)}</p></div>`).join("")}
+    ${rv.length>3?`<details class="pm-more"><summary>${esc(t("pmMore"))}</summary>${rv.slice(3).map(r=>`<div class="pm-rv"><p class="pm-rv-top"><b>${esc(r.author)}</b>${r.rating?`<span class="pm-stars" role="img" aria-label="${r.rating}/5">${pmStars(r.rating)}</span>`:""}<span class="muted">${esc(r.when)}</span></p><p class="pm-rv-text">${esc(r.text)}</p></div>`).join("")}</details>`:""}</div>`;
+  if(g) h+=`<p class="pm-src">${esc(t("pmFromGoogle"))}${g.url?` · <a href="${esc(g.url)}" target="_blank" rel="noopener">Google Maps ↗</a>`:""}</p>`;
+  else if(d.free.length) h+=`<p class="pm-src">${esc(t("pmFromCommons"))}</p>`;
+  box.innerHTML=h; box.hidden=!h; PM_VIEW={photos, name:p.name||"", i:0};
+}
+// Просмотр фото на весь экран
+function pmOpen(i){
+  if(!PM_VIEW||!PM_VIEW.photos.length) return;
+  PM_VIEW.i=(i+PM_VIEW.photos.length)%PM_VIEW.photos.length;
+  const v=document.getElementById("pmView"), ph=PM_VIEW.photos[PM_VIEW.i];
+  document.getElementById("pmImg").src=ph.big||ph.src;
+  document.getElementById("pmImg").alt=t("pmPhoto").replace("{n}",PM_VIEW.i+1).replace("{name}",PM_VIEW.name);
+  const cr=document.getElementById("pmCredit");
+  cr.innerHTML=ph.credit?(ph.href?`<a href="${esc(ph.href)}" target="_blank" rel="noopener">${esc(t("pmBy").replace("{a}",ph.credit))}</a>`:esc(t("pmBy").replace("{a}",ph.credit))):"";
+  document.getElementById("pmCount").textContent=`${PM_VIEW.i+1} / ${PM_VIEW.photos.length}`;
+  const nav=PM_VIEW.photos.length>1; document.getElementById("pmPrev").hidden=!nav; document.getElementById("pmNext").hidden=!nav;
+  if(v.hidden){ v.hidden=false; v._ret=document.activeElement; document.getElementById("pmClose").focus(); }
+}
+function pmClose(){ const v=document.getElementById("pmView"); if(v.hidden) return; v.hidden=true; document.getElementById("pmImg").src=""; if(v._ret&&v._ret.focus) v._ret.focus(); }
+document.addEventListener("keydown",e=>{
+  const v=document.getElementById("pmView"); if(!v||v.hidden) return;
+  if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); pmClose(); }
+  else if(e.key==="ArrowRight") pmOpen(PM_VIEW.i+1); else if(e.key==="ArrowLeft") pmOpen(PM_VIEW.i-1);
+},true);
+(function(){ let x0=null; const v=document.getElementById("pmView"); if(!v) return;
+  v.addEventListener("pointerdown",e=>{ x0=e.clientX; });
+  v.addEventListener("pointerup",e=>{ if(x0==null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>50 && PM_VIEW && PM_VIEW.photos.length>1) pmOpen(PM_VIEW.i+(dx<0?1:-1)); });
+})();
+/* ============ Глобус: при сильном отдалении вместо «атласа» — Земля в космосе ============ */
+// Земля (NASA Blue Marble + ночные огни), звёзды, Солнце и Луна. Крутится пальцем/мышью, колесо и щипок — масштаб.
+// Приблизили — снова обычная карта в этом месте. three.js r128 грузится только при первом открытии.
+const GLOBE_THREE="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+const GLOBE_TEX="https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/";
+const GLOBE_OPEN_Z=3;          // карта на этом зуме и меньше → глобус
+let GL3=null;                  // состояние глобуса
+function globeOpen(){ return document.body.classList.contains("globe-on"); }
+function loadScriptOnce(src){
+  return new Promise((ok,fail)=>{
+    if([...document.scripts].some(s=>s.src===src) && window.THREE) return ok();
+    const s=document.createElement("script"); s.src=src; s.async=true; s.onload=()=>ok(); s.onerror=()=>fail(new Error("load "+src)); document.head.appendChild(s);
+  });
+}
+function llVec(lat,lon,r){
+  const la=lat*Math.PI/180, lo=lon*Math.PI/180, c=Math.cos(la);
+  return new THREE.Vector3(Math.cos(lo)*c*r, Math.sin(la)*r, -Math.sin(lo)*c*r);
+}
+function vecLL(v){
+  const n=v.clone().normalize();
+  return [Math.asin(Math.max(-1,Math.min(1,n.y)))*180/Math.PI, Math.atan2(-n.z,n.x)*180/Math.PI];
+}
+function globeTexture(url,small){
+  return new Promise(ok=>{
+    const img=new Image(); img.crossOrigin="anonymous";
+    img.onload=()=>{
+      let src=img;
+      if(small){ const c=document.createElement("canvas"); c.width=2048; c.height=1024; c.getContext("2d").drawImage(img,0,0,2048,1024); src=c; }
+      const tx=new THREE.Texture(src); tx.needsUpdate=true; tx.anisotropy=4; ok(tx);
+    };
+    img.onerror=()=>ok(null); img.src=url;
+  });
+}
+function glowSprite(stops,size){
+  const c=document.createElement("canvas"); c.width=c.height=256; const g=c.getContext("2d");
+  const gr=g.createRadialGradient(128,128,0,128,128,128); stops.forEach(([o,col])=>gr.addColorStop(o,col));
+  g.fillStyle=gr; g.fillRect(0,0,256,256);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+  sp.scale.set(size,size,1); return sp;
+}
+function moonTexture(){
+  const c=document.createElement("canvas"); c.width=512; c.height=256; const g=c.getContext("2d");
+  g.fillStyle="#9a9a98"; g.fillRect(0,0,512,256);
+  let seed=7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+  for(let i=0;i<18;i++){ g.fillStyle=`rgba(70,70,72,${.25+rnd()*.3})`; g.beginPath(); g.ellipse(rnd()*512,40+rnd()*170,30+rnd()*60,20+rnd()*40,rnd()*3,0,7); g.fill(); }   // «моря»
+  for(let i=0;i<260;i++){ const x=rnd()*512,y=rnd()*256,r=1+Math.pow(rnd(),3)*14;
+    g.fillStyle=`rgba(40,40,40,${.18+rnd()*.25})`; g.beginPath(); g.arc(x,y,r,0,7); g.fill();
+    g.strokeStyle=`rgba(220,220,215,${.15+rnd()*.25})`; g.lineWidth=Math.max(.6,r*.25); g.beginPath(); g.arc(x-r*.15,y-r*.15,r,3.4,5.6); g.stroke(); }
+  return new THREE.CanvasTexture(c);
+}
+async function globeInit(){
+  await loadScriptOnce(GLOBE_THREE);
+  const box=document.getElementById("globe"), cv=document.getElementById("globeCv");
+  const small=innerWidth<900 || (navigator.deviceMemory&&navigator.deviceMemory<4);
+  const renderer=new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(42,1,0.05,2000); scene.add(camera);
+  // Звёзды — неподвижны относительно Земли, поэтому «плывут», когда её крутишь
+  { const n=small?1800:3200, pos=new Float32Array(n*3), col=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ const v=new THREE.Vector3().randomDirection? new THREE.Vector3().randomDirection() : new THREE.Vector3(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize();
+      v.multiplyScalar(600+Math.random()*300); pos.set([v.x,v.y,v.z],i*3);
+      const w=.6+Math.random()*.4, tint=Math.random(); col.set(tint<.15?[w,w*.85,w*.7]:tint<.3?[w*.8,w*.88,w]:[w,w,w],i*3); }
+    const gm=new THREE.BufferGeometry(); gm.setAttribute("position",new THREE.BufferAttribute(pos,3)); gm.setAttribute("color",new THREE.BufferAttribute(col,3));
+    scene.add(new THREE.Points(gm,new THREE.PointsMaterial({size:1.6, sizeAttenuation:false, vertexColors:true, transparent:true, opacity:.9}))); }
+  // Земля: день + ночные огни на теневой стороне
+  const [day,night]=await Promise.all([globeTexture(GLOBE_TEX+"earth-blue-marble.jpg",small), globeTexture(GLOBE_TEX+"earth-night.jpg",small)]);
+  const earthMat=new THREE.ShaderMaterial({
+    uniforms:{day:{value:day}, night:{value:night}, sun:{value:new THREE.Vector3(1,0,0)}, hasNight:{value:night?1:0}},
+    vertexShader:`varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`uniform sampler2D day; uniform sampler2D night; uniform vec3 sun; uniform float hasNight; varying vec2 vUv; varying vec3 vN;
+      void main(){ float d=dot(normalize(vN),normalize(sun)); vec3 dc=texture2D(day,vUv).rgb; vec3 nc=texture2D(night,vUv).rgb;
+        float lit=smoothstep(-0.18,0.35,d); vec3 c=dc*(0.06+1.05*max(d,0.0)+0.12*lit) + nc*hasNight*(1.0-lit)*1.25;
+        gl_FragColor=vec4(c,1.0); }`
+  });
+  if(!day) earthMat.uniforms.day.value=new THREE.CanvasTexture((()=>{ const c=document.createElement("canvas"); c.width=c.height=2; const g=c.getContext("2d"); g.fillStyle="#1d4f7a"; g.fillRect(0,0,2,2); return c; })());
+  const earth=new THREE.Mesh(new THREE.SphereGeometry(1,small?72:110,small?48:72), earthMat); scene.add(earth);
+  // Атмосфера — голубое свечение по краю
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(1.13,64,48), new THREE.ShaderMaterial({
+    side:THREE.BackSide, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`varying vec3 vN; void main(){ float f=pow(clamp(0.7-dot(vN,vec3(0.0,0.0,1.0)),0.0,1.0),3.2); gl_FragColor=vec4(0.32,0.6,1.0,1.0)*f*0.9; }`
+  })); scene.add(atm);
+  // Точки 22 городов ICity
+  const cityDots=[], dotMat=new THREE.MeshBasicMaterial({color:0x5fd3ff});
+  Object.entries(CITIES).forEach(([k,c])=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6), dotMat); m.position.copy(llVec(c.c[0],c.c[1],1.002)); m.userData.key=k; earth.add(m); cityDots.push(m); });
+  // Солнце и Луна — «на фоне», в кадре камеры; свет идёт от того же Солнца
+  const sunLocal=new THREE.Vector3(-0.62,0.4,-1);       // направление на Солнце в системе камеры
+  const sun=new THREE.Group();
+  sun.add(glowSprite([[0,"rgba(255,255,250,1)"],[.12,"rgba(255,250,225,1)"],[.2,"rgba(255,214,140,.55)"],[.45,"rgba(255,170,80,.16)"],[1,"rgba(255,140,60,0)"]],34));
+  sun.add(glowSprite([[0,"rgba(255,240,200,.18)"],[.5,"rgba(255,200,120,.05)"],[1,"rgba(0,0,0,0)"]],120));
+  camera.add(sun);
+  const light=new THREE.DirectionalLight(0xffffff,1.25); camera.add(light); camera.add(light.target);
+  scene.add(new THREE.AmbientLight(0x404050,.45));
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(.27,48,32), new THREE.MeshLambertMaterial({map:moonTexture()}));
+  camera.add(moon);
+  GL3={renderer,scene,camera,earth,earthMat,cityDots,sun,sunLocal,light,moon,box,cv,
+       lat:45, lon:68, dist:3.1, fitDist:3.1, vLat:0, vLon:0, target:null, t0:performance.now(), raf:0, closing:false};
+  const resize=()=>{ const w=box.clientWidth||innerWidth, h=box.clientHeight||innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+    const depth=60, hh=depth*Math.tan(camera.fov*Math.PI/360), hw=hh*camera.aspect;
+    sun.position.set(-hw*.68,hh*.62,-depth);                      // левый верхний угол, далеко за Землёй
+    GL3.sunDirCam=new THREE.Vector3(-0.72,0.48,0.42).normalize();   // свет слева сверху и чуть спереди: видна дневная сторона, справа — огни ночных городов
+    // Земля целиком в кадре и на телефоне (узкий экран), и на компьютере
+    const half=Math.min(camera.fov/2, Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI)*Math.PI/180;
+    GL3.fitDist=Math.max(2.2,Math.min(6,1.12/Math.sin(half)));
+    light.position.copy(sun.position); light.target.position.set(0,0,-GL3.dist); };
+  GL3.resize=resize; addEventListener("resize",()=>{ if(globeOpen()) resize(); });
+  globeInput(); resize();
+}
+function globeFrame(now){
+  const g=GL3; if(!g || !globeOpen()) return;
+  const motion=S.motion!=="off";
+  if(!g.drag){ g.lat+=g.vLat; g.lon+=g.vLon; g.vLat*=.9; g.vLon*=.9; if(motion && Math.abs(g.vLon)<.002 && !g.target) g.lon+=.012; }
+  if(g.target){ const k=motion?.08:1; g.dist+=(g.target-g.dist)*k; if(Math.abs(g.target-g.dist)<.003){ g.dist=g.target; g.target=null; if(g.onArrive){ const f=g.onArrive; g.onArrive=null; f(); } } }
+  g.lat=Math.max(-82,Math.min(82,g.lat)); g.lon=((g.lon+540)%360)-180;
+  g.camera.position.copy(llVec(g.lat,g.lon,g.dist)); g.camera.up.set(0,1,0); g.camera.lookAt(0,0,0); g.camera.updateMatrixWorld();
+  // свет и Солнце — от левого верхнего угла кадра; Луна медленно ходит вокруг Земли (в кадре)
+  const sw=g.sunDirCam.clone().applyQuaternion(g.camera.quaternion); g.earthMat.uniforms.sun.value.copy(sw);
+  g.light.target.position.set(0,0,-g.dist); g.light.position.copy(g.sunDirCam).multiplyScalar(20); g.light.position.z-=g.dist;
+  const tt=motion?(now-g.t0)/1000:0, md=g.dist+1.2, mh=md*Math.tan(g.camera.fov*Math.PI/360), mw=mh*g.camera.aspect;
+  g.moon.position.set(mw*.74+Math.sin(tt*.15)*.06, mh*.36+Math.cos(tt*.12)*.05, -md);   // справа сверху, чуть «дышит»
+  g.moon.rotation.y=tt*.02;
+  g.renderer.render(g.scene,g.camera);
+  g.raf=requestAnimationFrame(globeFrame);
+}
+function globeZoom(f){ const g=GL3; if(!g) return; const nd=Math.max(1.12,Math.min(7,(g.target||g.dist)*f)); g.target=nd; if(nd<=1.35) globeToMap(); }
+function globeInput(){
+  const g=GL3, cv=g.cv; let pts=new Map(), pinch0=0, dist0=0, moved=0, downAt=0;
+  const rate=()=>0.1*(g.dist-0.95);
+  cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,[e.clientX,e.clientY]); g.drag=true; moved=0; downAt=Date.now();
+    if(pts.size===2){ const [a,b]=[...pts.values()]; pinch0=Math.hypot(a[0]-b[0],a[1]-b[1]); dist0=g.dist; } });
+  cv.addEventListener("pointermove",e=>{ if(!pts.has(e.pointerId)) return; const p=pts.get(e.pointerId), dx=e.clientX-p[0], dy=e.clientY-p[1]; pts.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pts.size===2){ const [a,b]=[...pts.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(pinch0){ g.target=null; g.dist=Math.max(1.12,Math.min(7,dist0*pinch0/d)); if(g.dist<=1.35) globeToMap(); } return; }
+    moved+=Math.abs(dx)+Math.abs(dy); const r=rate(); g.lon-=dx*r; g.lat+=dy*r; g.vLon=-dx*r*.25; g.vLat=dy*r*.25; });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch0=0; if(!pts.size) g.drag=false;
+    if(moved<6 && Date.now()-downAt<400 && e.type==="pointerup") globeTap(e); };
+  cv.addEventListener("pointerup",up); cv.addEventListener("pointercancel",up);
+  cv.addEventListener("wheel",e=>{ e.preventDefault(); globeZoom(e.deltaY>0?1.12:1/1.12); },{passive:false});
+  cv.addEventListener("dblclick",e=>{ e.preventDefault(); globeZoom(.6); });
+  document.getElementById("globe").addEventListener("keydown",e=>{
+    const k=e.key, s=4; if(!globeOpen()) return;
+    if(k==="ArrowLeft"){ g.lon-=s; } else if(k==="ArrowRight"){ g.lon+=s; } else if(k==="ArrowUp"){ g.lat+=s; } else if(k==="ArrowDown"){ g.lat-=s; }
+    else if(k==="+"||k==="="){ globeZoom(.8); } else if(k==="-"){ globeZoom(1.25); } else if(k==="Enter"){ globeToMap(); } else return;
+    e.preventDefault(); g.vLat=g.vLon=0;
+  });
+}
+// Нажали на точку города — летим в этот город
+function globeTap(e){
+  const g=GL3, r=g.cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  const camDir=g.camera.position.clone().normalize(); let best=null, bd=24;
+  g.cityDots.forEach(m=>{ const wp=m.getWorldPosition(new THREE.Vector3()); if(wp.clone().normalize().dot(camDir)<.15) return;
+    const p=wp.project(g.camera), sx=(p.x+1)/2*r.width, sy=(1-p.y)/2*r.height, d=Math.hypot(sx-x,sy-y); if(d<bd){ bd=d; best=m; } });
+  if(best){ const c=CITIES[best.userData.key]; g.lat=c.c[0]; g.lon=c.c[1]; globeToMap(best.userData.key); }
+}
+async function openGlobe(){
+  if(globeOpen() || document.body.classList.contains("is3d")) return;
+  const box=document.getElementById("globe"); box.hidden=false; document.body.classList.add("globe-on");
+  document.getElementById("globeLoad").hidden=!!GL3;
+  try{ if(!GL3) await globeInit(); }catch(e){ console.warn("globe",e); closeGlobeQuick(); return; }
+  document.getElementById("globeLoad").hidden=true;
+  const c=mapReady?map.getCenter():{lat:city().c[0],lng:city().c[1]};
+  GL3.lat=c.lat; GL3.lon=c.lng; GL3.vLat=GL3.vLon=0; GL3.resize(); GL3.dist=1.5; GL3.target=GL3.fitDist; GL3.closing=false;
+  cancelAnimationFrame(GL3.raf); GL3.raf=requestAnimationFrame(globeFrame);
+  box.focus({preventScroll:true});
+  const hint=box.querySelector(".gl-hint"); hint.hidden=false; clearTimeout(hint._t); hint._t=setTimeout(()=>{ hint.hidden=true; },7000);
+  announce(t("glTitle")+". "+t("glHint"));
+}
+function closeGlobeQuick(){ document.body.classList.remove("globe-on"); document.getElementById("globe").hidden=true; if(GL3) cancelAnimationFrame(GL3.raf); }
+// Вернуться на карту в той точке, на которую смотрим (или в выбранный город)
+function globeToMap(cityKey){
+  const g=GL3; if(!g || g.closing) return; g.closing=true;
+  const lat=g.lat, lon=g.lon;
+  const done=()=>{
+    closeGlobeQuick();
+    if(cityKey && cityKey!==S.city && typeof setCity==="function"){ setCity(cityKey); }
+    else if(mapReady){ map.setView([lat,lon], cityKey?city().z:5, {animate:false}); }
+    if(mapReady) map.invalidateSize();
+  };
+  if(S.motion==="off"){ done(); return; }
+  g.target=1.12; g.onArrive=done; setTimeout(()=>{ if(g.closing && globeOpen()) done(); },900);
+}
 
 (function init(){
   S.lang=read("lang","ru"); S.profile=read("profile","wheelchair_manual");
