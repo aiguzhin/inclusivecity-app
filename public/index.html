@@ -587,6 +587,50 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
 @media(max-width:420px){
   .basemap-ctl select{display:none}
 }
+/* Серік — ИИ-помощник */
+.serik-btn{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:6px 12px 6px 8px;border-radius:999px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);font:inherit;font-size:.9rem;font-weight:750;cursor:pointer;margin-left:auto;white-space:nowrap}
+.serik-btn:hover{background:var(--blue-weak)}
+.serik-btn .sk-dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;flex:none}
+html[data-theme="dark"] .serik-btn .sk-dot{color:#04121f}
+.serik-btn .sk-dot .ic{width:16px;height:16px}
+.serik{position:fixed;z-index:3100;right:12px;top:calc(env(safe-area-inset-top,0px) + 60px);width:min(380px,calc(100vw - 24px));
+  height:min(560px,calc(100dvh - 80px));display:flex;flex-direction:column;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 40px rgba(16,42,67,.25);overflow:hidden;transform-origin:top right;animation:mmIn .18s ease-out}
+.serik[hidden]{display:none}
+html[data-motion="off"] .serik{animation:none}
+.sk-head{display:flex;align-items:center;gap:10px;padding:12px 12px 10px 14px;border-bottom:1px solid var(--line)}
+.sk-ava{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:850;font-size:1.05rem;flex:none}
+html[data-theme="dark"] .sk-ava{color:#04121f}
+.sk-head .sk-who{flex:1;min-width:0;display:grid}
+.sk-head b{font-size:1rem}
+.sk-head small{color:var(--ink-soft);font-size:.78rem}
+.sk-icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
+.sk-icon[aria-pressed="true"]{background:var(--blue-weak);border-color:var(--blue);color:var(--blue-ink)}
+.sk-icon .ic{width:18px;height:18px}
+.sk-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+.sk-msg{max-width:88%;padding:9px 12px;border-radius:14px;line-height:1.42;font-size:.93rem;white-space:pre-wrap;word-wrap:break-word}
+.sk-msg.bot{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.sk-msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+html[data-theme="dark"] .sk-msg.me{color:#04121f}
+.sk-msg.wait{color:var(--ink-soft);font-style:italic}
+.sk-chips[hidden]{display:none}
+.sk-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}
+.sk-chips button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 11px;font:inherit;font-size:.8rem;cursor:pointer;text-align:left}
+.sk-chips button:hover{background:var(--blue-weak)}
+.sk-form{display:flex;gap:6px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid var(--line)}
+.sk-form textarea{flex:1;min-height:42px;max-height:110px;resize:none;padding:10px 12px;border-radius:12px;font:inherit;font-size:.93rem}
+.sk-send{background:var(--blue);border-color:var(--blue);color:#fff}
+html[data-theme="dark"] .sk-send{color:#04121f}
+.sk-note{font-size:.7rem;color:var(--ink-soft);padding:0 12px 8px;margin:0}
+@media(max-width:860px){
+  .serik-btn{padding:5px 10px 5px 6px;font-size:.85rem;min-height:36px}
+  .serik{right:8px;left:8px;width:auto;top:calc(env(safe-area-inset-top,0px) + 56px);height:min(560px,calc(100dvh - 72px))}
+}
+/* Голосовые подсказки: подсветка элемента, который сейчас назван */
+.hint-armed{outline:3px solid var(--focus)!important;outline-offset:2px}
+html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summary,html[data-hints="on"] label{touch-action:manipulation}
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 </style>
 </head>
 <body data-view="map">
@@ -598,6 +642,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
     <span class="bars" aria-hidden="true"></span>
   </button>
   <div class="brand">I<b>City</b></div>
+  <button type="button" class="serik-btn" id="serikBtn" onclick="serikToggle()" aria-haspopup="dialog" aria-expanded="false" aria-controls="serik" data-i18n-aria="skOpenBtn" aria-label="Серік — ИИ-помощник">
+    <span class="sk-dot" aria-hidden="true"><i data-ic="chat"></i></span><span data-i18n="skName">Серік</span>
+  </button>
   <div class="top-tools">
     <button id="viewToggle" class="btn-ghost btn-sm" onclick="toggleView()" aria-pressed="false">
       <span class="vt-ico"><i data-ic="list"></i></span>
@@ -623,6 +670,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
   <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="walk"></i><span data-i18n="eyebrow">Маршрут и доступность</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
+  <button type="button" role="menuitem" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skOpenBtn">Серік — ИИ-помощник</span></button>
+  <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
   <a role="menuitem" href="/dashboard.html"><i data-ic="chart"></i><span data-i18n="statsShort">Статистика</span></a>
   <a role="menuitem" href="/about"><i data-ic="info"></i><span data-i18n="aboutShort">О проекте</span></a>
   <div class="mm-sep" role="separator"></div>
@@ -892,6 +941,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
           <button onclick="setVoice('off')" data-v="off" data-i18n="voiceOff">Выключена</button>
         </div></div>
       </details>
+      <details class="set-sec" name="settings">
+        <summary><span data-i18n="setHints">Голосовые подсказки</span><b class="set-val" id="svHints"></b></summary>
+        <div class="set-body"><p class="small muted" style="margin:0 0 8px" data-i18n="hintsHelp">Для незрячих: первое касание называет кнопку, второе — нажимает.</p><div class="seg" id="segHints">
+          <button onclick="setHints('on')" data-v="on" data-i18n="hintsOn">Включены</button>
+          <button onclick="setHints('off')" data-v="off" data-i18n="hintsOff">Выключены</button>
+        </div></div>
+      </details>
     </div>
     <p class="small muted" style="margin-top:14px" data-i18n="setSaved">Настройки сохраняются в этом браузере.</p>
   </div>
@@ -965,6 +1021,30 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
   </div>
 </div>
 
+<!-- Серік — ИИ-помощник: гид и поддержка -->
+<section class="serik" id="serik" role="dialog" aria-modal="false" aria-labelledby="skTitle" hidden>
+  <div class="sk-head">
+    <div class="sk-ava" aria-hidden="true">С</div>
+    <div class="sk-who"><b id="skTitle" data-i18n="skName">Серік</b><small data-i18n="skSub">Гид по городу и поддержка</small></div>
+    <button type="button" class="sk-icon" id="skSpeak" onclick="serikToggleSpeak()" aria-pressed="false" data-i18n-aria="skSpeakBtn" aria-label="Читать ответы вслух"><i data-ic="speaker"></i></button>
+    <button type="button" class="sk-icon" onclick="serikClose(true)" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+  </div>
+  <div class="sk-log" id="skLog" role="log" aria-live="polite" aria-relevant="additions"></div>
+  <div class="sk-chips" id="skChips">
+    <button type="button" onclick="serikAsk(t('skQ1'))" data-i18n="skQ1">Как построить доступный маршрут?</button>
+    <button type="button" onclick="serikAsk(t('skQ2'))" data-i18n="skQ2">Мне тревожно выходить из дома</button>
+    <button type="button" onclick="serikAsk(t('skQ3'))" data-i18n="skQ3">Куда сходить в моём городе?</button>
+  </div>
+  <form class="sk-form" onsubmit="event.preventDefault();serikSend()">
+    <label class="sr-only" for="skInput" data-i18n="skPlaceholder">Напишите Серіку…</label>
+    <textarea id="skInput" rows="1" maxlength="2000" data-i18n-ph="skPlaceholder" placeholder="Напишите Серіку…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();serikSend();}"></textarea>
+    <button type="button" class="sk-icon" onclick="serikMic()" data-i18n-aria="listening" aria-label="Голосовой ввод"><i data-ic="mic"></i></button>
+    <button type="submit" class="sk-icon sk-send" id="skSendBtn" data-i18n-aria="skSend" aria-label="Отправить"><i data-ic="send"></i></button>
+  </form>
+  <p class="sk-note" data-i18n="skNote">Серік — ИИ, он может ошибаться. В опасной ситуации звоните 112.</p>
+</section>
+<div class="sr-only" id="srLive" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -2133,7 +2213,8 @@ function applyAll(){
   h.setAttribute("lang",S.lang);
   document.body.setAttribute("data-view",S.view);
   mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
-  mark("segMotion",S.motion); mark("segVoice",S.voice); mark("segLang",S.lang);
+  mark("segMotion",S.motion); mark("segVoice",S.voice); mark("segLang",S.lang); mark("segHints",S.hints);
+  { const mb=document.getElementById("mmHints"); if(mb) mb.setAttribute("aria-pressed",String(S.hints==="on")); }
   updateSetVals();
   renderTexts();
   syncPeekHeight();   // крупный шрифт делает плашку выше
@@ -2157,6 +2238,7 @@ function updateSetVals(){
   put("svTheme", t(S.theme==="dark"?"themeDark":"themeLight"));
   put("svContrast", t(S.contrast==="high"?"contrastHigh":"contrastNormal"));
   put("svVoice", t(S.voice==="off"?"voiceOff":"voiceOn"));
+  put("svHints", t(S.hints==="on"?"hintsOn":"hintsOff"));
 }
 function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") stopSpeak(); }
 function setLang(v){
@@ -2180,7 +2262,9 @@ function setLang(v){
   }
 }
 function setProfile(v){
+  const wasBlind=S.profile==="blind";
   S.profile=v; store("profile",v);
+  if(v==="blind" && !wasBlind && read("hints","")===""){ setHints("on",true); setTimeout(()=>{ toast(t("hintsBlindAuto")); sayNow(t("hintsBlindAuto")); },300); }
   const p=PROFILES[v];
   const noLimit = p.maxStep >= 99;
   document.getElementById("profileNote").textContent =
@@ -4035,6 +4119,7 @@ function openModal(id){
   const m=document.getElementById(id); m.classList.add("open");
   if(id==="settingsModal"){ m.querySelectorAll("details.set-sec").forEach(d=>d.open=false); updateSetVals(); }
   const f=m.querySelector("button,select,input,textarea"); if(f) f.focus();
+  const hd=m.querySelector("h2,h3"); announce(t("hOpened")+": "+(hd?hd.innerText:""));
 }
 function closeModal(id){
   document.getElementById(id).classList.remove("open");
@@ -4049,6 +4134,7 @@ document.querySelectorAll(".modal").forEach(m=>{
 function toast(s){
   const el=document.getElementById("toast");
   el.textContent=s; el.classList.add("show");
+  if(S.hints==="on" && !(window.speechSynthesis&&speechSynthesis.speaking)) sayNow(s);
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),3800);
 }
 
@@ -4087,12 +4173,254 @@ document.addEventListener("keydown",e=>{
 });
 
 /* ============ Старт ============ */
+/* ============ Голосовые подсказки и Серік: тексты ============ */
+Object.assign(I18N.ru,{
+  setHints:"Голосовые подсказки", hintsOn:"Включены", hintsOff:"Выключены",
+  hintsHelp:"Для незрячих: первое касание называет кнопку, второе — нажимает.",
+  hintsOnMsg:"Голосовые подсказки включены. Первое касание называет кнопку, второе касание нажимает её.",
+  hintsOffMsg:"Голосовые подсказки выключены.",
+  hBtn:"кнопка", hLink:"ссылка", hField:"поле ввода", hList:"список, выбрано", hCheck:"флажок", hRadio:"переключатель",
+  hChecked:"отмечено", hUnchecked:"не отмечено", hOpen:"раскрыто", hClosed:"свёрнуто", hSelected:"выбрано",
+  hDisabled:"недоступно", hEmpty:"пусто", hTapAgain:"Коснитесь ещё раз, чтобы нажать", hOpened:"Открыто",
+  hintsBlindAuto:"Для незрячих включены голосовые подсказки. Выключить можно в настройках.",
+  skName:"Серік", skSub:"Гид по городу и поддержка", skSpeakBtn:"Читать ответы вслух", skSend:"Отправить",
+  skPlaceholder:"Напишите Серіку…", skOpenBtn:"Серік — ИИ-помощник",
+  skHello:"Сәлем! Я Серік — твой спутник в ICity. Помогу спланировать доступный маршрут, подскажу, как пользоваться картой, и просто выслушаю, если тяжело. О чём поговорим?",
+  skQ1:"Как построить доступный маршрут?", skQ2:"Мне тревожно выходить из дома", skQ3:"Куда сходить в моём городе?",
+  skNote:"Серік — ИИ, он может ошибаться. В опасной ситуации звоните 112.",
+  skThinking:"Серік думает…",
+  skOff:"Серік скоро заработает: его ещё подключают. А пока карта, маршруты и жалобы работают как обычно. Если сейчас тяжело — бесплатная психологическая помощь 150, экстренная служба 112.",
+  skErr:"Не получилось ответить — проверь интернет и попробуй ещё раз. Если сейчас тяжело — звони 150, в опасности — 112.",
+  skBusy:"Слишком много сообщений подряд. Давай сделаем паузу на несколько минут."
+});
+Object.assign(I18N.kk,{
+  setHints:"Дауыстық кеңестер", hintsOn:"Қосулы", hintsOff:"Өшірулі",
+  hintsHelp:"Көзі көрмейтіндерге: бірінші жанасу батырманың атын айтады, екіншісі басады.",
+  hintsOnMsg:"Дауыстық кеңестер қосылды. Бірінші жанасу батырманың атын айтады, екінші жанасу оны басады.",
+  hintsOffMsg:"Дауыстық кеңестер өшірілді.",
+  hBtn:"батырма", hLink:"сілтеме", hField:"енгізу өрісі", hList:"тізім, таңдалғаны", hCheck:"белгі", hRadio:"ауыстырғыш",
+  hChecked:"белгіленген", hUnchecked:"белгіленбеген", hOpen:"ашық", hClosed:"жабық", hSelected:"таңдалған",
+  hDisabled:"қолжетімсіз", hEmpty:"бос", hTapAgain:"Басу үшін тағы бір рет жанасыңыз", hOpened:"Ашылды",
+  hintsBlindAuto:"Көзі көрмейтіндерге дауыстық кеңестер қосылды. Баптауларда өшіруге болады.",
+  skName:"Серік", skSub:"Қала бойынша гид және қолдау", skSpeakBtn:"Жауаптарды дауыстап оқу", skSend:"Жіберу",
+  skPlaceholder:"Серікке жазыңыз…", skOpenBtn:"Серік — ЖИ көмекші",
+  skHello:"Сәлем! Мен Серікпін — ICity-дегі серігің. Қолжетімді бағыт жоспарлауға көмектесемін, картаны қалай қолдануды айтамын, қиын болса — тыңдаймын. Не туралы сөйлесеміз?",
+  skQ1:"Қолжетімді бағытты қалай құрамын?", skQ2:"Үйден шығуға қорқамын", skQ3:"Қаламда қайда барсам болады?",
+  skNote:"Серік — ЖИ, ол қателесуі мүмкін. Қауіпті жағдайда 112-ге қоңырау шалыңыз.",
+  skThinking:"Серік ойланып жатыр…",
+  skOff:"Серік жақында іске қосылады. Әзірге карта, бағыттар мен шағымдар әдеттегідей жұмыс істейді. Қазір қиын болса — тегін психологиялық көмек 150, шұғыл қызмет 112.",
+  skErr:"Жауап бере алмадым — интернетті тексеріп, қайталап көріңіз. Қиын болса — 150, қауіп төнсе — 112.",
+  skBusy:"Хабарлама тым көп. Бірнеше минут үзіліс жасайық."
+});
+Object.assign(I18N.en,{
+  setHints:"Voice hints", hintsOn:"On", hintsOff:"Off",
+  hintsHelp:"For blind users: the first tap names a button, the second tap presses it.",
+  hintsOnMsg:"Voice hints are on. The first tap names a button, the second tap presses it.",
+  hintsOffMsg:"Voice hints are off.",
+  hBtn:"button", hLink:"link", hField:"text field", hList:"list, selected", hCheck:"checkbox", hRadio:"radio button",
+  hChecked:"checked", hUnchecked:"not checked", hOpen:"expanded", hClosed:"collapsed", hSelected:"selected",
+  hDisabled:"unavailable", hEmpty:"empty", hTapAgain:"Tap again to press", hOpened:"Opened",
+  hintsBlindAuto:"Voice hints are on for blind users. You can turn them off in settings.",
+  skName:"Serik", skSub:"City guide and support", skSpeakBtn:"Read replies aloud", skSend:"Send",
+  skPlaceholder:"Message Serik…", skOpenBtn:"Serik — AI assistant",
+  skHello:"Sälem! I'm Serik — your companion in ICity. I can help plan an accessible route, explain how the map works, and just listen if things are hard. What shall we talk about?",
+  skQ1:"How do I build an accessible route?", skQ2:"I feel anxious about leaving home", skQ3:"Where can I go in my city?",
+  skNote:"Serik is an AI and can make mistakes. In an emergency call 112.",
+  skThinking:"Serik is thinking…",
+  skOff:"Serik is coming soon — he's still being connected. The map, routes and reports work as usual. If things are hard right now: free psychological help 150, emergency 112.",
+  skErr:"Couldn't reply — check your connection and try again. If things are hard: 150, in danger: 112.",
+  skBusy:"Too many messages in a row. Let's take a break for a few minutes."
+});
+
+/* ============ Голосовые подсказки для незрячих ============ */
+// Первое касание произносит название элемента, второе — нажимает. Поля и списки называются при фокусе.
+const HINT_SEL='button,a[href],summary,[role="button"],[role="menuitem"],[role="tab"],[role="switch"],[role="option"],input[type="checkbox"],input[type="radio"],[onclick],.leaflet-marker-icon';
+let hintArmed=null, hintAt=0, hintPass=null, hintPassAt=0, hintPtr=0, hintTips=0;
+function sayNow(text,rate){
+  if(!text || !("speechSynthesis" in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const {voice}=pickVoice(S.lang);
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=rate||1.05;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+// Сообщение для экранного диктора (VoiceOver/TalkBack) и, в режиме подсказок, голосом
+function announce(text){
+  const el=document.getElementById("srLive");
+  if(el){ el.textContent=""; setTimeout(()=>{ el.textContent=text; },40); }
+  if(S.hints==="on") sayNow(text);
+}
+function hintName(el){
+  let n=el.getAttribute("aria-label")||"";
+  const lb=el.getAttribute("aria-labelledby");
+  if(!n && lb) n=lb.split(/\s+/).map(id=>{ const x=document.getElementById(id); return x?x.innerText:""; }).join(" ");
+  const field=el.matches("input,select,textarea");
+  if(!n && field && el.labels && el.labels.length) n=el.labels[0].innerText;
+  if(!n && !field) n=el.innerText||el.textContent||"";
+  if(!n) n=el.getAttribute("title")||el.getAttribute("placeholder")||el.getAttribute("alt")||"";
+  if(!n){ const img=el.querySelector&&el.querySelector("img[alt]"); if(img) n=img.alt; }
+  return n.replace(/\s+/g," ").trim().slice(0,180);
+}
+function hintDescribe(el){
+  const name=hintName(el), tag=el.tagName, type=(el.type||"").toLowerCase(), role=el.getAttribute("role");
+  const parts=[name];
+  if(tag==="SELECT"){ const o=el.options[el.selectedIndex]; parts.push(t("hList")); if(o) parts.push(o.text); }
+  else if(tag==="TEXTAREA" || (tag==="INPUT" && !["checkbox","radio","button","submit","range"].includes(type))){ parts.push(t("hField")); parts.push(el.value||t("hEmpty")); }
+  else if(type==="checkbox"||type==="radio"||role==="switch"){ parts.push(t(type==="radio"?"hRadio":"hCheck")); parts.push(t((el.checked||el.getAttribute("aria-checked")==="true")?"hChecked":"hUnchecked")); }
+  else if(tag==="SUMMARY"){ parts.push(t(el.parentElement&&el.parentElement.open?"hOpen":"hClosed")); }
+  else if(tag==="A" && !role){ parts.push(t("hLink")); }
+  else if(name){ parts.push(t("hBtn")); }
+  if(el.getAttribute("aria-pressed")==="true") parts.push(t("hSelected"));
+  const ex=el.getAttribute("aria-expanded"); if(ex) parts.push(t(ex==="true"?"hOpen":"hClosed"));
+  if(el.disabled || el.getAttribute("aria-disabled")==="true") parts.push(t("hDisabled"));
+  return name ? parts.filter(Boolean).join(", ") : "";
+}
+document.addEventListener("pointerdown",()=>{ hintPtr=Date.now(); },true);
+document.addEventListener("click",e=>{
+  if(S.hints!=="on" || !e.isTrusted || !(e.target instanceof Element)) return;
+  let el=e.target.closest(HINT_SEL);
+  const lab=e.target.closest("label");
+  if((!el || el.contains(lab)) && lab && lab.control && /^(checkbox|radio)$/.test(lab.control.type)) el=lab.control;
+  if(!el || el.closest("#map")&&!el.closest(".leaflet-control,.leaflet-marker-icon,.leaflet-popup")) return;
+  if(el.matches("input,textarea,select") && !/^(checkbox|radio)$/.test(el.type)) return;
+  const now=Date.now();
+  if(hintPass && now-hintPassAt<700 && (el===hintPass||hintPass.contains(el)||el.contains(hintPass))) return;
+  if(e.detail===0) return;                       // Enter/пробел с клавиатуры — элемент уже назван при фокусе
+  if(hintArmed===el && now-hintAt<10000){ hintArmed=null; hintPass=el; hintPassAt=now; el.classList.remove("hint-armed"); return; }
+  const d=hintDescribe(el); if(!d) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if(hintArmed) hintArmed.classList.remove("hint-armed");
+  hintArmed=el; hintAt=now; el.classList.add("hint-armed");
+  let tip=""; if(hintTips<3){ hintTips++; tip=". "+t("hTapAgain"); }
+  sayNow(d+tip);
+},true);
+document.addEventListener("focusin",e=>{
+  if(S.hints!=="on") return;
+  const el=e.target; if(!(el instanceof Element) || el===document.body) return;
+  if(Date.now()-hintPtr<600 && !el.matches("input,textarea,select")) return;  // касание назовёт само
+  const d=hintDescribe(el); if(d) sayNow(d);
+},true);
+document.addEventListener("change",e=>{
+  if(S.hints!=="on") return;
+  const el=e.target;
+  if(el instanceof HTMLSelectElement){ const o=el.options[el.selectedIndex]; if(o) sayNow(o.text); }
+},true);
+function setHints(v,quiet){
+  S.hints=v; store("hints",v); document.documentElement.setAttribute("data-hints",v);
+  mark("segHints",v); updateSetVals();
+  const mb=document.getElementById("mmHints"); if(mb) mb.setAttribute("aria-pressed",String(v==="on"));
+  if(hintArmed){ hintArmed.classList.remove("hint-armed"); hintArmed=null; }
+  if(!quiet){ if(v==="on") sayNow(t("hintsOnMsg")); else { sayNow(t("hintsOffMsg")); } toast(t(v==="on"?"hintsOnMsg":"hintsOffMsg")); }
+}
+// Alt+H (или Alt+Р) — включить/выключить подсказки с клавиатуры
+document.addEventListener("keydown",e=>{ if(e.altKey && (e.code==="KeyH")){ e.preventDefault(); setHints(S.hints==="on"?"off":"on"); } });
+// Результат маршрута — объявить голосом, когда карточка обновилась
+(function(){
+  let tm=null;
+  const rc=document.getElementById("routeCard"); if(!rc || !window.MutationObserver) return;
+  new MutationObserver(()=>{
+    if(S.hints!=="on") return;
+    clearTimeout(tm); tm=setTimeout(()=>{
+      const h=rc.querySelector("h2,h3,.route-sum,.sum,b,strong");
+      const txt=(h?h.innerText:rc.innerText||"").replace(/\s+/g," ").trim().slice(0,240);
+      if(txt) sayNow(txt);
+    },500);
+  }).observe(rc,{childList:true,subtree:true});
+})();
+
+/* ============ Серік — ИИ-помощник ============ */
+let SK={msgs:[], busy:false, enabled:null, speak:null};
+function skLoad(){ try{ const v=JSON.parse(sessionStorage.getItem("ic_serik")||"[]"); if(Array.isArray(v)) SK.msgs=v.slice(-30); }catch(e){} }
+function skSave(){ try{ sessionStorage.setItem("ic_serik",JSON.stringify(SK.msgs.slice(-30))); }catch(e){} }
+function skBubble(role,text,cls){
+  const log=document.getElementById("skLog");
+  const d=document.createElement("div");
+  d.className="sk-msg "+(role==="user"?"me":"bot")+(cls?" "+cls:"");
+  d.textContent=String(text).replace(/\*\*(.+?)\*\*/g,"$1").replace(/^#+\s*/gm,"");
+  log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
+}
+function skRender(){
+  const log=document.getElementById("skLog"); log.innerHTML="";
+  skBubble("assistant",t("skHello"));
+  SK.msgs.forEach(m=>skBubble(m.role,m.content));
+  document.getElementById("skChips").hidden = SK.msgs.length>0;
+}
+function skSpeakOn(){ return SK.speak!==null ? SK.speak : S.hints==="on"; }
+function skMarkSpeak(){ document.getElementById("skSpeak").setAttribute("aria-pressed",String(skSpeakOn())); }
+function serikToggleSpeak(){ SK.speak=!skSpeakOn(); store("serikSpeak",SK.speak?"1":"0"); skMarkSpeak(); if(!SK.speak) stopSpeak(); }
+function serikOpen(){
+  closeMiniMenu(false);
+  const p=document.getElementById("serik"); p.hidden=false;
+  document.getElementById("serikBtn").setAttribute("aria-expanded","true");
+  skRender(); skMarkSpeak();
+  if(SK.enabled===null){
+    fetch("/api/assistant").then(r=>r.json()).then(j=>{ SK.enabled=!!(j&&j.enabled); }).catch(()=>{ SK.enabled=false; });
+  }
+  setTimeout(()=>document.getElementById("skInput").focus(),50);
+  announce(t("skName")+". "+t("skSub")+". "+(SK.msgs.length?"":t("skHello")));
+}
+function serikClose(focusBtn){
+  const p=document.getElementById("serik"); if(p.hidden) return;
+  p.hidden=true; document.getElementById("serikBtn").setAttribute("aria-expanded","false");
+  stopSpeak(); if(focusBtn) document.getElementById("serikBtn").focus();
+}
+function serikToggle(){ document.getElementById("serik").hidden ? serikOpen() : serikClose(true); }
+function serikAsk(q){ document.getElementById("skInput").value=q; serikSend(); }
+function skRouteSummary(){
+  try{ if(!lastSteps || !lastSteps.length) return ""; return lastSteps.slice(0,6).map((s,i)=>stepText(s,i)).join("; ").slice(0,300); }catch(e){ return ""; }
+}
+async function serikSend(){
+  const inp=document.getElementById("skInput");
+  const text=inp.value.trim(); if(!text || SK.busy) return;
+  inp.value=""; SK.busy=true; document.getElementById("skChips").hidden=true;
+  SK.msgs.push({role:"user",content:text}); skSave(); skBubble("user",text);
+  const wait=skBubble("assistant",t("skThinking"),"wait");
+  let reply="", ok=false;
+  try{
+    const r=await fetch("/api/assistant",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({messages:SK.msgs.slice(-16),context:{lang:S.lang,city:cityName(),profile:(PROFILES[S.profile]||{})[S.lang]||"",route:skRouteSummary()}})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok && j.reply){ reply=j.reply; ok=true; }
+    else if(r.status===503){ reply=t("skOff"); SK.enabled=false; }
+    else if(r.status===429){ reply=t("skBusy"); }
+    else reply=t("skErr");
+  }catch(e){ reply=t("skErr"); }
+  wait.remove();
+  if(ok){ SK.msgs.push({role:"assistant",content:reply}); skSave(); }
+  else { SK.msgs.pop(); skSave(); }   // неотвеченный вопрос не отправляем повторно в историю
+  skBubble("assistant",reply);
+  if(skSpeakOn()) sayNow(reply.replace(/\*\*/g,""),1);
+  SK.busy=false;
+  if(!ok) inp.value=text;
+}
+function serikMic(){
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast(t("voiceNo")); return; }
+  stopSpeak();
+  const rec=new SR(); rec.lang=BCP[S.lang]||"ru-RU"; rec.interimResults=false; rec.maxAlternatives=1;
+  rec.onresult=e=>{ document.getElementById("skInput").value=e.results[0][0].transcript; serikSend(); };
+  rec.onerror=()=>toast(t("geoFail"));
+  toast(t("listening")); rec.start();
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !document.getElementById("serik").hidden){ serikClose(true); } });
+document.addEventListener("click",e=>{
+  const p=document.getElementById("serik");
+  if(!p.hidden && e.target instanceof Element && !e.target.closest("#serik,#serikBtn,#miniMenu") && !e.target.closest(".modal")) serikClose(false);
+});
+
 (function init(){
   S.lang=read("lang","ru"); S.profile=read("profile","wheelchair_manual");
   S.theme=read("theme", (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
   S.font=read("font","normal"); S.contrast=read("contrast","normal");
   S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
   S.voice=read("voice","on"); S.view=read("view","map");
+  S.hints=/[?&](hints|voice)=1/.test(location.search) ? "on" : read("hints","off");
+  if(S.hints==="on") store("hints","on");
+  document.documentElement.setAttribute("data-hints",S.hints);
+  { const sp=read("serikSpeak",""); SK.speak = sp ? sp==="1" : null; }
+  skLoad();
   S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
   if(S.basemap==="satlab") S.basemap="sat";
   S.city=read("city","almaty"); if(!CITIES[S.city]) S.city="almaty";
