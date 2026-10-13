@@ -854,7 +854,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 <style>
 #icIntro{position:fixed;inset:0;z-index:100000;background:#040912;overflow:hidden;contain:strict;transition:opacity .55s ease,transform .7s cubic-bezier(.6,0,.2,1),filter .55s ease}
 #icIntro canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-#icIntro.out{opacity:0;transform:scale(1.18);filter:blur(6px);pointer-events:none}
+#icIntro.out{opacity:0;transform:scale(1.18);filter:blur(6px)}
 #icIntro .ii-brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none}
 #icIntro .ii-logo{width:96px;height:96px;border-radius:26px;opacity:0;transform:scale(.4) rotate(-12deg);transition:opacity .45s ease,transform .9s cubic-bezier(.2,1.4,.4,1);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 60px rgba(23,105,194,.55),0 0 90px rgba(63,224,168,.35)}
 #icIntro .ii-logo svg{width:100%;height:100%;display:block;border-radius:26px}
@@ -896,10 +896,17 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
   var finished=false, raf=0, timers=[];
   function finish(){
     if(finished) return; finished=true; timers.forEach(clearTimeout); cancelAnimationFrame(raf);
-    root.classList.add("out"); setTimeout(function(){ root.remove(); window.__icIntroDone=1; dispatchEvent(new Event("icintro")); },700);
+    root.classList.add("out");
+    // ещё полсекунды гасим случайные нажатия, пока заставка растворяется
+    var guard=function(e){ e.preventDefault(); e.stopPropagation(); }, until=Date.now()+600;
+    document.addEventListener("click",function g(e){ if(Date.now()<until) guard(e); else document.removeEventListener("click",g,true); },true);
+    setTimeout(function(){ root.remove(); window.__icIntroDone=1; dispatchEvent(new Event("icintro")); },700);
   }
   function at(ms,f){ timers.push(setTimeout(f,ms)); }
-  root.addEventListener("pointerdown",finish); addEventListener("keydown",finish,{once:true});
+  // Пропуск — по «click», а не по касанию: иначе отпущенный палец «проваливается» на кнопку под заставкой (например, «Профиль»)
+  root.addEventListener("click",function(e){ e.preventDefault(); e.stopPropagation(); finish(); });
+  root.addEventListener("pointerdown",function(e){ e.stopPropagation(); });
+  addEventListener("keydown",finish,{once:true});
   document.addEventListener("visibilitychange",function(){ if(document.hidden) finish(); });
   if(reduce){ root.classList.add("s2","s3","s4"); at(900,finish); return; }
 
