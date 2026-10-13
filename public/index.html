@@ -306,6 +306,7 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .taxi-order .go{margin-left:auto;color:var(--ink-soft)}
 .taxi-order .logo.city{background:#1769c2;color:#fff;font-size:.8rem}
 .taxi-order .logo.inva{background:#0e7a4f;color:#fff}
+.trip-wx{display:grid;gap:6px;margin-top:10px}.trip-wx .fact{display:flex;gap:6px;align-items:flex-start;margin:0;border-radius:12px;font-size:.84rem;line-height:1.35}.trip-wx .ic{flex:none;width:18px;height:18px}
 .taxi-h{font-size:1rem;margin:18px 0 2px;display:flex;align-items:center;gap:6px}
 .taxi-src{font-size:.78rem;color:var(--ink-soft);margin:6px 0 0}
 .taxi-old{font-size:.78rem;color:#9a5b00;margin:4px 0 0}
@@ -1416,7 +1417,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
- plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
+ rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
@@ -1504,7 +1505,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
- plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
+ rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
@@ -1593,7 +1594,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
- plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
+ rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
@@ -2383,14 +2384,15 @@ async function loadWeather(force){
   const [la,lo]=city().c;
   try{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
-      + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto";
+      + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m"
+      + "&hourly=temperature_2m,precipitation_probability,precipitation,snowfall,weather_code&forecast_hours=6&timezone=auto";
     const r=await fetch(url,{signal:ctl.signal});
     if(!r.ok) throw new Error("http "+r.status);
     const j=await r.json();
     const c=j.current||{};
     lastWeather={ temp:Number(c.temperature_2m), feels:Number(c.apparent_temperature),
                   prec:Number(c.precipitation||0), code:Number(c.weather_code||0),
-                  wind:Number(c.wind_speed_10m||0) };
+                  wind:Number(c.wind_speed_10m||0), hourly:j.hourly||null };
     weatherAt=Date.now();
   }catch(e){
     console.error("weather failed:", e);
@@ -2800,7 +2802,7 @@ function countBarriers(an){
   if(!an) return 0;
   const prof=PROFILES[S.profile], ob=an.ob||{};
   const stairs = prof.avoidStairs ? (ob.stairs||[]).filter(x=>!x.ramp).length : 0;
-  const slopeBad = an.slope && an.slope.maxSlope > prof.maxSlope ? 1 : 0;
+  const slopeBad = an.slope && an.slope.maxSlope > effSlope(prof) ? 1 : 0;
   return stairs + slopeBad;
 }
 let modePeek=null;   // {title, sub} — сводка поездки на автобусе/такси для плашки
@@ -3450,11 +3452,39 @@ let variantIndex = 0;
 
 // Насколько вариант плох ДЛЯ ЭТОГО профиля. Лестница без пандуса для коляски —
 // это не «на 5 минут дольше», это «не проехать», поэтому вес несопоставимо больше времени.
+// В гололёд и снег колёса и трость скользят: допустимый уклон снижаем на 40 %
+function iceNow(){ return !!(lastWeather && wxWarnings(lastWeather).some(x=>x.ice)); }
+function effSlope(prof){ return iceNow() && prof.maxSlope<15 ? Math.max(2, Math.round(prof.maxSlope*.6)) : prof.maxSlope; }
+// Погода на время пути: ближайшие часы прогноза
+function tripWeather(mins){
+  const w=lastWeather; if(!w) return null;
+  const out=[]; const warns=wxWarnings(w);
+  if(warns.some(x=>x.ice)) out.push({cls:"bad",txt:tf("rwIce",{n:effSlope(PROFILES[S.profile])})});
+  const h=w.hourly;
+  if(h && h.time){
+    const now=Date.now(), end=now+(mins+30)*60000; let pp=0, snow=0, rain=0, tmax=-99, tmin=99, firstWet=null;
+    h.time.forEach((tm,i)=>{ const ts=new Date(tm).getTime(); if(ts+3600000<now||ts>end) return;
+      pp=Math.max(pp,h.precipitation_probability?.[i]||0); snow+=h.snowfall?.[i]||0; rain+=h.precipitation?.[i]||0;
+      tmax=Math.max(tmax,h.temperature_2m?.[i]??-99); tmin=Math.min(tmin,h.temperature_2m?.[i]??99);
+      if(firstWet==null && ((h.precipitation?.[i]||0)>0.1||(h.precipitation_probability?.[i]||0)>=60)) firstWet=ts; });
+    if(snow>0.2) out.push({cls:"bad",txt:t("rwSnow")});
+    else if(pp>=60 || rain>0.5){ const inMin=firstWet&&firstWet>now?Math.round((firstWet-now)/60000):0;
+      out.push({cls:"warn",txt: inMin>5 ? tf("rwRainIn",{n:inMin}) : t("rwRain")}); }
+    if(tmax>=32) out.push({cls:"warn",txt:t("rwHeat")});
+    if(tmin<=-15) out.push({cls:"warn",txt:t("rwCold")});
+    if(tmin<=1 && tmin>-10 && rain>0.2 && !warns.some(x=>x.ice)) out.push({cls:"bad",txt:t("rwFreeze")});
+  }
+  return out;
+}
+function tripWeatherHtml(mins){
+  const ws=tripWeather(mins); if(!ws||!ws.length) return "";
+  return `<div class="trip-wx">${ws.map(x=>`<p class="fact ${x.cls==="bad"?"bad":""}">${svgI(x.cls==="bad"?"snow":"cloud")} ${esc(x.txt)}</p>`).join("")}</div>`;
+}
 function scoreVariant(v){
   const prof=PROFILES[S.profile];
   const blocking = prof.avoidStairs ? v.ob.stairs.filter(x=>!x.ramp).length : 0;
   const slope = v.slope ? v.slope.maxSlope : 0;
-  const overSlope = Math.max(0, slope - prof.maxSlope);
+  const overSlope = Math.max(0, slope - effSlope(prof));
   return blocking*1000 + (overSlope>0 ? 400 + overSlope*30 : 0) + v.mins;
 }
 // Русский требует согласования с числом: «1 лестница», «2 лестницы», «5 лестниц».
@@ -3472,7 +3502,7 @@ function variantSummary(v){
   const slope = v.slope ? v.slope.maxSlope : 0;
   const bits=[];
   if(blocking) bits.push(`${blocking} ${plural(blocking, t("stairs1"), t("stairs2"), t("stairs5"))} ${t("vNoRamp")}`);
-  if(slope > prof.maxSlope) bits.push(`${t("vSlope")} ${slope.toFixed(1)}%`);
+  if(slope > effSlope(prof)) bits.push(`${t("vSlope")} ${slope.toFixed(1)}%`);
   return bits.length ? bits.join(" · ") : t("vClean");
 }
 
@@ -4163,7 +4193,7 @@ function renderVariants(){
     const diff = v.mins - fastest;
     const delta = diff===0 ? t("vFastest") : `+${diff} ${t("min")}`;
     const clean = !(PROFILES[S.profile].avoidStairs && v.ob.stairs.some(x=>!x.ramp))
-               && !(v.slope && v.slope.maxSlope > PROFILES[S.profile].maxSlope);
+               && !(v.slope && v.slope.maxSlope > effSlope(PROFILES[S.profile]));
     // Помечаем «подходит вам» только по-настоящему проходимый вариант.
     // На маршруте с лестницей такая пометка завела бы человека в тупик.
     const cleanTag = i===0 && clean;
@@ -4320,7 +4350,7 @@ function obstacleFacts(ob,slope){
     if(ob.tunnels.length) f.push(`<span class="fact warn">${esc(t("warnTunnel"))}${ob.tunnels.length}</span>`);
   }
   if(slope){
-    const bad=slope.maxSlope>prof.maxSlope;
+    const bad=slope.maxSlope>effSlope(prof);
     f.push(`<span class="fact ${bad?"bad":"good"}">${esc(t("warnSlope"))}${slope.maxSlope.toFixed(1)}% — ${esc(bad?t("slopeHard"):t("slopeOk"))}</span>`);
   } else f.push(`<span class="fact">${esc(t("noElev"))}</span>`);
   return f.join("");
@@ -4374,6 +4404,7 @@ function renderRouteCard(rt,mins,ob,slope){
   document.getElementById("routeCard").innerHTML=`
     <h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
     <div class="facts">${obstacleFacts(ob,slope)}</div>
+    ${tripWeatherHtml(mins)}
     <div class="row" style="margin-top:12px">
       <button class="btn-ghost grow" onclick="speakRoute()">${svgI("speaker")} ${esc(t("speak"))}</button>
       <button class="btn-ghost" onclick="stopSpeak()">■</button>
