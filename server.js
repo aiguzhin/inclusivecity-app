@@ -16,7 +16,10 @@ const zlib = require('zlib');
 const { URL } = require('url');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'change-me-please';
+// Без своего ADMIN_TOKEN админка не открывается известным паролем из исходников:
+// создаётся случайный токен (виден только в логах Render у владельца)
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN && process.env.ADMIN_TOKEN !== 'change-me-please'
+  ? process.env.ADMIN_TOKEN : require('crypto').randomBytes(18).toString('base64url');
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB
 
 const ROOT = __dirname;
@@ -217,10 +220,48 @@ function parseMultipart(buffer, contentType) {
   return { fields, file };
 }
 
+// Проверка токена админки: сравнение за постоянное время + не больше 10 ошибок за 15 минут с одного IP
+const adminFails = new Map();
 function requireAdmin(req) {
   const url = new URL(req.url, 'http://localhost');
-  const token = req.headers['x-admin-token'] || url.searchParams.get('token');
-  return token && token === ADMIN_TOKEN;
+  const token = String(req.headers['x-admin-token'] || url.searchParams.get('token') || '');
+  const ip = clientIp(req), now = Date.now();
+  const fails = (adminFails.get(ip) || []).filter((t) => now - t < 15 * 60e3);
+  if (fails.length >= 10) return false;
+  const a = Buffer.from(token), b = Buffer.from(ADMIN_TOKEN);
+  const ok = a.length === b.length && require('crypto').timingSafeEqual(a, b);
+  if (!ok) { fails.push(now); adminFails.set(ip, fails); }
+  return ok;
+}
+
+// ---------- Защита сайта ----------
+// Свои адреса: только с них браузер может пользоваться API (ключи Google, Anthropic, 2ГИС не утекут на чужие сайты)
+const OWN_HOSTS = ['inclusivecity.uk', 'www.inclusivecity.uk', 'inclusivecity.onrender.com', 'localhost', '127.0.0.1'];
+function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
+function foreignOrigin(req) {
+  const o = req.headers.origin || req.headers.referer;
+  if (!o) return false;                       // прямой заход, curl, сам сайт без Referer — не мешаем
+  try { return !OWN_HOSTS.includes(new URL(o).hostname); } catch (e) { return true; }
+}
+// Ограничение частоты по IP: общее на API и строже на платные запросы
+const apiHits = new Map();
+function tooMany(req, bucket, max, windowMs) {
+  const k = bucket + '|' + clientIp(req), now = Date.now();
+  const arr = (apiHits.get(k) || []).filter((t) => now - t < windowMs);
+  if (arr.length >= max) { apiHits.set(k, arr); return true; }
+  arr.push(now); apiHits.set(k, arr); return false;
+}
+setInterval(() => { const now = Date.now(); for (const [k, v] of apiHits) if (!v.length || now - v[v.length - 1] > 3600e3) apiHits.delete(k); for (const [k, v] of adminFails) if (now - v[v.length - 1] > 3600e3) adminFails.delete(k); }, 600e3).unref();
+const COSTLY = /^\/api\/(place-info|place-photo|transit|taxi-price|assistant|avatar)$/;
+function securityHeaders(res) {
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');   // чужой сайт не может показать ICity у себя в рамке
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.supabase.co");
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(self), camera=(self), microphone=(self), payment=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('X-Robots-Tag', 'noai, noimageai');
 }
 
 const EXT_TYPES = {
@@ -234,6 +275,8 @@ const EXT_TYPES = {
   '.gif': 'image/gif',
   '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
+  '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
 };
 
 function serveFile(res, filePath) {
@@ -728,7 +771,13 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
     const pathname = decodeURIComponent(url.pathname);
 
+    securityHeaders(res);
     if (pathname.startsWith('/api/')) {
+      if (pathname !== '/api/health') {
+        if (foreignOrigin(req)) return sendJson(res, 403, { error: 'ICity API доступен только на inclusivecity.uk' });
+        if (tooMany(req, 'api', 600, 60e3) || (COSTLY.test(pathname) && tooMany(req, 'costly', 60, 60e3)))
+          return sendJson(res, 429, { error: 'Слишком много запросов, попробуйте через минуту' });
+      }
       return await handleApi(req, res, pathname);
     }
 
@@ -778,7 +827,7 @@ server.listen(PORT, () => {
   profile.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR });
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
-  if (ADMIN_TOKEN === 'change-me-please') {
-    console.warn('ВНИМАНИЕ: используется ADMIN_TOKEN по умолчанию. Задайте свой в переменных окружения!');
+  if (!process.env.ADMIN_TOKEN || process.env.ADMIN_TOKEN !== ADMIN_TOKEN) {
+    console.warn('ВНИМАНИЕ: ADMIN_TOKEN не задан. Временный токен админки до перезапуска: ' + ADMIN_TOKEN);
   }
 });

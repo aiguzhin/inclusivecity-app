@@ -1,0 +1,29 @@
+# ICity — https://inclusivecity.uk
+# Поисковикам — пожалуйста: сайт открыт для всех.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /account
+
+# Сбор материалов сайта для обучения ИИ — без разрешения запрещён
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
+User-agent: Applebot-Extended
+Disallow: /
+User-agent: meta-externalagent
+Disallow: /
+
+Sitemap: https://inclusivecity.uk/sitemap.xml
