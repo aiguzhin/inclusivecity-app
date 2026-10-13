@@ -1,0 +1,30 @@
+# Службы такси каждого города из OpenStreetMap → public/taxi-osm.json (в разделе «Такси» — только свой город).
+# Запуск: Actions → «Taxi from OSM» → Run workflow; сам — 2-го числа каждого месяца и при изменении скрипта.
+name: Taxi from OSM
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['tools/osm_taxi.py', '.github/workflows/taxi.yml']
+  schedule:
+    - cron: '23 3 2 * *'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/osm_taxi.py
+      - name: Commit
+        run: |
+          git config user.name "icity-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/taxi-osm.json
+          git diff --cached --quiet && echo "без изменений" && exit 0
+          git commit -m "Такси городов из OpenStreetMap"
+          git push
