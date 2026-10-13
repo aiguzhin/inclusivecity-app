@@ -326,6 +326,27 @@ body.nav-on .top,body.nav-on #layerbar{visibility:hidden}
 .rt-score{font-weight:900;font-size:1.1rem;min-width:44px;text-align:right}
 .rt-legend{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--ink-soft);margin:8px 0}
 .rt-legend i{flex:1;height:8px;border-radius:8px;background:linear-gradient(90deg,#d92d20,#f5a524,#1f9d55)}
+.pc-rev{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.pc-rev h4{margin:0 0 6px;font-size:.95rem;display:flex;align-items:center;gap:8px}
+.rv-stars{color:#e8a200;letter-spacing:1px}
+.rv-checks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.rv-checks span{font-size:.78rem;padding:4px 9px;border-radius:99px;border:1px solid var(--line);background:var(--paper)}
+.rv-checks .yes{border-color:#1f9d55;color:#126b3a;background:#e7f7ee}.rv-checks .no{border-color:#d92d20;color:#a3201a;background:#fdecea}
+.rv-item{padding:8px 0;border-top:1px dashed var(--line);font-size:.86rem}.rv-item small{color:var(--ink-soft)}
+.rv-item img{display:block;max-width:100%;max-height:160px;border-radius:10px;margin-top:6px}
+.rv-form{display:grid;gap:8px;margin-top:8px}
+.rv-q{display:flex;align-items:center;gap:6px;font-size:.86rem}.rv-q span{flex:1}
+.rv-q button{min-width:44px;min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.rv-q button[aria-pressed="true"].y{background:#1f9d55;color:#fff;border-color:#1f9d55}.rv-q button[aria-pressed="true"].n{background:#d92d20;color:#fff;border-color:#d92d20}
+.rv-starpick{display:flex;gap:4px}.rv-starpick button{font-size:1.6rem;line-height:1;background:none;border:0;color:#c9ced6;cursor:pointer;min-width:40px;min-height:40px}.rv-starpick button.on{color:#e8a200}
+.hp-kinds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.hp-kinds button{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.88rem;cursor:pointer;text-align:left;padding:8px 10px}
+.hp-kinds button[aria-pressed="true"]{border-color:#1769c2;box-shadow:0 0 0 2px rgba(23,105,194,.25)}
+.hp-status{border-radius:14px;padding:12px;background:#eef5ff;border:1px solid #c4dbf7;margin:8px 0}
+.hp-req{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;display:grid;gap:4px}
+.mr-item{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.mr-st{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:99px}
+.mr-st.pending{background:#eef0f3;color:#475467}.mr-st.approved{background:#e7f7ee;color:#126b3a}.mr-st.in_progress{background:#fff4d6;color:#8a5a00}.mr-st.fixed{background:#dff3ff;color:#0b5c8a}.mr-st.rejected{background:#fdecea;color:#a3201a}.mr-st.gone{background:#eef0f3;color:#667085}
 .trip-wx{display:grid;gap:6px;margin-top:10px}.trip-wx .fact{display:flex;gap:6px;align-items:flex-start;margin:0;border-radius:12px;font-size:.84rem;line-height:1.35}.trip-wx .ic{flex:none;width:18px;height:18px}
 .taxi-h{font-size:1rem;margin:18px 0 2px;display:flex;align-items:center;gap:6px}
 .taxi-src{font-size:.78rem;color:var(--ink-soft);margin:6px 0 0}
@@ -945,6 +966,8 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
   <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
   <button type="button" role="menuitem" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skOpenBtn">Серік — ИИ-помощник</span></button>
   <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openHelp())"><i data-ic="user"></i><span data-i18n="hpMenu">Помощь волонтёров</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openMyReports())"><i data-ic="warn"></i><span data-i18n="mrTitle">Мои жалобы</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openRating())"><i data-ic="chart"></i><span data-i18n="rtTitle">Рейтинг районов</span></button>
   <a role="menuitem" href="/dashboard.html"><i data-ic="chart"></i><span data-i18n="statsShort">Статистика</span></a>
   <a role="menuitem" href="/about"><i data-ic="info"></i><span data-i18n="aboutShort">О проекте</span></a>
@@ -1165,6 +1188,24 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 </main>
 
 <!-- Настройки доступности -->
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="hpH">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="hpH" data-i18n="hpMenu">Помощь волонтёров</h2>
+      <button class="btn-ghost btn-sm" onclick="closeModal('helpModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+    </div>
+    <div id="hpBody"></div>
+  </div>
+</div>
+<div class="modal" id="myRepModal" role="dialog" aria-modal="true" aria-labelledby="mrH">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2 id="mrH" data-i18n="mrTitle">Мои жалобы</h2>
+      <button class="btn-ghost btn-sm" onclick="closeModal('myRepModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+    </div>
+    <div id="mrBody"></div>
+  </div>
+</div>
 <div class="modal" id="rateModal" role="dialog" aria-modal="true" aria-labelledby="rtH">
   <div class="dialog">
     <div class="dialog-head">
@@ -1310,6 +1351,11 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
     <div class="row" style="margin-top:10px">
       <button class="btn-ghost grow" onclick="sosShare()" data-i18n="sosShare">Отправить близким</button>
       <button class="btn-ghost grow" onclick="sosCopy()" data-i18n="sosCopy">Скопировать текст</button>
+    </div>
+    <div class="card help-card" style="margin-top:14px">
+      <h3 data-i18n="hpTitle">Попросить помощи у волонтёра</h3>
+      <p class="small muted" data-i18n="hpHelp">Не экстренно: проводить, помочь с лестницей, сесть в транспорт. Волонтёры рядом увидят просьбу.</p>
+      <button class="btn-primary" style="width:100%" onclick="closeModal('sosModal');openHelp()" data-i18n="hpAsk">Нужна помощь</button>
     </div>
     <div class="card" style="margin-top:14px">
       <h3 data-i18n="sosNumbers">Экстренные службы Казахстана</h3>
@@ -1458,7 +1504,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
- rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Навигация началась. {s}", navArrived:"Вы на месте. Навигация завершена.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", offTitle:"Карта без интернета", offDl:"Скачать город", offUpd:"Обновить", offDel:"Удалить", offNone:"Не скачано", offReady:"Скачано {d} · {n} объектов", offWork:"Скачиваем… {p}%", offDone:"Город скачан — карта будет работать без интернета", offFail:"Не всё удалось скачать — попробуйте позже", offUsing:"Нет интернета — показываем скачанные данные", offNoRoute:"Без интернета маршрут не построить — откройте сохранённый в «Мои места» или подключитесь", offDeleted:"Офлайн-данные города удалены", rtTitle:"Рейтинг районов", rtLoad:"Считаем доступность районов по открытым данным…", rtFail:"Не удалось посчитать — нужен интернет. Попробуйте позже.", rtFew:"Для этого города в OpenStreetMap мало данных о районах.", rtHow:"Оценка 0–100: чем больше пандусов, лифтов, доступных туалетов, тактильной плитки и звуковых светофоров на км² и чем меньше лестниц без пандуса и жалоб — тем выше. Сравнение внутри города.", rtPos:"удобств", rtNeg:"барьеров", rtMap:"Показать на карте", rtHide:"Скрыть с карты", rtSrc:"Данные: OpenStreetMap и жалобы жителей ICity · обновлено {d}", rtShare:"Поделиться", rtShareTxt:"Доступность районов — {city} (ICity):", rtBad:"хуже", rtGood:"лучше", rtCell:"Удобств: {p} · барьеров: {n}", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
+ rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Навигация началась. {s}", navArrived:"Вы на месте. Навигация завершена.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", offTitle:"Карта без интернета", offDl:"Скачать город", offUpd:"Обновить", offDel:"Удалить", offNone:"Не скачано", offReady:"Скачано {d} · {n} объектов", offWork:"Скачиваем… {p}%", offDone:"Город скачан — карта будет работать без интернета", offFail:"Не всё удалось скачать — попробуйте позже", offUsing:"Нет интернета — показываем скачанные данные", offNoRoute:"Без интернета маршрут не построить — откройте сохранённый в «Мои места» или подключитесь", offDeleted:"Офлайн-данные города удалены", rtTitle:"Рейтинг районов", rtLoad:"Считаем доступность районов по открытым данным…", rtFail:"Не удалось посчитать — нужен интернет. Попробуйте позже.", rtFew:"Для этого города в OpenStreetMap мало данных о районах.", rtHow:"Оценка 0–100: чем больше пандусов, лифтов, доступных туалетов, тактильной плитки и звуковых светофоров на км² и чем меньше лестниц без пандуса и жалоб — тем выше. Сравнение внутри города.", rtPos:"удобств", rtNeg:"барьеров", rtMap:"Показать на карте", rtHide:"Скрыть с карты", rtSrc:"Данные: OpenStreetMap и жалобы жителей ICity · обновлено {d}", rtShare:"Поделиться", rtShareTxt:"Доступность районов — {city} (ICity):", rtBad:"хуже", rtGood:"лучше", rtCell:"Удобств: {p} · барьеров: {n}", rvTitle:"Отзывы о доступности", rvNone:"Пока нет отзывов — будьте первым, это поможет другим", rvAdd:"Оставить отзыв", rvSend:"Отправить отзыв", rvSent:"Спасибо! Отзыв опубликован", rvFail:"Не удалось отправить: ", rvStars:"Общая оценка", rvText:"Что важно знать (необязательно)", rvPhoto:"Фото входа или пандуса (необязательно)", rvName:"Ваше имя (необязательно)", rvAll:"Все отзывы ({n})", rvFlag:"Пожаловаться", rvFlagged:"Спасибо, проверим", rvYes:"Есть", rvNo:"Нет", rvCount:"{n} отзыв(ов)", ck_ramp:"Пандус", ck_door:"Широкая дверь", ck_step:"Вход без ступеней", ck_toilet:"Доступный туалет", ck_elevator:"Лифт", ck_parking:"Парковка для инвалидов", ck_staff:"Персонал помогает", ck_tactile:"Тактильная плитка", hpMenu:"Помощь волонтёров", hpTitle:"Попросить помощи у волонтёра", hpHelp:"Не экстренно: проводить, помочь с лестницей, сесть в транспорт. Волонтёры рядом увидят просьбу.", hpAsk:"Нужна помощь", hpKindQ:"Чем помочь?", hp_escort:"Проводить", hp_stairs:"Лестница / бордюр", hp_transport:"Сесть в транспорт", hp_shop:"Магазин / аптека", hp_lost:"Я заблудился", hp_other:"Другое", hpText:"Пару слов (необязательно)", hpContact:"Телефон для связи", hpYourName:"Как к вам обращаться", hpSend:"Отправить просьбу", hpWait:"Ищем волонтёра рядом… Просьба видна 3 часа.", hpGot:"Откликнулся волонтёр: {name}", hpCall:"Позвонить", hpCancel:"Отменить просьбу", hpDone:"Помощь получена — закрыть", hpClosed:"Просьба закрыта", hpNeedGeo:"Нужна геопозиция, чтобы волонтёр нашёл вас", hpVol:"Я волонтёр — показать просьбы рядом", hpNoReq:"Сейчас рядом никто не просит помощи. Спасибо, что готовы помочь!", hpTake:"Откликнуться", hpVName:"Ваше имя", hpVPhone:"Ваш телефон", hpTaken:"Вы откликнулись. Свяжитесь с человеком:", hpGo:"Маршрут к нему", hpAgo:"{n} мин назад", hpFar:"~{d} от вас", hpPrivacy:"Точное место и телефон увидит только откликнувшийся волонтёр.", hpOwn:"Ваша просьба", hpNewReq:"Новая просьба о помощи рядом", mrTitle:"Мои жалобы", mrNone:"Вы ещё не отправляли жалоб с этого устройства", mrSt_pending:"На проверке", mrSt_approved:"На карте", mrSt_in_progress:"В работе", mrSt_fixed:"Исправлено", mrSt_rejected:"Отклонена", mrSt_gone:"Нет данных", mrChanged:"Жалоба «{t}»: {s}", mrNotify:"Сообщать, когда жалобу исправят", mrNotifyOn:"Уведомления включены", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
@@ -1546,7 +1592,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
- rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Навигация басталды. {s}", navArrived:"Сіз межелі жердесіз. Навигация аяқталды.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", offTitle:"Интернетсіз карта", offDl:"Қаланы жүктеу", offUpd:"Жаңарту", offDel:"Жою", offNone:"Жүктелмеген", offReady:"Жүктелді {d} · {n} нысан", offWork:"Жүктеп жатырмыз… {p}%", offDone:"Қала жүктелді — карта интернетсіз жұмыс істейді", offFail:"Бәрін жүктеу мүмкін болмады — кейінірек қайталаңыз", offUsing:"Интернет жоқ — жүктелген деректерді көрсетеміз", offNoRoute:"Интернетсіз бағыт құру мүмкін емес — «Менің орындарымдағы» сақталғанын ашыңыз немесе қосылыңыз", offDeleted:"Қаланың офлайн деректері жойылды", rtTitle:"Аудандар рейтингі", rtLoad:"Аудандардың қолжетімділігін ашық деректер бойынша есептеп жатырмыз…", rtFail:"Есептеу мүмкін болмады — интернет керек. Кейінірек қайталаңыз.", rtFew:"Бұл қала үшін OpenStreetMap-та аудандар туралы дерек аз.", rtHow:"0–100 баға: км²-ге шаққанда пандус, лифт, қолжетімді дәретхана, тактильді плитка мен дыбыстық бағдаршам көп, ал пандуссыз баспалдақ пен шағым аз болса — жоғары. Қала ішінде салыстырылады.", rtPos:"ыңғайлылық", rtNeg:"кедергі", rtMap:"Картада көрсету", rtHide:"Картадан жасыру", rtSrc:"Деректер: OpenStreetMap және ICity тұрғындарының шағымдары · жаңартылды {d}", rtShare:"Бөлісу", rtShareTxt:"Аудандардың қолжетімділігі — {city} (ICity):", rtBad:"нашар", rtGood:"жақсы", rtCell:"Ыңғайлылық: {p} · кедергі: {n}", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
+ rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Навигация басталды. {s}", navArrived:"Сіз межелі жердесіз. Навигация аяқталды.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", offTitle:"Интернетсіз карта", offDl:"Қаланы жүктеу", offUpd:"Жаңарту", offDel:"Жою", offNone:"Жүктелмеген", offReady:"Жүктелді {d} · {n} нысан", offWork:"Жүктеп жатырмыз… {p}%", offDone:"Қала жүктелді — карта интернетсіз жұмыс істейді", offFail:"Бәрін жүктеу мүмкін болмады — кейінірек қайталаңыз", offUsing:"Интернет жоқ — жүктелген деректерді көрсетеміз", offNoRoute:"Интернетсіз бағыт құру мүмкін емес — «Менің орындарымдағы» сақталғанын ашыңыз немесе қосылыңыз", offDeleted:"Қаланың офлайн деректері жойылды", rtTitle:"Аудандар рейтингі", rtLoad:"Аудандардың қолжетімділігін ашық деректер бойынша есептеп жатырмыз…", rtFail:"Есептеу мүмкін болмады — интернет керек. Кейінірек қайталаңыз.", rtFew:"Бұл қала үшін OpenStreetMap-та аудандар туралы дерек аз.", rtHow:"0–100 баға: км²-ге шаққанда пандус, лифт, қолжетімді дәретхана, тактильді плитка мен дыбыстық бағдаршам көп, ал пандуссыз баспалдақ пен шағым аз болса — жоғары. Қала ішінде салыстырылады.", rtPos:"ыңғайлылық", rtNeg:"кедергі", rtMap:"Картада көрсету", rtHide:"Картадан жасыру", rtSrc:"Деректер: OpenStreetMap және ICity тұрғындарының шағымдары · жаңартылды {d}", rtShare:"Бөлісу", rtShareTxt:"Аудандардың қолжетімділігі — {city} (ICity):", rtBad:"нашар", rtGood:"жақсы", rtCell:"Ыңғайлылық: {p} · кедергі: {n}", rvTitle:"Қолжетімділік туралы пікірлер", rvNone:"Әзірге пікір жоқ — бірінші болыңыз, бұл басқаларға көмектеседі", rvAdd:"Пікір қалдыру", rvSend:"Пікірді жіберу", rvSent:"Рақмет! Пікір жарияланды", rvFail:"Жіберу мүмкін болмады: ", rvStars:"Жалпы баға", rvText:"Не білу маңызды (міндетті емес)", rvPhoto:"Кіреберіс немесе пандус фотосы (міндетті емес)", rvName:"Атыңыз (міндетті емес)", rvAll:"Барлық пікір ({n})", rvFlag:"Шағымдану", rvFlagged:"Рақмет, тексереміз", rvYes:"Бар", rvNo:"Жоқ", rvCount:"{n} пікір", ck_ramp:"Пандус", ck_door:"Кең есік", ck_step:"Баспалдақсыз кіреберіс", ck_toilet:"Қолжетімді дәретхана", ck_elevator:"Лифт", ck_parking:"Мүгедектер тұрағы", ck_staff:"Қызметкерлер көмектеседі", ck_tactile:"Тактильді плитка", hpMenu:"Еріктілер көмегі", hpTitle:"Еріктіден көмек сұрау", hpHelp:"Шұғыл емес: шығарып салу, баспалдақта көмектесу, көлікке отырғызу. Жақын еріктілер өтінішті көреді.", hpAsk:"Көмек керек", hpKindQ:"Немен көмектесу керек?", hp_escort:"Шығарып салу", hp_stairs:"Баспалдақ / бордюр", hp_transport:"Көлікке отыру", hp_shop:"Дүкен / дәріхана", hp_lost:"Адасып қалдым", hp_other:"Басқа", hpText:"Бірер сөз (міндетті емес)", hpContact:"Байланыс телефоны", hpYourName:"Сізге қалай жүгінеміз", hpSend:"Өтініш жіберу", hpWait:"Жақын ерікті іздеп жатырмыз… Өтініш 3 сағат көрінеді.", hpGot:"Ерікті жауап берді: {name}", hpCall:"Қоңырау шалу", hpCancel:"Өтінішті тоқтату", hpDone:"Көмек алдым — жабу", hpClosed:"Өтініш жабылды", hpNeedGeo:"Ерікті сізді табуы үшін геолокация керек", hpVol:"Мен еріктімін — жақын өтініштерді көрсету", hpNoReq:"Қазір жақын жерде ешкім көмек сұрамайды. Көмектесуге дайын болғаныңызға рақмет!", hpTake:"Жауап беру", hpVName:"Атыңыз", hpVPhone:"Телефоныңыз", hpTaken:"Сіз жауап бердіңіз. Адаммен хабарласыңыз:", hpGo:"Оған дейінгі бағыт", hpAgo:"{n} мин бұрын", hpFar:"сізден ~{d}", hpPrivacy:"Нақты орын мен телефонды тек жауап берген ерікті көреді.", hpOwn:"Сіздің өтінішіңіз", hpNewReq:"Жақын жерде жаңа көмек өтініші", mrTitle:"Менің шағымдарым", mrNone:"Бұл құрылғыдан әлі шағым жіберілмеген", mrSt_pending:"Тексерілуде", mrSt_approved:"Картада", mrSt_in_progress:"Жұмыста", mrSt_fixed:"Түзетілді", mrSt_rejected:"Қабылданбады", mrSt_gone:"Дерек жоқ", mrChanged:"«{t}» шағымы: {s}", mrNotify:"Шағым түзетілгенде хабарлау", mrNotifyOn:"Хабарламалар қосылды", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
@@ -1635,7 +1681,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
- rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Navigation started. {s}", navArrived:"You have arrived. Navigation finished.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", offTitle:"Offline map", offDl:"Download city", offUpd:"Update", offDel:"Delete", offNone:"Not downloaded", offReady:"Downloaded {d} · {n} objects", offWork:"Downloading… {p}%", offDone:"City downloaded — the map will work offline", offFail:"Some data could not be downloaded — try later", offUsing:"No internet — showing downloaded data", offNoRoute:"Routes need the internet — open a saved one in My places or reconnect", offDeleted:"Offline data for the city deleted", rtTitle:"District rating", rtLoad:"Scoring district accessibility from open data…", rtFail:"Could not compute — internet needed. Try later.", rtFew:"OpenStreetMap has little district data for this city.", rtHow:"Score 0–100: more ramps, elevators, accessible toilets, tactile paving and audible signals per km², and fewer steps without ramps and complaints, means a higher score. Compared within the city.", rtPos:"amenities", rtNeg:"barriers", rtMap:"Show on map", rtHide:"Hide from map", rtSrc:"Data: OpenStreetMap and ICity residents' reports · updated {d}", rtShare:"Share", rtShareTxt:"District accessibility — {city} (ICity):", rtBad:"worse", rtGood:"better", rtCell:"Amenities: {p} · barriers: {n}", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
+ rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Navigation started. {s}", navArrived:"You have arrived. Navigation finished.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", offTitle:"Offline map", offDl:"Download city", offUpd:"Update", offDel:"Delete", offNone:"Not downloaded", offReady:"Downloaded {d} · {n} objects", offWork:"Downloading… {p}%", offDone:"City downloaded — the map will work offline", offFail:"Some data could not be downloaded — try later", offUsing:"No internet — showing downloaded data", offNoRoute:"Routes need the internet — open a saved one in My places or reconnect", offDeleted:"Offline data for the city deleted", rtTitle:"District rating", rtLoad:"Scoring district accessibility from open data…", rtFail:"Could not compute — internet needed. Try later.", rtFew:"OpenStreetMap has little district data for this city.", rtHow:"Score 0–100: more ramps, elevators, accessible toilets, tactile paving and audible signals per km², and fewer steps without ramps and complaints, means a higher score. Compared within the city.", rtPos:"amenities", rtNeg:"barriers", rtMap:"Show on map", rtHide:"Hide from map", rtSrc:"Data: OpenStreetMap and ICity residents' reports · updated {d}", rtShare:"Share", rtShareTxt:"District accessibility — {city} (ICity):", rtBad:"worse", rtGood:"better", rtCell:"Amenities: {p} · barriers: {n}", rvTitle:"Accessibility reviews", rvNone:"No reviews yet — be the first, it helps others", rvAdd:"Write a review", rvSend:"Send review", rvSent:"Thank you! Review published", rvFail:"Could not send: ", rvStars:"Overall rating", rvText:"What's important to know (optional)", rvPhoto:"Photo of the entrance or ramp (optional)", rvName:"Your name (optional)", rvAll:"All reviews ({n})", rvFlag:"Report", rvFlagged:"Thanks, we will check", rvYes:"Yes", rvNo:"No", rvCount:"{n} review(s)", ck_ramp:"Ramp", ck_door:"Wide door", ck_step:"Step-free entrance", ck_toilet:"Accessible toilet", ck_elevator:"Elevator", ck_parking:"Disabled parking", ck_staff:"Staff help", ck_tactile:"Tactile paving", hpMenu:"Volunteer help", hpTitle:"Ask a volunteer for help", hpHelp:"Not an emergency: walk with you, help with stairs, get on transport. Volunteers nearby will see your request.", hpAsk:"I need help", hpKindQ:"What do you need?", hp_escort:"Walk with me", hp_stairs:"Stairs / kerb", hp_transport:"Get on transport", hp_shop:"Shop / pharmacy", hp_lost:"I am lost", hp_other:"Other", hpText:"A few words (optional)", hpContact:"Phone to contact you", hpYourName:"Your name", hpSend:"Send request", hpWait:"Looking for a volunteer nearby… The request is visible for 3 hours.", hpGot:"A volunteer responded: {name}", hpCall:"Call", hpCancel:"Cancel request", hpDone:"I got help — close", hpClosed:"Request closed", hpNeedGeo:"Location is needed so a volunteer can find you", hpVol:"I'm a volunteer — show requests nearby", hpNoReq:"Nobody nearby needs help right now. Thanks for being ready!", hpTake:"Respond", hpVName:"Your name", hpVPhone:"Your phone", hpTaken:"You responded. Contact the person:", hpGo:"Route to them", hpAgo:"{n} min ago", hpFar:"~{d} from you", hpPrivacy:"Only the volunteer who responds sees the exact place and phone.", hpOwn:"Your request", hpNewReq:"New help request nearby", mrTitle:"My reports", mrNone:"You haven't sent reports from this device yet", mrSt_pending:"Under review", mrSt_approved:"On the map", mrSt_in_progress:"In progress", mrSt_fixed:"Fixed", mrSt_rejected:"Rejected", mrSt_gone:"No data", mrChanged:"Report «{t}»: {s}", mrNotify:"Notify me when it's fixed", mrNotifyOn:"Notifications on", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
@@ -3161,6 +3207,7 @@ function showPlace(p){
     ${desc?`<p class="pc-desc">${esc(desc)}</p>`:""}
     <div class="pc-media" id="pcMedia" hidden></div>
     <div id="pcContacts">${contactsHtml(tg, p.name)}</div>
+    <div id="pcReviews" class="pc-rev"></div>
     <div class="pc-actions">
       <button type="button" class="btn-dark" onclick="placeRoute()">${svgI("walk")} ${esc(t("pcRoute"))}</button>
       <button type="button" class="btn-ghost" onclick="placeBarrier()">${svgI("warn")} ${esc(t("pcBarrier"))}</button>
@@ -3170,6 +3217,7 @@ function showPlace(p){
   document.body.classList.add("place-open");
   placeMedia(p);
   placeEnrichContacts(p);
+  loadReviews(p);
 }
 // Контакты: телефон, WhatsApp, Instagram, Telegram, сайт (фото и отзывы — прямо в карточке, см. placeMedia)
 function contactsHtml(tg, name){
@@ -3599,6 +3647,173 @@ async function rtShare(){
   if(!RT) return;
   const txt=tf("rtShareTxt",{city:cityName()})+"\n"+RT.places.slice(0,10).map((x,i)=>`${i+1}. ${x.name} — ${x.score}/100`).join("\n")+"\nhttps://inclusivecity.uk/map";
   try{ if(navigator.share){ await navigator.share({text:txt}); return; } await navigator.clipboard.writeText(txt); toast(t("copied")||"✓"); }catch(e){}
+}
+
+/* ============ Отзывы о доступности мест ============ */
+const RV_CHECKS=["ramp","step","door","toilet","elevator","parking","staff","tactile"];
+let rvDraft=null;
+const placeKey=p=>p.osm || `${(+p.lat).toFixed(5)},${(+p.lon).toFixed(5)}`;
+const starsTxt=n=>"★★★★★".slice(0,Math.round(n))+"☆☆☆☆☆".slice(0,5-Math.round(n));
+async function loadReviews(p, all){
+  const box=document.getElementById("pcReviews"); if(!box) return; const my=p;
+  let d=null; try{ const r=await fetch("/api/reviews?place="+encodeURIComponent(placeKey(p))); if(r.ok) d=await r.json(); }catch(e){}
+  if(placeNow!==my) return;
+  if(!d){ box.innerHTML=""; return; }
+  const sm=d.summary||{count:0,checks:{}};
+  const ck=Object.entries(sm.checks||{}).map(([k,v])=>`<span class="${v.yes>=v.no?"yes":"no"}">${v.yes>=v.no?"✓":"✗"} ${esc(t("ck_"+k))} · ${v.yes>=v.no?v.yes:v.no}</span>`).join("");
+  const list=(d.reviews||[]).slice(0, all?50:3).map(r=>`<div class="rv-item">${r.stars?`<span class="rv-stars" aria-label="${r.stars}/5">${starsTxt(r.stars)}</span> `:""}<small>${esc(r.name||"")} · ${new Date(r.at).toLocaleDateString(locale())}</small>
+    ${r.text?`<div>${esc(r.text)}</div>`:""}${r.photo?`<img src="${esc(r.photo)}" alt="" loading="lazy">`:""}
+    <button type="button" class="link" style="font-size:.75rem" onclick="flagReview('${esc(r.id)}',this)">${esc(t("rvFlag"))}</button></div>`).join("");
+  box.innerHTML=`<h4>${svgI("star")} ${esc(t("rvTitle"))}${sm.count?` <span class="rv-stars">${sm.stars?starsTxt(sm.stars):""}</span> <small class="muted">${esc(tf("rvCount",{n:sm.count}))}</small>`:""}</h4>
+    ${sm.count?`<div class="rv-checks">${ck}</div>${list}${!all&&sm.count>3?`<button type="button" class="link" onclick="loadReviews(placeNow,true)">${esc(tf("rvAll",{n:sm.count}))}</button>`:""}`:`<p class="small muted">${esc(t("rvNone"))}</p>`}
+    <div id="rvFormBox"><button type="button" class="btn-ghost" style="width:100%;margin-top:8px" onclick="reviewForm()">${svgI("star")} ${esc(t("rvAdd"))}</button></div>`;
+}
+function reviewForm(){
+  rvDraft={checks:{}, stars:0};
+  const box=document.getElementById("rvFormBox"); if(!box) return;
+  const nm=read("myName","");
+  box.innerHTML=`<div class="rv-form">
+    ${RV_CHECKS.map(k=>`<div class="rv-q"><span>${esc(t("ck_"+k))}</span><button type="button" class="y" aria-pressed="false" onclick="rvSet('${k}','yes',this)">${esc(t("rvYes"))}</button><button type="button" class="n" aria-pressed="false" onclick="rvSet('${k}','no',this)">${esc(t("rvNo"))}</button></div>`).join("")}
+    <div class="rv-q"><span>${esc(t("rvStars"))}</span><div class="rv-starpick" role="radiogroup" aria-label="${esc(t("rvStars"))}">${[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="false" aria-label="${n}" onclick="rvStar(${n})">★</button>`).join("")}</div></div>
+    <label class="field" for="rvText">${esc(t("rvText"))}</label><textarea id="rvText" rows="3" maxlength="600"></textarea>
+    <label class="field" for="rvPhoto">${esc(t("rvPhoto"))}</label><input type="file" id="rvPhoto" accept="image/*">
+    <label class="field" for="rvName">${esc(t("rvName"))}</label><input type="text" id="rvName" maxlength="40" value="${esc(nm)}">
+    <button type="button" class="btn-primary" id="rvSend" onclick="sendReview()">${esc(t("rvSend"))}</button></div>`;
+}
+function rvSet(k,v,btn){ const cur=rvDraft.checks[k]===v; rvDraft.checks[k]=cur?undefined:v;
+  btn.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false")); if(!cur) btn.setAttribute("aria-pressed","true"); }
+function rvStar(n){ rvDraft.stars=n; document.querySelectorAll(".rv-starpick button").forEach((b,i)=>{ b.classList.toggle("on",i<n); b.setAttribute("aria-checked",String(i===n-1)); }); }
+async function sendReview(){
+  const p=placeNow; if(!p||!rvDraft) return;
+  const btn=document.getElementById("rvSend"); btn.disabled=true;
+  try{
+    const fd=new FormData(); fd.append("place",placeKey(p)); fd.append("placeName",p.name||p.addr||""); fd.append("lat",p.lat); fd.append("lng",p.lon);
+    const ck={}; Object.entries(rvDraft.checks).forEach(([k,v])=>{ if(v) ck[k]=v; }); fd.append("checks",JSON.stringify(ck)); fd.append("stars",rvDraft.stars||0);
+    fd.append("text",document.getElementById("rvText").value); const nm=document.getElementById("rvName").value.trim(); fd.append("author",nm); if(nm) store("myName",nm);
+    fd.append("profile",S.profile);
+    const ph=document.getElementById("rvPhoto"); if(ph.files[0]) fd.append("photo", await shrinkImage(ph.files[0]));
+    const r=await fetch("/api/reviews",{method:"POST",body:fd}); const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||r.status);
+    toast(t("rvSent")); rvDraft=null; loadReviews(p);
+  }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
+}
+async function flagReview(id,btn){ try{ await fetch(`/api/reviews/${encodeURIComponent(id)}/flag`,{method:"POST"}); btn.textContent=t("rvFlagged"); btn.disabled=true; }catch(e){} }
+// Фото с телефона весят по 5–10 МБ — уменьшаем до 1600 px, чтобы отзыв уходил быстро и на мобильном интернете
+async function shrinkImage(file){
+  try{ const bmp=await createImageBitmap(file); const k=Math.min(1,1600/Math.max(bmp.width,bmp.height)); if(k>=1&&file.size<1.5e6) return file;
+    const c=document.createElement("canvas"); c.width=Math.round(bmp.width*k); c.height=Math.round(bmp.height*k); c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,"image/jpeg",.82)); return b?new File([b],"photo.jpg",{type:"image/jpeg"}):file; }catch(e){ return file; }
+}
+
+/* ============ Помощь волонтёров ============ */
+const HP_KINDS=["escort","stairs","transport","shop","lost","other"];
+let hpKind="escort", hpTimer=null, hpVolTimer=null, hpSeen=new Set();
+const myHelp=()=>{ try{ return JSON.parse(read("help","null")); }catch(e){ return null; } };
+function hpGeo(){ return new Promise((res)=>{ if(userLatLng) return res(userLatLng); if(!navigator.geolocation) return res(null);
+  navigator.geolocation.getCurrentPosition(p=>{ userLatLng=[p.coords.latitude,p.coords.longitude]; res(userLatLng); },()=>res(null),{enableHighAccuracy:true,timeout:10000}); }); }
+async function openHelp(){
+  openModal("helpModal");
+  const mine=myHelp();
+  if(mine && Date.now()-mine.at<3*3600e3) return hpStatus();
+  hpForm();
+}
+function hpForm(){
+  const b=document.getElementById("hpBody");
+  b.innerHTML=`<p class="small muted" style="margin:0">${esc(t("hpHelp"))}</p>
+    <p class="field" style="margin:10px 0 0">${esc(t("hpKindQ"))}</p>
+    <div class="hp-kinds" role="radiogroup">${HP_KINDS.map(k=>`<button type="button" role="radio" aria-pressed="${k===hpKind}" aria-checked="${k===hpKind}" onclick="hpKind='${k}';hpForm()">${esc(t("hp_"+k))}</button>`).join("")}</div>
+    <label class="field" for="hpText">${esc(t("hpText"))}</label><input type="text" id="hpText" maxlength="300">
+    <label class="field" for="hpName">${esc(t("hpYourName"))}</label><input type="text" id="hpName" maxlength="40" value="${esc(read("myName",""))}">
+    <label class="field" for="hpPhone">${esc(t("hpContact"))}</label><input type="tel" id="hpPhone" maxlength="20" value="${esc(read("myPhone",""))}" autocomplete="tel">
+    <p class="taxi-src">${esc(t("hpPrivacy"))}</p>
+    <button type="button" class="btn-primary" style="width:100%;margin-top:8px" id="hpSendBtn" onclick="hpSend()">${esc(t("hpSend"))}</button>
+    <button type="button" class="btn-ghost" style="width:100%;margin-top:14px" onclick="hpVolunteer()">${svgI("user")} ${esc(t("hpVol"))}</button>`;
+}
+async function hpSend(){
+  const btn=document.getElementById("hpSendBtn"); btn.disabled=true;
+  const ll=await hpGeo(); if(!ll){ toast(t("hpNeedGeo")); btn.disabled=false; return; }
+  const name=document.getElementById("hpName").value.trim(), phone=document.getElementById("hpPhone").value.trim();
+  if(name) store("myName",name); if(phone) store("myPhone",phone);
+  try{ const r=await fetch("/api/help",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lat:ll[0],lng:ll[1],kind:hpKind,text:document.getElementById("hpText").value,name,contact:phone,profile:S.profile})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||r.status);
+    store("help",JSON.stringify({id:d.id,token:d.token,at:Date.now(),kind:hpKind})); hpStatus();
+  }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
+}
+async function hpStatus(){
+  const mine=myHelp(), b=document.getElementById("hpBody"); if(!mine||!b) return;
+  let d=null; try{ const r=await fetch(`/api/help/${mine.id}?token=${mine.token}`); if(r.ok) d=await r.json(); }catch(e){}
+  if(d && d.status==="closed"){ localStorage.removeItem("ic_help"); return hpForm(); }
+  const v=d&&d.volunteer;
+  b.innerHTML=`<div class="hp-status"><b>${esc(t("hpOwn"))}: ${esc(t("hp_"+mine.kind))}</b>
+    <p class="small" style="margin:6px 0 0">${v?esc(tf("hpGot",{name:v.name})):esc(t("hpWait"))}</p>
+    ${v?`<a class="taxi-order" href="tel:${esc(kzPhone(v.phone).tel)}"><span class="logo inva" aria-hidden="true">${svgI("phone")}</span><span><b>${esc(t("hpCall"))}: ${esc(v.name)}</b><span class="sub">${esc(kzPhone(v.phone).label)}</span></span></a>`:`<div class="off-bar" style="margin-top:8px"><i style="width:60%"></i></div>`}</div>
+    <button type="button" class="btn-ghost" style="width:100%" onclick="hpClose()">${esc(t(v?"hpDone":"hpCancel"))}</button>`;
+  clearTimeout(hpTimer); if(document.getElementById("helpModal").classList.contains("open")) hpTimer=setTimeout(hpStatus, v?60000:15000);
+  if(v && !mine.notified){ mine.notified=1; store("help",JSON.stringify(mine)); notifyMe(tf("hpGot",{name:v.name})); if(navigator.vibrate) navigator.vibrate([200,100,200]); }
+}
+async function hpClose(){ const mine=myHelp(); if(mine){ try{ await fetch(`/api/help/${mine.id}/close`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:mine.token})}); }catch(e){} }
+  localStorage.removeItem("ic_help"); clearTimeout(hpTimer); toast(t("hpClosed")); hpForm(); }
+async function hpVolunteer(){
+  const b=document.getElementById("hpBody"); const here=await hpGeo() || city().c;
+  let list=[]; try{ const r=await fetch(`/api/help?near=${here[0]},${here[1]}`); if(r.ok) list=await r.json(); }catch(e){}
+  const mine=myHelp(); list=list.filter(h=>!mine||h.id!==mine.id);
+  b.innerHTML = list.filter(h=>h.status==="open").length ? list.filter(h=>h.status==="open").map(h=>{ const d=haversine(here,[h.lat,h.lng]);
+      return `<div class="hp-req"><b>${esc(t("hp_"+h.kind))}</b>${h.text?`<span class="small">${esc(h.text)}</span>`:""}
+        <span class="small muted">${esc(tf("hpAgo",{n:Math.max(1,Math.round((Date.now()-new Date(h.at))/60000))}))} · ${esc(tf("hpFar",{d:fmtDist(Math.round(d/50)*50)}))}</span>
+        <button type="button" class="btn-primary" onclick="hpTakeForm('${h.id}')">${esc(t("hpTake"))}</button></div>`; }).join("")
+    : `<p class="small muted">${esc(t("hpNoReq"))}</p>`;
+  list.forEach(h=>hpSeen.add(h.id)); store("volunteer","1");
+  clearTimeout(hpVolTimer); hpVolTimer=setTimeout(hpVolPoll,60000);
+}
+async function hpVolPoll(){   // волонтёр: раз в минуту проверяем новые просьбы, пока приложение открыто
+  if(read("volunteer","")!=="1") return;
+  const here=userLatLng||city().c;
+  try{ const r=await fetch(`/api/help?near=${here[0]},${here[1]}`); if(r.ok){ const list=await r.json(); const fresh=list.filter(h=>h.status==="open"&&!hpSeen.has(h.id)&&!(myHelp()&&myHelp().id===h.id));
+    fresh.forEach(h=>hpSeen.add(h.id)); if(fresh.length){ notifyMe(t("hpNewReq")+": "+t("hp_"+fresh[0].kind)); toast(t("hpNewReq")); } } }catch(e){}
+  hpVolTimer=setTimeout(hpVolPoll,60000);
+}
+function hpTakeForm(id){
+  const b=document.getElementById("hpBody");
+  b.innerHTML=`<label class="field" for="hvName">${esc(t("hpVName"))}</label><input type="text" id="hvName" maxlength="40" value="${esc(read("myName",""))}">
+    <label class="field" for="hvPhone">${esc(t("hpVPhone"))}</label><input type="tel" id="hvPhone" maxlength="20" value="${esc(read("myPhone",""))}">
+    <button type="button" class="btn-primary" style="width:100%;margin-top:10px" onclick="hpTake('${id}')">${esc(t("hpTake"))}</button>`;
+}
+async function hpTake(id){
+  const name=document.getElementById("hvName").value.trim(), phone=document.getElementById("hvPhone").value.trim();
+  if(name) store("myName",name); if(phone) store("myPhone",phone);
+  try{ const r=await fetch(`/api/help/${id}/accept`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone})}); const d=await r.json(); if(!r.ok) throw new Error(d.error||r.status);
+    const b=document.getElementById("hpBody");
+    b.innerHTML=`<div class="hp-status"><b>${esc(t("hpTaken"))}</b><p class="small" style="margin:6px 0">${esc(d.name||"")}${d.text?" — "+esc(d.text):""}</p>
+      ${d.contact?`<a class="taxi-order" href="tel:${esc(kzPhone(d.contact).tel)}"><span class="logo inva" aria-hidden="true">${svgI("phone")}</span><span><b>${esc(t("hpCall"))}</b><span class="sub">${esc(kzPhone(d.contact).label)}</span></span></a>`:""}</div>
+      <button type="button" class="btn-primary" style="width:100%" onclick="closeModal('helpModal');setFieldPlace('destination','${esc(t("hpOwn"))}',[${d.lat},${d.lng}]);buildRoute()">${svgI("walk")} ${esc(t("hpGo"))}</button>`;
+  }catch(e){ toast(t("rvFail")+e.message); }
+}
+
+/* ============ Мои жалобы: статус и уведомления ============ */
+const myReports=()=>{ try{ return JSON.parse(read("myReports","[]"))||[]; }catch(e){ return []; } };
+function notifyMe(text){
+  try{ if(!("Notification" in window) || Notification.permission!=="granted") return;
+    navigator.serviceWorker && navigator.serviceWorker.ready.then(r=>r.showNotification("ICity",{body:text,icon:"/icon.svg",badge:"/icon.svg",tag:"icity-"+text.length})).catch(()=>{ new Notification("ICity",{body:text}); });
+  }catch(e){}
+}
+async function askNotify(){ try{ if("Notification" in window && Notification.permission==="default"){ const p=await Notification.requestPermission(); if(p==="granted") toast(t("mrNotifyOn")); } }catch(e){} }
+async function checkMyReports(show){
+  const list=myReports(); if(!list.length) return list;
+  let changed=false;
+  await Promise.all(list.map(async x=>{ if(!show && (x.status==="fixed"||x.status==="rejected"||x.status==="gone")) return;
+    try{ const r=await fetch(`/api/reports/${x.id}/status`); let st=x.status;
+      if(r.ok){ st=(await r.json()).status; } else if(r.status===404) st="gone";
+      if(st!==x.status){ const was=x.status; x.status=st; changed=true; if(was && st!=="gone"){ const msg=tf("mrChanged",{t:x.type,s:t("mrSt_"+st)}); toast(msg); notifyMe(msg); } }
+    }catch(e){} }));
+  if(changed) store("myReports",JSON.stringify(list));
+  return list;
+}
+async function openMyReports(){
+  openModal("myRepModal"); const b=document.getElementById("mrBody");
+  const list=await checkMyReports(true);
+  b.innerHTML = list.length ? list.map(x=>`<div class="mr-item"><div><b>${esc(x.type)}</b><br><small class="muted">${new Date(x.at).toLocaleDateString(locale())}</small></div><span class="mr-st ${esc(x.status||"pending")}">${esc(t("mrSt_"+(x.status||"pending")))}</span></div>`).join("")
+    + (("Notification" in window && Notification.permission==="default")?`<button type="button" class="btn-ghost" style="width:100%;margin-top:10px" onclick="askNotify()">${esc(t("mrNotify"))}</button>`:"")
+    : `<p class="small muted">${esc(t("mrNone"))}</p>`;
 }
 
 /* ============ Мои места: дом, работа, любимые места и маршруты ============ */
@@ -4816,6 +5031,7 @@ async function saveReport(e){
     if(ph.files[0]) fd.append("photo",ph.files[0]);
     const res=await fetch("/api/reports",{method:"POST",body:fd});
     if(!res.ok){ const d=await res.json().catch(()=>({})); throw new Error(d.error||"error"); }
+    try{ const d=await res.clone().json(); if(d&&d.id){ const l=myReports(); l.unshift({id:d.id,type:fd.get("type")||"",at:Date.now(),status:"pending"}); store("myReports",JSON.stringify(l.slice(0,50))); setTimeout(askNotify,1500); } }catch(e){}
     closeModal("reportModal");
     document.getElementById("comment").value=""; ph.value="";
     document.getElementById("reportPlace").value="—";
@@ -5620,6 +5836,8 @@ function globeToMap(cityKey){
   });
   step("places", ()=>{ restoreFields(); renderPlaces(); });
   step("offline", ()=>offlineStatus());
+  step("social", ()=>{ setTimeout(()=>checkMyReports(false),4000); if(read("volunteer","")==="1") setTimeout(hpVolPoll,8000);
+    const mh=myHelp(); if(mh && Date.now()-mh.at<3*3600e3) setTimeout(async()=>{ try{ const r=await fetch(`/api/help/${mh.id}?token=${mh.token}`); const d=r.ok&&await r.json(); if(d&&d.volunteer&&!mh.notified) openHelp(); }catch(e){} },5000); });
   step("geo", ()=>autoLocate(false));
   step("weather", ()=>{ loadWeather(); });
   step("compass", ()=>{ startCompass(); applyHeading(); });

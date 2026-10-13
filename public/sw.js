@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v42";
+const CACHE = "ic-v43";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
@@ -103,4 +103,13 @@ self.addEventListener("fetch", e => {
   }
 
   // 5. Всё остальное (сторонние API) — пропускаем как есть, без подмен
+});
+
+// Нажали на уведомление (волонтёр откликнулся, жалобу исправили) — открываем приложение
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    const w = list.find(c => new URL(c.url).pathname.startsWith("/map"));
+    return w ? w.focus() : self.clients.openWindow("/map");
+  }));
 });

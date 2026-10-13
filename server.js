@@ -271,7 +271,18 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/place-info' && req.method === 'GET') return await placeinfo.handleInfo(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/place-photo' && req.method === 'GET') return await placeinfo.handlePhoto(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/health' && req.method === 'GET') {
-    return sendJson(res, 200, { ok: true });
+    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk' });
+  }
+  if (pathname.startsWith('/api/reviews') || pathname.startsWith('/api/help')) {
+    const done = await social.handle(req, res, pathname, new URL(req.url, 'http://x'));
+    if (done !== null) return;
+  }
+  // Статус своей жалобы — по id, который вернулся при отправке
+  const sm = pathname.match(/^\/api\/reports\/([^/]+)\/status$/);
+  if (sm && req.method === 'GET') {
+    const r = readReports().find((x) => x.id === sm[1]);
+    if (!r) return sendJson(res, 404, { error: 'not found' });
+    return sendJson(res, 200, { id: r.id, status: r.status, type: r.type, createdAt: r.createdAt, updatedAt: r.updatedAt || null, fixedAt: r.fixedAt || null, note: r.adminNote || '' });
   }
 
   if (pathname === '/api/transit' && req.method === 'GET') {
@@ -303,7 +314,7 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/reports' && req.method === 'GET') {
-    const list = readReports().filter((r) => r.status === 'approved' && !isExpired(r));
+    const list = readReports().filter((r) => (r.status === 'approved' || r.status === 'in_progress') && !isExpired(r));
     return sendJson(res, 200, list.map(publicShape));
   }
 
@@ -311,7 +322,7 @@ async function handleApi(req, res, pathname) {
   let vm = pathname.match(/^\/api\/reports\/([^/]+)\/verify$/);
   if (vm && req.method === 'POST') {
     const list = readReports();
-    const r = list.find((x) => x.id === vm[1] && x.status === 'approved');
+    const r = list.find((x) => x.id === vm[1] && (x.status === 'approved' || x.status === 'in_progress'));
     if (!r) return sendJson(res, 404, { error: 'not found' });
     const who = visitorHash(req);
     r.verifiedBy = r.verifiedBy || [];
@@ -334,6 +345,7 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, {
       total: active.length,
       pending: all.filter((r) => r.status === 'pending').length,
+      fixed: all.filter((r) => r.status === 'fixed').length,
       confirmed: active.filter((r) => (r.verifiedBy || []).length >= 3).length,
       withPhoto: active.filter((r) => r.photo).length,
       last30days: active.filter((r) => Date.now() - new Date(r.createdAt).getTime() < 30 * 864e5).length,
@@ -413,14 +425,16 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, readReports());
   }
 
-  let m = pathname.match(/^\/api\/admin\/reports\/([^/]+)\/(approve|reject)$/);
+  let m = pathname.match(/^\/api\/admin\/reports\/([^/]+)\/(approve|reject|fixed|progress)$/);
   if (m && req.method === 'POST') {
     if (!requireAdmin(req)) return sendJson(res, 401, { error: 'unauthorized' });
     const [, id, action] = m;
     const list = readReports();
     const r = list.find((x) => x.id === id);
     if (!r) return sendJson(res, 404, { error: 'not found' });
-    r.status = action === 'approve' ? 'approved' : 'rejected';
+    r.status = { approve: 'approved', reject: 'rejected', fixed: 'fixed', progress: 'in_progress' }[action];
+    r.updatedAt = new Date().toISOString();
+    if (action === 'fixed') r.fixedAt = r.updatedAt;
     writeReports(list);
     return sendJson(res, 200, { ok: true });
   }
@@ -451,6 +465,7 @@ async function handleApi(req, res, pathname) {
 // отдаёт копию из самого репозитория, а если нет и её — собирает город из Overpass.
 const assistant = require('./assistant');
 const placeinfo = require('./placeinfo');
+const social = require('./social');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
@@ -749,6 +764,7 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();
+  social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR }).catch((e) => console.warn('social:', e.message));
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (ADMIN_TOKEN === 'change-me-please') {

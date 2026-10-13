@@ -30,6 +30,8 @@
   .status-pill.pending{background:var(--amber-weak);color:#7b5700}
   .status-pill.approved{background:var(--green-weak);color:#06664a}
   .status-pill.rejected{background:var(--red-weak);color:var(--red)}
+  .status-pill.in_progress{background:#fff4d6;color:#8a5a00}
+  .status-pill.fixed{background:#dff3ff;color:#0b5c8a}
   .actions{display:flex;gap:8px;margin-top:10px}
   .empty{text-align:center;color:#5b6d7e;padding:40px 0}
   .err{color:var(--red);font-size:13px;margin-top:-4px;margin-bottom:8px}
@@ -49,6 +51,8 @@
     <div class="tabs">
       <button class="tab active" data-s="pending" onclick="setTab('pending',this)">На проверке</button>
       <button class="tab" data-s="approved" onclick="setTab('approved',this)">Одобрено</button>
+      <button class="tab" data-s="in_progress" onclick="setTab('in_progress',this)">В работе</button>
+      <button class="tab" data-s="fixed" onclick="setTab('fixed',this)">Исправлено</button>
       <button class="tab" data-s="rejected" onclick="setTab('rejected',this)">Отклонено</button>
       <button class="tab" data-s="all" onclick="setTab('all',this)">Все</button>
     </div>
@@ -102,12 +106,14 @@
       <div class="card">
         ${r.photo?`<img src="${text(r.photo)}" alt="">`:'<div class="noimg">нет фото</div>'}
         <div class="body">
-          <h3>${text(r.type)}<span class="status-pill ${r.status}">${({pending:'на проверке',approved:'одобрено',rejected:'отклонено'})[r.status]||r.status}</span></h3>
+          <h3>${text(r.type)}<span class="status-pill ${r.status}">${({pending:'на проверке',approved:'одобрено',rejected:'отклонено',in_progress:'в работе',fixed:'исправлено'})[r.status]||r.status}</span></h3>
           <div class="muted">${text(r.comment)}</div>
           <div class="muted">${r.lat.toFixed(5)}, ${r.lng.toFixed(5)} · ${new Date(r.createdAt).toLocaleString('ru-RU')}</div>
           <div class="actions">
             ${r.status!=='approved'?`<button onclick="act('${r.id}','approve')">Одобрить</button>`:''}
             ${r.status!=='rejected'?`<button class="ghost" onclick="act('${r.id}','reject')">Отклонить</button>`:''}
+            ${r.status==='approved'?`<button class="ghost" onclick="act('${r.id}','progress')">В работе</button>`:''}
+            ${r.status==='approved'||r.status==='in_progress'?`<button onclick="act('${r.id}','fixed')">Исправлено</button>`:''}
             <button class="danger" onclick="act('${r.id}','delete')">Удалить</button>
           </div>
         </div>
