@@ -2394,7 +2394,6 @@ async function open3D(fromGesture, cam){
       if(f){ open3DPopup(f.properties.lid, e.lngLat); return; }
       if(mapReady) map.fire("click",{latlng:L.latLng(e.lngLat.lat,e.lngLat.lng), originalEvent:e.originalEvent});
     });
-    if(!read("v3Hint","")){ store("v3Hint","1"); toast(t("v3Hint")); }
   }catch(e){ if(seq===m3Seq){ close3D(); toast(t("noWebgl")); } }
 }
 function close3D(){
@@ -3006,7 +3005,7 @@ function startCompass(){
 function setNorthUp(){ compassMode="north"; bearSmooth=null; if(canRotate()) map.setBearing(0); applyHeading(); }
 async function compassTap(){
   // повёрнута вручную или в режиме «куда смотрю» — сначала возвращаем север вверх
-  if(compassMode==="follow" || Math.abs(mapBearing())>1){ setNorthUp(); toast(t("compassNorth")); return; }
+  if(compassMode==="follow" || Math.abs(mapBearing())>1){ setNorthUp(); return; }
   const DOE = window.DeviceOrientationEvent;
   if(DOE && typeof DOE.requestPermission === "function"){
     try{
@@ -3017,7 +3016,7 @@ async function compassTap(){
   startCompass();
   setTimeout(()=>{
     if(heading==null){ toast(t("compassNone")); return; }
-    if(canRotate()){ compassMode="follow"; bearSmooth=heading; map.setBearing(-heading); if(userLatLng) map.panTo(userLatLng); applyHeading(); toast(t("compassFollow")); }
+    if(canRotate()){ compassMode="follow"; bearSmooth=heading; map.setBearing(-heading); if(userLatLng) map.panTo(userLatLng); applyHeading(); }
     else { toast(`${t("facing")} ${dirName(heading)}`); }
     speak(`${t("facing")} ${dirName(heading)}`);
   }, 400);
