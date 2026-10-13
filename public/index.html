@@ -704,6 +704,171 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 </style>
 </head>
 <body data-view="map">
+<!-- Заставка при каждом открытии: сеть 22 городов → полёт к своему городу → знак ICity. Холст 2D, слои предрисованы, касание — пропустить -->
+<div id="icIntro" aria-hidden="true">
+<style>
+#icIntro{position:fixed;inset:0;z-index:100000;background:#040912;overflow:hidden;contain:strict;transition:opacity .55s ease,transform .7s cubic-bezier(.6,0,.2,1),filter .55s ease}
+#icIntro canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#icIntro.out{opacity:0;transform:scale(1.18);filter:blur(6px);pointer-events:none}
+#icIntro .ii-brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none}
+#icIntro .ii-logo{width:96px;height:96px;border-radius:26px;opacity:0;transform:scale(.4) rotate(-12deg);transition:opacity .45s ease,transform .9s cubic-bezier(.2,1.4,.4,1);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 60px rgba(23,105,194,.55),0 0 90px rgba(63,224,168,.35)}
+#icIntro .ii-logo svg{width:100%;height:100%;display:block;border-radius:26px}
+#icIntro .ii-logo .fig{stroke-dasharray:420;stroke-dashoffset:420}
+#icIntro.s2 .ii-logo{opacity:1;transform:none}
+#icIntro.s2 .ii-logo .fig{animation:iiDraw 1s .15s cubic-bezier(.6,0,.2,1) forwards}
+#icIntro.s2 .ii-logo .dot{animation:iiPop .5s .05s cubic-bezier(.2,1.6,.4,1) both}
+#icIntro .ii-name{font:800 44px/1 "Unbounded","Arial Black",system-ui,sans-serif;letter-spacing:.02em;color:#fff;display:flex;position:relative;overflow:hidden;padding:2px 4px}
+#icIntro .ii-name i{font-style:normal;display:inline-block;opacity:0;transform:translateY(60%) scale(.8);filter:blur(4px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,1.3,.4,1),filter .5s ease}
+#icIntro.s3 .ii-name i{opacity:1;transform:none;filter:none}
+#icIntro .ii-name::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.85) 50%,transparent 70%);transform:translateX(-120%);mix-blend-mode:overlay}
+#icIntro.s4 .ii-name::after{transition:transform .9s ease;transform:translateX(120%)}
+#icIntro .ii-tag{white-space:nowrap;font:500 13px/1.3 "Golos Text",system-ui,sans-serif;color:#a9c7e6;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:opacity .5s ease .1s,transform .5s ease .1s;text-align:center;padding:0 16px}
+#icIntro.s4 .ii-tag{opacity:1;transform:none}
+#icIntro .ii-skip{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);font:500 13px system-ui,sans-serif;color:#9fb6cf;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:8px 14px;cursor:pointer}
+@keyframes iiDraw{to{stroke-dashoffset:0}}
+@keyframes iiPop{from{transform:scale(0)}to{transform:scale(1)}}
+</style>
+<canvas></canvas>
+<div class="ii-brand">
+  <div class="ii-logo"><svg viewBox="0 0 512 512"><defs><linearGradient id="iiG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a86e6"/><stop offset="1" stop-color="#1154a0"/></linearGradient></defs>
+    <rect width="512" height="512" rx="96" fill="url(#iiG)"/>
+    <circle class="dot" cx="256" cy="132" r="40" fill="#fff" style="transform-origin:256px 132px"/>
+    <path d="M196 196h120c14 0 24 11 24 24s-10 24-24 24h-52v52h76c13 0 23 10 23 23s-10 23-23 23h-99c-13 0-23-10-23-23V244h-22c-14 0-24-11-24-24s10-24 24-24z" fill="#fff"/>
+    <path class="fig" d="M168 268c-34 20-56 57-56 100 0 63 51 114 114 114 48 0 89-29 106-71" fill="none" stroke="#3fe0a8" stroke-width="30" stroke-linecap="round"/></svg></div>
+  <div class="ii-name"><i>I</i><i>C</i><i>i</i><i>t</i><i>y</i></div>
+  <div class="ii-tag"></div>
+</div>
+<button type="button" class="ii-skip"></button>
+<script>
+(function(){
+  var root=document.getElementById("icIntro"); if(!root) return;
+  var ls=function(k){ try{ return localStorage.getItem("ic_"+k); }catch(e){ return null; } };
+  var lang=ls("lang")||"ru", cityKey=ls("city")||"almaty";
+  var T={ru:["Город без барьеров","Пропустить"],kk:["Кедергісіз қала","Өткізу"],en:["A city without barriers","Skip"]}[lang]||["Город без барьеров","Пропустить"];
+  root.querySelector(".ii-tag").textContent=T[0]; root.querySelector(".ii-skip").textContent=T[1];
+  [].forEach.call(root.querySelectorAll(".ii-name i"),function(el,k){ el.style.transitionDelay=(k*0.07)+"s"; });
+  var reduce=ls("motion")==="off"||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var finished=false, raf=0, timers=[];
+  function finish(){
+    if(finished) return; finished=true; timers.forEach(clearTimeout); cancelAnimationFrame(raf);
+    root.classList.add("out"); setTimeout(function(){ root.remove(); window.__icIntroDone=1; dispatchEvent(new Event("icintro")); },700);
+  }
+  function at(ms,f){ timers.push(setTimeout(f,ms)); }
+  root.addEventListener("pointerdown",finish); addEventListener("keydown",finish,{once:true});
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) finish(); });
+  if(reduce){ root.classList.add("s2","s3","s4"); at(900,finish); return; }
+
+  // ---------- холст ----------
+  var cv=root.querySelector("canvas"), g=cv.getContext("2d",{alpha:false});
+  var low=(navigator.hardwareConcurrency||4)<=4||(navigator.connection&&navigator.connection.saveData);
+  var dpr=Math.min(window.devicePixelRatio||1, low?1.25:2), W=0,H=0;
+  var BG=null; function size(){ BG=null; W=innerWidth; H=innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  size();
+  // Мягкое свечение — один раз в спрайт, дальше только drawImage (дёшево)
+  function sprite(c,r){ var s=document.createElement("canvas"); s.width=s.height=r*2; var x=s.getContext("2d");
+    var gr=x.createRadialGradient(r,r,0,r,r,r); gr.addColorStop(0,c); gr.addColorStop(.25,c.replace(/[\d.]+\)$/,".45)")); gr.addColorStop(1,"rgba(0,0,0,0)");
+    x.fillStyle=gr; x.fillRect(0,0,r*2,r*2); return s; }
+  var GM=sprite("rgba(63,224,168,1)",64), GB=sprite("rgba(90,184,255,1)",64), GW=sprite("rgba(255,255,255,1)",32);
+  // Звёзды — два слоя, нарисованные заранее
+  function starLayer(n,maxR,seed){ var s=document.createElement("canvas"); s.width=Math.round(W*dpr*1.3); s.height=Math.round(H*dpr*1.3);
+    var x=s.getContext("2d"), r=seed; function rnd(){ r=(r*16807)%2147483647; return r/2147483647; }
+    for(var k=0;k<n;k++){ var px=rnd()*s.width, py=rnd()*s.height, rr=(.3+rnd()*maxR)*dpr, a=.25+rnd()*.75;
+      x.fillStyle="rgba("+(200+rnd()*55|0)+","+(215+rnd()*40|0)+",255,"+a+")"; x.beginPath(); x.arc(px,py,rr,0,6.283); x.fill(); }
+    return s; }
+  var S1=starLayer(low?120:260,.9,7), S2=starLayer(low?40:90,1.6,99);
+  // 22 города ICity (широта, долгота)
+  var C={almaty:[43.24,76.95],astana:[51.13,71.43],shymkent:[42.32,69.59],karaganda:[49.81,73.09],aktobe:[50.28,57.17],taraz:[42.9,71.37],
+    pavlodar:[52.29,76.97],oskemen:[49.95,82.63],semey:[50.41,80.23],atyrau:[47.09,51.92],kostanay:[53.22,63.64],kyzylorda:[44.85,65.51],
+    oral:[51.23,51.37],petropavl:[54.87,69.15],aktau:[43.64,51.2],temirtau:[50.05,72.96],turkistan:[43.3,68.25],kokshetau:[53.28,69.4],
+    taldykorgan:[45.02,78.37],ekibastuz:[51.73,75.33],konaev:[43.86,77.06],zhezkazgan:[47.8,67.71]};
+  if(!C[cityKey]) cityKey="almaty";
+  var keys=Object.keys(C), P={}, home;
+  function project(){ var w=W<H?W*1.18:Math.min(W*.8,H*1.6), h=w*.5, ox=(W-w)/2, oy=(H-h)/2-H*.04;
+    keys.forEach(function(k){ P[k]={x:ox+(C[k][1]-50.5)/(83.5-50.5)*w, y:oy+(55.5-C[k][0])/(55.5-41.8)*h}; }); home=P[cityKey]; }
+  project();
+  // Связи: два ближайших соседа + все к своему городу по цепочке
+  var E=[], seen={};
+  keys.forEach(function(a){ keys.filter(function(b){return b!==a;}).sort(function(b,c){ return d2(a,b)-d2(a,c); }).slice(0,2).forEach(function(b){
+    var id=a<b?a+b:b+a; if(!seen[id]){ seen[id]=1; E.push([a,b]); } }); });
+  function d2(a,b){ var dx=C[a][1]-C[b][1], dy=C[a][0]-C[b][0]; return dx*dx+dy*dy; }
+  // Порядок появления: от своего города волной
+  var order={}; keys.slice().sort(function(a,b){ return d2(cityKey,a)-d2(cityKey,b); }).forEach(function(k,i){ order[k]=i; });
+  var maxO=keys.length-1;
+  // Частицы бегут по связям
+  var PN=low?26:60, parts=[]; for(var k=0;k<PN;k++) parts.push({e:E[k%E.length], t:Math.random(), v:.25+Math.random()*.5, dir:Math.random()<.5});
+  var slow=0, t0=performance.now()+1e6, last=performance.now(), started=false;
+  function start(){ if(started) return; started=true; requestAnimationFrame(function(n){ t0=n; last=n;
+    at(1500,function(){ root.classList.add("s2"); }); at(1850,function(){ root.classList.add("s3"); });
+    at(2250,function(){ root.classList.add("s4"); }); at(3350,finish); }); }
+  if(document.readyState!=="loading") start(); else document.addEventListener("DOMContentLoaded",start);
+  setTimeout(start,2500);   // страховка: приложение грузится слишком долго
+  var ease=function(x){ return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2; }, clamp=function(x){ return x<0?0:x>1?1:x; };
+  function frame(now){
+    if(finished) return;
+    var t=Math.max(0,(now-t0)/1000), dt=Math.min(.05,(now-last)/1000); last=now;
+    // автоподстройка: кадры опаздывают — снижаем разрешение и число частиц
+    if(started && t>.1){ slow=slow*.85+(dt>.026?1:0)*.15; if(slow>.5 && dpr>1){ dpr=1; size(); S1=starLayer(90,.9,7); S2=starLayer(30,1.6,99); parts.length=Math.min(parts.length,20); slow=0; } }
+    g.setTransform(dpr,0,0,dpr,0,0); g.globalCompositeOperation="source-over"; g.globalAlpha=1;
+    // фон
+    if(!BG){ BG=document.createElement("canvas"); BG.width=Math.max(1,W/2|0); BG.height=Math.max(1,H/2|0); var bx=BG.getContext("2d");
+      var bg=bx.createRadialGradient(BG.width/2,BG.height*.45,0,BG.width/2,BG.height*.45,Math.max(BG.width,BG.height)*.8); bg.addColorStop(0,"#0c1f3d"); bg.addColorStop(.55,"#071226"); bg.addColorStop(1,"#03070f");
+      bx.fillStyle=bg; bx.fillRect(0,0,BG.width,BG.height); }
+    g.drawImage(BG,0,0,W,H);
+    // камера: с 1.05 с летим к своему городу
+    var z=ease(clamp((t-1.05)/1.15)), sc=1+z*5.5, cx=home.x, cy=home.y;
+    // звёзды с параллаксом
+    g.save(); g.setTransform(1,0,0,1,0,0);
+    [[S1,.15],[S2,.35]].forEach(function(L,i){ var s=1+z*L[1]*2, ox=(cv.width-L[0].width*s)/2 - (cx-W/2)*dpr*L[1]*z, oy=(cv.height-L[0].height*s)/2 - (cy-H/2)*dpr*L[1]*z - t*6*(i+1)*dpr;
+      g.globalAlpha=.9-z*.3+(i?Math.sin(t*3)*.08:0); g.drawImage(L[0],ox,oy,L[0].width*s,L[0].height*s); });
+    g.restore();
+    // мир сети
+    g.save(); g.translate(W/2,H/2); g.scale(sc,sc); g.translate(-(W/2+(cx-W/2)*z),-(H/2+(cy-H/2)*z));
+    // градусная сетка — тонкие линии, чтобы было ощущение карты
+    g.globalCompositeOperation="lighter"; g.lineWidth=.6/sc; var ga=.10*clamp(t/.6)*(1-z*.6);
+    var gw=Math.min(W*.8,H*1.6); if(W<H) gw=W*1.18; var gx0=(W-gw)/2, gy0=(H-gw*.5)/2-H*.04;
+    var ext=Math.max(W,H)*1.5; for(var lo=20;lo<=116;lo+=2){ var gx=gx0+(lo-50.5)/33*gw; g.strokeStyle="rgba(90,184,255,"+(lo%10?ga*.5:ga)+")"; g.beginPath(); g.moveTo(gx,-ext); g.lineTo(gx,H+ext); g.stroke(); }
+    for(var la=10;la<=90;la+=1){ var gy=gy0+(55.5-la)/13.7*gw*.5; if(gy<-ext||gy>H+ext) continue; g.strokeStyle="rgba(90,184,255,"+(la%5?ga*.5:ga)+")"; g.beginPath(); g.moveTo(-ext,gy); g.lineTo(W+ext,gy); g.stroke(); }
+    // сканирующая полоса проходит по сетке
+    var sx=gx0-gw*.1+((t*.7)%1.4)*gw; var sg=g.createLinearGradient(sx-60,0,sx+60,0); sg.addColorStop(0,"rgba(63,224,168,0)"); sg.addColorStop(.5,"rgba(63,224,168,"+(.09*(1-z))+")"); sg.addColorStop(1,"rgba(63,224,168,0)");
+    g.fillStyle=sg; g.fillRect(sx-60,-ext,120,H+ext*2);
+    var appear=function(k){ return clamp((t-.12-order[k]/maxO*.75)/.35); };
+    var netA=1-clamp((t-1.55)/.55);
+    g.globalCompositeOperation="lighter";
+    // связи
+    g.lineCap="round";
+    for(var i=0;i<E.length;i++){ var a=P[E[i][0]], b=P[E[i][1]], pa=appear(E[i][0]), pb=appear(E[i][1]); var p=Math.min(pa,pb); if(p<=0) continue;
+      var from=order[E[i][0]]<=order[E[i][1]]?a:b, to=from===a?b:a, ex=from.x+(to.x-from.x)*p, ey=from.y+(to.y-from.y)*p;
+      g.strokeStyle=i%2?"rgba(63,224,168,"+(.55*netA)+")":"rgba(90,184,255,"+(.55*netA)+")"; g.lineWidth=1.3/sc*1.6; g.beginPath(); g.moveTo(from.x,from.y); g.lineTo(ex,ey); g.stroke(); }
+    // частицы
+    for(i=0;i<parts.length;i++){ var q=parts[i], A=P[q.e[0]], B=P[q.e[1]]; if(Math.min(appear(q.e[0]),appear(q.e[1]))<1) continue;
+      q.t+=dt*q.v; if(q.t>1) q.t-=1; var u=q.dir?q.t:1-q.t, px=A.x+(B.x-A.x)*u, py=A.y+(B.y-A.y)*u, r=7/sc*1.4;
+      g.globalAlpha=.9*netA; g.drawImage(i%3?GM:GB,px-r,py-r,r*2,r*2); g.globalAlpha=1; g.drawImage(GW,px-r*.3,py-r*.3,r*.6,r*.6); }
+    // города
+    for(i=0;i<keys.length;i++){ var k2=keys[i], pt=P[k2], ap=appear(k2); if(ap<=0) continue; var isH=k2===cityKey;
+      var R=(isH?26:15)*(.6+.4*ap)/Math.sqrt(sc), pulse=1+Math.sin(t*4+i)*.08;
+      g.globalAlpha=(isH?1:netA)*ap; g.drawImage(isH?GM:GB,pt.x-R*pulse,pt.y-R*pulse,R*2*pulse,R*2*pulse);
+      g.drawImage(GW,pt.x-R*.22,pt.y-R*.22,R*.44,R*.44);
+      // волна при появлении
+      var rp=clamp((t-.12-order[k2]/maxO*.75)/.9); if(rp>0&&rp<1){ g.globalAlpha=(1-rp)*.7*netA; g.strokeStyle=isH?"#3fe0a8":"#5ab8ff"; g.lineWidth=1.2/sc;
+        g.beginPath(); g.arc(pt.x,pt.y,(5+rp*24)/Math.sqrt(sc),0,6.283); g.stroke(); } }
+    g.restore();
+    // радар вокруг знака
+    var ra=clamp((t-1.5)/.5);
+    if(ra>0){ g.save(); g.translate(W/2,H/2-30); g.globalCompositeOperation="lighter";
+      for(var j=0;j<3;j++){ var rr=78+j*26+(1-ra)*40; g.globalAlpha=ra*(.5-j*.12); g.strokeStyle=j%2?"#5ab8ff":"#3fe0a8"; g.lineWidth=1.4;
+        g.setLineDash([4+j*3,10+j*4]); g.lineDashOffset=-t*(30+j*18)*(j%2?-1:1); g.beginPath(); g.arc(0,0,rr,0,6.283); g.stroke();
+        var an=t*(1.2-j*.3)*(j%2?-1:1)+j*2; g.setLineDash([]); g.globalAlpha=ra; var dx=Math.cos(an)*rr, dy=Math.sin(an)*rr; g.drawImage(j%2?GB:GM,dx-9,dy-9,18,18); }
+      // лучи-вспышка
+      var fl=clamp((t-1.55)/.35)*(1-clamp((t-1.95)/.5)); if(fl>0){ g.globalAlpha=fl*.9; g.drawImage(GM,-160,-160,320,320); }
+      g.restore(); }
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  addEventListener("resize",function(){ if(!finished){ size(); project(); } });
+})();
+</script>
+</div>
+
 <a class="skip" href="#main" data-i18n="skip">Перейти к содержимому</a>
 
 <header class="top">
@@ -2684,7 +2849,12 @@ function setCity(key){
 
 function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
-  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z}).setView(city().c, city().z);
+  let pos=null; try{ pos=JSON.parse(read("mapPos","null")); }catch(e){}
+  const okPos=pos && pos.city===S.city && isFinite(pos.lat) && isFinite(pos.lng) && pos.z>GLOBE_OPEN_Z && !/[?&#](lat|ll|to|from)=/.test(location.href);
+  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z}).setView(okPos?[pos.lat,pos.lng]:city().c, okPos?pos.z:city().z);
+  // запоминаем, где человек оставил карту, — при следующем входе откроется там же
+  let posT=0; map.on("moveend",()=>{ clearTimeout(posT); posT=setTimeout(()=>{ if(map.getZoom()<=GLOBE_OPEN_Z) return;
+    const c=map.getCenter(); store("mapPos",JSON.stringify({city:S.city,lat:+c.lat.toFixed(5),lng:+c.lng.toFixed(5),z:map.getZoom()})); },400); });
   L.control.zoom({position:"bottomright"}).addTo(map);
   // на телефоне подпись источников свёрнута в строку — раскрываем по нажатию
   map.attributionControl.getContainer().addEventListener("click", e=>{
@@ -2794,7 +2964,7 @@ async function toggleLayer(key){
   if(st.on){
     st.on=false;
     if(mapReady&&st.group) map.removeLayer(st.group);
-    chip.setAttribute("aria-pressed","false");
+    chip.setAttribute("aria-pressed","false"); saveLayers();
     renderNearby(); updateSearchHere(); return;
   }
 
@@ -2807,7 +2977,7 @@ async function toggleLayer(key){
     return;
   }
   st.on=true;
-  chip.setAttribute("aria-pressed","true");
+  chip.setAttribute("aria-pressed","true"); saveLayers();
   if(mapReady&&st.group) st.group.addTo(map);
   toast(res.count ? `${layerLabel(def)}: ${res.count}` : t("layerEmpty"));
   renderNearby(); updateSearchHere();
@@ -2815,6 +2985,12 @@ async function toggleLayer(key){
 
 // Кнопка «искать в этой области» — как в 2ГИС: данные не тянутся при каждом
 // сдвиге карты, пользователь сам решает, когда обновить видимую область.
+function saveLayers(){ store("layers", JSON.stringify(activeLayers().map(d=>d.key))); }
+// Включённые слои (пандусы, лифты…) — снова включаем при следующем входе
+function restoreLayers(){
+  let ks=[]; try{ ks=JSON.parse(read("layers","[]"))||[]; }catch(e){}
+  ks.filter(k=>LAYERS.some(d=>d.key===k) && !(layerState[k]&&layerState[k].on)).forEach((k,i)=>setTimeout(()=>{ if(!mapReady||map.getZoom()>=MIN_LAYER_ZOOM) toggleLayer(k); },300+i*400));
+}
 function activeLayers(){ return LAYERS.filter(d=>layerState[d.key] && layerState[d.key].on); }
 function updateSearchHere(){
   const btn=document.getElementById("searchHere");
@@ -5070,6 +5246,7 @@ function globeToMap(cityKey){
   // наполовину настроенным (так однажды отвалились подсказки поиска).
   const step=(name,fn)=>{ try{ fn(); }catch(e){ console.error("init step failed:",name,e); } };
   step("basemap", ()=>setBasemap(S.basemap));
+  step("layers", ()=>restoreLayers());
   step("autocomplete", ()=>{ attachAutocomplete("start"); attachAutocomplete("destination"); });
   step("city", ()=>{
     buildCitySelect(); applyCityTexts();
