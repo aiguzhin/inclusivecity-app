@@ -35,6 +35,10 @@
   Ссылку на 2ГИС в карточке места убрали. Телефоны приводятся к виду `+7 XXX XXX XX XX` (`kzPhone`).
 - Контакты заведений: `tools/overture_places.py` (DuckDB, Overture Maps places) по workflow `places.yml` пишет
   `public/places/<город>.json`; `placeEnrichContacts` в `index.html` подставляет телефон/сайт/Instagram, если их нет в OSM.
+- Такси своего города: в `buildTaxiTrip` блок `cityTaxiHtml(город)` — только службы города, откуда едем:
+  `YA_PHONE` (Яндекс Go по телефону), `public/taxi-osm.json` (службы такси из OSM, `tools/osm_taxi.py` по workflow `taxi.yml`)
+  и `INVATAXI` (номера инватакси: 2ГИС и источники 2024–2026; `old:1` — только старый справочник Saby, помечается).
+  С 20.09.2026 право на инватакси — по единому перечню 18 показаний (приказ Минздрава №102), заявка — акимат или Портал соцуслуг.
 - Профиль передвижения — в настройках (`#secProfile`) и на `/account` (`user_metadata.mobility`), в «Куда едем?» — `.prof-chip`.
 - Глобус (`openGlobe` в `index.html`): при зуме ≤ 3 вместо карты — Земля на three.js: реальные день/ночь по времени,
   облака, Млечный Путь, Солнце и Луна в настоящих направлениях (`globeAstro`), кнопки ☀ и ☾.
