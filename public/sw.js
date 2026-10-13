@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v35";
+const CACHE = "ic-v36";
 const SHELL = [
   "/",
   "/landing.html",
@@ -64,7 +64,7 @@ self.addEventListener("fetch", e => {
 
   // 2. Наш API, маршруты автобусов (обновляются раз в неделю) и ключи входа: сеть первым,
   //    кэш — только как запасной вариант при офлайне
-  if (sameOrigin && (url.pathname.startsWith("/api/") || url.pathname.startsWith("/bus-") || url.pathname.startsWith("/places/") || url.pathname === "/auth-config.js")) {
+  if (sameOrigin && (url.pathname.startsWith("/api/") || url.pathname.startsWith("/bus-") || url.pathname.startsWith("/places/") || url.pathname === "/taxi-osm.json" || url.pathname === "/auth-config.js")) {
     e.respondWith(
       fetch(req).then(res => putInCache(req, res))
         .catch(() => caches.match(req))

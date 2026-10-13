@@ -304,6 +304,11 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .taxi-order b{display:block}
 .taxi-order .sub{display:block;font-size:.82rem;color:var(--ink-soft)}
 .taxi-order .go{margin-left:auto;color:var(--ink-soft)}
+.taxi-order .logo.city{background:#1769c2;color:#fff;font-size:.8rem}
+.taxi-order .logo.inva{background:#0e7a4f;color:#fff}
+.taxi-h{font-size:1rem;margin:18px 0 2px;display:flex;align-items:center;gap:6px}
+.taxi-src{font-size:.78rem;color:var(--ink-soft);margin:6px 0 0}
+.taxi-old{font-size:.78rem;color:#9a5b00;margin:4px 0 0}
 .bus-opt{display:flex;flex-direction:column;align-items:stretch;gap:6px;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .bus-opt[aria-pressed="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-weak)}
 .bus-opt .sub{display:block;font-size:.8rem;color:var(--ink-soft)}
@@ -1223,6 +1228,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
+ taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
@@ -1309,6 +1315,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
+ taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
@@ -1396,6 +1403,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
+ taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
@@ -3719,6 +3727,70 @@ async function taxiLive(a,b){
     return d && d.price ? d : null;
   }catch(e){ return null; }
 }
+// ===== Такси и инватакси каждого города: показываем только службы того города, откуда едем =====
+// Яндекс Go по телефону — номера со страниц go.yandex/ru_kz/lp/calltaxi/city/<город> (октябрь 2026).
+const YA_PHONE={aktobe:"+77751111000", astana:"+77751114444", shymkent:"+77013333000", pavlodar:"+77782200000",
+  taraz:"+77022111111", petropavl:"+77782228222"};
+// Инватакси: p — [кому, телефон, whatsapp?]; old — номер только из старого справочника; src — откуда и когда.
+// Свежие — карточки 2ГИС (13.10.2026), сайты акиматов и СМИ 2024–2026. Обновлять при каждой проверке.
+const INVATAXI={
+  almaty:{p:[["Взрослые на кресле-коляске (Inclusion.KZ)","+77077106050"],["Взрослые на кресле-коляске (Inclusion.KZ)","+77717480650"],
+    ["Дети на кресле-коляске (ЦРУ «Инватакси»)","+77273390387"],["Дети на кресле-коляске (ЦРУ «Инватакси»)","+77013060776"],
+    ["Дети с аутизмом","+77273545594"],["Незрячие (ул. Каргалинская, 200)","+77058314814",1],["Инватакси, ул. Декабристов, 18 · круглосуточно","+77057782810",1]],
+    ya:1, src:"open-almaty.kz (акимат Алматы), 2ГИС, 2024–2026"},
+  astana:{p:[["Инватакси, пр. Б. Момышулы, 2а · круглосуточно","+77781121055"]], ya:1, src:"2ГИС, октябрь 2026"},
+  aktobe:{p:[["Инватакси, пр. Санкибай батыра, 36Б/1","+77056562054"],["Инватакси","+77076399829",1],["Служба «Инватакси» (фонд парализованных граждан)","+77132776565"]],
+    src:"2ГИС, октябрь 2026; «Актобе Таймс»"},
+  karaganda:{p:[["ОО «Центр социальных услуг» — Инватакси","+77024785005",1]], src:"2ГИС, октябрь 2026"},
+  oskemen:{p:[["ООЖИ «Алтын-Ай»","+77232612640"],["ООЖИ «Алтын-Ай»","+77772641763"]], src:"«Устинка Live», январь 2025; 2ГИС"},
+  semey:{p:[["Инватакси","+77222774289"]], src:"2ГИС, октябрь 2026"},
+  pavlodar:{p:[["Инватакси, ул. Машхур Жусупа, 189а","+77472796226",1],["Дети с аутизмом, ул. Камзина, 171","+77056125747",1]], src:"2ГИС, октябрь 2026"},
+  kokshetau:{p:[["Инватакси, ул. Пушкина, 11а","+77162761600"]], src:"2ГИС, октябрь 2026"},
+  turkistan:{p:[["Инватакси, ул. Кожанова, 105/1","+77713154551",1]], src:"2ГИС, октябрь 2026"},
+  kostanay:{p:[["Диспетчер инватакси, ул. Баймагамбетова, 101","+77142503349"]], src:"справочник 50-30-30.kz"},
+  taldykorgan:{p:[["Инватакси","+77282243463"]], src:"tinfo.kz"},
+  atyrau:{p:[["Инватакси","+77122366842"]], old:1, app:"invaAtyrau", src:"фонд Saby (старый справочник); kursiv.media, 02.10.2026"},
+  shymkent:{p:[["Инватакси","+77252433230"],["Инватакси","+77252433677"]], old:1, src:"фонд Saby (старый справочник)"},
+  taraz:{p:[["Инватакси","+77262451545"],["Инватакси","+77262515889"]], old:1, src:"фонд Saby (старый справочник)"},
+  kyzylorda:{p:[["Инватакси","+77242278149"]], old:1, src:"фонд Saby (старый справочник)"},
+  oral:{p:[["Инватакси","+77112507743"],["Инватакси","+77112500506"]], old:1, src:"фонд Saby (старый справочник)"},
+  petropavl:{p:[["Инватакси","+77152397687"],["Инватакси","+77152461150"]], old:1, src:"фонд Saby (старый справочник)"},
+  temirtau:{p:[["Инватакси","+77213914542"],["Инватакси","+77213914543"]], old:1, src:"фонд Saby (старый справочник)"},
+  ekibastuz:{p:[["Инватакси","+77187221289"],["Инватакси","+77187754785"]], old:1, src:"фонд Saby (старый справочник)"},
+  zhezkazgan:{p:[["Инватакси","+77102773080"]], old:1, src:"фонд Saby (старый справочник)"}
+};
+let taxiOsmP=null;
+function taxiOsm(){ if(!taxiOsmP) taxiOsmP=fetch("/taxi-osm.json").then(r=>r.ok?r.json():{c:{}}).then(d=>d.c||{}).catch(()=>({})); return taxiOsmP; }
+async function cityTaxiHtml(key, from){
+  const cn=(CITIES[key]&&(CITIES[key][S.lang]||CITIES[key].ru))||cityName();
+  const callBtn=(tel,logo,cls,title,sub)=>{ const k=kzPhone(tel);
+    return `<a class="taxi-order" href="tel:${esc(k.tel)}"><span class="logo ${cls}" aria-hidden="true">${logo}</span>
+      <span><b>${esc(title)}</b><span class="sub">${esc(k.label)}${sub?" · "+esc(sub):""}</span></span><span class="go" aria-hidden="true">${svgI("phone")}</span></a>`; };
+  let h="";
+  const osm=((await taxiOsm())[key]||[]).slice();
+  if(from) osm.sort((x,y)=>haversine(from,[x[2],x[3]])-haversine(from,[y[2],y[3]]));
+  const local=[];
+  if(YA_PHONE[key]) local.push(callBtn(YA_PHONE[key],"Я","ya",t("taxiYaPhone"),tf("taxiYaPhoneSub",{city:cn})));
+  osm.slice(0,6).forEach(r=>local.push(callBtn(r[1],svgI("car"),"city",r[0],"")));
+  if(local.length){
+    h+=`<h3 class="taxi-h">${svgI("car")} ${esc(tf("taxiCityH",{city:cn}))}</h3>${local.join("")}`;
+    if(osm.length) h+=`<p class="taxi-src">${esc(t("taxiOsmSrc"))}</p>`;
+  }
+  const I=INVATAXI[key];
+  h+=`<h3 class="taxi-h">${svgI("wc")} ${esc(tf("invaH",{city:cn}))}</h3>`;
+  if(I){
+    I.p.forEach(([who,tel,wa])=>{
+      h+=callBtn(tel,svgI("wc"),"inva",who,"");
+      if(wa){ const k=kzPhone(tel); h+=`<a class="taxi-src" style="display:inline-block;margin:4px 0 0 54px" href="https://wa.me/${esc(k.tel.replace("+",""))}" target="_blank" rel="noopener">${esc(t("invaWa"))} ›</a>`; }
+    });
+    if(I.old) h+=`<p class="taxi-old">${esc(t("invaOld"))}</p>`;
+    if(I.ya) h+=`<p class="small muted" style="margin-top:8px">${esc(t("invaYa"))}</p>`;
+    if(I.app) h+=`<p class="small muted" style="margin-top:8px">${esc(t(I.app))}</p>`;
+  } else h+=`<p class="small muted">${esc(t("invaNone"))}</p>`;
+  h+=`<p class="small muted" style="margin-top:8px">${esc(t("invaWho"))} ${esc(t("invaHow"))}</p>`;
+  if(I) h+=`<p class="taxi-src">${esc(tf("invaSrc",{src:I.src}))}</p>`;
+  return h;
+}
 let taxiTrip=null;
 async function buildTaxiTrip(a,b){
   let pts=[a,b], km=haversine(a,b)*1.3/1000, mins=km/30*60;
@@ -3736,6 +3808,7 @@ async function buildTaxiTrip(a,b){
   // Тариф — того города, откуда едем (такси работает и вне выбранного в настройках)
   const [ck,ckm]=nearestCity(a[0],a[1]);
   let tKey = ckm<=60 ? ck : S.city;
+  const cityKey=tKey;
   if(!TAXI_TARIFFS[tKey]) tKey="almaty";   // нет своего тарифа (Конаев) — честно показываем, чей взят
   const T=TAXI_TARIFFS[tKey];
   const tCity=(CITIES[tKey]&&(CITIES[tKey][S.lang]||CITIES[tKey].ru)) || cityName();
@@ -3763,7 +3836,8 @@ async function buildTaxiTrip(a,b){
     <button type="button" class="taxi-order" onclick="orderInDrive()">
       <span class="logo indrive" aria-hidden="true">iD</span>
       <span><b>${esc(t("taxiInDrive"))}</b><span class="sub">${esc(t("inDriveSub"))}</span></span><span class="go" aria-hidden="true">›</span></button>
-    <p class="small muted" style="margin-top:10px">${svgI("wc")} ${esc(t("taxiWc"))}</p>`;
+    <p class="small muted" style="margin-top:10px">${svgI("wc")} ${esc(t("taxiWc"))}</p>
+    ${await cityTaxiHtml(cityKey, a)}`;
   const title = live ? `${t("modeTaxi")} · ${fmt(live.price)} ₸` : `${t("modeTaxi")} · ≈ ${fmt(p1)}–${fmt(p2)} ₸`;
   showTrip(html, {title, sub:`~${mins} ${t("min")} · ${km.toFixed(1)} ${t("km")}`});
 }
