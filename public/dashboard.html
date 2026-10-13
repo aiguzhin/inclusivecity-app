@@ -100,7 +100,7 @@ ru:{dash:"дашборд",theme:"🌓 Тема",export:"⬇ Экспорт CSV",
  seasonNote:"Зимние барьеры (снег, наледь) — сезонные: они появляются каждую зиму и требуют регулярной уборки, а не разовой реконструкции.",
  howTitle:"Как пользоваться этими данными",
  howText:"Выгрузите CSV и приложите его к обращению в акимат или используйте для планирования ремонта тротуаров. Каждая строка содержит координаты, тип барьера, число подтверждений жителей и дату.",
- kTotal:"барьеров на карте",kConfirmed:"подтверждены жителями",k30:"добавлено за 30 дней",kWinter:"зимних (сезонных)",kPhoto:"с фотографией",
+ kTotal:"барьеров на карте",kConfirmed:"подтверждены жителями",k30:"добавлено за 30 дней",kWinter:"зимних (сезонных)",kPhoto:"с фотографией",kFixed:"уже исправлено",
  empty:"Пока нет данных — станьте первым, кто отметит барьер на карте.",
  near:"Барьеров рядом",confirmed:"Подтверждённых",
  sPerm:"Постоянный",sWinter:"Зимний (снег, наледь)",sTemp:"Временный (ремонт)"},
@@ -111,7 +111,7 @@ kk:{dash:"дашборд",theme:"🌓 Тақырып",export:"⬇ CSV жүкте
  seasonNote:"Қысқы кедергілер (қар, мұз) — маусымдық: олар жыл сайын қайталанады және бір реткі реконструкцияны емес, тұрақты тазалауды талап етеді.",
  howTitle:"Бұл деректерді қалай пайдалануға болады",
  howText:"CSV файлын жүктеп алып, әкімдікке жолданатын өтінішке тіркеңіз немесе тротуарларды жөндеуді жоспарлауға пайдаланыңыз. Әр жолда координаттар, кедергі түрі, тұрғындардың растау саны және күні көрсетілген.",
- kTotal:"картадағы кедергі",kConfirmed:"тұрғындар растаған",k30:"30 күнде қосылды",kWinter:"қысқы (маусымдық)",kPhoto:"фотосуретпен",
+ kTotal:"картадағы кедергі",kConfirmed:"тұрғындар растаған",k30:"30 күнде қосылды",kWinter:"қысқы (маусымдық)",kPhoto:"фотосуретпен",kFixed:"түзетілді",
  empty:"Әзірге дерек жоқ — картада кедергіні бірінші болып белгілеңіз.",
  near:"Маңайдағы кедергілер",confirmed:"Расталғаны",
  sPerm:"Тұрақты",sWinter:"Қысқы (қар, мұз)",sTemp:"Уақытша (жөндеу)"},
@@ -122,7 +122,7 @@ en:{dash:"dashboard",theme:"🌓 Theme",export:"⬇ Export CSV",back:"← Back t
  seasonNote:"Winter barriers (snow, ice) are seasonal: they come back every winter and call for regular clearing rather than a one-off rebuild.",
  howTitle:"How to use this data",
  howText:"Export the CSV and attach it to a complaint to the city administration, or use it to plan pavement repairs. Each row holds the coordinates, the type of barrier, how many residents confirmed it and the date.",
- kTotal:"barriers on the map",kConfirmed:"confirmed by residents",k30:"added in the last 30 days",kWinter:"seasonal (winter)",kPhoto:"with a photo",
+ kTotal:"barriers on the map",kConfirmed:"confirmed by residents",k30:"added in the last 30 days",kWinter:"seasonal (winter)",kPhoto:"with a photo",kFixed:"already fixed",
  empty:"No data yet — be the first to mark a barrier on the map.",
  near:"Barriers nearby",confirmed:"Confirmed",
  sPerm:"Permanent",sWinter:"Winter (snow, ice)",sTemp:"Temporary (roadworks)"}};
@@ -159,7 +159,7 @@ function render(){
 
   document.getElementById("kpis").innerHTML =
     kpi(total,t("kTotal")) + kpi(confirmed,t("kConfirmed"),"ok") + kpi(last30,t("k30"),"warn") +
-    kpi(winter,t("kWinter"),"bad") + kpi(withPhoto,t("kPhoto"));
+    kpi(winter,t("kWinter"),"bad") + kpi(withPhoto,t("kPhoto")) + kpi(window.FIXED||0,t("kFixed"),"ok");
 
   if(!total){
     document.querySelectorAll("#tblType tbody,#tblSeason tbody")
@@ -223,6 +223,7 @@ function exportCsv(){
   let saved="ru";
   try{ saved=localStorage.getItem("ic_lang")||"ru"; }catch(e){}
   try{ const r=await fetch("/api/reports"); REPORTS=await r.json(); }catch(e){ REPORTS=[]; }
+  try{ const r=await fetch("/api/stats"); const st=await r.json(); window.FIXED=st.fixed||0; }catch(e){ window.FIXED=0; }
   setLang(saved);
 })();
 </script>
