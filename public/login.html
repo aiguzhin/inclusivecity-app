@@ -10,19 +10,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&display=swap">
+<script>
+(function(){var d=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
+var th=g("ic_theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
+d.setAttribute("data-theme",th);d.setAttribute("data-font",g("ic_font")||"normal");d.setAttribute("data-contrast",g("ic_contrast")||"normal");})();
+</script>
 <style>
 :root{
   --ink:#070b12; --card:#0d1520; --field:#111c29; --fg:#e9eef2; --soft:#c9d3dc; --muted:#93a1b0;
-  --line:rgba(160,200,220,.18); --ok:#3fe0a8; --ok-ink:#04201a; --err:#ff7b75; --warn:#ffb547;
+  --line:rgba(160,200,220,.18); --ok:#3fe0a8; --ok-t:#3fe0a8; --ok-ink:#04201a; --err:#ff7b75; --warn:#ffb547; --toast:rgba(13,21,32,.92);
+  --glow1:rgba(63,224,168,.12); --glow2:rgba(90,184,255,.08);
   --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
   --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
+/* Светлая тема и крупный шрифт — те же настройки, что в приложении (ic_theme, ic_font, ic_contrast) */
+html[data-theme="light"]{--ink:#f3f6f8;--card:#ffffff;--field:#f2f5f8;--fg:#111722;--soft:#323c4a;--muted:#566173;
+  --line:rgba(17,23,34,.16);--ok:#2fd39b;--ok-t:#0a6e4f;--ok-ink:#04201a;--err:#b42318;--warn:#9a5b00;--toast:rgba(255,255,255,.96);
+  --glow1:rgba(47,211,155,.16);--glow2:rgba(23,105,194,.08);color-scheme:light}
+html[data-theme="light"] .card{box-shadow:0 10px 40px rgba(17,23,34,.08)}
+html[data-theme="light"] .msg.err{background:#fdecea;border-color:#f3b8b1}
+html[data-theme="light"] .msg.ok{background:#e7f7f0;border-color:#9edcc4}
+html[data-theme="light"] .prov .soon{background:#fff2dc}
+html[data-theme="light"] .sw i{background:#c5ccd6}
+html[data-theme="light"] .crop{background:rgba(17,23,34,.55)}
+html[data-contrast="high"]{--line:currentColor;--muted:var(--soft)}
+html[data-contrast="high"][data-theme="light"]{--fg:#000;--soft:#000;--muted:#1b1b1b;--card:#fff;--field:#fff;--ink:#fff;--ok-t:#004d36}
+html[data-contrast="high"]:not([data-theme="light"]){--fg:#fff;--soft:#fff;--muted:#e6e6e6;--card:#000;--field:#000;--ink:#000}
+html[data-font="large"] body{zoom:1.15} html[data-font="xlarge"] body{zoom:1.3}
+.top-tools{display:flex;align-items:center;gap:8px}
+.tbtn{min-width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--field);color:var(--fg);font:700 15px var(--f-body);cursor:pointer;display:grid;place-items:center;padding:0 10px}
+.tbtn svg{width:18px;height:18px}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{background:var(--ink);color:var(--fg)}
 body{margin:0;min-height:100vh;font:16px/1.55 var(--f-body);padding-inline:16px;
-  background:radial-gradient(90% 60% at 50% 0%,rgba(63,224,168,.12),transparent 60%),radial-gradient(70% 50% at 100% 100%,rgba(90,184,255,.08),transparent 60%),var(--ink)}
+  background:radial-gradient(90% 60% at 50% 0%,var(--glow1),transparent 60%),radial-gradient(70% 50% at 100% 100%,var(--glow2),transparent 60%),var(--ink)}
 .top{max-width:460px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:calc(env(safe-area-inset-top,0px) + 18px) 10px}
 .brand{display:flex;align-items:center;gap:10px;font:800 17px var(--f-display);color:var(--fg);text-decoration:none}
 .brand b{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--ok);color:var(--ok-ink);font-size:15px}
@@ -57,10 +80,10 @@ input[aria-invalid="true"]{border-color:var(--err)}
 .submit{font:600 16px var(--f-body);color:var(--ok-ink);background:var(--ok);border:0;border-radius:12px;min-height:50px;cursor:pointer;margin-top:4px}
 .submit:hover{background:#6af0c0}
 .submit[disabled]{opacity:.6;cursor:progress}
-.link{font:500 14px var(--f-body);color:var(--ok);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
+.link{font:500 14px var(--f-body);color:var(--ok-t);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
 .msg{font-size:14px;border-radius:12px;padding:12px 14px;margin:0 0 16px}
 .msg.err{color:var(--err);background:rgba(255,123,117,.1);border:1px solid rgba(255,123,117,.3)}
-.msg.ok{color:var(--ok);background:rgba(63,224,168,.08);border:1px solid rgba(63,224,168,.3)}
+.msg.ok{color:var(--ok-t);background:rgba(63,224,168,.08);border:1px solid rgba(63,224,168,.3)}
 .terms{font-size:12px;color:var(--muted);margin:16px 0 0;text-align:center}
 .who{display:flex;align-items:center;gap:14px;margin:6px 0 20px}
 .ava{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:var(--ok-ink);font:800 22px var(--f-display);flex:none;overflow:hidden}
@@ -97,20 +120,29 @@ h2.sec{font:600 13px var(--f-body);text-transform:uppercase;letter-spacing:.06em
 .item{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:54px;font-size:15px}
 .item+.item,.inline+.item,.item+.inline{border-top:1px solid var(--line)}
 .item .k{color:var(--soft);flex:none}.item .v{flex:1;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.item .edit,.item .del{font:600 13px var(--f-body);color:var(--ok);background:none;border:0;cursor:pointer;padding:8px 4px;min-height:36px;flex:none}
+.item .edit,.item .del{font:600 13px var(--f-body);color:var(--ok-t);background:none;border:0;cursor:pointer;padding:8px 4px;min-height:36px;flex:none}
 .item .del{color:var(--err)}
 .inline{padding:4px 14px 14px;gap:10px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .submit.sm,.ghost.sm{min-height:44px;font-size:14px;margin:0}
-.pl-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(63,224,168,.12);color:var(--ok);flex:none}
+.pl-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(63,224,168,.12);color:var(--ok-t);flex:none}
 .pl-ic svg{width:18px;height:18px}
 .pl-t{flex:1;min-width:0}.pl-t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-t small{color:var(--muted);font-size:12px}
-.empty{padding:14px;color:var(--muted);font-size:14px}
+.empty{padding:14px 14px 0;margin:0;color:var(--muted);font-size:14px}
 .item.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:1px;padding:10px 14px}
 .item.kv .k{grid-column:1;font-size:12px;color:var(--muted)}.item.kv .v{grid-column:1;text-align:left;font-size:15px}
 .item.kv .edit{grid-column:2;grid-row:1/3;align-self:center}
 body.acc #msg{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:20;max-width:428px;margin:0 auto;pointer-events:none}
-body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background-color:rgba(13,21,32,.92);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background-color:var(--toast);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.crop{position:fixed;inset:0;z-index:30;background:rgba(3,6,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px}
+.crop-box{width:min(380px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:grid;gap:14px}
+.crop-box h2{font:800 20px var(--f-display);margin:0}.crop-lead{margin:-6px 0 0;color:var(--muted);font-size:13px}
+.crop-view{position:relative;width:min(300px,calc(100vw - 72px));aspect-ratio:1;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.crop-view.drag{cursor:grabbing}
+.crop-view canvas{position:absolute;inset:0;width:100%;height:100%}
+.crop-ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(0,0,0,.55);outline:2px solid rgba(255,255,255,.85);outline-offset:-2px;pointer-events:none}
+.crop-tools{display:flex;align-items:center;gap:8px}.crop-tools input{flex:1;accent-color:var(--ok);min-height:36px;padding:0;border:0;background:none}
+.crop-tools .chip{min-width:40px;font-size:18px;line-height:1;display:grid;place-items:center}
 .sw{cursor:pointer;position:relative}.sw .k2{flex:1;display:grid;gap:2px}.sw .k2 b{font-weight:600}.sw .k2 small{color:var(--muted);font-size:12px}
 .sw input{position:absolute;opacity:0;width:1px;height:1px}
 .sw i{width:48px;height:28px;border-radius:99px;background:rgba(160,200,220,.25);position:relative;flex:none;transition:background .2s}
@@ -123,8 +155,12 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
 <body>
 <div class="top">
   <a class="brand" href="/"><b>i</b>ICity</a>
-  <label class="sr" for="lang">Тіл / Язык / Language</label>
-  <select id="lang"><option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option></select>
+  <div class="top-tools">
+    <button type="button" class="tbtn" id="fontBtn" data-ta="fontBtn" aria-label="Размер шрифта">Aa</button>
+    <button type="button" class="tbtn" id="themeBtn" data-ta="themeBtn" aria-label="Светлая или тёмная тема"></button>
+    <label class="sr" for="lang">Тіл / Язык / Language</label>
+    <select id="lang"><option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option></select>
+  </div>
 </div>
 
 <main>
@@ -272,6 +308,20 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
       <h2 class="sec" data-t="secPlaces">Мои места</h2>
       <div class="group" id="accPlaces"></div>
 
+      <h2 class="sec" data-t="secSos">Близкий человек для SOS</h2>
+      <div class="group">
+        <div class="item kv"><span class="k" data-t="sosWho">Кому звонить и писать в беде</span><span class="v" id="vSos"></span><button type="button" class="edit" data-open="sosForm" id="sosEdit" data-t="add">Добавить</button></div>
+        <form class="inline" id="sosForm" hidden novalidate>
+          <input id="sosName" maxlength="40" autocomplete="off" data-tp="sosNamePh" placeholder="Имя, например «Мама»">
+          <span class="phone"><span aria-hidden="true">+7</span><input id="sosPhone" type="tel" inputmode="numeric" autocomplete="off" placeholder="701 123 45 67" maxlength="13"></span>
+          <small class="hint" data-t="sosHint">В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.</small>
+          <div class="two"><button type="button" class="ghost sm" id="sosDel" data-t="avaDel2">Удалить</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div>
+        </form>
+      </div>
+
+      <h2 class="sec" data-t="secAct">Моя активность</h2>
+      <div class="group" id="accAct"></div>
+
       <h2 class="sec" data-t="secNotify">Уведомления</h2>
       <div class="group">
         <label class="item sw"><span class="k2"><b data-t="pushTitle">Сообщать о моих жалобах и волонтёрах</b><small id="pushSub" data-t="pushSub">Придёт, даже когда приложение закрыто</small></span><input type="checkbox" id="pushToggle" role="switch"><i aria-hidden="true"></i></label>
@@ -299,6 +349,21 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
     </section>
   </div>
 </main>
+<div class="crop" id="crop" hidden role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+  <div class="crop-box">
+    <h2 id="cropTitle" data-t="cropTitle">Настройте фото</h2>
+    <p class="crop-lead" data-t="cropLead">Двигайте фото пальцем, приближайте ползунком или двумя пальцами.</p>
+    <div class="crop-view" id="cropView"><canvas id="cropCv"></canvas><div class="crop-ring" aria-hidden="true"></div></div>
+    <div class="crop-tools">
+      <button type="button" class="chip" id="cropOut" data-ta="cropOut" aria-label="Отдалить">−</button>
+      <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" data-ta="cropZoomL" aria-label="Масштаб">
+      <button type="button" class="chip" id="cropIn" data-ta="cropIn" aria-label="Приблизить">+</button>
+      <button type="button" class="chip" id="cropRot" data-ta="cropRot" aria-label="Повернуть"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+    </div>
+    <div class="two"><button type="button" class="ghost sm" id="cropCancel" data-t="cancel">Отмена</button><button type="button" class="submit sm" id="cropSave" data-t="save">Сохранить</button></div>
+  </div>
+</div>
+
 
 <script src="/auth-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -364,21 +429,21 @@ Object.assign(T.ru,{avaChange:"Сменить фото",avaDel:"Убрать ф�
  pushNo:"Этот браузер не умеет присылать уведомления. На iPhone — добавьте ICity на экран «Домой».",pushDenied:"Уведомления запрещены в настройках браузера",pushOn:"Уведомления включены",pushOff:"Уведомления выключены",
  secSafe:"Безопасность",password:"Пароль",pwNone:"не задан",setPw:"Задать",nameSaved:"Имя сохранено",emailSent:"Письмо отправлено на {e}. Откройте его, чтобы подтвердить новый адрес.",
  phoneSaved:"Номер обновлён",avaSaved:"Фото обновлено",avaRemoved:"Фото убрано",avaFail:"Не получилось загрузить фото. Попробуйте другую картинку.",
- plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
+ plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",pwLoginHint:"Теперь можно входить и по почте {e} с этим паролем.",viaPw:"Почта и пароль",secSos:"Близкий человек для SOS",sosWho:"Кому звонить и писать в беде",sosNamePh:"Имя, например «Мама»",sosHint:"В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.",avaDel2:"Удалить",sosSaved:"Контакт для SOS сохранён",sosRemoved:"Контакт для SOS удалён",sosNeed:"Укажите имя и номер",secAct:"Моя активность",actRep:"Жалобы на барьеры",actRepV:"{n} · исправлено {f}",actNone:"пока нет",actHelp:"Просьба о помощи",actHelpOn:"активна",open:"Открыть",fontBtn:"Размер шрифта",themeBtn:"Светлая или тёмная тема",cropTitle:"Настройте фото",cropLead:"Двигайте фото пальцем, приближайте ползунком или двумя пальцами.",cropOut:"Отдалить",cropIn:"Приблизить",cropRot:"Повернуть",cropZoomL:"Масштаб",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
 Object.assign(T.kk,{avaChange:"Суретті ауыстыру",avaDel:"Суретті алып тастау",secMe:"Жеке деректер",change:"Өзгерту",add:"Қосу",cancel:"Болдырмау",save:"Сақтау",
  emailHint:"Сілтемесі бар хат келеді — растағаннан кейін пошта ауысады.",phoneHint2:"Жаңа нөмірге SMS-код жібереміз.",getCode2:"Код алу",
  secPlaces:"Менің орындарым",secNotify:"Хабарламалар",pushTitle:"Шағымдарым мен волонтёрлар туралы хабарлау",pushSub:"Қосымша жабық болса да келеді",
  pushNo:"Бұл браузер хабарлама жібере алмайды. iPhone-да ICity-ді «Үй» экранына қосыңыз.",pushDenied:"Хабарламаларға браузер баптауында тыйым салынған",pushOn:"Хабарламалар қосулы",pushOff:"Хабарламалар өшірулі",
  secSafe:"Қауіпсіздік",password:"Құпиясөз",pwNone:"орнатылмаған",setPw:"Орнату",nameSaved:"Аты сақталды",emailSent:"Хат {e} мекенжайына жіберілді. Жаңа поштаны растау үшін оны ашыңыз.",
  phoneSaved:"Нөмір жаңартылды",avaSaved:"Сурет жаңартылды",avaRemoved:"Сурет алынды",avaFail:"Суретті жүктеу мүмкін болмады. Басқа сурет таңдап көріңіз.",
- plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
+ plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",pwLoginHint:"Енді {e} поштасы мен осы құпиясөз арқылы да кіруге болады.",viaPw:"Пошта мен құпиясөз",secSos:"SOS үшін жақын адам",sosWho:"Қиын жағдайда кімге қоңырау шалу",sosNamePh:"Аты, мысалы «Анам»",sosHint:"Қосымшадағы SOS терезесінде орныңызбен «Қоңырау шалу» және «SMS жіберу» батырмалары шығады.",avaDel2:"Өшіру",sosSaved:"SOS байланысы сақталды",sosRemoved:"SOS байланысы өшірілді",sosNeed:"Аты мен нөмірін жазыңыз",secAct:"Менің белсенділігім",actRep:"Кедергі туралы шағымдар",actRepV:"{n} · жойылғаны {f}",actNone:"әзірге жоқ",actHelp:"Көмек сұрау",actHelpOn:"белсенді",open:"Ашу",fontBtn:"Қаріп өлшемі",themeBtn:"Ашық не күңгірт тақырып",cropTitle:"Суретті реттеңіз",cropLead:"Суретті саусақпен жылжытыңыз, жүгірткімен не екі саусақпен үлкейтіңіз.",cropOut:"Кішірейту",cropIn:"Үлкейту",cropRot:"Бұру",cropZoomL:"Масштаб",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
 Object.assign(T.en,{avaChange:"Change photo",avaDel:"Remove photo",secMe:"Personal details",change:"Change",add:"Add",cancel:"Cancel",save:"Save",
  emailHint:"We'll email you a link — the address changes once you confirm it.",phoneHint2:"We'll text a code to the new number.",getCode2:"Get code",
  secPlaces:"My places",secNotify:"Notifications",pushTitle:"Tell me about my reports and volunteers",pushSub:"Arrives even when the app is closed",
  pushNo:"This browser can't show notifications. On iPhone, add ICity to your Home Screen first.",pushDenied:"Notifications are blocked in your browser settings",pushOn:"Notifications are on",pushOff:"Notifications are off",
  secSafe:"Security",password:"Password",pwNone:"not set",setPw:"Set",nameSaved:"Name saved",emailSent:"We sent an email to {e}. Open it to confirm the new address.",
  phoneSaved:"Number updated",avaSaved:"Photo updated",avaRemoved:"Photo removed",avaFail:"Couldn't upload the photo. Try another picture.",
- plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
+ plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",pwLoginHint:"You can now also sign in with {e} and this password.",viaPw:"Email and password",secSos:"SOS contact",sosWho:"Who to call and text in an emergency",sosNamePh:"Name, e.g. “Mum”",sosHint:"The SOS window in the app will get “Call” and “Send SMS” buttons with your location.",avaDel2:"Delete",sosSaved:"SOS contact saved",sosRemoved:"SOS contact removed",sosNeed:"Enter a name and a number",secAct:"My activity",actRep:"Barrier reports",actRepV:"{n} · fixed {f}",actNone:"none yet",actHelp:"Help request",actHelpOn:"active",open:"Open",fontBtn:"Text size",themeBtn:"Light or dark theme",cropTitle:"Adjust your photo",cropLead:"Drag to move, zoom with the slider or two fingers.",cropOut:"Zoom out",cropIn:"Zoom in",cropRot:"Rotate",cropZoomL:"Zoom",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
 const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
@@ -419,11 +484,21 @@ $("otp").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/
 function applyTexts(){
   document.documentElement.lang=lang;$("lang").value=lang;
   document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.getAttribute("data-t"))});
+  document.querySelectorAll("[data-tp]").forEach(el=>el.setAttribute("placeholder",t(el.getAttribute("data-tp"))));
   document.querySelectorAll("[data-ta]").forEach(el=>el.setAttribute("aria-label",t(el.getAttribute("data-ta"))));
   setMode(mode,true);setMethod(method,true);
   if(currentUser)fillAccount(currentUser);
   if(phoneOff)phoneOffUi();
 }
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+ MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+function themeUi(){const th=document.documentElement.getAttribute("data-theme");$("themeBtn").innerHTML=th==="light"?MOON:SUN;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=th==="light"?"#f3f6f8":"#070b12";
+  const f=document.documentElement.getAttribute("data-font");$("fontBtn").setAttribute("aria-pressed",String(f!=="normal"));$("fontBtn").style.fontSize=f==="xlarge"?"19px":f==="large"?"17px":"";}
+$("themeBtn").onclick=()=>{const v=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",v);try{localStorage.setItem("ic_theme",v)}catch(e){}themeUi();};
+$("fontBtn").onclick=()=>{const order=["normal","large","xlarge"],cur=document.documentElement.getAttribute("data-font")||"normal",v=order[(order.indexOf(cur)+1)%3];
+  document.documentElement.setAttribute("data-font",v);try{localStorage.setItem("ic_font",v)}catch(e){}themeUi();};
+themeUi();
 $("lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("ic_lang",lang)}catch(_){}applyTexts()};
 function show(view){["auth","otp","check","forgot","reset","account","off"].forEach(v=>$("v-"+v).hidden=v!==view);document.body.classList.toggle("acc",view==="account");}
 let msgT=0;
@@ -490,6 +565,7 @@ function fillMob(u){
 }
 const metaName=u=>{const m=u.user_metadata||{};return m.ic_name||m.full_name||m.name||(u.email||"").split("@")[0]||fmtPhone(u.phone)};
 const metaPic=u=>{const m=u.user_metadata||{};return m.ic_avatar===""?"":(m.ic_avatar||m.avatar_url||m.picture||"")};
+const hasPwOnly=(u,provs)=>!!(u.user_metadata||{}).ic_has_pw&&!provs.includes("email")&&!provs.includes("phone");
 const provsOf=u=>(u.app_metadata&&u.app_metadata.providers)||[u.app_metadata&&u.app_metadata.provider].filter(Boolean);
 function fillAccount(u){
   fillMob(u);
@@ -505,12 +581,19 @@ function fillAccount(u){
   else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
   $("avaDel").hidden=!pic;
   const provs=provsOf(u);
-  $("accVia").textContent=provs.map(p=>p==="email"?t("viaEmail"):p==="phone"?t("viaPhone"):p==="google"?"Google":p).join(", ")||(u.phone?t("viaPhone"):t("viaEmail"));
-  const hasPw=provs.includes("email")||provs.includes("phone");
+  $("accVia").textContent=provs.map(p=>p==="email"?t("viaEmail"):p==="phone"?t("viaPhone"):p==="google"?"Google":p).concat(hasPwOnly(u,provs)?[t("viaPw")]:[]).join(", ")||(u.phone?t("viaPhone"):t("viaEmail"));
+  const hasPw=provs.includes("email")||provs.includes("phone")||!!(u.user_metadata||{}).ic_has_pw;
   $("vPw").textContent=hasPw?"••••••••":t("pwNone");$("pwEdit").textContent=t(hasPw?"change":"setPw");
   const loc=lang==="kk"?"kk-KZ":lang==="en"?"en-GB":"ru-RU";
   try{$("accSince").textContent=new Date(u.created_at).toLocaleDateString(loc,{day:"numeric",month:"long",year:"numeric"})}catch(e){$("accSince").textContent=""}
   if(typeof renderAccPlaces==="function")renderAccPlaces(u);
+  // близкий человек для SOS: аккаунт ⇄ этот браузер
+  let sos=(u.user_metadata||{}).ic_sos;try{if(sos&&sos.phone)localStorage.setItem("ic_sosContact",JSON.stringify(sos));else if(!sos){sos=JSON.parse(localStorage.getItem("ic_sosContact")||"null");}}catch(e){}
+  $("vSos").textContent=sos&&sos.phone?`${sos.name||""} · ${fmtPhone(sos.phone)}`:t("none");$("sosEdit").textContent=t(sos&&sos.phone?"change":"add");
+  // активность из этого браузера
+  let reps=[],help=null;try{reps=JSON.parse(localStorage.getItem("ic_myReports")||"[]")||[];help=JSON.parse(localStorage.getItem("ic_help")||"null");}catch(e){}
+  $("accAct").innerHTML=`<div class="item kv"><span class="k">${esc(t("actRep"))}</span><span class="v">${reps.length?esc(t("actRepV").replace("{n}",reps.length).replace("{f}",reps.filter(r=>r.status==="fixed").length)):esc(t("actNone"))}</span>${reps.length?`<a class="edit" style="text-decoration:none" href="/map?do=reports">${esc(t("open"))}</a>`:""}</div>`
+    +`<div class="item kv"><span class="k">${esc(t("actHelp"))}</span><span class="v">${esc(help&&help.id?t("actHelpOn"):t("actNone"))}</span>${help&&help.id?`<a class="edit" style="text-decoration:none" href="/map?do=help">${esc(t("open"))}</a>`:""}</div>`;
 }
 function showAccount(u){hold=false;currentUser=u;fillAccount(u);show("account");if(location.pathname!=="/account")history.replaceState(null,"","/account");}
 
@@ -708,7 +791,7 @@ $("pwForm").addEventListener("submit",async e=>{
   e.preventDefault();const v=$("ePw").value;
   if(v.length<8)return bad("ePw",t("ePw"));
   busy(e.target,true);
-  try{await upd({password:v},t("pwSaved"));}catch(err){msg(errText(err));}
+  try{await upd({password:v,data:{ic_has_pw:true}},t("pwSaved")+(currentUser&&currentUser.email?" "+t("pwLoginHint").replace("{e}",currentUser.email):""));}catch(err){msg(errText(err));}
   finally{busy(e.target,false);}
 });
 
@@ -719,24 +802,84 @@ function phoneOffUi(){
 }
 /* фото: обрезаем по центру до 320×320 и отправляем на сервер */
 $("ava").onclick=$("avaPick").onclick=()=>$("avaFile").click();
+$("sosPhone").addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,"").slice(0,10);e.target.value=[d.slice(0,3),d.slice(3,6),d.slice(6,8),d.slice(8)].filter(Boolean).join(" ");});
+document.querySelector('[data-open="sosForm"]').addEventListener("click",()=>{let s=null;try{s=(currentUser&&currentUser.user_metadata&&currentUser.user_metadata.ic_sos)||JSON.parse(localStorage.getItem("ic_sosContact")||"null")}catch(e){}
+  $("sosName").value=(s&&s.name)||"";$("sosPhone").value=s&&s.phone?fmtPhone(s.phone).replace(/^\+7 /,""):"";});
+$("sosForm").addEventListener("submit",async e=>{
+  e.preventDefault();const name=$("sosName").value.trim(),p=normPhone($("sosPhone").value);
+  if(!name)return bad("sosName",t("sosNeed"));if(!p)return bad("sosPhone",t("ePhone"));
+  busy(e.target,true);const v={name,phone:p};
+  try{localStorage.setItem("ic_sosContact",JSON.stringify(v))}catch(_){}
+  try{await upd({data:{ic_sos:v}},t("sosSaved"));}catch(err){msg(errText(err));}finally{busy(e.target,false);}
+});
+$("sosDel").onclick=async()=>{try{localStorage.removeItem("ic_sosContact")}catch(_){}try{await upd({data:{ic_sos:null}},t("sosRemoved"));}catch(err){msg(errText(err));}};
+/* фото: сначала окно настройки (сдвиг, масштаб, поворот), потом 320×320 на сервер */
+const CR={img:null,src:"",z:1,x:0,y:0,rot:0,V:300,ptrs:new Map(),pinch:null};
+function crDims(){const sw=CR.rot%180?CR.img.naturalHeight:CR.img.naturalWidth,sh=CR.rot%180?CR.img.naturalWidth:CR.img.naturalHeight;const base=Math.max(CR.V/sw,CR.V/sh);return {sw,sh,k:base*CR.z};}
+function crClamp(){const {sw,sh,k}=crDims();const mx=Math.max(0,(sw*k-CR.V)/2),my=Math.max(0,(sh*k-CR.V)/2);CR.x=Math.min(mx,Math.max(-mx,CR.x));CR.y=Math.min(my,Math.max(-my,CR.y));}
+function crPaint(g,size){
+  const {k}=crDims(),f=size/CR.V;
+  g.save();g.fillStyle="#fff";g.fillRect(0,0,size,size);
+  g.translate(size/2+CR.x*f,size/2+CR.y*f);g.rotate(CR.rot*Math.PI/180);g.scale(k*f,k*f);
+  g.drawImage(CR.img,-CR.img.naturalWidth/2,-CR.img.naturalHeight/2);g.restore();
+}
+function crDraw(){
+  const cv=$("cropCv"),d=Math.min(window.devicePixelRatio||1,2),px=Math.round(CR.V*d);
+  if(cv.width!==px){cv.width=px;cv.height=px;}
+  crPaint(cv.getContext("2d"),px);$("cropZoom").value=CR.z;
+}
+function crZoom(z,cx,cy){ // cx,cy — точка в окне относительно центра, она остаётся на месте
+  z=Math.min(4,Math.max(1,z));const r=z/CR.z;cx=cx||0;cy=cy||0;
+  CR.x=cx-(cx-CR.x)*r;CR.y=cy-(cy-CR.y)*r;CR.z=z;crClamp();crDraw();
+}
+function crClose(){$("crop").hidden=true;if(CR.src)URL.revokeObjectURL(CR.src);CR.img=null;CR.src="";CR.ptrs.clear();$("ava").focus();}
 $("avaFile").onchange=async e=>{
   const file=e.target.files&&e.target.files[0];e.target.value="";
   if(!file)return;msg("");
-  const ava=$("ava");ava.classList.add("busy");
   try{
     if(!/^image\//.test(file.type)&&!/\.(heic|heif|jpe?g|png|webp|gif)$/i.test(file.name))throw new Error("type");
     const src=URL.createObjectURL(file);
     const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src;});
-    const S=320,c=document.createElement("canvas");c.width=c.height=S;
-    const k=Math.max(S/img.naturalWidth,S/img.naturalHeight),w=img.naturalWidth*k,h=img.naturalHeight*k;
-    const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,S,S);g.drawImage(img,(S-w)/2,(S-h)/2,w,h);URL.revokeObjectURL(src);
-    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.86));
+    Object.assign(CR,{img,src,z:1,x:0,y:0,rot:0});
+    $("crop").hidden=false;CR.V=$("cropView").clientWidth||300;crClamp();crDraw();$("cropSave").focus();
+  }catch(err){msg(t("avaFail"));}
+};
+(()=>{
+  const v=$("cropView");
+  const pos=e=>{const r=v.getBoundingClientRect();return [e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2];};
+  v.addEventListener("pointerdown",e=>{v.setPointerCapture(e.pointerId);CR.ptrs.set(e.pointerId,pos(e));v.classList.add("drag");
+    if(CR.ptrs.size===2){const [a,b]=[...CR.ptrs.values()];CR.pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:CR.z};}});
+  v.addEventListener("pointermove",e=>{
+    if(!CR.ptrs.has(e.pointerId)||!CR.img)return;const p=pos(e),old=CR.ptrs.get(e.pointerId);CR.ptrs.set(e.pointerId,p);
+    if(CR.ptrs.size===2&&CR.pinch){const [a,b]=[...CR.ptrs.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);crZoom(CR.pinch.z*d/CR.pinch.d,(a[0]+b[0])/2,(a[1]+b[1])/2);}
+    else if(CR.ptrs.size===1){CR.x+=p[0]-old[0];CR.y+=p[1]-old[1];crClamp();crDraw();}
+  });
+  const up=e=>{CR.ptrs.delete(e.pointerId);if(CR.ptrs.size<2)CR.pinch=null;if(!CR.ptrs.size)v.classList.remove("drag");};
+  v.addEventListener("pointerup",up);v.addEventListener("pointercancel",up);
+  v.addEventListener("wheel",e=>{if(!CR.img)return;e.preventDefault();const p=pos(e);crZoom(CR.z*Math.exp(-e.deltaY*0.0015),p[0],p[1]);},{passive:false});
+  v.tabIndex=0;
+  v.addEventListener("keydown",e=>{const m={ArrowLeft:[8,0],ArrowRight:[-8,0],ArrowUp:[0,8],ArrowDown:[0,-8]}[e.key];
+    if(m){e.preventDefault();CR.x+=m[0];CR.y+=m[1];crClamp();crDraw();}else if(e.key==="+"||e.key==="=")crZoom(CR.z*1.1);else if(e.key==="-")crZoom(CR.z/1.1);});
+  $("cropZoom").oninput=e=>crZoom(Number(e.target.value));
+  $("cropIn").onclick=()=>crZoom(CR.z*1.2);$("cropOut").onclick=()=>crZoom(CR.z/1.2);
+  $("cropRot").onclick=()=>{CR.rot=(CR.rot+90)%360;[CR.x,CR.y]=[-CR.y,CR.x];crClamp();crDraw();};
+  $("cropCancel").onclick=crClose;
+  $("crop").addEventListener("keydown",e=>{if(e.key==="Escape")crClose();});
+  $("crop").addEventListener("click",e=>{if(e.target.id==="crop")crClose();});
+  window.addEventListener("resize",()=>{if(!$("crop").hidden&&CR.img){const nv=$("cropView").clientWidth;if(nv&&nv!==CR.V){CR.x*=nv/CR.V;CR.y*=nv/CR.V;CR.V=nv;crClamp();crDraw();}}});
+})();
+$("cropSave").onclick=async()=>{
+  if(!CR.img)return;const btn=$("cropSave"),ava=$("ava");btn.disabled=true;ava.classList.add("busy");
+  try{
+    const S=320,c=document.createElement("canvas");c.width=c.height=S;crPaint(c.getContext("2d"),S);
+    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.88));
     const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error("auth");
     const r=await fetch("/api/avatar",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"image/jpeg"},body:blob});
     const j=await r.json().catch(()=>({}));if(!r.ok||!j.url)throw new Error(j.error||r.status);
+    crClose();
     await upd({data:{ic_avatar:j.url}},t("avaSaved"));
-  }catch(err){msg(t("avaFail"));}
-  finally{ava.classList.remove("busy");}
+  }catch(err){crClose();msg(t("avaFail"));}
+  finally{btn.disabled=false;ava.classList.remove("busy");}
 };
 $("avaDel").onclick=async()=>{
   msg("");
@@ -758,7 +901,7 @@ function renderAccPlaces(u){
   if(Array.isArray(m.places)&&at>mine){accPlaces=m.places;try{localStorage.setItem("ic_places",JSON.stringify(accPlaces));localStorage.setItem("ic_placesAt",String(at))}catch(e){}}
   else{accPlaces=loc;if(loc.length&&mine>at)savePlacesCloud(mine);}
   const box=$("accPlaces");
-  if(!accPlaces.length){box.innerHTML=`<p class="empty">${esc(t("plNone"))}</p><div class="item"><a class="edit" href="/map" style="text-decoration:none">${esc(t("plAdd"))} →</a></div>`;return;}
+  if(!accPlaces.length){box.innerHTML=`<p class="empty">${esc(t("plNone"))}</p><div class="item"><a class="edit" href="/map?do=sethome" style="text-decoration:none">${esc(t("plAdd"))} →</a></div>`;return;}
   box.innerHTML=accPlaces.map((p,i)=>{
     const ty=PL_SVG[p.type]?p.type:"place";
     const title=p.type==="route"?`${(p.from&&p.from.name)||""} → ${p.name||""}`:(p.type==="home"&&!p.custom?t("plHome"):p.type==="work"&&!p.custom?t("plWork"):(p.name||t("plPlace")));

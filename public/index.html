@@ -1540,6 +1540,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
       <button class="btn-ghost btn-sm" onclick="closeModal('sosModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <p class="small muted" data-i18n="sosHelp">Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.</p>
+    <div id="sosMine"></div>
     <div class="banner" id="sosCoords" data-i18n="sosNoCoords">Координаты ещё не определены.</div>
     <button class="btn-primary" style="width:100%" onclick="sosLocate()" data-i18n="sosLocate">Определить моё местоположение</button>
     <div class="row" style="margin-top:10px">
@@ -1747,7 +1748,7 @@ ru:{
  repPhoto:"Фото", repComment:"Комментарий", repCommentPh:"Например: съезд перекрыт автомобилем",
  repPlace:"Метка на карте", repPick:"Выбрать точку", repSend:"Отправить",
  sosTitle:"Экстренная помощь", sosHelp:"Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.",
- sosNoCoords:"Координаты ещё не определены.", sosLocate:"Определить моё местоположение", sosShare:"Отправить близким", sosCopy:"Скопировать текст",
+ sosNoCoords:"Координаты ещё не определены.", sosLocate:"Определить моё местоположение", sosShare:"Отправить близким", sosAddContact:"＋ Добавить близкого человека для SOS (в профиле)",sosCall:"Позвонить: {n}",sosSms:"SMS {n}",sosNeedHelp:"Мне нужна помощь.",sosCopy:"Скопировать текст",
  sosNumbers:"Экстренные службы Казахстана", sosUnified:"единый номер", sosAmbulance:"скорая помощь",
  cmpTitle:"Обращение в акимат", cmpHelp:"Готовый текст со ссылкой на координаты. Скопируйте и отправьте через портал eOtinish.",
  cmpText:"Текст обращения", cmpCopy:"Скопировать", cmpOpen:"Открыть eOtinish",
@@ -1835,7 +1836,7 @@ kk:{
  repPhoto:"Фотосурет", repComment:"Түсініктеме", repCommentPh:"Мысалы: пандусты көлік бөгеп тұр",
  repPlace:"Картадағы белгі", repPick:"Нүкте таңдау", repSend:"Жіберу",
  sosTitle:"Шұғыл көмек", sosHelp:"Координаттарыңызды анықтап, хабарлама дайындаймыз — кімге жіберуді өзіңіз шешесіз.",
- sosNoCoords:"Координаттар әлі анықталмаған.", sosLocate:"Орналасқан жерімді анықтау", sosShare:"Жақындарыма жіберу", sosCopy:"Мәтінді көшіру",
+ sosNoCoords:"Координаттар әлі анықталмаған.", sosLocate:"Орналасқан жерімді анықтау", sosShare:"Жақындарыма жіберу", sosAddContact:"＋ SOS үшін жақын адамды қосу (профильде)",sosCall:"Қоңырау: {n}",sosSms:"SMS {n}",sosNeedHelp:"Маған көмек керек.",sosCopy:"Мәтінді көшіру",
  sosNumbers:"Қазақстанның шұғыл қызметтері", sosUnified:"бірыңғай нөмір", sosAmbulance:"жедел жәрдем",
  cmpTitle:"Әкімдікке өтініш", cmpHelp:"Координаттар сілтемесі қоса берілген дайын мәтін. Көшіріп, eOtinish порталы арқылы жіберіңіз.",
  cmpText:"Өтініш мәтіні", cmpCopy:"Көшіру", cmpOpen:"eOtinish порталын ашу",
@@ -1924,7 +1925,7 @@ en:{
  repPhoto:"Photo", repComment:"Comment", repCommentPh:"For example: the ramp is blocked by a car",
  repPlace:"Marker on the map", repPick:"Pick a point", repSend:"Send",
  sosTitle:"Emergency help", sosHelp:"We'll find your coordinates and prepare a message — you choose who to send it to.",
- sosNoCoords:"Coordinates not determined yet.", sosLocate:"Find my location", sosShare:"Send to my contacts", sosCopy:"Copy the text",
+ sosNoCoords:"Coordinates not determined yet.", sosLocate:"Find my location", sosShare:"Send to my contacts", sosAddContact:"+ Add an SOS contact (in your profile)",sosCall:"Call {n}",sosSms:"Text {n}",sosNeedHelp:"I need help.",sosCopy:"Copy the text",
  sosNumbers:"Emergency services in Kazakhstan", sosUnified:"single emergency number", sosAmbulance:"ambulance",
  cmpTitle:"Complaint to the city administration", cmpHelp:"A ready-made text with a link to the coordinates. Copy it and submit through the eOtinish portal.",
  cmpText:"Text of the complaint", cmpCopy:"Copy", cmpOpen:"Open eOtinish",
@@ -4117,6 +4118,8 @@ function runShortcut(){
   else if(q==="help") openHelp();
   else if(q==="report") openReport();
   else if(q==="reports") openMyReports();
+  else if(q==="sethome"||q==="setwork") openPlaceSet(q==="sethome"?"home":"work");
+  else if(q==="sos") openModal("sosModal");
 }
 
 /* ============ Стиль «Мягкий»: приветствие и «Мои места» в плашке ============ */
@@ -5628,6 +5631,27 @@ async function sosShare(){
   if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){} }
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank","noopener");
 }
+/* Близкий человек для SOS (задаётся в профиле /account): позвонить и SMS с координатами в одно касание */
+function sosContact(){
+  try{ const l=JSON.parse(read("sosContact","null")); if(l&&l.phone) return l; }catch(e){}
+  const s=sbSession(); const m=s&&s.v.user&&s.v.user.user_metadata; return m&&m.ic_sos&&m.ic_sos.phone ? m.ic_sos : null;
+}
+function renderSosMine(){
+  const box=document.getElementById("sosMine"); if(!box) return; const c=sosContact();
+  if(!c){ box.innerHTML=`<p class="small" style="margin:0 0 10px"><a href="/account">${esc(t("sosAddContact"))}</a></p>`; return; }
+  const ph=kzPhone(c.phone);
+  box.innerHTML=`<div class="row" style="margin:0 0 10px">
+    <a class="btn-primary grow" style="text-align:center;text-decoration:none" href="tel:${esc(ph.tel)}">${svgI("phone")} ${esc(tf("sosCall",{n:c.name||ph.label}))}</a>
+    <button type="button" class="btn-ghost grow" onclick="sosSms()">${esc(tf("sosSms",{n:c.name||""}).trim())}</button></div>`;
+  if(!sosLatLng) sosLocate();
+}
+function sosSms(){
+  const c=sosContact(); if(!c) return;
+  const go=()=>{ const body=sosText()||t("sosNeedHelp"); location.href=`sms:${kzPhone(c.phone).tel}${/iPhone|iPad|Mac/.test(navigator.userAgent)?"&":"?"}body=${encodeURIComponent(body)}`; };
+  if(sosLatLng) return go();
+  if(!navigator.geolocation) return go();
+  navigator.geolocation.getCurrentPosition(p=>{ sosLatLng=[p.coords.latitude,p.coords.longitude]; go(); }, go, {enableHighAccuracy:true, timeout:6000});
+}
 async function sosCopy(){
   if(!sosLatLng){ sosLocate(); return; }
   try{ await navigator.clipboard.writeText(sosText()); toast(t("copied")); }catch(e){ toast(t("sendFail")); }
@@ -5656,6 +5680,7 @@ function openModal(id){
   lastFocus=document.activeElement;
   const m=document.getElementById(id); m.classList.add("open");
   if(id==="settingsModal"){ m.querySelectorAll("details.set-sec").forEach(d=>d.open=false); updateSetVals(); }
+  if(id==="sosModal") renderSosMine();
   const f=m.querySelector("button,select,input,textarea"); if(f) f.focus();
   const hd=m.querySelector("h2,h3"); announce(t("hOpened")+": "+(hd?hd.innerText:""));
 }

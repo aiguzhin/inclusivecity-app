@@ -64,6 +64,9 @@
 - Профиль `/account` (`login.html`): фото (обрезка 320×320 → `POST /api/avatar`, `profile.js` проверяет токен Supabase, файл в `data/avatars` + KV `avatar:<id>`),
   имя/почта/телефон (смена номера — SMS-код `phone_change`)/пароль, профиль передвижения, «Мои места», переключатель уведомлений.
   Свои имя и фото — в `user_metadata.ic_name`/`ic_avatar` (Google при входе перезаписывает `full_name`/`avatar_url`); `ic_avatar:""` — фото убрано.
+- `/login` и `/account` — светлая/тёмная тема и крупный шрифт (кнопки в шапке, те же `ic_theme`/`ic_font`/`ic_contrast`, что в приложении);
+  фото перед загрузкой настраивается в окне `#crop` (сдвиг, масштаб, поворот); пароль, заданный Google-пользователем, помечается `ic_has_pw`;
+  без SMS в Supabase номер сохраняется без кода в `ic_phone`; близкий человек для SOS — `ic_sos` + `ic_sosContact` → в окне SOS кнопки «Позвонить»/«SMS» (`renderSosMine`).
 - Мои места синхронизируются с аккаунтом: `user_metadata.places` + `places_at`, побеждает более свежая копия (`cloudSavePlaces`/`cloudLoadPlaces`, `ic_placesAt`).
 - Push-уведомления (`push.js`, без зависимостей: VAPID ES256 + aes128gcm): ключи VAPID — из `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` или создаются и хранятся в KV `vapid`;
   подписки (`/api/push/subscribe`, только адреса push-сервисов браузеров) следят за своими жалобами и просьбой о помощи — `pushSync` в `index.html`;
