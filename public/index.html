@@ -643,6 +643,22 @@ html[data-theme="dark"] .sk-send{color:#04121f}
 /* 3D включается жестом (два пальца вверх / правая кнопка мыши), отдельные кнопки 3D не нужны */
 .map-btn.map-3d,#quick3d{display:none!important}
 html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summary,html[data-hints="on"] label{touch-action:manipulation}
+.places-bar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:10px 0 2px;padding:2px 0}
+.places-bar::-webkit-scrollbar{display:none}
+.pl-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.86rem;cursor:pointer;max-width:220px}
+.pl-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-chip.empty{border-style:dashed;color:var(--ink-soft)}
+.pl-chip .ic{width:18px;height:18px;flex:none}
+.pl-chip.home .ic{color:#1769c2}.pl-chip.work .ic{color:#8a4fd3}.pl-chip.place .ic{color:#d99a00}.pl-chip.route .ic{color:#0e7a4f}
+.pl-panel{border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0;background:var(--paper)}
+.pl-panel h3{font-size:1rem;margin:0 0 8px}
+.pl-types{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.pl-types button{min-height:40px;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.86rem;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.pl-types button[aria-pressed="true"]{border-color:#1769c2;box-shadow:0 0 0 2px rgba(23,105,194,.25)}
+.pl-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.pl-list li{display:flex;align-items:center;gap:8px;font-size:.88rem}
+.pl-list li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-list li button{min-width:40px;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer}
 .prof-chip{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;text-align:left;cursor:pointer}
 .prof-chip .ic{width:22px;height:22px;flex:none;color:var(--blue)}
 #profChipIco{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue-weak);flex:none}
@@ -974,6 +990,8 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
       </div>
       <button class="btn-ghost icon-btn" onclick="voiceInput('destination')" data-i18n-aria="listening" aria-label="Голосовой ввод"><i data-ic="mic"></i></button>
     </div>
+    <div class="places-bar" id="placesBar" role="group" data-i18n-aria="plTitle" aria-label="Мои места"></div>
+    <div class="pl-panel" id="plPanel" hidden></div>
 
     <div class="mode-tabs" id="modeTabs" role="radiogroup" data-i18n-aria="modeLabel" aria-label="Способ передвижения">
       <button type="button" role="radio" data-mode="walk" aria-checked="true" onclick="setMode('walk')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/></svg><span data-i18n="modeWalk">Пешком</span></button>
@@ -1349,6 +1367,11 @@ const ICONS={
   cloud:'<path d="M7 18.5h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 11.5a3.5 3.5 0 0 0 1 7z"/>',
   sunCloud:'<path d="M10 2.5v1.5M4.3 4.8l1 1M2.5 10.5H4M15.7 4.8l-1 1"/><path d="M6.5 11a3.5 3.5 0 0 1 6.8-1.2"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.4 1.5A2.8 2.8 0 0 0 9 20z"/>',
   rain:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="m8.5 21 1.2-3M12.5 21l1.2-3M16.5 21l1.2-3"/>',
+  home:'<path d="M4 11.5 12 5l8 6.5M6.5 10v9.5h11V10"/><path d="M10 19.5v-5h4v5"/>',
+  work:'<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5h6v2M3.5 12.5h17"/>',
+  star:'<path d="m12 4 2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
+  routeI:'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
   snow:'<path d="M7 15h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 8a3.5 3.5 0 0 0 1 7z"/><path d="M8.5 18.5h.01M12 20.5h.01M15.5 18.5h.01M10 22h.01M14 22h.01"/>',
   fog:'<path d="M4 8.5h16M3 12.5h18M5 16.5h14M8 20.5h8"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
@@ -1393,6 +1416,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
+ plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
@@ -1480,6 +1504,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
+ plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
@@ -1568,6 +1593,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
+ plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
@@ -2578,6 +2604,7 @@ function openProfileSettings(){
 }
 function locale(){ return S.lang==="kk" ? "kk-KZ" : S.lang==="en" ? "en-US" : "ru-RU"; }
 function renderTexts(){
+  try{ renderPlaces(); }catch(e){}
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const k=el.getAttribute("data-i18n");
     const val=t(k);
@@ -3290,7 +3317,7 @@ function attachAutocomplete(inputId){
   };
   const choose=i=>{
     const it=items[i]; if(!it) return;
-    input.value=it.title; SELECTED[inputId]={text:it.title, ll:it.ll};
+    input.value=it.title; SELECTED[inputId]={text:it.title, ll:it.ll}; store("f_"+inputId, JSON.stringify({name:it.title, ll:it.ll}));
     close();
   };
   const query=async()=>{
@@ -3332,6 +3359,70 @@ function fieldCoords(inputId){
   const val=document.getElementById(inputId).value.trim();
   return (sel && sel.text===val) ? sel.ll : null;
 }
+
+/* ============ Мои места: дом, работа, любимые места и маршруты ============ */
+let PLACES=[]; try{ PLACES=JSON.parse(read("places","[]"))||[]; }catch(e){ PLACES=[]; }
+let plType="place";
+const savePlaces=()=>store("places",JSON.stringify(PLACES));
+const PL_ICON={home:"home",work:"work",place:"star",route:"routeI"};
+function plLabel(p){ return p.type==="route" ? `${p.from.name} → ${p.name}` : (p.type==="home"&&!p.custom?t("plHome"):p.type==="work"&&!p.custom?t("plWork"):p.name); }
+function renderPlaces(){
+  const bar=document.getElementById("placesBar"); if(!bar) return;
+  const home=PLACES.find(p=>p.type==="home"), work=PLACES.find(p=>p.type==="work");
+  const chip=(cls,ic,label,on,extra)=>`<button type="button" class="pl-chip ${cls}" ${extra||""} onclick="${on}">${svgI(ic)}<span>${esc(label)}</span></button>`;
+  let h=chip("home"+(home?"":" empty"),"home",t("plHome"),home?`goPlace('${home.id}')`:`plAsk('home')`);
+  h+=chip("work"+(work?"":" empty"),"work",t("plWork"),work?`goPlace('${work.id}')`:`plAsk('work')`);
+  PLACES.filter(p=>p.type==="place"||p.type==="route").slice(0,12).forEach(p=>{ h+=chip(p.type,PL_ICON[p.type],plLabel(p),`goPlace('${p.id}')`); });
+  h+=chip("empty","plus",t("plAdd"),"openPlPanel()");
+  if(PLACES.length) h+=chip("empty","gear",t("plEdit"),"openPlPanel(true)");
+  bar.innerHTML=h;
+}
+function plAsk(type){ plType=type; openPlPanel(); }
+async function plCoords(id){
+  const v=document.getElementById(id).value.trim(); if(!v) return null;
+  const sel=fieldCoords(id); if(sel) return {name:v, ll:sel};
+  if(id==="start" && userLatLng && (v===t("myLocation")||v===t("mapPoint"))) return {name:v, ll:userLatLng};
+  try{ const ll=await findPlace(v); return ll?{name:v, ll}:null; }catch(e){ return null; }
+}
+function openPlPanel(editOnly){
+  const pn=document.getElementById("plPanel"); if(!pn) return;
+  if(!pn.hidden && pn.dataset.mode===(editOnly?"edit":"save")){ pn.hidden=true; return; }
+  pn.dataset.mode=editOnly?"edit":"save"; pn.hidden=false;
+  const ds=document.getElementById("destination").value.trim();
+  const types=["home","work","place","route"].map(k=>`<button type="button" aria-pressed="${k===plType}" onclick="plType='${k}';openPlPanel();openPlPanel()">${svgI(PL_ICON[k])} ${esc(t("pl"+k[0].toUpperCase()+k.slice(1)))}</button>`).join("");
+  const list=PLACES.length ? `<ul class="pl-list">${PLACES.map(p=>`<li>${svgI(PL_ICON[p.type])}<span>${esc(plLabel(p))}</span><button type="button" onclick="delPlace('${p.id}')" aria-label="${esc(t("plDel"))}: ${esc(plLabel(p))}">✕</button></li>`).join("")}</ul>` : `<p class="small muted">${esc(t("plEmpty"))}</p>`;
+  pn.innerHTML = editOnly ? `<h3>${esc(t("plTitle"))}</h3>${list}<div class="row" style="margin-top:10px"><button class="btn-ghost grow" onclick="document.getElementById('plPanel').hidden=true">${esc(t("plCancel"))}</button></div>`
+   : `<h3>${esc(t("plSaveTitle"))}</h3><div class="pl-types" role="group">${types}</div>
+      <p class="small muted" style="margin:0 0 8px">${esc(t(plType==="route"?"plSaveRouteHelp":"plSaveHelp"))}</p>
+      <label class="field" for="plName">${esc(t("plName"))}</label>
+      <input type="text" id="plName" value="${esc(plType==="home"?t("plHome"):plType==="work"?t("plWork"):ds)}" maxlength="60">
+      <div class="row" style="margin-top:10px"><button class="btn-primary grow" onclick="savePlace()">${esc(t("plSaveBtn"))}</button><button class="btn-ghost" onclick="document.getElementById('plPanel').hidden=true">${esc(t("plCancel"))}</button></div>`;
+}
+async function savePlace(){
+  const name=(document.getElementById("plName").value||"").trim();
+  if(!document.getElementById("destination").value.trim()){ toast(t("plNeedDest")); return; }
+  const to=await plCoords("destination"); if(!to){ toast(t("plNotFound")); return; }
+  const it={id:Date.now().toString(36), type:plType, name:name||to.name, ll:to.ll, addr:to.name, custom:!!name && name!==t("plHome") && name!==t("plWork")};
+  if(plType==="route"){ const fr=await plCoords("start"); if(!fr){ toast(t("plNotFound")); return; } it.from=fr; it.mode=S.mode; it.name=name||to.name; }
+  if(plType==="home"||plType==="work") PLACES=PLACES.filter(p=>p.type!==plType);
+  PLACES.unshift(it); savePlaces(); renderPlaces();
+  document.getElementById("plPanel").hidden=true; toast(t("plSaved")); plType="place";
+}
+function delPlace(id){ PLACES=PLACES.filter(p=>p.id!==id); savePlaces(); renderPlaces(); const pn=document.getElementById("plPanel"); pn.hidden=true; if(PLACES.length) openPlPanel(true); }
+function setFieldPlace(id,name,ll){ const el=document.getElementById(id); el.value=name; SELECTED[id]={text:name, ll}; store("f_"+id, JSON.stringify({name,ll})); }
+function goPlace(id){
+  const p=PLACES.find(x=>x.id===id); if(!p) return;
+  if(p.type==="route"){ setFieldPlace("start",p.from.name,p.from.ll); if(p.mode && p.mode!==S.mode){ S.mode=p.mode; store("mode",p.mode); markMode(); } }
+  setFieldPlace("destination", p.type==="route"?p.name:(p.addr||p.name), p.ll);
+  if(!fieldCoords("start") && !userLatLng && !document.getElementById("start").value.trim()){
+    toast(t("plNeedStart")); document.getElementById("start").focus(); return; }
+  buildRoute();
+}
+// последние «Откуда/Куда» — остаются при следующем входе
+function restoreFields(){
+  ["start","destination"].forEach(id=>{ try{ const v=JSON.parse(read("f_"+id,"null")); if(v&&v.name&&Array.isArray(v.ll)&&inCity(v.ll)) setFieldPlace(id,v.name,v.ll); }catch(e){} });
+}
+document.addEventListener("change",e=>{ const id=e.target&&e.target.id; if(id==="start"||id==="destination"){ const ll=fieldCoords(id); if(ll) store("f_"+id, JSON.stringify({name:e.target.value.trim(), ll})); } });
 
 /* ============ Геокодирование ============ */
 function presetFor(v){
@@ -3433,7 +3524,7 @@ async function buildRoute(){
 
     if(sheetMode() && S.view==="map") closeSheet();
     if(S.voice==="on") speakRoute();
-  }catch(e){
+  }catch(e){ console.warn("route failed:", e);
     card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
     updatePeek();
   }
@@ -5255,6 +5346,7 @@ function globeToMap(cityKey){
       if(a) a.value=""; if(b) b.value="";
     }
   });
+  step("places", ()=>{ restoreFields(); renderPlaces(); });
   step("geo", ()=>autoLocate(false));
   step("weather", ()=>{ loadWeather(); });
   step("compass", ()=>{ startCompass(); applyHeading(); });
