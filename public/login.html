@@ -364,21 +364,21 @@ Object.assign(T.ru,{avaChange:"Сменить фото",avaDel:"Убрать ф�
  pushNo:"Этот браузер не умеет присылать уведомления. На iPhone — добавьте ICity на экран «Домой».",pushDenied:"Уведомления запрещены в настройках браузера",pushOn:"Уведомления включены",pushOff:"Уведомления выключены",
  secSafe:"Безопасность",password:"Пароль",pwNone:"не задан",setPw:"Задать",nameSaved:"Имя сохранено",emailSent:"Письмо отправлено на {e}. Откройте его, чтобы подтвердить новый адрес.",
  phoneSaved:"Номер обновлён",avaSaved:"Фото обновлено",avaRemoved:"Фото убрано",avaFail:"Не получилось загрузить фото. Попробуйте другую картинку.",
- plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",plAdd:"Добавить на карте"});
+ plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
 Object.assign(T.kk,{avaChange:"Суретті ауыстыру",avaDel:"Суретті алып тастау",secMe:"Жеке деректер",change:"Өзгерту",add:"Қосу",cancel:"Болдырмау",save:"Сақтау",
  emailHint:"Сілтемесі бар хат келеді — растағаннан кейін пошта ауысады.",phoneHint2:"Жаңа нөмірге SMS-код жібереміз.",getCode2:"Код алу",
  secPlaces:"Менің орындарым",secNotify:"Хабарламалар",pushTitle:"Шағымдарым мен волонтёрлар туралы хабарлау",pushSub:"Қосымша жабық болса да келеді",
  pushNo:"Бұл браузер хабарлама жібере алмайды. iPhone-да ICity-ді «Үй» экранына қосыңыз.",pushDenied:"Хабарламаларға браузер баптауында тыйым салынған",pushOn:"Хабарламалар қосулы",pushOff:"Хабарламалар өшірулі",
  secSafe:"Қауіпсіздік",password:"Құпиясөз",pwNone:"орнатылмаған",setPw:"Орнату",nameSaved:"Аты сақталды",emailSent:"Хат {e} мекенжайына жіберілді. Жаңа поштаны растау үшін оны ашыңыз.",
  phoneSaved:"Нөмір жаңартылды",avaSaved:"Сурет жаңартылды",avaRemoved:"Сурет алынды",avaFail:"Суретті жүктеу мүмкін болмады. Басқа сурет таңдап көріңіз.",
- plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",plAdd:"Картадан қосу"});
+ plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
 Object.assign(T.en,{avaChange:"Change photo",avaDel:"Remove photo",secMe:"Personal details",change:"Change",add:"Add",cancel:"Cancel",save:"Save",
  emailHint:"We'll email you a link — the address changes once you confirm it.",phoneHint2:"We'll text a code to the new number.",getCode2:"Get code",
  secPlaces:"My places",secNotify:"Notifications",pushTitle:"Tell me about my reports and volunteers",pushSub:"Arrives even when the app is closed",
  pushNo:"This browser can't show notifications. On iPhone, add ICity to your Home Screen first.",pushDenied:"Notifications are blocked in your browser settings",pushOn:"Notifications are on",pushOff:"Notifications are off",
  secSafe:"Security",password:"Password",pwNone:"not set",setPw:"Set",nameSaved:"Name saved",emailSent:"We sent an email to {e}. Open it to confirm the new address.",
  phoneSaved:"Number updated",avaSaved:"Photo updated",avaRemoved:"Photo removed",avaFail:"Couldn't upload the photo. Try another picture.",
- plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",plAdd:"Add on the map"});
+ plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
 const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
@@ -392,6 +392,7 @@ document.addEventListener("change",async e=>{
 let mode=location.hash==="#signup"?"signup":"login";
 let method="phone";          // способ регистрации: phone | email
 let currentUser=null;
+let phoneOff=false;          // SMS в Supabase не подключены — номер сохраняем без кода
 let otp={phone:"",purpose:""}; // purpose: signup | recovery
 let hold=false;              // не уводить на профиль, пока идёт восстановление пароля
 
@@ -421,6 +422,7 @@ function applyTexts(){
   document.querySelectorAll("[data-ta]").forEach(el=>el.setAttribute("aria-label",t(el.getAttribute("data-ta"))));
   setMode(mode,true);setMethod(method,true);
   if(currentUser)fillAccount(currentUser);
+  if(phoneOff)phoneOffUi();
 }
 $("lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("ic_lang",lang)}catch(_){}applyTexts()};
 function show(view){["auth","otp","check","forgot","reset","account","off"].forEach(v=>$("v-"+v).hidden=v!==view);document.body.classList.toggle("acc",view==="account");}
@@ -494,9 +496,10 @@ function fillAccount(u){
   const name=metaName(u);
   $("accName").textContent=name;$("vName").textContent=name;
   $("accSub").textContent=u.email||fmtPhone(u.phone)||"";
-  $("accPhone").textContent=u.phone?fmtPhone(u.phone):t("none");
+  const icPh=(u.user_metadata||{}).ic_phone;
+  $("accPhone").textContent=u.phone?fmtPhone(u.phone):icPh?fmtPhone(icPh)+" · "+t("phUnverified"):t("none");
   $("accEmail").textContent=u.email||t("none");
-  $("phoneEdit").textContent=t(u.phone?"change":"add");$("emailEdit").textContent=t(u.email?"change":"add");
+  $("phoneEdit").textContent=t(u.phone||icPh?"change":"add");$("emailEdit").textContent=t(u.email?"change":"add");
   const ava=$("ava");ava.innerHTML="";const pic=metaPic(u);
   if(pic){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.src=pic;im.onerror=()=>{ava.innerHTML="";ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase()};ava.appendChild(im);}
   else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
@@ -532,7 +535,7 @@ if(!cfg.url||!cfg.anonKey||!window.supabase||!window.supabase.createClient){
 const sb=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
 /* пока SMS не подключены, регистрируем по почте, а вкладка «По телефону» объясняет почему */
 fetch(cfg.url+"/auth/v1/settings",{headers:{apikey:cfg.anonKey}}).then(r=>r.json()).then(j=>{
-  if(j&&j.external&&j.external.phone===false){setMethod("email",true);$("mPhone").onclick=()=>msg(t("ePhoneOff"),"ok");}
+  if(j&&j.external&&j.external.phone===false){phoneOff=true;setMethod("email",true);$("mPhone").onclick=()=>msg(t("ePhoneOff"),"ok");phoneOffUi();}
 }).catch(()=>{});
 const params=new URLSearchParams(location.search);
 const wantReset=params.get("reset")==="1";
@@ -695,9 +698,10 @@ $("ePhone").addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,""
 $("phoneForm").addEventListener("submit",async e=>{
   e.preventDefault();const p=normPhone($("ePhone").value);
   if(!p)return bad("ePhone",t("ePhone"));
+  if(phoneOff){busy(e.target,true);try{await upd({data:{ic_phone:p}},t("phSavedNoSms"));try{localStorage.setItem("ic_myPhone",fmtPhone(p))}catch(_){}}catch(err){msg(errText(err));}finally{busy(e.target,false);}return;}
   busy(e.target,true);hold=true;
   try{const {error}=await sb.auth.updateUser({phone:p});if(error)throw error;closeForms();openOtp(p,"phone_change");}
-  catch(err){hold=false;msg(errText(err));}
+  catch(err){hold=false;if(errText(err)===t("ePhoneOff")){phoneOff=true;phoneOffUi();msg(t("phHintNoSms"),"ok");}else msg(errText(err));}
   finally{busy(e.target,false);}
 });
 $("pwForm").addEventListener("submit",async e=>{
@@ -708,6 +712,11 @@ $("pwForm").addEventListener("submit",async e=>{
   finally{busy(e.target,false);}
 });
 
+function phoneOffUi(){
+  const f=$("phoneForm");if(!f)return;
+  f.querySelector(".hint").textContent=t("phHintNoSms");f.querySelector(".submit").textContent=t("save");
+  f.querySelector(".hint").removeAttribute("data-t");f.querySelector(".submit").removeAttribute("data-t");
+}
 /* фото: обрезаем по центру до 320×320 и отправляем на сервер */
 $("ava").onclick=$("avaPick").onclick=()=>$("avaFile").click();
 $("avaFile").onchange=async e=>{
