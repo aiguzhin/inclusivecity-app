@@ -1098,13 +1098,6 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
       </div>
       <div id="pcBody"></div>
     </section>
-    <!-- История снимков: как менялось место (архив Esri Wayback), как в Google Earth -->
-    <div class="wb-panel" id="wbPanel" hidden role="region" data-i18n-aria="wbTitle" aria-label="История снимков">
-      <div class="wb-head"><b data-i18n="wbTitle">История снимков</b>
-        <button type="button" class="wb-x" onclick="toggleWayback(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
-      <div class="wb-list" id="wbList"></div>
-      <p class="wb-note" data-i18n="wbNote">Даты, когда снимок этого места обновлялся. Архив Esri Wayback.</p>
-    </div>
     <div class="wx" id="wx">
       <button type="button" class="wx-pill" id="wxPill" aria-expanded="false" aria-controls="wxPop"
               onclick="toggleWx()" data-i18n-aria="weatherTitle" aria-label="Погода">
@@ -1115,7 +1108,6 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
     </div>
 
     <div class="map-stack">
-      <button type="button" class="map-btn map-wb" id="wbBtn" onclick="toggleWayback()" hidden data-i18n-aria="wbTitle" aria-label="История снимков" aria-expanded="false"><i data-ic="clock"></i></button>
       <button type="button" class="map-btn map-3d" onclick="toggle3D()" data-i18n-aria="view3dTitle" aria-label="3D-вид">3D</button>
       <button type="button" class="map-btn" id="compassBtn" onclick="compassTap()"
               data-i18n-aria="compass" aria-label="Компас">
@@ -2051,6 +2043,7 @@ function updateImgInfo(){
 const WB_CONFIG="https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json";
 const WB_TILE="https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/{rel}/{z}/{y}/{x}";
 const WB_MAP="https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tilemap/";
+// История снимков убрана из интерфейса (архив часто отдавал пустые плитки) — waybackRel всегда null
 let waybackRel=null, wbReleases=null, wbSeq=0, wbTimer=null;
 async function wbLoadReleases(){
   if(wbReleases) return wbReleases;
@@ -2094,7 +2087,7 @@ async function refreshWayback(){
   }catch(e){ if(seq===wbSeq) box.innerHTML=`<span class="wb-note">${esc(t("wbFail"))}</span>`; }
 }
 function toggleWayback(open){
-  const p=document.getElementById("wbPanel"), b=document.getElementById("wbBtn"); if(!p) return;
+  const p=document.getElementById("wbPanel"), b=document.getElementById("wbBtn"); if(!p) return;   // панели больше нет
   if(open===undefined) open=p.hidden;
   p.hidden=!open; if(b) b.setAttribute("aria-expanded", String(open));
   if(open){ document.getElementById("wbList").innerHTML=""; refreshWayback(); }
