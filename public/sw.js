@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v56";
+const CACHE = "ic-v57";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
@@ -106,11 +106,23 @@ self.addEventListener("fetch", e => {
   // 5. Всё остальное (сторонние API) — пропускаем как есть, без подмен
 });
 
-// Нажали на уведомление (волонтёр откликнулся, жалобу исправили) — открываем приложение
+// Push с сервера: статус жалобы изменился, волонтёр откликнулся — приходит, даже когда приложение закрыто
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || "ICity", {
+    body: d.body || "", icon: "/icon.svg", badge: "/icon.svg", tag: d.tag || "icity", renotify: true,
+    vibrate: [200, 100, 200], data: { url: d.url || "/map" }
+  }));
+});
+
+// Нажали на уведомление — открываем нужный раздел приложения
 self.addEventListener("notificationclick", e => {
   e.notification.close();
+  const target = (e.notification.data && e.notification.data.url) || "/map";
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
     const w = list.find(c => new URL(c.url).pathname.startsWith("/map"));
-    return w ? w.focus() : self.clients.openWindow("/map");
+    if (w) { if (target !== "/map" && "navigate" in w) return w.navigate(target).then(c => c && c.focus()); return w.focus(); }
+    return self.clients.openWindow(target);
   }));
 });

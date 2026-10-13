@@ -271,8 +271,10 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/place-info' && req.method === 'GET') return await placeinfo.handleInfo(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/place-photo' && req.method === 'GET') return await placeinfo.handlePhoto(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/health' && req.method === 'GET') {
-    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk' });
+    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready() });
   }
+  if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/reviews') || pathname.startsWith('/api/help')) {
     const done = await social.handle(req, res, pathname, new URL(req.url, 'http://x'));
     if (done !== null) return;
@@ -436,6 +438,11 @@ async function handleApi(req, res, pathname) {
     r.updatedAt = new Date().toISOString();
     if (action === 'fixed') r.fixedAt = r.updatedAt;
     writeReports(list);
+    // Уведомление автору жалобы — даже если приложение закрыто
+    const PUSH_ST = { approved: ['опубликована на карте', 'картада жарияланды', 'is now on the map'], rejected: ['отклонена модератором', 'модератор қабылдамады', 'was declined'],
+      in_progress: ['взята в работу', 'жұмысқа алынды', 'is being fixed'], fixed: ['— барьер устранён!', '— кедергі жойылды!', '— the barrier is fixed!'] };
+    const TTL = ['Ваша жалоба', 'Сіздің шағымыңыз', 'Your report'];
+    push.notify('report', r.id, (lang) => { const i = { ru: 0, kk: 1, en: 2 }[lang] || 0; return { title: 'ICity', body: `${TTL[i]} «${r.type}» ${PUSH_ST[r.status][i]}`, url: '/map?do=reports', tag: 'rep-' + r.id }; }).catch(() => {});
     return sendJson(res, 200, { ok: true });
   }
 
@@ -466,6 +473,8 @@ async function handleApi(req, res, pathname) {
 const assistant = require('./assistant');
 const placeinfo = require('./placeinfo');
 const social = require('./social');
+const push = require('./push');
+const profile = require('./profile');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
@@ -764,7 +773,9 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();
-  social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR }).catch((e) => console.warn('social:', e.message));
+  social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));
+  push.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR }).catch((e) => console.warn('push:', e.message));
+  profile.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR });
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (ADMIN_TOKEN === 'change-me-please') {

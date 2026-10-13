@@ -82,6 +82,42 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 .row-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .muted{color:var(--muted);font-size:14px}
 .forgot-row{display:flex;justify-content:flex-end;margin-top:-4px}
+.hero{position:relative;display:flex;align-items:center;gap:16px;margin:0 0 12px}
+.ava.big{width:84px;height:84px;font-size:32px;border:0;cursor:pointer;padding:0;box-shadow:0 0 0 3px var(--card),0 0 0 5px rgba(63,224,168,.5)}
+.ava.big.busy{opacity:.5}
+.cam{position:absolute;left:58px;top:58px;width:30px;height:30px;border-radius:50%;background:var(--fg);color:var(--ink);display:grid;place-items:center;pointer-events:none;box-shadow:0 0 0 3px var(--card)}
+.cam svg{width:16px;height:16px}
+.hero-txt{min-width:0}.hero-txt h1{margin:0 0 4px;word-break:break-word}.hero-txt span{color:var(--muted);font-size:14px;word-break:break-all}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.chip{font:600 13px var(--f-body);color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:99px;padding:8px 14px;min-height:36px;cursor:pointer}
+.chip:hover{border-color:var(--fg)}
+h2.sec{font:600 13px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 0 8px}
+.group{background:var(--field);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.group.pad{padding:14px}.group .mob{margin:0}
+.item{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:54px;font-size:15px}
+.item+.item,.inline+.item,.item+.inline{border-top:1px solid var(--line)}
+.item .k{color:var(--soft);flex:none}.item .v{flex:1;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .edit,.item .del{font:600 13px var(--f-body);color:var(--ok);background:none;border:0;cursor:pointer;padding:8px 4px;min-height:36px;flex:none}
+.item .del{color:var(--err)}
+.inline{padding:4px 14px 14px;gap:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.submit.sm,.ghost.sm{min-height:44px;font-size:14px;margin:0}
+.pl-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(63,224,168,.12);color:var(--ok);flex:none}
+.pl-ic svg{width:18px;height:18px}
+.pl-t{flex:1;min-width:0}.pl-t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-t small{color:var(--muted);font-size:12px}
+.empty{padding:14px;color:var(--muted);font-size:14px}
+.item.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:1px;padding:10px 14px}
+.item.kv .k{grid-column:1;font-size:12px;color:var(--muted)}.item.kv .v{grid-column:1;text-align:left;font-size:15px}
+.item.kv .edit{grid-column:2;grid-row:1/3;align-self:center}
+body.acc #msg{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:20;max-width:428px;margin:0 auto;pointer-events:none}
+body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background-color:rgba(13,21,32,.92);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.sw{cursor:pointer;position:relative}.sw .k2{flex:1;display:grid;gap:2px}.sw .k2 b{font-weight:600}.sw .k2 small{color:var(--muted);font-size:12px}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.sw i{width:48px;height:28px;border-radius:99px;background:rgba(160,200,220,.25);position:relative;flex:none;transition:background .2s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw input:checked+i{background:var(--ok)}.sw input:checked+i::after{transform:translateX(20px)}
+.sw input:focus-visible+i{outline:2px solid var(--ok);outline-offset:3px}
+.sw input:disabled+i{opacity:.4}
 </style>
 </head>
 <body>
@@ -207,19 +243,49 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 
     <!-- Профиль -->
     <section id="v-account" hidden>
-      <h1 data-t="accTitle">Твой профиль</h1>
-      <div class="who"><div class="ava" id="ava"></div><div><b id="accName"></b><span id="accSub"></span></div></div>
-      <dl>
-        <dt data-t="phone">Номер телефона</dt><dd id="accPhone"></dd>
-        <dt data-t="email">Почта</dt><dd id="accEmail"></dd>
-        <dt data-t="accVia">Способ входа</dt><dd id="accVia"></dd>
-        <dt data-t="accSince">С нами с</dt><dd id="accSince"></dd>
-      </dl>
-      <label class="mob" for="accMob"><span data-t="mobLabel">Профиль передвижения</span>
-        <select id="accMob"></select>
-        <small data-t="mobHelp">По нему карта подбирает маршрут: уклоны, ступени, бордюры. Сохраняется в аккаунте.</small>
-      </label>
-      <div class="actions">
+      <div class="hero">
+        <button type="button" class="ava big" id="ava" data-ta="avaChange" aria-label="Сменить фото"></button>
+        <span class="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+        <input type="file" id="avaFile" accept="image/*" hidden>
+        <div class="hero-txt"><h1 id="accName"></h1><span id="accSub"></span></div>
+      </div>
+      <div class="chips"><button type="button" class="chip" id="avaPick" data-t="avaChange">Сменить фото</button><button type="button" class="chip" id="avaDel" data-t="avaDel">Убрать фото</button></div>
+
+      <h2 class="sec" data-t="secMe">Личные данные</h2>
+      <div class="group">
+        <div class="item kv"><span class="k" data-t="name">Имя</span><span class="v" id="vName"></span><button type="button" class="edit" data-open="nameForm" data-t="change">Изменить</button></div>
+        <form class="inline" id="nameForm" hidden novalidate><input id="eName" maxlength="60" autocomplete="name" required><div class="two"><button type="button" class="ghost sm" data-close="nameForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
+        <div class="item kv"><span class="k" data-t="email">Почта</span><span class="v" id="accEmail"></span><button type="button" class="edit" data-open="emailForm" id="emailEdit" data-t="change">Изменить</button></div>
+        <form class="inline" id="emailForm" hidden novalidate><input id="eEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.kz" required><small class="hint" data-t="emailHint">Придёт письмо со ссылкой — адрес сменится после подтверждения.</small><div class="two"><button type="button" class="ghost sm" data-close="emailForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
+        <div class="item kv"><span class="k" data-t="phone">Номер телефона</span><span class="v" id="accPhone"></span><button type="button" class="edit" data-open="phoneForm" id="phoneEdit" data-t="change">Изменить</button></div>
+        <form class="inline" id="phoneForm" hidden novalidate><span class="phone"><span aria-hidden="true">+7</span><input id="ePhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="701 123 45 67" maxlength="13" required></span><small class="hint" data-t="phoneHint2">Пришлём SMS с кодом на новый номер.</small><div class="two"><button type="button" class="ghost sm" data-close="phoneForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="getCode2">Получить код</button></div></form>
+      </div>
+
+      <h2 class="sec" data-t="mobLabel">Профиль передвижения</h2>
+      <div class="group pad">
+        <label class="mob" for="accMob"><span class="sr" data-t="mobLabel">Профиль передвижения</span>
+          <select id="accMob"></select>
+          <small data-t="mobHelp">По нему карта подбирает маршрут: уклоны, ступени, бордюры. Сохраняется в аккаунте.</small>
+        </label>
+      </div>
+
+      <h2 class="sec" data-t="secPlaces">Мои места</h2>
+      <div class="group" id="accPlaces"></div>
+
+      <h2 class="sec" data-t="secNotify">Уведомления</h2>
+      <div class="group">
+        <label class="item sw"><span class="k2"><b data-t="pushTitle">Сообщать о моих жалобах и волонтёрах</b><small id="pushSub" data-t="pushSub">Придёт, даже когда приложение закрыто</small></span><input type="checkbox" id="pushToggle" role="switch"><i aria-hidden="true"></i></label>
+      </div>
+
+      <h2 class="sec" data-t="secSafe">Безопасность</h2>
+      <div class="group">
+        <div class="item kv"><span class="k" data-t="password">Пароль</span><span class="v" id="vPw">••••••••</span><button type="button" class="edit" data-open="pwForm" id="pwEdit" data-t="change">Изменить</button></div>
+        <form class="inline" id="pwForm" hidden novalidate><span class="pw"><input id="ePw" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="togglePw" data-for="ePw" data-t="show">Показать</button></span><small class="hint" data-t="pwHint">Не меньше 8 символов.</small><div class="two"><button type="button" class="ghost sm" data-close="pwForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
+        <div class="item kv"><span class="k" data-t="accVia">Способ входа</span><span class="v" id="accVia"></span></div>
+        <div class="item kv"><span class="k" data-t="accSince">С нами с</span><span class="v" id="accSince"></span></div>
+      </div>
+
+      <div class="actions" style="margin-top:22px">
         <a class="submit" href="/map" data-t="openMap">Открыть карту</a>
         <button type="button" class="ghost" id="logoutBtn" data-t="logout">Выйти</button>
       </div>
@@ -291,6 +357,28 @@ en:{titleLogin:"Sign in to ICity",titleSignup:"Join ICity",leadLogin:"Save your 
  eRate:"Too many attempts. Wait a couple of minutes and try again.",eNet:"Can't reach the sign-in server. Check your connection.",eGeneric:"Something went wrong. Try again.",eProvider:"Google sign-in isn't enabled yet.",
  soonMsg:"This sign-in option is coming later. For now use phone, email or Google.",sentReset:"If this email is registered, the link is on its way.",welcome:"Done, your account is ready."}
 };
+/* Тексты страницы профиля */
+Object.assign(T.ru,{avaChange:"Сменить фото",avaDel:"Убрать фото",secMe:"Личные данные",change:"Изменить",add:"Добавить",cancel:"Отмена",save:"Сохранить",
+ emailHint:"Придёт письмо со ссылкой — адрес сменится после подтверждения.",phoneHint2:"Пришлём SMS с кодом на новый номер.",getCode2:"Получить код",
+ secPlaces:"Мои места",secNotify:"Уведомления",pushTitle:"Сообщать о моих жалобах и волонтёрах",pushSub:"Придёт, даже когда приложение закрыто",
+ pushNo:"Этот браузер не умеет присылать уведомления. На iPhone — добавьте ICity на экран «Домой».",pushDenied:"Уведомления запрещены в настройках браузера",pushOn:"Уведомления включены",pushOff:"Уведомления выключены",
+ secSafe:"Безопасность",password:"Пароль",pwNone:"не задан",setPw:"Задать",nameSaved:"Имя сохранено",emailSent:"Письмо отправлено на {e}. Откройте его, чтобы подтвердить новый адрес.",
+ phoneSaved:"Номер обновлён",avaSaved:"Фото обновлено",avaRemoved:"Фото убрано",avaFail:"Не получилось загрузить фото. Попробуйте другую картинку.",
+ plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",plAdd:"Добавить на карте"});
+Object.assign(T.kk,{avaChange:"Суретті ауыстыру",avaDel:"Суретті алып тастау",secMe:"Жеке деректер",change:"Өзгерту",add:"Қосу",cancel:"Болдырмау",save:"Сақтау",
+ emailHint:"Сілтемесі бар хат келеді — растағаннан кейін пошта ауысады.",phoneHint2:"Жаңа нөмірге SMS-код жібереміз.",getCode2:"Код алу",
+ secPlaces:"Менің орындарым",secNotify:"Хабарламалар",pushTitle:"Шағымдарым мен волонтёрлар туралы хабарлау",pushSub:"Қосымша жабық болса да келеді",
+ pushNo:"Бұл браузер хабарлама жібере алмайды. iPhone-да ICity-ді «Үй» экранына қосыңыз.",pushDenied:"Хабарламаларға браузер баптауында тыйым салынған",pushOn:"Хабарламалар қосулы",pushOff:"Хабарламалар өшірулі",
+ secSafe:"Қауіпсіздік",password:"Құпиясөз",pwNone:"орнатылмаған",setPw:"Орнату",nameSaved:"Аты сақталды",emailSent:"Хат {e} мекенжайына жіберілді. Жаңа поштаны растау үшін оны ашыңыз.",
+ phoneSaved:"Нөмір жаңартылды",avaSaved:"Сурет жаңартылды",avaRemoved:"Сурет алынды",avaFail:"Суретті жүктеу мүмкін болмады. Басқа сурет таңдап көріңіз.",
+ plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",plAdd:"Картадан қосу"});
+Object.assign(T.en,{avaChange:"Change photo",avaDel:"Remove photo",secMe:"Personal details",change:"Change",add:"Add",cancel:"Cancel",save:"Save",
+ emailHint:"We'll email you a link — the address changes once you confirm it.",phoneHint2:"We'll text a code to the new number.",getCode2:"Get code",
+ secPlaces:"My places",secNotify:"Notifications",pushTitle:"Tell me about my reports and volunteers",pushSub:"Arrives even when the app is closed",
+ pushNo:"This browser can't show notifications. On iPhone, add ICity to your Home Screen first.",pushDenied:"Notifications are blocked in your browser settings",pushOn:"Notifications are on",pushOff:"Notifications are off",
+ secSafe:"Security",password:"Password",pwNone:"not set",setPw:"Set",nameSaved:"Name saved",emailSent:"We sent an email to {e}. Open it to confirm the new address.",
+ phoneSaved:"Number updated",avaSaved:"Photo updated",avaRemoved:"Photo removed",avaFail:"Couldn't upload the photo. Try another picture.",
+ plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",plAdd:"Add on the map"});
 const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
@@ -330,12 +418,14 @@ $("otp").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/
 function applyTexts(){
   document.documentElement.lang=lang;$("lang").value=lang;
   document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.getAttribute("data-t"))});
+  document.querySelectorAll("[data-ta]").forEach(el=>el.setAttribute("aria-label",t(el.getAttribute("data-ta"))));
   setMode(mode,true);setMethod(method,true);
   if(currentUser)fillAccount(currentUser);
 }
 $("lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("ic_lang",lang)}catch(_){}applyTexts()};
-function show(view){["auth","otp","check","forgot","reset","account","off"].forEach(v=>$("v-"+v).hidden=v!==view);}
-function msg(text,kind){const m=$("msg");m.innerHTML="";if(!text)return;const d=document.createElement("p");d.className="msg "+(kind||"err");d.textContent=text;d.setAttribute("role",kind==="ok"?"status":"alert");m.appendChild(d);}
+function show(view){["auth","otp","check","forgot","reset","account","off"].forEach(v=>$("v-"+v).hidden=v!==view);document.body.classList.toggle("acc",view==="account");}
+let msgT=0;
+function msg(text,kind){const m=$("msg");m.innerHTML="";clearTimeout(msgT);if(!text)return;if(document.body.classList.contains("acc"))msgT=setTimeout(()=>{m.innerHTML=""},kind==="ok"?3500:7000);const d=document.createElement("p");d.className="msg "+(kind||"err");d.textContent=text;d.setAttribute("role",kind==="ok"?"status":"alert");m.appendChild(d);}
 function bad(id,text){$(id).setAttribute("aria-invalid","true");msg(text);$(id).focus();}
 
 function setMode(m,silent){
@@ -360,7 +450,7 @@ document.querySelectorAll(".togglePw").forEach(b=>b.onclick=()=>{const p=$(b.dat
 ["btnApple","btnEgov"].forEach(id=>$(id).onclick=()=>msg(t("soonMsg"),"ok"));
 $("forgotBtn").onclick=()=>{$("fIdent").value=$("ident").value;msg("");show("forgot");$("fIdent").focus()};
 $("backBtn1").onclick=$("backBtn2").onclick=()=>{hold=false;msg("");show("auth")};
-$("otpBack").onclick=()=>{msg("");if(otp.purpose==="recovery"){show("forgot")}else{setMode("signup",true);show("auth")}};
+$("otpBack").onclick=()=>{msg("");if(otp.purpose==="phone_change"&&currentUser){showAccount(currentUser);return;}if(otp.purpose==="recovery"){show("forgot")}else{setMode("signup",true);show("auth")}};
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",()=>{el.removeAttribute("aria-invalid");const f=$("msg").firstChild;if(f&&!f.classList.contains("ok"))msg("")}));
 
 const validEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
@@ -396,21 +486,28 @@ function fillMob(u){
   sel.innerHTML=Object.entries(MOB).map(([k,v])=>`<option value="${k}">${v[li]}</option>`).join(""); sel.value=cur;
   try{ localStorage.setItem("ic_profile",cur); }catch(e){}
 }
+const metaName=u=>{const m=u.user_metadata||{};return m.ic_name||m.full_name||m.name||(u.email||"").split("@")[0]||fmtPhone(u.phone)};
+const metaPic=u=>{const m=u.user_metadata||{};return m.ic_avatar===""?"":(m.ic_avatar||m.avatar_url||m.picture||"")};
+const provsOf=u=>(u.app_metadata&&u.app_metadata.providers)||[u.app_metadata&&u.app_metadata.provider].filter(Boolean);
 function fillAccount(u){
   fillMob(u);
-  const meta=u.user_metadata||{};
-  const name=meta.full_name||meta.name||(u.email||"").split("@")[0]||fmtPhone(u.phone);
-  $("accName").textContent=name;
+  const name=metaName(u);
+  $("accName").textContent=name;$("vName").textContent=name;
   $("accSub").textContent=u.email||fmtPhone(u.phone)||"";
   $("accPhone").textContent=u.phone?fmtPhone(u.phone):t("none");
   $("accEmail").textContent=u.email||t("none");
-  const ava=$("ava");ava.innerHTML="";
-  if(meta.avatar_url){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.src=meta.avatar_url;ava.appendChild(im);}
+  $("phoneEdit").textContent=t(u.phone?"change":"add");$("emailEdit").textContent=t(u.email?"change":"add");
+  const ava=$("ava");ava.innerHTML="";const pic=metaPic(u);
+  if(pic){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.src=pic;im.onerror=()=>{ava.innerHTML="";ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase()};ava.appendChild(im);}
   else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
-  const provs=(u.app_metadata&&u.app_metadata.providers)||[u.app_metadata&&u.app_metadata.provider].filter(Boolean);
+  $("avaDel").hidden=!pic;
+  const provs=provsOf(u);
   $("accVia").textContent=provs.map(p=>p==="email"?t("viaEmail"):p==="phone"?t("viaPhone"):p==="google"?"Google":p).join(", ")||(u.phone?t("viaPhone"):t("viaEmail"));
+  const hasPw=provs.includes("email")||provs.includes("phone");
+  $("vPw").textContent=hasPw?"••••••••":t("pwNone");$("pwEdit").textContent=t(hasPw?"change":"setPw");
   const loc=lang==="kk"?"kk-KZ":lang==="en"?"en-GB":"ru-RU";
   try{$("accSince").textContent=new Date(u.created_at).toLocaleDateString(loc,{day:"numeric",month:"long",year:"numeric"})}catch(e){$("accSince").textContent=""}
+  if(typeof renderAccPlaces==="function")renderAccPlaces(u);
 }
 function showAccount(u){hold=false;currentUser=u;fillAccount(u);show("account");if(location.pathname!=="/account")history.replaceState(null,"","/account");}
 
@@ -508,12 +605,12 @@ $("otpForm").addEventListener("submit",async e=>{
   busy(e.target,true);msg("");
   if(otp.purpose==="recovery")hold=true;
   try{
-    const {data,error}=await sb.auth.verifyOtp({phone:otp.phone,token:code,type:"sms"});
+    const {data,error}=await sb.auth.verifyOtp({phone:otp.phone,token:code,type:otp.purpose==="phone_change"?"phone_change":"sms"});
     if(error)throw error;
     clearInterval(timer);
     if(otp.purpose==="recovery"){show("reset");setTimeout(()=>$("newPw").focus(),50);}
-    else{showAccount(data.user);msg(t("welcome"),"ok");}
-  }catch(err){hold=false;msg(errText(err));$("otp").select();}
+    else{showAccount(data.user);msg(t(otp.purpose==="phone_change"?"phoneSaved":"welcome"),"ok");}
+  }catch(err){if(otp.purpose!=="phone_change")hold=false;msg(errText(err));$("otp").select();}
   finally{busy(e.target,false);}
 });
 $("resendBtn").onclick=async()=>{
@@ -521,6 +618,7 @@ $("resendBtn").onclick=async()=>{
   msg("");
   const {error}=otp.purpose==="recovery"
     ?await sb.auth.signInWithOtp({phone:otp.phone,options:{shouldCreateUser:false,channel:"sms"}})
+    :otp.purpose==="phone_change"?await sb.auth.updateUser({phone:otp.phone})
     :await sb.auth.resend({type:"sms",phone:otp.phone});
   if(error)msg(errText(error));else{msg(t("codeSent"),"ok");startResendTimer();}
 };
@@ -559,6 +657,148 @@ $("resetForm").addEventListener("submit",async e=>{
   showAccount(data.user);msg(t("pwSaved"),"ok");
 });
 
+
+/* ---------- Редактирование профиля ---------- */
+function closeForms(){document.querySelectorAll("form.inline").forEach(f=>f.hidden=true);}
+document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{
+  const f=$(b.dataset.open),was=!f.hidden;closeForms();msg("");if(was)return;f.hidden=false;
+  const u=currentUser||{};
+  if(f.id==="nameForm")$("eName").value=metaName(u);
+  if(f.id==="emailForm")$("eEmail").value=u.email||"";
+  if(f.id==="phoneForm")$("ePhone").value="";
+  if(f.id==="pwForm")$("ePw").value="";
+  const inp=f.querySelector("input");setTimeout(()=>inp&&inp.focus(),30);
+});
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{$(b.dataset.close).hidden=true;msg("");});
+async function upd(attrs,okKey,opts){
+  const {data,error}=await sb.auth.updateUser(attrs,opts);
+  if(error)throw error;
+  if(data&&data.user){currentUser=data.user;fillAccount(data.user);}
+  closeForms();if(okKey)msg(okKey,"ok");
+  return data;
+}
+$("nameForm").addEventListener("submit",async e=>{
+  e.preventDefault();const v=$("eName").value.trim().replace(/\s+/g," ");
+  if(!v)return bad("eName",t("eName"));
+  busy(e.target,true);
+  try{await upd({data:{ic_name:v,full_name:v}},t("nameSaved"));try{localStorage.setItem("ic_myName",v)}catch(_){}}catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+$("emailForm").addEventListener("submit",async e=>{
+  e.preventDefault();const v=$("eEmail").value.trim();
+  if(!validEmail(v))return bad("eEmail",t("eEmail"));
+  busy(e.target,true);
+  try{await upd({email:v},t("emailSent").replace("{e}",v),{emailRedirectTo:location.origin+"/account"});}catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+$("ePhone").addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,"").slice(0,10);e.target.value=[d.slice(0,3),d.slice(3,6),d.slice(6,8),d.slice(8)].filter(Boolean).join(" ");});
+$("phoneForm").addEventListener("submit",async e=>{
+  e.preventDefault();const p=normPhone($("ePhone").value);
+  if(!p)return bad("ePhone",t("ePhone"));
+  busy(e.target,true);hold=true;
+  try{const {error}=await sb.auth.updateUser({phone:p});if(error)throw error;closeForms();openOtp(p,"phone_change");}
+  catch(err){hold=false;msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+$("pwForm").addEventListener("submit",async e=>{
+  e.preventDefault();const v=$("ePw").value;
+  if(v.length<8)return bad("ePw",t("ePw"));
+  busy(e.target,true);
+  try{await upd({password:v},t("pwSaved"));}catch(err){msg(errText(err));}
+  finally{busy(e.target,false);}
+});
+
+/* фото: обрезаем по центру до 320×320 и отправляем на сервер */
+$("ava").onclick=$("avaPick").onclick=()=>$("avaFile").click();
+$("avaFile").onchange=async e=>{
+  const file=e.target.files&&e.target.files[0];e.target.value="";
+  if(!file)return;msg("");
+  const ava=$("ava");ava.classList.add("busy");
+  try{
+    if(!/^image\//.test(file.type)&&!/\.(heic|heif|jpe?g|png|webp|gif)$/i.test(file.name))throw new Error("type");
+    const src=URL.createObjectURL(file);
+    const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src;});
+    const S=320,c=document.createElement("canvas");c.width=c.height=S;
+    const k=Math.max(S/img.naturalWidth,S/img.naturalHeight),w=img.naturalWidth*k,h=img.naturalHeight*k;
+    const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,S,S);g.drawImage(img,(S-w)/2,(S-h)/2,w,h);URL.revokeObjectURL(src);
+    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.86));
+    const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error("auth");
+    const r=await fetch("/api/avatar",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"image/jpeg"},body:blob});
+    const j=await r.json().catch(()=>({}));if(!r.ok||!j.url)throw new Error(j.error||r.status);
+    await upd({data:{ic_avatar:j.url}},t("avaSaved"));
+  }catch(err){msg(t("avaFail"));}
+  finally{ava.classList.remove("busy");}
+};
+$("avaDel").onclick=async()=>{
+  msg("");
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session)fetch("/api/avatar",{method:"DELETE",headers:{Authorization:"Bearer "+session.access_token}}).catch(()=>{});
+    await upd({data:{ic_avatar:""}},t("avaRemoved"));
+  }catch(err){msg(errText(err));}
+};
+
+/* Мои места: общий список с картой (ic_places), копия в аккаунте — побеждает более свежий */
+const PL_SVG={home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',work:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 13h18"/>',
+  place:'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',route:'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>'};
+let accPlaces=[];
+function localPlaces(){try{return JSON.parse(localStorage.getItem("ic_places")||"[]")||[]}catch(e){return[]}}
+function renderAccPlaces(u){
+  const m=(u&&u.user_metadata)||{},at=Number(m.places_at)||0;let mine=0;try{mine=Number(localStorage.getItem("ic_placesAt"))||0}catch(e){}
+  const loc=localPlaces();
+  if(Array.isArray(m.places)&&at>mine){accPlaces=m.places;try{localStorage.setItem("ic_places",JSON.stringify(accPlaces));localStorage.setItem("ic_placesAt",String(at))}catch(e){}}
+  else{accPlaces=loc;if(loc.length&&mine>at)savePlacesCloud(mine);}
+  const box=$("accPlaces");
+  if(!accPlaces.length){box.innerHTML=`<p class="empty">${esc(t("plNone"))}</p><div class="item"><a class="edit" href="/map" style="text-decoration:none">${esc(t("plAdd"))} →</a></div>`;return;}
+  box.innerHTML=accPlaces.map((p,i)=>{
+    const ty=PL_SVG[p.type]?p.type:"place";
+    const title=p.type==="route"?`${(p.from&&p.from.name)||""} → ${p.name||""}`:(p.type==="home"&&!p.custom?t("plHome"):p.type==="work"&&!p.custom?t("plWork"):(p.name||t("plPlace")));
+    const sub=p.type==="home"||p.type==="work"?(p.addr||p.name||""):p.type==="route"?t("plRoute"):(p.addr||"");
+    return `<div class="item"><span class="pl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${PL_SVG[ty]}</svg></span><span class="pl-t"><b>${esc(title)}</b>${sub&&sub!==title?`<small>${esc(sub)}</small>`:""}</span><button type="button" class="del" data-i="${i}" aria-label="${esc(t("avaDel").split(" ")[0])} ${esc(title)}">✕</button></div>`;
+  }).join("");
+  box.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{
+    accPlaces.splice(Number(b.dataset.i),1);const now=Date.now();
+    try{localStorage.setItem("ic_places",JSON.stringify(accPlaces));localStorage.setItem("ic_placesAt",String(now))}catch(e){}
+    await savePlacesCloud(now);msg(t("plRemoved"),"ok");
+  });
+}
+async function savePlacesCloud(at){
+  try{const {data,error}=await sb.auth.updateUser({data:{places:accPlaces.slice(0,40),places_at:at}});if(!error&&data&&data.user){currentUser=data.user;renderAccPlaces(data.user);}}catch(e){}
+}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+/* push-уведомления: та же подписка, что в приложении */
+const pushOk="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const u8=v=>{const b=atob(v.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((v.length+3)%4));return Uint8Array.from(b,c=>c.charCodeAt(0));};
+async function pushReg(){return navigator.serviceWorker.getRegistration("/").then(r=>r||navigator.serviceWorker.register("/sw.js")).then(()=>navigator.serviceWorker.ready);}
+async function pushInit(){
+  const tg=$("pushToggle");
+  if(!pushOk){tg.disabled=true;$("pushSub").textContent=t("pushNo");return;}
+  if(Notification.permission==="denied"){tg.disabled=true;$("pushSub").textContent=t("pushDenied");return;}
+  try{const reg=await pushReg();const sub=await reg.pushManager.getSubscription();
+    tg.checked=!!sub&&Notification.permission==="granted"&&localStorage.getItem("ic_push")!=="off";}catch(e){}
+}
+$("pushToggle").onchange=async e=>{
+  const tg=e.target;msg("");
+  try{
+    const reg=await pushReg();
+    if(tg.checked){
+      const p=await Notification.requestPermission();
+      if(p!=="granted"){tg.checked=false;if(p==="denied"){tg.disabled=true;$("pushSub").textContent=t("pushDenied");}return;}
+      let sub=await reg.pushManager.getSubscription();
+      if(!sub){const k=await fetch("/api/push/key");if(!k.ok)throw new Error("key");const {key}=await k.json();sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(key)});}
+      let reports=[],help=[];try{reports=(JSON.parse(localStorage.getItem("ic_myReports")||"[]")||[]).map(x=>x.id);const h=JSON.parse(localStorage.getItem("ic_help")||"null");if(h&&h.id)help=[h.id];}catch(_){}
+      const r=await fetch("/api/push/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sub:sub.toJSON(),reports,help,lang})});
+      if(!r.ok)throw new Error("sub");
+      localStorage.setItem("ic_push","on");msg(t("pushOn"),"ok");
+    }else{
+      const sub=await reg.pushManager.getSubscription();
+      if(sub){fetch("/api/push/unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sub:{endpoint:sub.endpoint}})}).catch(()=>{});await sub.unsubscribe().catch(()=>{});}
+      localStorage.setItem("ic_push","off");msg(t("pushOff"),"ok");
+    }
+  }catch(err){tg.checked=!tg.checked;msg(t("eGeneric"));}
+};
+pushInit();
 $("logoutBtn").onclick=async()=>{await sb.auth.signOut();history.replaceState(null,"","/login");msg("");};
 })();
 </script>

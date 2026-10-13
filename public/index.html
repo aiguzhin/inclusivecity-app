@@ -2170,7 +2170,7 @@ function overlayLayers(style){
     if(isNameLayer(l)) l.layout["text-field"]=nameExpr();
     if(l.type==="line") l.paint=Object.assign({},l.paint,{"line-opacity":/pedestrian/.test(l.id)?0.35:/casing/.test(l.id)?0.45:0.75});
     // на телефоне меньше мелочи: иконки мест — с приближения на 1 больше
-    if(l["source-layer"]==="poi" && sheetMode()) l.minzoom=Math.max(l.minzoom||14, 15)+1;
+    if(l["source-layer"]==="poi") l=morePoi(l);
     if(l.type==="symbol") l.paint=Object.assign({},l.paint,{"text-color":"#fff","text-halo-color":"rgba(0,0,0,.85)","text-halo-width":1.6});
     return l;
   }).concat([
@@ -2180,8 +2180,16 @@ function overlayLayers(style){
     houseNumbers(true)
   ]);
 }
+// Магазины, кафе, аптеки и т. п.: в стиле liberty мелкие заведения появляются только с 16–17 зума —
+// показываем их на 2 уровня раньше, крупные первыми (rank), иконка остаётся, даже если подпись не влезла
+function morePoi(l){
+  if(l["source-layer"]!=="poi" || l.type!=="symbol") return l;
+  l.minzoom=Math.max(14, (l.minzoom||14)-2);
+  l.layout=Object.assign({}, l.layout, {"text-optional":true, "symbol-sort-key":["coalesce",["get","rank"],99]});
+  return l;
+}
 function fullLayers(style){
-  return style.layers.map(l=>{ l=clone(l); if(isNameLayer(l)) l.layout["text-field"]=nameExpr(); return l; })
+  return style.layers.map(l=>{ l=morePoi(clone(l)); if(isNameLayer(l)) l.layout["text-field"]=nameExpr(); return l; })
     .concat([houseNumbers(false)]);
 }
 async function addGLLayer(key){
@@ -3974,7 +3982,7 @@ async function hpSend(){
   if(name) store("myName",name); if(phone) store("myPhone",phone);
   try{ const r=await fetch("/api/help",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lat:ll[0],lng:ll[1],kind:hpKind,text:document.getElementById("hpText").value,name,contact:phone,profile:S.profile})});
     const d=await r.json(); if(!r.ok) throw new Error(d.error||r.status);
-    store("help",JSON.stringify({id:d.id,token:d.token,at:Date.now(),kind:hpKind})); hpStatus();
+    store("help",JSON.stringify({id:d.id,token:d.token,at:Date.now(),kind:hpKind})); hpStatus(); askNotify();
   }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
 }
 async function hpStatus(){
@@ -4034,7 +4042,22 @@ function notifyMe(text){
     navigator.serviceWorker && navigator.serviceWorker.ready.then(r=>r.showNotification("ICity",{body:text,icon:"/icon.svg",badge:"/icon.svg",tag:"icity-"+text.length})).catch(()=>{ new Notification("ICity",{body:text}); });
   }catch(e){}
 }
-async function askNotify(){ try{ if("Notification" in window && Notification.permission==="default"){ const p=await Notification.requestPermission(); if(p==="granted") toast(t("mrNotifyOn")); } }catch(e){} }
+async function askNotify(){ try{ if("Notification" in window && Notification.permission==="default"){ const p=await Notification.requestPermission(); if(p==="granted"){ toast(t("mrNotifyOn")); pushSync(); } } else pushSync(); }catch(e){} }
+/* Настоящие push-уведомления: подписка следит за моими жалобами и просьбой о помощи — приходят, даже когда приложение закрыто */
+const u8=s=>{ const b=atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)); return Uint8Array.from(b,c=>c.charCodeAt(0)); };
+async function pushSync(){
+  try{
+    if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window) || Notification.permission!=="granted") return false;
+    if(read("push","")==="off") return false;
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){ const k=await fetch("/api/push/key"); if(!k.ok) return false; const {key}=await k.json();
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:u8(key)}); }
+    const h=myHelp();
+    await fetch("/api/push/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sub:sub.toJSON(),reports:myReports().map(x=>x.id),help:h?[h.id]:[],lang:S.lang||"ru"})});
+    return true;
+  }catch(e){ return false; }
+}
 async function checkMyReports(show){
   const list=myReports(); if(!list.length) return list;
   let changed=false;
@@ -4093,13 +4116,14 @@ function runShortcut(){
   else if(q==="sos") openModal("sosModal");
   else if(q==="help") openHelp();
   else if(q==="report") openReport();
+  else if(q==="reports") openMyReports();
 }
 
 /* ============ Стиль «Мягкий»: приветствие и «Мои места» в плашке ============ */
 function setUi(v){ S.ui=v; store("ui",v); applyAll(); }
 function userName(){
   let n=read("myName","");
-  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); const m=v&&v.user&&v.user.user_metadata; if(m&&(m.full_name||m.name)) n=n||String(m.full_name||m.name).split(" ")[0]; } } }catch(e){}
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); const m=v&&v.user&&v.user.user_metadata; if(m&&(m.ic_name||m.full_name||m.name)) n=String(m.ic_name||m.full_name||m.name).split(" ")[0]; } } }catch(e){}
   return n;
 }
 function renderHello(){
@@ -4340,7 +4364,24 @@ function pfClear(){ pfSeq++; if(pfLayer) pfLayer.clearLayers(); const r=document
 /* ============ Мои места: дом, работа, любимые места и маршруты ============ */
 let PLACES=[]; try{ PLACES=JSON.parse(read("places","[]"))||[]; }catch(e){ PLACES=[]; }
 let plType="place";
-const savePlaces=()=>{ store("places",JSON.stringify(PLACES)); try{ renderPeekPlaces(); syncPeekHeight(); drawHomePins(); }catch(e){} };
+const savePlaces=(fromCloud)=>{ store("places",JSON.stringify(PLACES)); if(!fromCloud){ store("placesAt",String(Date.now())); cloudSavePlaces(); } try{ renderPeekPlaces(); syncPeekHeight(); drawHomePins(); }catch(e){} };
+/* Мои места в аккаунте: если вошли — копия в user_metadata.places (видна на всех устройствах и на /account) */
+function sbSession(){ try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); if(v&&v.user) return {k,v}; } } }catch(e){} return null; }
+let sbCfgP=null;
+const sbCfg=()=>sbCfgP||(sbCfgP=fetch("/auth-config.js").then(r=>r.text()).then(x=>JSON.parse(x.slice(x.indexOf("=")+1).replace(/;\s*$/,""))).catch(()=>({})));
+let plSyncT=0;
+function cloudSavePlaces(){ clearTimeout(plSyncT); plSyncT=setTimeout(async()=>{
+  try{ const s=sbSession(); if(!s||!s.v.access_token||(s.v.expires_at&&s.v.expires_at*1000<Date.now()+30000)) return;
+    const c=await sbCfg(); if(!c.url||!c.anonKey) return;
+    const r=await fetch(c.url.replace(/\/$/,"")+"/auth/v1/user",{method:"PUT",headers:{apikey:c.anonKey,Authorization:"Bearer "+s.v.access_token,"Content-Type":"application/json"},
+      body:JSON.stringify({data:{places:PLACES.slice(0,40),places_at:Number(read("placesAt","0"))||Date.now()}})});
+    if(r.ok){ const u=await r.json(); if(u&&u.id){ s.v.user=u; localStorage.setItem(s.k,JSON.stringify(s.v)); } }
+  }catch(e){} },1200); }
+function cloudLoadPlaces(u){
+  const m=(u&&u.user_metadata)||{}, at=Number(m.places_at)||0, mine=Number(read("placesAt","0"))||0;
+  if(Array.isArray(m.places) && at>mine){ PLACES=m.places.filter(p=>p&&p.id&&p.type); store("placesAt",String(at)); savePlaces(true); try{ renderPlaces(); }catch(e){} }
+  else if(PLACES.length && mine>at) cloudSavePlaces();
+}
 const PL_ICON={home:"home",work:"work",place:"star",route:"routeI"};
 function plLabel(p){ return p.type==="route" ? `${p.from.name} → ${p.name}` : (p.type==="home"&&!p.custom?t("plHome"):p.type==="work"&&!p.custom?t("plWork"):p.name); }
 function renderPlaces(){
@@ -6359,6 +6400,7 @@ function globeToMap(cityKey){
     const q=document.getElementById("pq"); if(q) q.addEventListener("keydown",e=>{ if(e.key==="Enter" && document.getElementById("ac-pq").hidden){ e.preventDefault(); pfEnter(); } if(e.key==="Escape") closePeekSearch(); }); });
   step("offline", ()=>offlineStatus());
   step("shortcut", ()=>setTimeout(runShortcut, 900));
+  step("push", ()=>setTimeout(pushSync, 4000));
   step("mapmenu", ()=>{ initMapMenu(); initPeekSwipe(); });
   step("satyear", ()=>{ S.satYear=read("satYear","latest"); renderSatYears(); if(S.satYear!=="latest") setSatYear(S.satYear); });
   step("social", ()=>{ setTimeout(()=>checkMyReports(false),4000); if(read("volunteer","")==="1") setTimeout(hpVolPoll,8000);
@@ -6385,15 +6427,17 @@ function globeToMap(cityKey){
       }
     }catch(e){}
     if(!u) return;
+    try{ cloudLoadPlaces(u); }catch(e){}
     const meta=u.user_metadata||{};
     const ph=u.phone?("+"+String(u.phone).replace(/^\+/,"")):"";
-    const name=meta.full_name||meta.name||(u.email||"").split("@")[0]||ph;
+    const name=meta.ic_name||meta.full_name||meta.name||(u.email||"").split("@")[0]||ph;
     const b=document.getElementById("acctBtn"); if(b){ b.setAttribute("data-i18n","acctProfile"); b.textContent=t("acctProfile"); b.href="/account"; }
     const a=document.getElementById("mmAcct"); a.href="/account";
     const n=document.getElementById("mmName"); n.removeAttribute("data-i18n"); n.textContent=name;
     const sub=document.getElementById("mmSub"); sub.removeAttribute("data-i18n"); sub.textContent=u.email||ph;
     const ava=document.getElementById("mmAva");
-    if(meta.avatar_url){ ava.innerHTML=""; const im=new Image(); im.alt=""; im.referrerPolicy="no-referrer"; im.src=meta.avatar_url; ava.appendChild(im); }
+    const pic=meta.ic_avatar===""?"":(meta.ic_avatar||meta.avatar_url||meta.picture||"");
+    if(pic){ ava.innerHTML=""; const im=new Image(); im.alt=""; im.referrerPolicy="no-referrer"; im.src=pic; ava.appendChild(im); }
     else ava.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase();
   });
 })();

@@ -145,6 +145,7 @@ async function handle(req, res, pathname, url) {
     if (!name || !/\d{6,}/.test(phone.replace(/\D/g, ''))) return H.sendJson(res, 400, { error: 'Укажите имя и телефон' });
     const vtoken = crypto.randomBytes(12).toString('hex');
     h.volunteer = { name, phone, at: new Date().toISOString(), token: vtoken }; h.status = 'accepted'; write('help', list);
+    if (H.notify) H.notify('help', h.id, (lang) => ({ title: 'ICity', body: { kk: `${name} көмекке келеді`, en: `${name} is coming to help you` }[lang] || `${name} идёт к вам на помощь`, url: '/map?do=help', tag: 'help-' + h.id })).catch(() => {});
     return H.sendJson(res, 200, { ok: true, vtoken, lat: h.lat, lng: h.lng, contact: h.contact, name: h.name, text: h.text });
   }
   return null;   // не наш маршрут
