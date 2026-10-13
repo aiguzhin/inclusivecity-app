@@ -306,6 +306,18 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 .taxi-order .go{margin-left:auto;color:var(--ink-soft)}
 .taxi-order .logo.city{background:#1769c2;color:#fff;font-size:.8rem}
 .taxi-order .logo.inva{background:#0e7a4f;color:#fff}
+#navHud{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:1200;background:#0f2a4d;color:#fff;border-radius:20px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35);display:grid;gap:8px}
+#navHud[hidden]{display:none}
+#navHud .nv-main{display:flex;gap:12px;align-items:center}
+#navHud .nv-arrow{flex:none;width:56px;height:56px;border-radius:16px;background:#1769c2;display:grid;place-items:center;font-size:30px;font-weight:900;transition:transform .3s}
+#navHud .nv-txt{font-size:1.15rem;font-weight:800;line-height:1.25}
+#navHud .nv-sub{font-size:.85rem;color:#b9cde6}
+#navHud .nv-warn{background:#b42318;border-radius:12px;padding:8px 10px;font-weight:700;font-size:.92rem}
+#navHud .nv-warn[hidden]{display:none}
+#navHud .nv-row{display:flex;gap:8px}
+#navHud .nv-row button{flex:1;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+#navHud .nv-row .stop{background:#fff;color:#0f2a4d}
+body.nav-on .top,body.nav-on #layerbar{visibility:hidden}
 .trip-wx{display:grid;gap:6px;margin-top:10px}.trip-wx .fact{display:flex;gap:6px;align-items:flex-start;margin:0;border-radius:12px;font-size:.84rem;line-height:1.35}.trip-wx .ic{flex:none;width:18px;height:18px}
 .taxi-h{font-size:1rem;margin:18px 0 2px;display:flex;align-items:center;gap:6px}
 .taxi-src{font-size:.78rem;color:var(--ink-soft);margin:6px 0 0}
@@ -721,6 +733,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 </style>
 </head>
 <body data-view="map">
+<div id="navHud" role="region" aria-live="assertive" hidden></div>
 <!-- Заставка при каждом открытии: сеть 22 городов → полёт к своему городу → знак ICity. Холст 2D, слои предрисованы, касание — пропустить -->
 <div id="icIntro" aria-hidden="true">
 <style>
@@ -1417,7 +1430,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
- rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
+ rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Навигация началась. {s}", navArrived:"Вы на месте. Навигация завершена.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
@@ -1505,7 +1518,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
- rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
+ rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Навигация басталды. {s}", navArrived:"Сіз межелі жердесіз. Навигация аяқталды.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
@@ -1594,7 +1607,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
- rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
+ rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Navigation started. {s}", navArrived:"You have arrived. Navigation finished.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
@@ -3362,6 +3375,85 @@ function fieldCoords(inputId){
   return (sel && sel.text===val) ? sel.ll : null;
 }
 
+/* ============ Пошаговая навигация: голос, вибрация, барьеры, перестроение ============ */
+const NAV={on:false, watch:null, idx:0, pre:-1, said:{}, off:0, wake:null, steps:[], pts:[], b:null, ob:null, last:null, rerouting:false};
+function mDist(a,b){ const R=6371000, toR=Math.PI/180, dLa=(b[0]-a[0])*toR, dLo=(b[1]-a[1])*toR*Math.cos((a[0]+b[0])/2*toR); return R*Math.sqrt(dLa*dLa+dLo*dLo); }
+function distToRoute(p,pts){ let best=Infinity; const k=Math.cos(p[0]*Math.PI/180);
+  for(let i=0;i<pts.length-1;i++){ const ax=(pts[i][1]-p[1])*k, ay=pts[i][0]-p[0], bx=(pts[i+1][1]-p[1])*k, by=pts[i+1][0]-p[0];
+    const dx=bx-ax, dy=by-ay, L2=dx*dx+dy*dy; let tt=L2?-(ax*dx+ay*dy)/L2:0; tt=Math.max(0,Math.min(1,tt));
+    const x=ax+dx*tt, y=ay+dy*tt; best=Math.min(best, Math.sqrt(x*x+y*y)*111320); }
+  return best; }
+const NAV_ARROW={left:"←",right:"→","slight left":"↖","slight right":"↗","sharp left":"↙","sharp right":"↘",straight:"↑",uturn:"↶"};
+function navVib(mod){ if(!navigator.vibrate) return; if(/left/.test(mod)) navigator.vibrate([350]); else if(/right/.test(mod)) navigator.vibrate([120,80,120]); else if(mod==="arrive") navigator.vibrate([100,60,100,60,400]); else navigator.vibrate(60); }
+function navSay(text){ // в навигации говорим всегда, даже если общий голос выключен — для этого её и включают
+  if(!("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel(); const {voice}=pickVoice(S.lang); const u=new SpeechSynthesisUtterance(text);
+    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=1; speechSynthesis.speak(u); }catch(e){} }
+function lowFirst(x){ return x ? x.charAt(0).toLowerCase()+x.slice(1) : x; }
+function navPhrase(i){ return stepText(NAV.steps[i],i).replace(/^\d+\.\s*/,""); }
+function navRender(here){
+  const hud=document.getElementById("navHud"); if(!hud) return;
+  const st=NAV.steps[NAV.idx]||NAV.steps[NAV.steps.length-1];
+  const dNext = here && st && st.loc ? Math.round(mDist(here,st.loc)) : null;
+  const left = here && NAV.b ? mDist(here,NAV.b) : null;
+  const mins = left!=null ? Math.max(1,Math.round(left/1000/4.2*60/(PROFILES[S.profile].speed||1))) : null;
+  const warn = NAV.warn ? `<div class="nv-warn">${svgI("warn")} ${esc(NAV.warn)}</div>` : "";
+  hud.innerHTML=`<div class="nv-main"><div class="nv-arrow" aria-hidden="true">${st&&st.type==="arrive"?"⚑":(NAV_ARROW[st&&st.mod]||"↑")}</div>
+    <div><div class="nv-txt">${dNext!=null&&dNext>15?esc(tf("navIn",{d:fmtDist(Math.round(dNext/5)*5)}))+" — "+esc(st?lowFirst(navPhrase(Math.min(NAV.idx,NAV.steps.length-1))):""):esc(st?navPhrase(Math.min(NAV.idx,NAV.steps.length-1)):"")}</div>
+    <div class="nv-sub">${left!=null?esc(tf("navLeft",{d:fmtDist(Math.round(left/10)*10),m:mins})):""}</div></div></div>
+    ${warn}<div class="nv-row"><button type="button" onclick="navRepeat()">${esc(t("navRepeat"))}</button><button type="button" class="stop" onclick="navStop()">${esc(t("navStop"))}</button></div>`;
+}
+function navRepeat(){ if(NAV.steps[NAV.idx]) navSay(navPhrase(NAV.idx)); }
+async function navStart(reroute){
+  if(!lastRoute || !lastRoute.pts){ toast(t("navNoRoute")); return; }
+  if(!lastSteps.length){ toast(t("navNoSteps")); return; }
+  if(!navigator.geolocation){ toast(t("navGeo")); return; }
+  navStopWatch();
+  Object.assign(NAV,{on:true, idx:lastSteps[0]&&lastSteps[0].type==="depart"?1:0, pre:-1, said:{}, off:0, steps:lastSteps.slice(), pts:lastRoute.pts, b:lastRoute.b, ob:lastAnalysis&&lastAnalysis.ob, warn:"", rerouting:false});
+  document.body.classList.add("nav-on"); document.getElementById("navHud").hidden=false;
+  if(sheetMode()) closeSheet();
+  try{ if("wakeLock" in navigator) NAV.wake=await navigator.wakeLock.request("screen"); }catch(e){}
+  navRender(userLatLng);
+  navSay(reroute ? navPhrase(NAV.idx) : tf("navBegin",{s:navPhrase(0)}));
+  NAV.watch=navigator.geolocation.watchPosition(navTick, err=>{ if(err&&err.code===1){ toast(t("navGeo")); navStop(); } }, {enableHighAccuracy:true, maximumAge:2000, timeout:20000});
+}
+function navStopWatch(){ if(NAV.watch!=null){ navigator.geolocation.clearWatch(NAV.watch); NAV.watch=null; } }
+function navStop(silent){
+  navStopWatch(); NAV.on=false; document.body.classList.remove("nav-on");
+  const hud=document.getElementById("navHud"); if(hud) hud.hidden=true;
+  try{ NAV.wake&&NAV.wake.release(); }catch(e){} NAV.wake=null;
+  if(!silent) try{ speechSynthesis.cancel(); }catch(e){}
+}
+document.addEventListener("visibilitychange",async()=>{ if(NAV.on && !document.hidden && "wakeLock" in navigator){ try{ NAV.wake=await navigator.wakeLock.request("screen"); }catch(e){} } });
+async function navTick(pos){
+  if(!NAV.on) return;
+  const here=[pos.coords.latitude,pos.coords.longitude], acc=pos.coords.accuracy||20;
+  userLatLng=here;
+  if(mapReady){ if(userMarker) userMarker.setLatLng(here); else showMe(17); map.panTo(here,{animate:S.motion!=="off"}); }
+  // прибыли
+  if(NAV.b && mDist(here,NAV.b) < Math.max(18,acc*.8)){ navVib("arrive"); navSay(t("navArrived")); navStop(true); return; }
+  // ушли с маршрута — три точки подряд дальше 40 м
+  const off=distToRoute(here,NAV.pts);
+  NAV.off = off > Math.max(40,acc*1.5) ? NAV.off+1 : 0;
+  if(NAV.off>=3 && !NAV.rerouting){ NAV.rerouting=true; navSay(t("navOff")); navVib("x");
+    setFieldPlace("start", t("myLocation"), here);
+    await buildRoute(); if(lastRoute&&lastSteps.length){ navStart(true); } else { NAV.rerouting=false; NAV.off=0; } return; }
+  // следующий манёвр
+  const st=NAV.steps[NAV.idx];
+  if(st && st.loc){
+    const d=mDist(here,st.loc);
+    if(d<60 && d>20 && NAV.pre!==NAV.idx){ NAV.pre=NAV.idx; navSay(tf("navIn",{d:fmtDist(Math.round(d/10)*10)})+" "+lowFirst(navPhrase(NAV.idx))); }
+    if(d<=Math.max(15,acc*.6)){ navVib(st.mod); if(NAV.pre!==NAV.idx||d<12) navSay(navPhrase(NAV.idx)); NAV.idx=Math.min(NAV.idx+1,NAV.steps.length-1); NAV.pre=-1; }
+  }
+  // барьеры впереди
+  NAV.warn="";
+  const ob=NAV.ob;
+  if(ob){ [...(ob.stairs||[]).map(x=>({...x,k:x.ramp?"navStairsRamp":"navStairs"})), ...(ob.tunnels||[]).map(x=>({...x,k:"navTunnel"}))].forEach(x=>{
+    const d=mDist(here,x.ll); const id=x.ll.join(",");
+    if(d<50){ NAV.warn=t(x.k); if(!NAV.said[id]){ NAV.said[id]=1; navSay(t(x.k)); if(navigator.vibrate) navigator.vibrate([200,100,200,100,200]); } } }); }
+  navRender(here);
+}
+
 /* ============ Мои места: дом, работа, любимые места и маршруты ============ */
 let PLACES=[]; try{ PLACES=JSON.parse(read("places","[]"))||[]; }catch(e){ PLACES=[]; }
 let plType="place";
@@ -3553,7 +3645,7 @@ async function buildRoute(){
     showVariant(0);
 
     if(sheetMode() && S.view==="map") closeSheet();
-    if(S.voice==="on") speakRoute();
+    if(S.voice==="on" && !NAV.rerouting) speakRoute();
   }catch(e){ console.warn("route failed:", e);
     card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
     updatePeek();
@@ -4165,7 +4257,8 @@ function showVariant(i){
   lastAnalysis={ob:v.ob, slope:v.slope};
   lastComplaintPoint=v.b;
   lastSteps = (v.rt.legs&&v.rt.legs[0]&&v.rt.legs[0].steps? v.rt.legs[0].steps:[])
-    .map(x=>({name:x.name||"", dist:Math.round(x.distance), mod:(x.maneuver&&x.maneuver.modifier)||"", type:(x.maneuver&&x.maneuver.type)||""}))
+    .map(x=>({name:x.name||"", dist:Math.round(x.distance), mod:(x.maneuver&&x.maneuver.modifier)||"", type:(x.maneuver&&x.maneuver.type)||"",
+      loc:(x.maneuver&&x.maneuver.location)?[x.maneuver.location[1],x.maneuver.location[0]]:null}))
     .filter(x=>x.dist>0);
   drawRoute(v.pts, v.a, v.b);
   drawBarriers(v.ob);
@@ -4405,7 +4498,8 @@ function renderRouteCard(rt,mins,ob,slope){
     <h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
     <div class="facts">${obstacleFacts(ob,slope)}</div>
     ${tripWeatherHtml(mins)}
-    <div class="row" style="margin-top:12px">
+    <button class="btn-primary" style="width:100%;margin-top:12px" onclick="navStart()">${svgI("walk")} ${esc(t("navStart"))}</button>
+    <div class="row" style="margin-top:8px">
       <button class="btn-ghost grow" onclick="speakRoute()">${svgI("speaker")} ${esc(t("speak"))}</button>
       <button class="btn-ghost" onclick="stopSpeak()">■</button>
     </div>`;
