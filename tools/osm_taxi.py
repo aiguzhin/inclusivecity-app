@@ -21,15 +21,15 @@ def cities():
 
 
 def overpass(q):
-    for i in range(6):
+    for i in range(4):
         api = APIS[i % len(APIS)]
         try:
             req = urllib.request.Request(api, data=urllib.parse.urlencode({'data': q}).encode(),
                                          headers={'User-Agent': 'ICity/1.0 (inclusivecity.uk)'})
-            return json.load(urllib.request.urlopen(req, timeout=120))
+            return json.load(urllib.request.urlopen(req, timeout=200))
         except Exception as e:
-            print('  retry', api, e, file=sys.stderr); time.sleep(10)
-    return {'elements': []}
+            print('  retry', api, e, file=sys.stderr); time.sleep(15)
+    sys.exit('Overpass не ответил')
 
 
 def phone(t):
@@ -40,28 +40,33 @@ def phone(t):
 
 
 def main():
-    out = {}
-    for key, (la, lo) in cities().items():
+    cs = cities()
+    # один запрос на все 22 города — Overpass не любит частые запросы подряд
+    parts = []
+    for la, lo in cs.values():
         bb = f'{la-PAD_LAT},{lo-PAD_LON},{la+PAD_LAT},{lo+PAD_LON}'
-        q = f'''[out:json][timeout:90];
-(nwr["office"="taxi"]({bb}); nwr["amenity"="taxi"]({bb}); nwr["shop"="taxi"]({bb});
- nwr["name"~"такси|taxi",i]({bb}););
-out center tags;'''
-        els = overpass(q).get('elements', [])
-        seen, items = set(), []
-        for e in els:
-            t = e.get('tags', {}); ph = phone(t)
-            name = t.get('name') or t.get('brand') or t.get('operator') or ''
-            if not ph or not name or 'такси' not in (name + t.get('office', '') + t.get('amenity', '')).lower() and 'taxi' not in (name + t.get('office', '') + t.get('amenity', '')).lower():
-                continue
-            c = e.get('center') or e
-            k2 = re.sub(r'\D', '', ph)[-10:]
-            if k2 in seen: continue
-            seen.add(k2)
-            items.append([name[:80], ph, round(c.get('lat', la), 5), round(c.get('lon', lo), 5)])
-        out[key] = items
-        print(f'{key}: {len(els)} объектов, {len(items)} с телефоном', file=sys.stderr)
-        time.sleep(3)
+        parts.append(f'nwr["office"="taxi"]({bb});nwr["amenity"="taxi"]["phone"]({bb});'
+                     f'nwr["name"~"такси|taxi",i]["phone"]({bb});nwr["name"~"такси|taxi",i]["contact:phone"]({bb});')
+    q = '[out:json][timeout:180];(' + ''.join(parts) + ');out center tags;'
+    els = overpass(q).get('elements', [])
+    print('объектов:', len(els), file=sys.stderr)
+    out = {k: [] for k in cs}; seen = {k: set() for k in cs}
+    for e in els:
+        t = e.get('tags', {}); ph = phone(t)
+        name = t.get('name') or t.get('brand') or t.get('operator') or ''
+        txt = (name + ' ' + t.get('office', '') + ' ' + t.get('amenity', '')).lower()
+        if not ph or not name or ('такси' not in txt and 'taxi' not in txt):
+            continue
+        c = e.get('center') or e
+        lat, lon = c.get('lat'), c.get('lon')
+        if lat is None: continue
+        key = min(cs, key=lambda k: (cs[k][0]-lat)**2 + ((cs[k][1]-lon)*0.65)**2)
+        k2 = re.sub(r'\D', '', ph)[-10:]
+        if k2 in seen[key]: continue
+        seen[key].add(k2)
+        out[key].append([name[:80], ph, round(lat, 5), round(lon, 5)])
+    for k, v in out.items():
+        print(f'{k}: {len(v)}', file=sys.stderr)
     with open(os.path.join(ROOT, 'public', 'taxi-osm.json'), 'w', encoding='utf-8') as f:
         json.dump({'source': 'OpenStreetMap contributors (ODbL)', 'fields': ['name', 'phone', 'lat', 'lon'], 'c': out},
                   f, ensure_ascii=False, separators=(',', ':'))
