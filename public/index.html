@@ -798,7 +798,7 @@ html[data-hints="on"] button,html[data-hints="on"] a,html[data-hints="on"] summa
 .pl-list li{display:flex;align-items:center;gap:8px;font-size:.88rem}
 .pl-list li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pl-list li button{min-width:40px;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer}
-.prof-chip{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;text-align:left;cursor:pointer}
+.prof-chip{display:none!important;align-items:center;gap:8px;width:100%;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);font:inherit;font-size:.9rem;text-align:left;cursor:pointer}
 .prof-chip .ic{width:22px;height:22px;flex:none;color:var(--blue)}
 #profChipIco{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue-weak);flex:none}
 .prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -1067,6 +1067,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
   <div class="mm-sep" role="separator"></div>
   <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="walk"></i><span data-i18n="eyebrow">Маршрут и доступность</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openProfileSettings())"><i data-ic="wc"></i><span><span data-i18n="profileLabel">Профиль</span>: <b id="mmProf"></b></span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
   <button type="button" role="menuitem" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skOpenBtn">Серік — ИИ-помощник</span></button>
   <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
@@ -1161,7 +1162,7 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 
     <div class="card">
       <h2 data-i18n="nearbyTitle">Объекты рядом</h2>
-      <p class="small muted" data-i18n="nearbyHelp">Включите слои кнопками на карте — список появится здесь и в текстовом режиме.</p>
+      <p class="small muted" data-i18n="nearbyHelp">Включите слои в меню ≡ на карте — список появится здесь и в текстовом режиме.</p>
       <div id="nearbyList" aria-live="polite"></div>
     </div>
 
@@ -1674,7 +1675,7 @@ ru:{
  profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль", profEdit:"Изменить", profSync:"Сохранить в аккаунте",
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
  noRoute:"Маршрут не построен", noRouteHelp:"Заполните поля выше. Мы проверим маршрут на ступени, подземные переходы и уклон.",
- nearbyTitle:"Объекты рядом", nearbyHelp:"Включите слои кнопками на карте — список появится здесь и в текстовом режиме.",
+ nearbyTitle:"Объекты рядом", nearbyHelp:"Включите слои в меню ≡ на карте — список появится здесь и в текстовом режиме.",
  reportBtn:"+ Сообщить о барьере", sosBtn:"Экстренная помощь", complaintBtn:"Обращение в акимат", dashBtn:"Статистика по городу",
  disclaimer:"Карта и объекты: © OpenStreetMap contributors. Данные могут быть неполными и не являются экспертным заключением о соответствии нормам доступности.",
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
@@ -1762,7 +1763,7 @@ kk:{
  profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль", profEdit:"Өзгерту", profSync:"Аккаунтта сақтау",
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
  noRoute:"Бағыт әлі құрылмаған", noRouteHelp:"Жоғарыдағы өрістерді толтырыңыз. Бағыттағы баспалдақтарды, өткелдерді және еңісті тексеріп береміз.",
- nearbyTitle:"Жақын маңдағы нысандар", nearbyHelp:"Картадағы түймелер арқылы қабаттарды қосыңыз — тізім осы жерде және мәтіндік режимде шығады.",
+ nearbyTitle:"Жақын маңдағы нысандар", nearbyHelp:"Картадағы ≡ мәзірінде қабаттарды қосыңыз — тізім осы жерде және мәтіндік режимде шығады.",
  reportBtn:"+ Кедергі туралы хабарлау", sosBtn:"Шұғыл көмек", complaintBtn:"Әкімдікке өтініш", dashBtn:"Қала бойынша статистика",
  disclaimer:"Карта мен нысандар: © OpenStreetMap contributors. Деректер толық болмауы мүмкін және қолжетімділік нормаларына сәйкестік туралы сараптамалық қорытынды болып саналмайды.",
  listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
@@ -1851,7 +1852,7 @@ en:{
  profileTitle:"Your mobility profile", profileLabel:"Profile", profEdit:"Change", profSync:"Save to your account",
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
  noRoute:"No route yet", noRouteHelp:"Fill in the fields above. We'll check the route for steps, underpasses and slope.",
- nearbyTitle:"Places nearby", nearbyHelp:"Turn layers on with the buttons on the map — the list appears here and in text mode.",
+ nearbyTitle:"Places nearby", nearbyHelp:"Turn layers on in the ≡ menu on the map — the list appears here and in text mode.",
  reportBtn:"+ Report a barrier", sosBtn:"Emergency help", complaintBtn:"Complaint to the city", dashBtn:"City statistics",
  disclaimer:"Map and places: © OpenStreetMap contributors. Data may be incomplete and is not an expert assessment of compliance with accessibility standards.",
  listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
@@ -2833,7 +2834,7 @@ function setProfile(v){
     S.lang==="ru" ? `Максимальный уклон ${p.maxSlope}%` + (noLimit? ". Ступени не блокируют маршрут — предупреждаем о них отдельно." : `, порог до ${p.maxStep} см.`) :
     S.lang==="kk" ? `Ең үлкен еңіс ${p.maxSlope}%` + (noLimit? ". Баспалдақтар бағытты бөгемейді — бөлек ескертеміз." : `, табалдырық ${p.maxStep} см дейін.`) :
                     `Max slope ${p.maxSlope}%` + (noLimit? ". Steps don't block the route — we warn about them separately." : `, threshold up to ${p.maxStep} cm.`);
-  const pn=p[S.lang]||p.ru, ch=document.getElementById("profChip"); if(ch) ch.textContent=pn;
+  const pn=p[S.lang]||p.ru, ch=document.getElementById("profChip"); if(ch) ch.textContent=pn; { const mp=document.getElementById("mmProf"); if(mp) mp.textContent=pn; }
   const ci=document.getElementById("profChipIco"); if(ci) ci.innerHTML=svgI(PROFILE_ICON[v]||"wc");
   document.querySelectorAll("#profGrid .prof-opt").forEach(b=>{ const on=b.dataset.v===v; b.setAttribute("aria-checked",String(on)); b.tabIndex=on?0:-1; });
   const sv=document.getElementById("svProfile"); if(sv) sv.textContent=pn;
@@ -3493,7 +3494,7 @@ function renderNearby(){
       <div class="facts">${tagFacts(r.tags)}</div>
     </div>`).join("")
    : `<p class="small muted">${esc(t("nearbyHelp"))}</p>`;
-  document.getElementById("nearbyList").innerHTML=html;
+  document.getElementById("nearbyList").innerHTML=top.length?html:"";   // подсказка уже есть над списком
   document.getElementById("listPois").innerHTML=`<div class="card"><h2>${esc(t("nearbyTitle"))}</h2>${html}</div>`;
 }
 
@@ -4037,7 +4038,8 @@ function renderPeekPlaces(){
 function initMapMenu(){
   const L1=document.getElementById("mpmLayers"), L2=document.getElementById("mpmInfo");
   const lb=document.getElementById("layerbar"), wx=document.getElementById("wx"), ii=document.getElementById("imgInfo");
-  if(L1&&lb) L1.appendChild(lb); if(L2&&wx) L2.appendChild(wx); if(L2&&ii) L2.appendChild(ii);
+  if(L1&&lb) L1.appendChild(lb); if(L2&&ii) L2.appendChild(ii);
+  const h=document.querySelector('#mapMenu .mpm-h[data-i18n="mmInfo"]'); if(h) h.hidden=true;   // погода осталась на карте
   document.addEventListener("click",e=>{ const m=document.getElementById("mapMenu"), b=document.getElementById("mapMenuBtn");
     if(m && !m.hidden && !m.contains(e.target) && !b.contains(e.target)) toggleMapMenu(false); });
   updateMapMenuBadge();
