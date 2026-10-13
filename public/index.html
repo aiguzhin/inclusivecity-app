@@ -318,6 +318,7 @@ html[data-theme="dark"] .bus-badge{color:#04130d}
 #navHud .nv-row button{flex:1;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:700;cursor:pointer}
 #navHud .nv-row .stop{background:#fff;color:#0f2a4d}
 body.nav-on .top,body.nav-on #layerbar{visibility:hidden}
+.off-bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden}.off-bar i{display:block;height:100%;width:0;background:#1769c2;transition:width .3s}
 .trip-wx{display:grid;gap:6px;margin-top:10px}.trip-wx .fact{display:flex;gap:6px;align-items:flex-start;margin:0;border-radius:12px;font-size:.84rem;line-height:1.35}.trip-wx .ic{flex:none;width:18px;height:18px}
 .taxi-h{font-size:1rem;margin:18px 0 2px;display:flex;align-items:center;gap:6px}
 .taxi-src{font-size:.78rem;color:var(--ink-soft);margin:6px 0 0}
@@ -1235,6 +1236,16 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
           <button onclick="setHints('off')" data-v="off" data-i18n="hintsOff">Выключены</button>
         </div></div>
       </details>
+      <details class="set-sec" name="settings" id="secOffline">
+        <summary><span data-i18n="offTitle">Карта без интернета</span><b class="set-val" id="svOffline"></b></summary>
+        <div class="set-body">
+          <p class="small muted" style="margin:0 0 8px" data-i18n="offHelp">Скачаем ваш город: карту, пандусы, лифты, туалеты, остановки и контакты мест. Просмотренные районы тоже сохраняются.</p>
+          <div class="off-bar" id="offBar" hidden><i></i></div>
+          <p class="small" id="offStatus" style="margin:6px 0"></p>
+          <div class="row"><button class="btn-primary grow" id="offBtn" onclick="offlineDownload()" data-i18n="offDl">Скачать город</button>
+            <button class="btn-ghost" id="offDel" onclick="offlineDelete()" data-i18n="offDel" hidden>Удалить</button></div>
+        </div>
+      </details>
     </div>
     <p class="small muted" style="margin-top:14px" data-i18n="setSaved">Настройки сохраняются в этом браузере.</p>
   </div>
@@ -1430,7 +1441,7 @@ ru:{
  taxiNote:"Оценка по официальному тарифу «Эконом» Яндекс Go, {city}: подача {base} ₸, далее до {km} ₸/км и {min} ₸/мин. Точная цена — в приложении, в час пик дороже.", taxiLive:"цена Яндекс Go прямо сейчас", taxiWait:"машина через ~{n} мин",
  taxiYandex:"Заказать в Яндекс Go", yandexSub:"Маршрут откроется в приложении", taxiInDrive:"Заказать в inDrive", inDriveSub:"Предложите свою цену водителю",
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
- rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Навигация началась. {s}", navArrived:"Вы на месте. Навигация завершена.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
+ rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Навигация началась. {s}", navArrived:"Вы на месте. Навигация завершена.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", offTitle:"Карта без интернета", offDl:"Скачать город", offUpd:"Обновить", offDel:"Удалить", offNone:"Не скачано", offReady:"Скачано {d} · {n} объектов", offWork:"Скачиваем… {p}%", offDone:"Город скачан — карта будет работать без интернета", offFail:"Не всё удалось скачать — попробуйте позже", offUsing:"Нет интернета — показываем скачанные данные", offNoRoute:"Без интернета маршрут не построить — откройте сохранённый в «Мои места» или подключитесь", offDeleted:"Офлайн-данные города удалены", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
  peekWarns:"на пути", peekClear:"Препятствий не найдено",
  compass:"Компас", facing:"Вы смотрите на", 
@@ -1518,7 +1529,7 @@ kk:{
  taxiNote:"Яндекс Go ресми «Эконом» тарифі бойынша бағалау, {city}: отыру {base} ₸, әрі қарай {km} ₸/км және {min} ₸/мин дейін. Нақты баға қосымшада, қарбалас уақытта қымбатырақ.", taxiLive:"Яндекс Go-дағы қазіргі баға", taxiWait:"көлік ~{n} минутта",
  taxiYandex:"Яндекс Go арқылы шақыру", yandexSub:"Бағыт қосымшада ашылады", taxiInDrive:"inDrive арқылы шақыру", inDriveSub:"Жүргізушіге өз бағаңызды ұсыныңыз",
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
- rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Навигация басталды. {s}", navArrived:"Сіз межелі жердесіз. Навигация аяқталды.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
+ rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Навигация басталды. {s}", navArrived:"Сіз межелі жердесіз. Навигация аяқталды.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", offTitle:"Интернетсіз карта", offDl:"Қаланы жүктеу", offUpd:"Жаңарту", offDel:"Жою", offNone:"Жүктелмеген", offReady:"Жүктелді {d} · {n} нысан", offWork:"Жүктеп жатырмыз… {p}%", offDone:"Қала жүктелді — карта интернетсіз жұмыс істейді", offFail:"Бәрін жүктеу мүмкін болмады — кейінірек қайталаңыз", offUsing:"Интернет жоқ — жүктелген деректерді көрсетеміз", offNoRoute:"Интернетсіз бағыт құру мүмкін емес — «Менің орындарымдағы» сақталғанын ашыңыз немесе қосылыңыз", offDeleted:"Қаланың офлайн деректері жойылды", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
  peekWarns:"жолда", peekClear:"Кедергі табылмады",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
@@ -1607,7 +1618,7 @@ en:{
  taxiNote:"Estimate from the official Yandex Go «Economy» fare, {city}: pickup {base} ₸, then up to {km} ₸/km and {min} ₸/min. The exact price is in the app and is higher at rush hour.", taxiLive:"live Yandex Go price", taxiWait:"car in ~{n} min",
  taxiYandex:"Order with Yandex Go", yandexSub:"The route opens in the app", taxiInDrive:"Order with inDrive", inDriveSub:"Offer your own price",
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
- rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Navigation started. {s}", navArrived:"You have arrived. Navigation finished.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
+ rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Navigation started. {s}", navArrived:"You have arrived. Navigation finished.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", offTitle:"Offline map", offDl:"Download city", offUpd:"Update", offDel:"Delete", offNone:"Not downloaded", offReady:"Downloaded {d} · {n} objects", offWork:"Downloading… {p}%", offDone:"City downloaded — the map will work offline", offFail:"Some data could not be downloaded — try later", offUsing:"No internet — showing downloaded data", offNoRoute:"Routes need the internet — open a saved one in My places or reconnect", offDeleted:"Offline data for the city deleted", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
  peekWarns:"on the way", peekClear:"No obstacles found",
  compass:"Compass", facing:"You are facing",
@@ -2866,7 +2877,7 @@ function setCity(key){
   const changed = key!==S.city;
   S.city=key; store("city",key);
   const sel=document.getElementById("citySel"); if(sel) sel.value=key;
-  applyCityTexts(); updateSetVals();
+  applyCityTexts(); updateSetVals(); try{ offlineStatus(); }catch(e){}
   if(!changed) return;
   // Всё, что было привязано к прежнему городу, сбрасываем, чтобы не вести
   // маршрут из Алматы в Астану и не показывать чужие подсказки.
@@ -2993,6 +3004,8 @@ async function loadLayer(key, {force}={}){
     drawLayer(def,st);
     return {ok:true, count:st.items.length};
   }catch(e){
+    const off=await offlineLayer(key, bb);
+    if(off){ st.items=off; st.bbox=bb; drawLayer(def,st); if(!navigator.onLine) toast(t("offUsing")); return {ok:true, count:off.length, offline:true}; }
     return {ok:false, error:e};
   }finally{ chipBusy(key,false); }
 }
@@ -3454,6 +3467,53 @@ async function navTick(pos){
   navRender(here);
 }
 
+/* ============ Карта без интернета: пакет города в Cache API ============ */
+const OFF_CACHE="ic-offline";
+const offKey=(city,key)=>`/offline/${city}/${key}.json`;
+function lon2x(lo,z){ return Math.floor((lo+180)/360*2**z); }
+function lat2y(la,z){ const r=la*Math.PI/180; return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z); }
+async function offlineMeta(){ try{ return JSON.parse(read("off_"+S.city,"null")); }catch(e){ return null; } }
+async function offlineStatus(){
+  const m=await offlineMeta(), st=document.getElementById("offStatus"), btn=document.getElementById("offBtn"), del=document.getElementById("offDel"), sv=document.getElementById("svOffline");
+  if(!st) return;
+  if(m){ const d=new Date(m.at).toLocaleDateString(locale()); st.textContent=tf("offReady",{d,n:m.n}); btn.textContent=t("offUpd"); del.hidden=false; if(sv) sv.textContent="✓"; }
+  else { st.textContent=t("offNone"); btn.textContent=t("offDl"); del.hidden=true; if(sv) sv.textContent=""; }
+}
+async function offlineDownload(){
+  if(!("caches" in window)){ toast(t("offFail")); return; }
+  const btn=document.getElementById("offBtn"), bar=document.getElementById("offBar"), st=document.getElementById("offStatus");
+  btn.disabled=true; bar.hidden=false;
+  const [la,lo]=city().c, bb=`${(la-CITY_DLAT).toFixed(4)},${(lo-CITY_DLON).toFixed(4)},${(la+CITY_DLAT).toFixed(4)},${(lo+CITY_DLON).toFixed(4)}`;
+  // тайлы — только обзорные масштабы 10–13 (~150 штук): правила OSM не разрешают массово скачивать подробные
+  const tiles=[]; for(let z=10;z<=13;z++){ for(let x=lon2x(lo-CITY_DLON,z);x<=lon2x(lo+CITY_DLON,z);x++) for(let y=lat2y(la+CITY_DLAT,z);y<=lat2y(la-CITY_DLAT,z);y++) tiles.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`); }
+  const data=[`/places/${S.city}.json`,`/bus-${S.city}.json`,"/taxi-osm.json","/map"];
+  const total=LAYERS.length+tiles.length+data.length; let done=0, n=0, fail=0;
+  const step=()=>{ done++; const p=Math.round(done/total*100); bar.firstElementChild.style.width=p+"%"; st.textContent=tf("offWork",{p}); };
+  const c=await caches.open(OFF_CACHE);
+  for(const def of LAYERS){
+    try{ const q=`[out:json][timeout:60];(${def.q(bb)});out center tags 3000;`; const d=await overpassQuery(q, 60000);
+      const items=(d.elements||[]).map(e=>({lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}, osm:e.type&&e.id?e.type+'/'+e.id:null})).filter(x=>x.lat&&x.lon);
+      n+=items.length; await c.put(offKey(S.city,def.key), new Response(JSON.stringify(items),{headers:{"Content-Type":"application/json"}}));
+    }catch(e){ fail++; }
+    step(); await new Promise(r=>setTimeout(r,800));   // бережём бесплатный Overpass
+  }
+  for(const u of data){ try{ const r=await fetch(u,{cache:"reload"}); if(r.ok) await c.put(u, r.clone()); }catch(e){} step(); }
+  const tc=await caches.open("ic-tiles");
+  for(let i=0;i<tiles.length;i+=4){ await Promise.all(tiles.slice(i,i+4).map(async u=>{ try{ if(!(await tc.match(u))){ const r=await fetch(u,{mode:"cors"}); if(r.ok) await tc.put(u,r); } }catch(e){} step(); })); }
+  store("off_"+S.city, JSON.stringify({at:Date.now(), n}));
+  btn.disabled=false; bar.hidden=true; offlineStatus(); toast(t(fail?"offFail":"offDone"));
+}
+async function offlineDelete(){
+  try{ const c=await caches.open(OFF_CACHE); await Promise.all(LAYERS.map(d=>c.delete(offKey(S.city,d.key)))); }catch(e){}
+  try{ localStorage.removeItem("ic_off_"+S.city); }catch(e){}
+  offlineStatus(); toast(t("offDeleted"));
+}
+// Слой из скачанного пакета — когда Overpass недоступен (нет сети)
+async function offlineLayer(key, bb){
+  try{ const c=await caches.open(OFF_CACHE); const r=await c.match(offKey(S.city,key)); if(!r) return null;
+    const [s1,w,n1,e]=bb.split(",").map(Number); return (await r.json()).filter(x=>x.lat>=s1&&x.lat<=n1&&x.lon>=w&&x.lon<=e); }catch(e){ return null; }
+}
+
 /* ============ Мои места: дом, работа, любимые места и маршруты ============ */
 let PLACES=[]; try{ PLACES=JSON.parse(read("places","[]"))||[]; }catch(e){ PLACES=[]; }
 let plType="place";
@@ -3647,7 +3707,7 @@ async function buildRoute(){
     if(sheetMode() && S.view==="map") closeSheet();
     if(S.voice==="on" && !NAV.rerouting) speakRoute();
   }catch(e){ console.warn("route failed:", e);
-    card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t("routeFailHelp"))}</p>`;
+    card.innerHTML=`<h2>${esc(t("routeFail"))}</h2><p class="small muted">${esc(t(navigator.onLine?"routeFailHelp":"offNoRoute"))}</p>`;
     updatePeek();
   }
 }
@@ -5472,6 +5532,7 @@ function globeToMap(cityKey){
     }
   });
   step("places", ()=>{ restoreFields(); renderPlaces(); });
+  step("offline", ()=>offlineStatus());
   step("geo", ()=>autoLocate(false));
   step("weather", ()=>{ loadWeather(); });
   step("compass", ()=>{ startCompass(); applyHeading(); });

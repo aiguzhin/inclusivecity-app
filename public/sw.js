@@ -5,7 +5,9 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v40";
+const CACHE = "ic-v41";
+// Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
+const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
   "/",
   "/landing.html",
@@ -19,7 +21,8 @@ const SHELL = [
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ];
 const CDN_HOSTS = ["unpkg.com"];
-const TILE_HOSTS = ["tile.openstreetmap.org", "a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org"];
+const TILE_HOSTS = ["tile.openstreetmap.org", "a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org",
+  "server.arcgisonline.com", "a.tile.opentopomap.org", "b.tile.opentopomap.org", "c.tile.opentopomap.org"];
 
 self.addEventListener("install", e => {
   e.waitUntil(
@@ -32,11 +35,22 @@ self.addEventListener("install", e => {
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE && !KEEP.includes(k)).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
+let tilePuts = 0;
+function putTile(req, res) {
+  if (res && (res.ok || res.type === "opaque")) {
+    const copy = res.clone();
+    caches.open(TILES).then(c => c.put(req, copy).then(() => {
+      // раз в 200 новых тайлов подрезаем кэш до TILE_MAX — самые старые уходят первыми
+      if (++tilePuts % 200 === 0) c.keys().then(ks => { const extra = ks.length - TILE_MAX; for (let i = 0; i < extra; i++) c.delete(ks[i]); });
+    })).catch(() => {});
+  }
+  return res;
+}
 function putInCache(req, res) {
   if (res && res.ok) {
     const copy = res.clone();
@@ -75,7 +89,7 @@ self.addEventListener("fetch", e => {
   // 3. Тайлы карты: кэш первым — карта работает в уже просмотренных районах
   if (TILE_HOSTS.includes(url.hostname)) {
     e.respondWith(
-      caches.match(req).then(hit => hit || fetch(req).then(res => putInCache(req, res)).catch(() => hit))
+      caches.match(req).then(hit => hit || fetch(req).then(res => putTile(req, res)).catch(() => hit))
     );
     return;
   }
