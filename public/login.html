@@ -167,6 +167,21 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
 .egov{font-size:12px}
 /* Web Interface Guidelines (vercel-labs): без задержки двойного тапа */
 a,button,input,select,label,summary,[role="button"]{touch-action:manipulation}
+/* О себе: возраст и особенности → настройка сайта */
+.about{border:1px solid var(--line);border-radius:14px;padding:14px;margin:0;display:grid;gap:10px;background:var(--field)}
+.about legend{padding:0 6px;font-weight:600;color:var(--fg)}
+.about .ab-l{font-size:14px;color:var(--soft);margin:2px 0 -2px}
+.ab-opts{display:flex;flex-wrap:wrap;gap:8px}
+.ab-opts button{font:600 14px var(--f-body);color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 14px;min-height:44px;cursor:pointer}
+.ab-opts button[aria-checked="true"],.ab-opts button[aria-pressed="true"]{background:var(--ok);color:var(--ok-ink);border-color:var(--ok)}
+.ab-opts button:focus-visible{outline:2px solid var(--ok-t);outline-offset:2px}
+.ab-plan{margin:0;font-size:14px;color:var(--soft);min-height:1.4em}
+.ab-plan b{color:var(--fg)}
+.ab-note{font-size:12px;color:var(--muted);margin:0}
+.ab-auto{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg);cursor:pointer;min-height:44px}
+.ab-auto input{width:22px;height:22px;min-height:0;accent-color:var(--ok)}
+.nudge{border:2px solid var(--ok);border-radius:14px;padding:14px;margin:0 0 12px;display:grid;gap:8px}
+.nudge b{font-size:16px}.nudge p{margin:0;color:var(--soft);font-size:14px}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -251,6 +266,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
           <button type="button" class="togglePw" data-for="sPassword" data-t="show">Показать</button></span>
           <span class="hint" data-t="pwHint">Не меньше 8 символов.</span>
         </label>
+        <div id="aboutSignup"></div>
         <button class="submit" type="submit" id="signupSubmit" data-t="getCode">Получить код по SMS</button>
       </form>
       <p class="terms" data-t="terms">Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт.</p>
@@ -313,6 +329,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       </div>
       <div class="chips"><button type="button" class="chip" id="avaPick" data-t="avaChange">Сменить фото</button><button type="button" class="chip" id="avaDel" data-t="avaDel">Убрать фото</button></div>
 
+      <div id="aboutNudge"></div>
       <h2 class="sec" data-t="secMe">Личные данные</h2>
       <div class="group">
         <div class="item kv"><span class="k" data-t="name">Имя</span><span class="v" id="vName"></span><button type="button" class="edit" data-open="nameForm" data-t="change">Изменить</button></div>
@@ -330,6 +347,9 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
           <small data-t="mobHelp">По нему карта подбирает маршрут: уклоны, ступени, бордюры. Сохраняется в аккаунте.</small>
         </label>
       </div>
+
+      <h2 class="sec" id="aboutH" data-t="abTitle">О себе — настроим сайт под вас</h2>
+      <div class="group pad" id="aboutAcc"></div>
 
       <h2 class="sec" data-t="secPlaces">Мои места</h2>
       <div class="group" id="accPlaces"></div>
@@ -400,7 +420,7 @@ ru:{titleLogin:"Вход в ICity",titleSignup:"Регистрация в ICity"
  tabLogin:"Войти",tabSignup:"Регистрация",google:"Продолжить с Google",apple:"Продолжить с Apple",egov:"Войти через eGov",soon:"скоро",or:"или",
  ident:"Телефон или почта",name:"Имя",phone:"Номер телефона",phoneHint:"Пришлём SMS с кодом подтверждения.",email:"Почта",password:"Пароль",show:"Показать",hide:"Скрыть",
  pwHint:"Не меньше 8 символов.",forgot:"Забыли пароль?",byPhone:"По телефону",byEmail:"По почте",getCode:"Получить код по SMS",signupBtn:"Зарегистрироваться",
- terms:"Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт.",
+ terms:"Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт, а возраст и особенности, если ты их указал, — чтобы настроить сайт. Изменить или убрать их можно в профиле.",
  otpTitle:"Введи код из SMS",otpText:"Мы отправили 6-значный код на номер",otpLabel:"Код из SMS",confirm:"Подтвердить",resend:"Отправить код ещё раз",resendIn:"через {s} с",changeNumber:"Изменить номер",codeSent:"Новый код отправлен.",
  checkTitle:"Проверь почту",checkText:"Мы отправили ссылку на",checkText2:"Открой письмо и перейди по ссылке, чтобы закончить.",back:"Назад ко входу",
  forgotTitle:"Восстановить пароль",forgotLead:"Введи номер или почту, с которыми регистрировался. На телефон придёт код в SMS, на почту — ссылка.",restore:"Восстановить",
@@ -417,7 +437,7 @@ kk:{titleLogin:"ICity-ге кіру",titleSignup:"ICity-де тіркелу",lea
  tabLogin:"Кіру",tabSignup:"Тіркелу",google:"Google арқылы жалғастыру",apple:"Apple арқылы жалғастыру",egov:"eGov арқылы кіру",soon:"жақында",or:"немесе",
  ident:"Телефон немесе пошта",name:"Аты",phone:"Телефон нөмірі",phoneHint:"Растау коды бар SMS жібереміз.",email:"Пошта",password:"Құпиясөз",show:"Көрсету",hide:"Жасыру",
  pwHint:"Кемінде 8 таңба.",forgot:"Құпиясөзді ұмыттыңыз ба?",byPhone:"Телефон арқылы",byEmail:"Пошта арқылы",getCode:"SMS арқылы код алу",signupBtn:"Тіркелу",
- terms:"Тіркелу арқылы ICity аккаунтқа кіру үшін телефоныңды, поштаңды және атыңды сақтайтынына келісесің.",
+ terms:"Тіркелу арқылы ICity аккаунтқа кіру үшін телефоныңды, поштаңды және атыңды, ал көрсетсең — сайтты баптау үшін жасың мен ерекшеліктеріңді сақтайтынына келісесің. Оларды профильде өзгертуге не өшіруге болады.",
  otpTitle:"SMS-тегі кодты енгіз",otpText:"6 таңбалы кодты мына нөмірге жібердік:",otpLabel:"SMS коды",confirm:"Растау",resend:"Кодты қайта жіберу",resendIn:"{s} с кейін",changeNumber:"Нөмірді өзгерту",codeSent:"Жаңа код жіберілді.",
  checkTitle:"Поштаңды тексер",checkText:"Сілтемені мына мекенжайға жібердік:",checkText2:"Аяқтау үшін хатты ашып, сілтемеге өт.",back:"Кіруге оралу",
  forgotTitle:"Құпиясөзді қалпына келтіру",forgotLead:"Тіркелген нөмірді немесе поштаны енгіз. Телефонға SMS-код, поштаға сілтеме келеді.",restore:"Қалпына келтіру",
@@ -434,7 +454,7 @@ en:{titleLogin:"Sign in to ICity",titleSignup:"Join ICity",leadLogin:"Save your 
  tabLogin:"Sign in",tabSignup:"Sign up",google:"Continue with Google",apple:"Continue with Apple",egov:"Sign in with eGov",soon:"soon",or:"or",
  ident:"Phone or email",name:"Name",phone:"Phone number",phoneHint:"We'll text you a confirmation code.",email:"Email",password:"Password",show:"Show",hide:"Hide",
  pwHint:"At least 8 characters.",forgot:"Forgot password?",byPhone:"By phone",byEmail:"By email",getCode:"Get SMS code",signupBtn:"Create account",
- terms:"By signing up you agree that ICity stores your phone, email and name so you can sign in.",
+ terms:"By signing up you agree that ICity stores your phone, email and name so you can sign in, and your age and needs, if you add them, to set up the site. You can change or remove them in your profile.",
  otpTitle:"Enter the SMS code",otpText:"We sent a 6-digit code to",otpLabel:"SMS code",confirm:"Confirm",resend:"Send the code again",resendIn:"in {s} s",changeNumber:"Change number",codeSent:"New code sent.",
  checkTitle:"Check your email",checkText:"We sent a link to",checkText2:"Open it to finish.",back:"Back to sign in",
  forgotTitle:"Reset password",forgotLead:"Enter the phone or email you signed up with. A phone gets an SMS code, an email gets a link.",restore:"Reset",
@@ -455,21 +475,21 @@ Object.assign(T.ru,{avaChange:"Сменить фото",avaDel:"Убрать ф�
  pushNo:"Этот браузер не умеет присылать уведомления. На iPhone — добавьте ICity на экран «Домой».",pushDenied:"Уведомления запрещены в настройках браузера",pushOn:"Уведомления включены",pushOff:"Уведомления выключены",
  secSafe:"Безопасность",password:"Пароль",pwNone:"не задан",setPw:"Задать",nameSaved:"Имя сохранено",emailSent:"Письмо отправлено на {e}. Откройте его, чтобы подтвердить новый адрес.",
  phoneSaved:"Номер обновлён",avaSaved:"Фото обновлено",avaRemoved:"Фото убрано",avaFail:"Не получилось загрузить фото. Попробуйте другую картинку.",
- plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",pwLoginHint:"Теперь можно входить и по почте {e} с этим паролем.",viaPw:"Почта и пароль",secSos:"Близкий человек для SOS",sosWho:"Кому звонить и писать в беде",sosNamePh:"Имя, например «Мама»",sosHint:"В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.",avaDel2:"Удалить",sosSaved:"Контакт для SOS сохранён",sosRemoved:"Контакт для SOS удалён",sosNeed:"Укажите имя и номер",secAct:"Моя активность",actRep:"Жалобы на барьеры",actRepV:"{n} · исправлено {f}",actNone:"пока нет",actHelp:"Просьба о помощи",actHelpOn:"активна",open:"Открыть",fontBtn:"Размер шрифта",contrastBtn:"Высокий контраст",themeBtn:"Светлая или тёмная тема",cropTitle:"Настройте фото",cropLead:"Двигайте фото пальцем, приближайте ползунком или двумя пальцами.",cropOut:"Отдалить",cropIn:"Приблизить",cropRot:"Повернуть",cropZoomL:"Масштаб",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
+ plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",abTitle:"О себе — настроим сайт под вас",abLegend:"О себе (необязательно)",abAge:"Возраст",abNeeds:"Особенности — можно выбрать несколько",abAuto:"Настроить сайт под меня",abNote:"Нужно только чтобы подстроить карту и сайт. Видите только вы, можно не указывать.",abPlan:"Включим:",abNothing:"Оставим обычные настройки.",abSave:"Сохранить и настроить",abSaved:"Готово, сайт настроен под вас",abNudgeT:"Расскажите о себе",abNudgeP:"Укажите возраст и особенности — мы сразу настроим шрифт, контраст и маршруты.",abNudgeB:"Заполнить",ag_none:"Не указывать",ag_u18:"до 18",ag_18:"18–39",ag_40:"40–59",ag_60:"60–74",ag_75:"75+",nd_wheelchair_manual:"Коляска",nd_wheelchair_power:"Электроколяска",nd_crutches:"Трость, ходунки",nd_blind:"Не вижу",nd_lowvision:"Плохо вижу",nd_deaf:"Не слышу",nd_stroller:"С детской коляской",nd_temporary:"Временная травма",nd_none:"Нет особенностей",pl_font_large:"крупный шрифт",pl_font_xlarge:"очень крупный шрифт",pl_contrast:"высокий контраст",pl_hints:"голосовые подсказки",pl_motion:"без анимаций",pl_route:"маршруты: {p}",pwLoginHint:"Теперь можно входить и по почте {e} с этим паролем.",viaPw:"Почта и пароль",secSos:"Близкий человек для SOS",sosWho:"Кому звонить и писать в беде",sosNamePh:"Имя, например «Мама»",sosHint:"В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.",avaDel2:"Удалить",sosSaved:"Контакт для SOS сохранён",sosRemoved:"Контакт для SOS удалён",sosNeed:"Укажите имя и номер",secAct:"Моя активность",actRep:"Жалобы на барьеры",actRepV:"{n} · исправлено {f}",actNone:"пока нет",actHelp:"Просьба о помощи",actHelpOn:"активна",open:"Открыть",fontBtn:"Размер шрифта",contrastBtn:"Высокий контраст",themeBtn:"Светлая или тёмная тема",cropTitle:"Настройте фото",cropLead:"Двигайте фото пальцем, приближайте ползунком или двумя пальцами.",cropOut:"Отдалить",cropIn:"Приблизить",cropRot:"Повернуть",cropZoomL:"Масштаб",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
 Object.assign(T.kk,{avaChange:"Суретті ауыстыру",avaDel:"Суретті алып тастау",secMe:"Жеке деректер",change:"Өзгерту",add:"Қосу",cancel:"Болдырмау",save:"Сақтау",
  emailHint:"Сілтемесі бар хат келеді — растағаннан кейін пошта ауысады.",phoneHint2:"Жаңа нөмірге SMS-код жібереміз.",getCode2:"Код алу",
  secPlaces:"Менің орындарым",secNotify:"Хабарламалар",pushTitle:"Шағымдарым мен волонтёрлар туралы хабарлау",pushSub:"Қосымша жабық болса да келеді",
  pushNo:"Бұл браузер хабарлама жібере алмайды. iPhone-да ICity-ді «Үй» экранына қосыңыз.",pushDenied:"Хабарламаларға браузер баптауында тыйым салынған",pushOn:"Хабарламалар қосулы",pushOff:"Хабарламалар өшірулі",
  secSafe:"Қауіпсіздік",password:"Құпиясөз",pwNone:"орнатылмаған",setPw:"Орнату",nameSaved:"Аты сақталды",emailSent:"Хат {e} мекенжайына жіберілді. Жаңа поштаны растау үшін оны ашыңыз.",
  phoneSaved:"Нөмір жаңартылды",avaSaved:"Сурет жаңартылды",avaRemoved:"Сурет алынды",avaFail:"Суретті жүктеу мүмкін болмады. Басқа сурет таңдап көріңіз.",
- plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",pwLoginHint:"Енді {e} поштасы мен осы құпиясөз арқылы да кіруге болады.",viaPw:"Пошта мен құпиясөз",secSos:"SOS үшін жақын адам",sosWho:"Қиын жағдайда кімге қоңырау шалу",sosNamePh:"Аты, мысалы «Анам»",sosHint:"Қосымшадағы SOS терезесінде орныңызбен «Қоңырау шалу» және «SMS жіберу» батырмалары шығады.",avaDel2:"Өшіру",sosSaved:"SOS байланысы сақталды",sosRemoved:"SOS байланысы өшірілді",sosNeed:"Аты мен нөмірін жазыңыз",secAct:"Менің белсенділігім",actRep:"Кедергі туралы шағымдар",actRepV:"{n} · жойылғаны {f}",actNone:"әзірге жоқ",actHelp:"Көмек сұрау",actHelpOn:"белсенді",open:"Ашу",fontBtn:"Қаріп өлшемі",contrastBtn:"Жоғары контраст",themeBtn:"Ашық не күңгірт тақырып",cropTitle:"Суретті реттеңіз",cropLead:"Суретті саусақпен жылжытыңыз, жүгірткімен не екі саусақпен үлкейтіңіз.",cropOut:"Кішірейту",cropIn:"Үлкейту",cropRot:"Бұру",cropZoomL:"Масштаб",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
+ plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",abTitle:"Өзіңіз туралы — сайтты сізге бейімдейміз",abLegend:"Өзіңіз туралы (міндетті емес)",abAge:"Жасыңыз",abNeeds:"Ерекшеліктер — бірнешеуін таңдауға болады",abAuto:"Сайтты маған бейімдеу",abNote:"Тек карта мен сайтты бейімдеу үшін керек. Мұны тек сіз көресіз, көрсетпеуге болады.",abPlan:"Қосамыз:",abNothing:"Әдеттегі баптаулар қалады.",abSave:"Сақтау және баптау",abSaved:"Дайын, сайт сізге бейімделді",abNudgeT:"Өзіңіз туралы айтыңыз",abNudgeP:"Жасыңыз бен ерекшеліктеріңізді көрсетіңіз — қаріпті, контрастты және бағыттарды бірден баптаймыз.",abNudgeB:"Толтыру",ag_none:"Көрсетпеу",ag_u18:"18-ге дейін",ag_18:"18–39",ag_40:"40–59",ag_60:"60–74",ag_75:"75+",nd_wheelchair_manual:"Арба",nd_wheelchair_power:"Электр арба",nd_crutches:"Таяқ, жүргіш",nd_blind:"Көрмеймін",nd_lowvision:"Нашар көремін",nd_deaf:"Естімеймін",nd_stroller:"Бала арбасымен",nd_temporary:"Уақытша жарақат",nd_none:"Ерекшелік жоқ",pl_font_large:"ірі қаріп",pl_font_xlarge:"өте ірі қаріп",pl_contrast:"жоғары контраст",pl_hints:"дауыстық кеңестер",pl_motion:"анимациясыз",pl_route:"бағыттар: {p}",pwLoginHint:"Енді {e} поштасы мен осы құпиясөз арқылы да кіруге болады.",viaPw:"Пошта мен құпиясөз",secSos:"SOS үшін жақын адам",sosWho:"Қиын жағдайда кімге қоңырау шалу",sosNamePh:"Аты, мысалы «Анам»",sosHint:"Қосымшадағы SOS терезесінде орныңызбен «Қоңырау шалу» және «SMS жіберу» батырмалары шығады.",avaDel2:"Өшіру",sosSaved:"SOS байланысы сақталды",sosRemoved:"SOS байланысы өшірілді",sosNeed:"Аты мен нөмірін жазыңыз",secAct:"Менің белсенділігім",actRep:"Кедергі туралы шағымдар",actRepV:"{n} · жойылғаны {f}",actNone:"әзірге жоқ",actHelp:"Көмек сұрау",actHelpOn:"белсенді",open:"Ашу",fontBtn:"Қаріп өлшемі",contrastBtn:"Жоғары контраст",themeBtn:"Ашық не күңгірт тақырып",cropTitle:"Суретті реттеңіз",cropLead:"Суретті саусақпен жылжытыңыз, жүгірткімен не екі саусақпен үлкейтіңіз.",cropOut:"Кішірейту",cropIn:"Үлкейту",cropRot:"Бұру",cropZoomL:"Масштаб",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
 Object.assign(T.en,{avaChange:"Change photo",avaDel:"Remove photo",secMe:"Personal details",change:"Change",add:"Add",cancel:"Cancel",save:"Save",
  emailHint:"We'll email you a link — the address changes once you confirm it.",phoneHint2:"We'll text a code to the new number.",getCode2:"Get code",
  secPlaces:"My places",secNotify:"Notifications",pushTitle:"Tell me about my reports and volunteers",pushSub:"Arrives even when the app is closed",
  pushNo:"This browser can't show notifications. On iPhone, add ICity to your Home Screen first.",pushDenied:"Notifications are blocked in your browser settings",pushOn:"Notifications are on",pushOff:"Notifications are off",
  secSafe:"Security",password:"Password",pwNone:"not set",setPw:"Set",nameSaved:"Name saved",emailSent:"We sent an email to {e}. Open it to confirm the new address.",
  phoneSaved:"Number updated",avaSaved:"Photo updated",avaRemoved:"Photo removed",avaFail:"Couldn't upload the photo. Try another picture.",
- plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",pwLoginHint:"You can now also sign in with {e} and this password.",viaPw:"Email and password",secSos:"SOS contact",sosWho:"Who to call and text in an emergency",sosNamePh:"Name, e.g. “Mum”",sosHint:"The SOS window in the app will get “Call” and “Send SMS” buttons with your location.",avaDel2:"Delete",sosSaved:"SOS contact saved",sosRemoved:"SOS contact removed",sosNeed:"Enter a name and a number",secAct:"My activity",actRep:"Barrier reports",actRepV:"{n} · fixed {f}",actNone:"none yet",actHelp:"Help request",actHelpOn:"active",open:"Open",fontBtn:"Text size",contrastBtn:"High contrast",themeBtn:"Light or dark theme",cropTitle:"Adjust your photo",cropLead:"Drag to move, zoom with the slider or two fingers.",cropOut:"Zoom out",cropIn:"Zoom in",cropRot:"Rotate",cropZoomL:"Zoom",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
+ plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",abTitle:"About you — we’ll tailor the site",abLegend:"About you (optional)",abAge:"Age",abNeeds:"Needs — pick any that apply",abAuto:"Set the site up for me",abNote:"Only used to adapt the map and the site. Only you can see it, and you can skip it.",abPlan:"We’ll turn on:",abNothing:"We’ll keep the default settings.",abSave:"Save and set up",abSaved:"Done — the site is set up for you",abNudgeT:"Tell us about yourself",abNudgeP:"Add your age and needs and we’ll set up text size, contrast and routes right away.",abNudgeB:"Fill in",ag_none:"Prefer not to say",ag_u18:"under 18",ag_18:"18–39",ag_40:"40–59",ag_60:"60–74",ag_75:"75+",nd_wheelchair_manual:"Wheelchair",nd_wheelchair_power:"Power wheelchair",nd_crutches:"Cane, walker",nd_blind:"Blind",nd_lowvision:"Low vision",nd_deaf:"Deaf / hard of hearing",nd_stroller:"With a stroller",nd_temporary:"Temporary injury",nd_none:"No specific needs",pl_font_large:"large text",pl_font_xlarge:"extra-large text",pl_contrast:"high contrast",pl_hints:"voice hints",pl_motion:"no animations",pl_route:"routes for: {p}",pwLoginHint:"You can now also sign in with {e} and this password.",viaPw:"Email and password",secSos:"SOS contact",sosWho:"Who to call and text in an emergency",sosNamePh:"Name, e.g. “Mum”",sosHint:"The SOS window in the app will get “Call” and “Send SMS” buttons with your location.",avaDel2:"Delete",sosSaved:"SOS contact saved",sosRemoved:"SOS contact removed",sosNeed:"Enter a name and a number",secAct:"My activity",actRep:"Barrier reports",actRepV:"{n} · fixed {f}",actNone:"none yet",actHelp:"Help request",actHelpOn:"active",open:"Open",fontBtn:"Text size",contrastBtn:"High contrast",themeBtn:"Light or dark theme",cropTitle:"Adjust your photo",cropLead:"Drag to move, zoom with the slider or two fingers.",cropOut:"Zoom out",cropIn:"Zoom in",cropRot:"Rotate",cropZoomL:"Zoom",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
 const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
@@ -515,6 +535,7 @@ function applyTexts(){
   setMode(mode,true);setMethod(method,true);
   if(currentUser)fillAccount(currentUser);
   if(phoneOff)phoneOffUi();
+  if(typeof renderAbout==="function"&&$("aboutSignup")&&$("aboutSignup").firstChild)renderAbout($("aboutSignup"),"signup",false);
 }
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
  MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
@@ -591,6 +612,67 @@ function fillMob(u){
   sel.innerHTML=Object.entries(MOB).map(([k,v])=>`<option value="${k}">${v[li]}</option>`).join(""); sel.value=cur;
   try{ localStorage.setItem("ic_profile",cur); }catch(e){}
 }
+
+/* ---------- О себе: возраст и особенности → настройка сайта ---------- */
+const AGES=["none","u18","18","40","60","75"];
+const NEEDS=["wheelchair_manual","wheelchair_power","crutches","blind","lowvision","deaf","stroller","temporary","none"];
+const AB={signup:{age:"none",needs:[],auto:true},acc:{age:"none",needs:[],auto:true}};
+function abPlan(age,needs){
+  const n=new Set(needs),p={};
+  p.font=(age==="75"||n.has("blind")||n.has("lowvision"))?"xlarge":age==="60"?"large":null;
+  p.contrast=(n.has("blind")||n.has("lowvision"))?"high":null;
+  p.hints=n.has("blind")?"on":n.has("lowvision")?"off":null;
+  p.motion=age==="75"?"off":null;
+  p.profile=["wheelchair_power","wheelchair_manual","crutches","blind","stroller","temporary","deaf"].find(k=>n.has(k))||(n.has("lowvision")?"blind":null);
+  return p;
+}
+function abPlanText(p){
+  const li={ru:0,kk:1,en:2}[lang]||0,parts=[];
+  if(p.font)parts.push(t("pl_font_"+p.font));
+  if(p.contrast)parts.push(t("pl_contrast"));
+  if(p.hints==="on")parts.push(t("pl_hints"));
+  if(p.motion)parts.push(t("pl_motion"));
+  if(p.profile&&MOB[p.profile])parts.push(t("pl_route").replace("{p}",MOB[p.profile][li].toLowerCase()));
+  return parts.length?`<b>${esc(t("abPlan"))}</b> ${esc(parts.join(", "))}.`:esc(t("abNothing"));
+}
+function abApply(p){
+  const d=document.documentElement,set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+  if(p.font){set("ic_font",p.font);d.setAttribute("data-font",p.font);}
+  if(p.contrast){set("ic_contrast",p.contrast);d.setAttribute("data-contrast",p.contrast);}
+  if(p.hints)set("ic_hints",p.hints);
+  if(p.motion)set("ic_motion",p.motion);
+  if(p.profile)set("ic_profile",p.profile);
+  if(typeof themeUi==="function")themeUi();
+}
+function renderAbout(box,key,withSave){
+  if(!box)return;const st=AB[key];
+  box.innerHTML=`<fieldset class="about"><legend>${esc(t(withSave?"abTitle":"abLegend"))}</legend>
+    <p class="ab-l" id="${key}AgeL">${esc(t("abAge"))}</p>
+    <div class="ab-opts" role="radiogroup" aria-labelledby="${key}AgeL">${AGES.map(a=>`<button type="button" role="radio" data-age="${a}" aria-checked="${st.age===a}">${esc(t("ag_"+a))}</button>`).join("")}</div>
+    <p class="ab-l" id="${key}NeedL">${esc(t("abNeeds"))}</p>
+    <div class="ab-opts" role="group" aria-labelledby="${key}NeedL">${NEEDS.map(n=>`<button type="button" data-need="${n}" aria-pressed="${st.needs.includes(n)}">${esc(t("nd_"+n))}</button>`).join("")}</div>
+    <label class="ab-auto"><input type="checkbox" ${st.auto?"checked":""}> ${esc(t("abAuto"))}</label>
+    <p class="ab-plan" aria-live="polite"></p>
+    <p class="ab-note">${esc(t("abNote"))}</p>
+    ${withSave?`<button type="button" class="submit sm ab-save">${esc(t("abSave"))}</button>`:""}</fieldset>`;
+  const plan=()=>{box.querySelector(".ab-plan").innerHTML=st.auto?abPlanText(abPlan(st.age,st.needs)):esc(t("abNothing"));};
+  box.querySelectorAll("[data-age]").forEach(b=>b.onclick=()=>{st.age=b.dataset.age;box.querySelectorAll("[data-age]").forEach(x=>x.setAttribute("aria-checked",String(x===b)));plan();});
+  box.querySelectorAll("[data-need]").forEach(b=>b.onclick=()=>{const n=b.dataset.need;
+    if(st.needs.includes(n))st.needs=st.needs.filter(x=>x!==n);else st.needs=n==="none"?["none"]:st.needs.filter(x=>x!=="none").concat(n);
+    box.querySelectorAll("[data-need]").forEach(x=>x.setAttribute("aria-pressed",String(st.needs.includes(x.dataset.need))));plan();});
+  box.querySelector(".ab-auto input").onchange=e=>{st.auto=e.target.checked;plan();};
+  // стрелки внутри группы возраста
+  const radios=[...box.querySelectorAll("[data-age]")];
+  radios.forEach((b,i)=>b.addEventListener("keydown",e=>{const d={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(!d)return;e.preventDefault();const nb=radios[(i+d+radios.length)%radios.length];nb.focus();nb.click();}));
+  const sv=box.querySelector(".ab-save");
+  if(sv)sv.onclick=async()=>{
+    sv.disabled=true;const p=abPlan(st.age,st.needs);
+    const data={ic_age:st.age,ic_needs:st.needs};if(p.profile)data.mobility=p.profile;
+    try{if(st.auto)abApply(p);await upd({data},t("abSaved"));}catch(err){msg(errText(err));}finally{sv.disabled=false;}
+  };
+  plan();
+}
+function aboutFromUser(u){const m=(u&&u.user_metadata)||{};AB.acc.age=AGES.includes(m.ic_age)?m.ic_age:"none";AB.acc.needs=Array.isArray(m.ic_needs)?m.ic_needs.filter(n=>NEEDS.includes(n)):[];}
 const metaName=u=>{const m=u.user_metadata||{};return m.ic_name||m.full_name||m.name||(u.email||"").split("@")[0]||fmtPhone(u.phone)};
 const metaPic=u=>{const m=u.user_metadata||{};return m.ic_avatar===""?"":(m.ic_avatar||m.avatar_url||m.picture||"")};
 const hasPwOnly=(u,provs)=>!!(u.user_metadata||{}).ic_has_pw&&!provs.includes("email")&&!provs.includes("phone");
@@ -615,6 +697,11 @@ function fillAccount(u){
   const loc=lang==="kk"?"kk-KZ":lang==="en"?"en-GB":"ru-RU";
   try{$("accSince").textContent=new Date(u.created_at).toLocaleDateString(loc,{day:"numeric",month:"long",year:"numeric"})}catch(e){$("accSince").textContent=""}
   if(typeof renderAccPlaces==="function")renderAccPlaces(u);
+  aboutFromUser(u);renderAbout($("aboutAcc"),"acc",true);
+  {const m=u.user_metadata||{},nb=$("aboutNudge");
+   if(!m.ic_age&&!m.ic_needs){nb.innerHTML=`<div class="nudge"><b>${esc(t("abNudgeT"))}</b><p>${esc(t("abNudgeP"))}</p><button type="button" class="submit sm">${esc(t("abNudgeB"))}</button></div>`;
+     nb.querySelector("button").onclick=()=>{$("aboutH").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>{const f=$("aboutAcc").querySelector("[data-age]");if(f)f.focus({preventScroll:true});},400);};}
+   else nb.innerHTML="";}
   // близкий человек для SOS: аккаунт ⇄ этот браузер
   let sos=(u.user_metadata||{}).ic_sos;try{if(sos&&sos.phone)localStorage.setItem("ic_sosContact",JSON.stringify(sos));else if(!sos){sos=JSON.parse(localStorage.getItem("ic_sosContact")||"null");}}catch(e){}
   $("vSos").textContent=sos&&sos.phone?`${sos.name||""} · ${fmtPhone(sos.phone)}`:t("none");$("sosEdit").textContent=t(sos&&sos.phone?"change":"add");
@@ -635,6 +722,7 @@ function startResendTimer(){
 function openOtp(phone,purpose){otp={phone,purpose};$("otpPhone").textContent=fmtPhone(phone);$("otp").value="";show("otp");startResendTimer();setTimeout(()=>$("otp").focus(),50);}
 
 applyTexts();
+renderAbout($("aboutSignup"),"signup",false);
 
 const cfg=window.ICITY_AUTH||{};
 if(!cfg.url||!cfg.anonKey||!window.supabase||!window.supabase.createClient){
@@ -699,6 +787,9 @@ $("signupForm").addEventListener("submit",async e=>{
   busy(e.target,true);msg("");
   try{
     const opts={data:{full_name:name}};
+    {const st=AB.signup,p=abPlan(st.age,st.needs);
+     if(st.age!=="none"||st.needs.length){opts.data.ic_age=st.age;opts.data.ic_needs=st.needs;if(p.profile)opts.data.mobility=p.profile;}
+     if(st.auto)abApply(p);}
     let res;
     if(phone)res=await sb.auth.signUp({phone,password:pw,options:{...opts,channel:"sms"}});
     else res=await sb.auth.signUp({email,password:pw,options:{...opts,emailRedirectTo:location.origin+"/account"}});

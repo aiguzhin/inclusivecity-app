@@ -910,6 +910,10 @@ a,button,input,select,label,summary,[role="button"]{touch-action:manipulation}
 html[data-contrast="high"] .btn-primary{background:#ffd400;color:#000;border:2px solid #000}
 html[data-theme="dark"][data-contrast="high"] .btn-primary{border-color:#ffd400}
 html[data-contrast="high"] .btn-primary:hover{background:#ffe14d}
+.mm-signup{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;margin:2px 0 6px;border-radius:12px;color:var(--blue);font-weight:700;text-decoration:none}
+.mm-signup:hover{background:var(--blue-weak)}
+.mm-signup .ic{width:18px;height:18px}
+#signupBtn[hidden],#mmSignup[hidden]{display:none!important}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1116,6 +1120,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <option value="en">English</option>
     </select>
     <button class="btn-ghost icon-btn" onclick="openModal('settingsModal')" data-i18n-aria="settingsBtn" aria-label="Настройки"><i data-ic="gear"></i></button>
+    <a class="btn-ghost btn-sm acct-link" id="signupBtn" href="/login#signup" data-i18n="acctSignup">Регистрация</a>
     <a class="btn-ghost btn-sm acct-link" id="acctBtn" href="/login" data-i18n="acctLogin">Войти</a>
   </div>
 </header>
@@ -1126,6 +1131,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <span class="mm-ava" id="mmAva"><i data-ic="user"></i></span>
     <span class="mm-who"><b id="mmName" data-i18n="mmSignin">Вход и регистрация</b><small id="mmSub" data-i18n="mmGuestSub">Сохраняй маршруты и жалобы</small></span>
   </a>
+  <a class="mm-signup" id="mmSignup" href="/login#signup" role="menuitem"><i data-ic="user"></i> <span data-i18n="acctSignupNew">Регистрация — новый аккаунт</span></a>
   <div class="mm-sep" role="separator"></div>
   <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="walk"></i><span data-i18n="eyebrow">Маршрут и доступность</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
@@ -1756,7 +1762,7 @@ ru:{
  from:"Откуда", to:"Куда", build:"Построить маршрут", pick:"На карте",
  hint:"Введите место, выберите точку на карте или используйте геопозицию.",
  viewList:"Текстовый режим", viewMap:"Карта",
- acctLogin:"Войти", acctProfile:"Профиль", aboutShort:"О проекте",
+ acctLogin:"Войти", acctSignup:"Регистрация", acctSignupNew:"Регистрация — новый аккаунт", acctProfile:"Профиль", aboutShort:"О проекте",
  mmSignin:"Вход и регистрация", mmGuestSub:"Сохраняй маршруты и жалобы", mmMenu:"Меню",
  profileTitle:"Ваш профиль передвижения", profileLabel:"Профиль", profEdit:"Изменить", profSync:"Сохранить в аккаунте",
  profileHelp:"От него зависят предупреждения о склонах, ступенях и порогах.",
@@ -1844,7 +1850,7 @@ kk:{
  from:"Қайдан", to:"Қайда", build:"Бағыт құру", pick:"Картадан таңдау",
  hint:"Мекенжайды жазыңыз, картадан нүкте таңдаңыз немесе геолокацияны қосыңыз.",
  viewList:"Мәтіндік режим", viewMap:"Карта",
- acctLogin:"Кіру", acctProfile:"Профиль", aboutShort:"Жоба туралы",
+ acctLogin:"Кіру", acctSignup:"Тіркелу", acctSignupNew:"Тіркелу — жаңа аккаунт", acctProfile:"Профиль", aboutShort:"Жоба туралы",
  mmSignin:"Кіру және тіркелу", mmGuestSub:"Бағыттар мен шағымдарды сақта", mmMenu:"Мәзір",
  profileTitle:"Жүріп-тұру ерекшелігіңіз", profileLabel:"Профиль", profEdit:"Өзгерту", profSync:"Аккаунтта сақтау",
  profileHelp:"Еңіс, баспалдақ және табалдырық туралы ескертулер осыған байланысты беріледі.",
@@ -1933,7 +1939,7 @@ en:{
  from:"From", to:"To", build:"Build route", pick:"Pick on map",
  hint:"Type a place, pick a point on the map, or use your location.",
  viewList:"Text mode", viewMap:"Map",
- acctLogin:"Sign in", acctProfile:"Account", aboutShort:"About",
+ acctLogin:"Sign in", acctSignup:"Sign up", acctSignupNew:"Sign up — new account", acctProfile:"Account", aboutShort:"About",
  mmSignin:"Sign in / Sign up", mmGuestSub:"Save routes and reports", mmMenu:"Menu",
  profileTitle:"Your mobility profile", profileLabel:"Profile", profEdit:"Change", profSync:"Save to your account",
  profileHelp:"It determines the warnings you get about slopes, steps and thresholds.",
@@ -6485,6 +6491,7 @@ function globeToMap(cityKey){
     const ph=u.phone?("+"+String(u.phone).replace(/^\+/,"")):"";
     const name=meta.ic_name||meta.full_name||meta.name||(u.email||"").split("@")[0]||ph;
     const b=document.getElementById("acctBtn"); if(b){ b.setAttribute("data-i18n","acctProfile"); b.textContent=t("acctProfile"); b.href="/account"; }
+    ["signupBtn","mmSignup"].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=true; });
     const a=document.getElementById("mmAcct"); a.href="/account";
     const n=document.getElementById("mmName"); n.removeAttribute("data-i18n"); n.textContent=name;
     const sub=document.getElementById("mmSub"); sub.removeAttribute("data-i18n"); sub.textContent=u.email||ph;

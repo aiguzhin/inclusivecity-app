@@ -140,6 +140,7 @@ body.about #s10 .actions,body.about #s11,body.about .rail a[href="#s11"]{display
 .brand{min-height:44px}
 .brand small{font-size:12px}
 .lang-sw button{min-width:40px;min-height:38px;font-size:13px}
+[hidden]{display:none!important}
 #acctTop,.top-actions .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .rail a{min-height:24px;font-size:12px}
 .rail a i{width:9px;height:9px}
@@ -161,12 +162,14 @@ html[data-font="xlarge"] .panel,html[data-font="xlarge"] .top-actions{zoom:1.3}
 .vbtn{min-width:44px;min-height:44px;border-radius:99px;border:1px solid var(--line);background:var(--glass);color:var(--fg);display:grid;place-items:center;cursor:pointer;font:700 14px var(--f-body);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .vbtn svg{width:18px;height:18px}.vbtn[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .vbtn:focus-visible{outline:2px solid var(--brand-t);outline-offset:2px}
-.vgrp{display:flex;gap:8px}.vmenu{display:none}
+.vgrp{display:flex;gap:8px}.vmenu{display:none}.lang-m{display:none}
 @media (max-width:640px){
   .top-actions{gap:6px}.top-actions .hide-xs{display:none}
   .vmenu{display:grid}
   .vgrp{display:none;position:absolute;top:calc(100% + 8px);right:0;padding:8px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-  .vgrp.open{display:flex}
+  .vgrp.open{display:flex;flex-wrap:wrap;justify-content:flex-end;width:max-content;max-width:calc(100vw - 32px)}
+  .top-actions>.lang-sw{display:none}.vgrp .lang-m{display:flex}
+  #signupTop,#acctTop{padding:10px 14px}
 }
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
@@ -188,11 +191,13 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   <div class="lang-sw" role="group" aria-label="Тіл / Язык / Language"><button type="button" data-lang="ru">RU</button><button type="button" data-lang="kk">KZ</button><button type="button" data-lang="en">EN</button></div>
   <button type="button" class="vbtn vmenu" id="vMenuBtn" aria-expanded="false" aria-controls="vgrp" aria-label="Вид: тема, контраст, шрифт"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
   <div class="vgrp" id="vgrp">
+    <div class="lang-sw lang-m" role="group" aria-label="Тіл / Язык / Language"><button type="button" data-lang="ru">RU</button><button type="button" data-lang="kk">KZ</button><button type="button" data-lang="en">EN</button></div>
   <button type="button" class="vbtn" id="fontBtnL" aria-label="Размер шрифта">Aa</button>
   <button type="button" class="vbtn" id="contrastBtnL" aria-label="Высокий контраст" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
   <button type="button" class="vbtn" id="themeBtnL" aria-label="Светлая или тёмная тема"></button>
   </div>
   <a class="btn hide-xs" href="/map">Карта</a>
+  <a class="btn" id="signupTop" href="/login#signup">Регистрация</a>
   <a class="btn primary" id="acctTop" href="/login">Войти</a>
 </div>
 
@@ -353,7 +358,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <footer>ICity · inclusivecity.uk</footer>
 <script>
 /* Если человек уже вошёл (сессия Supabase в localStorage), показываем «Профиль» вместо «Войти» */
-(function(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k)||"null");if(v&&v.user){const a=document.getElementById("acctTop");a.textContent="Профиль";a.href="/account";const c=document.getElementById("acctCta");c.textContent="Мой профиль";c.href="/account";break;}}}}catch(e){}})();
+(function(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k)||"null");if(v&&v.user){const a=document.getElementById("acctTop");a.textContent="Профиль";a.href="/account";const su=document.getElementById("signupTop");if(su)su.hidden=true;const c=document.getElementById("acctCta");c.textContent="Мой профиль";c.href="/account";break;}}}}catch(e){}})();
 </script>
 
 <script>
