@@ -997,6 +997,13 @@ html[data-contrast="high"] .pcb.main{background:#ffd400;color:#000;border:2px so
 
 .nav-me{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35);display:grid;place-items:center;transition:transform .3s}
 .nav-me svg{width:22px;height:22px;fill:#1769c2}
+
+/* Спутник чётче: немного контраста и насыщенности (дешёво для GPU), без размытого «эскиза» под готовыми плитками */
+.sat-crisp{filter:contrast(1.12) saturate(1.15) brightness(1.03)}
+html[data-contrast="high"] .sat-crisp{filter:contrast(1.25) saturate(1.1)}
+.leaflet-tile.sat-crisp,.sat-crisp .leaflet-tile{image-rendering:auto}
+.v3-btn.hold{touch-action:none;user-select:none;-webkit-user-select:none}
+#walkPad .v3-btn[aria-pressed="true"]{background:var(--blue);color:#fff}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1441,10 +1448,10 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <div class="v3-walk">
         <button type="button" class="v3-btn wide" id="walkToggle" onclick="toggleWalk()" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/></svg> <span data-i18n="walk">Прогулка</span></button>
         <div class="v3-pad" id="walkPad" hidden>
-          <span></span><button type="button" class="v3-btn" onclick="walkStep(1)" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
-          <button type="button" class="v3-btn" onclick="walkTurn(-1)" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
-          <button type="button" class="v3-btn" onclick="walkStep(-1)" data-i18n-aria="walkBack" aria-label="Назад">↓</button>
-          <button type="button" class="v3-btn" onclick="walkTurn(1)" data-i18n-aria="walkRight" aria-label="Повернуть направо">↻</button>
+          <button type="button" class="v3-btn" onclick="walkRun(this)" aria-pressed="false" data-i18n-aria="walkRun" aria-label="Бег">»</button><button type="button" class="v3-btn hold" data-go="1" data-i18n-aria="walkFwd" aria-label="Вперёд">↑</button><span></span>
+          <button type="button" class="v3-btn hold" data-spin="-1" data-i18n-aria="walkLeft" aria-label="Повернуть налево">↺</button>
+          <button type="button" class="v3-btn hold" data-go="-1" data-i18n-aria="walkBack" aria-label="Назад">↓</button>
+          <button type="button" class="v3-btn hold" data-spin="1" data-i18n-aria="walkRight" aria-label="Повернуть направо">↻</button>
         </div>
       </div>
     </div>
@@ -1903,7 +1910,7 @@ ru:{
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
  meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь", rvAvg:"средняя оценка {v} из 5", stSurface:"Покрытие", stSideNo:"Тротуара нет", stSideBoth:"Тротуары с обеих сторон", stSideOne:"Тротуар с одной стороны", stLit:"Освещена ночью", stDark:"Не освещена", stSpeed:"Ограничение скорости {v} км/ч", stLanes:"Полос: {n}", stSmooth:"Ровность", stIncline:"Уклон {v}", pcRouteS:"Маршрут", pcCall:"Позвонить", pcSave:"Сохранить", pcSaved:"Сохранено", pcShare:"Поделиться", pcSavedT:"Место сохранено в «Мои места»", pcUnsaved:"Убрано из «Моих мест»", setZoomBtns:"Кнопки + и − на карте", zoomBtnsHelp:"На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.", rvS1:"Ужасно", rvS2:"Плохо", rvS3:"Нормально", rvS4:"Хорошо", rvS5:"Отлично", rvTapStars:"Нажмите на звёзды, чтобы оценить", rvPhotos:"Фото", rvAddPhoto:"Добавить", rvDelPhoto:"Убрать фото", rvPhotoN:"Фото {n}", rvTextPh:"Что было удобно, а что мешало?", rvEmpty:"Поставьте оценку, отметьте пункт или напишите пару слов", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
+ you:"Вы здесь", walkRun:"Бег", rvAvg:"средняя оценка {v} из 5", stSurface:"Покрытие", stSideNo:"Тротуара нет", stSideBoth:"Тротуары с обеих сторон", stSideOne:"Тротуар с одной стороны", stLit:"Освещена ночью", stDark:"Не освещена", stSpeed:"Ограничение скорости {v} км/ч", stLanes:"Полос: {n}", stSmooth:"Ровность", stIncline:"Уклон {v}", pcRouteS:"Маршрут", pcCall:"Позвонить", pcSave:"Сохранить", pcSaved:"Сохранено", pcShare:"Поделиться", pcSavedT:"Место сохранено в «Мои места»", pcUnsaved:"Убрано из «Моих мест»", setZoomBtns:"Кнопки + и − на карте", zoomBtnsHelp:"На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.", rvS1:"Ужасно", rvS2:"Плохо", rvS3:"Нормально", rvS4:"Хорошо", rvS5:"Отлично", rvTapStars:"Нажмите на звёзды, чтобы оценить", rvPhotos:"Фото", rvAddPhoto:"Добавить", rvDelPhoto:"Убрать фото", rvPhotoN:"Фото {n}", rvTextPh:"Что было удобно, а что мешало?", rvEmpty:"Поставьте оценку, отметьте пункт или напишите пару слов", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
@@ -1991,7 +1998,7 @@ kk:{
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
  meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
- you:"Сіз осындасыз", rvAvg:"орташа баға 5-тен {v}", stSurface:"Жабыны", stSideNo:"Тротуар жоқ", stSideBoth:"Екі жағында тротуар бар", stSideOne:"Бір жағында тротуар бар", stLit:"Түнде жарықтандырылған", stDark:"Жарық жоқ", stSpeed:"Жылдамдық шегі {v} км/сағ", stLanes:"Жолақ: {n}", stSmooth:"Тегістігі", stIncline:"Еңіс {v}", pcRouteS:"Бағыт", pcCall:"Қоңырау", pcSave:"Сақтау", pcSaved:"Сақталды", pcShare:"Бөлісу", pcSavedT:"Орын «Менің орындарыма» сақталды", pcUnsaved:"«Менің орындарымнан» алынды", setZoomBtns:"Картадағы + және − батырмалары", zoomBtnsHelp:"Телефонда масштаб екі саусақпен өзгереді. Ыңғайсыз болса — батырмаларды қосыңыз.", rvS1:"Өте нашар", rvS2:"Нашар", rvS3:"Орташа", rvS4:"Жақсы", rvS5:"Өте жақсы", rvTapStars:"Бағалау үшін жұлдыздарды басыңыз", rvPhotos:"Фото", rvAddPhoto:"Қосу", rvDelPhoto:"Фотоны алып тастау", rvPhotoN:"Фото {n}", rvTextPh:"Не ыңғайлы болды, не кедергі келтірді?", rvEmpty:"Баға қойыңыз, тармақты белгілеңіз не бірер сөз жазыңыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ you:"Сіз осындасыз", walkRun:"Жүгіру", rvAvg:"орташа баға 5-тен {v}", stSurface:"Жабыны", stSideNo:"Тротуар жоқ", stSideBoth:"Екі жағында тротуар бар", stSideOne:"Бір жағында тротуар бар", stLit:"Түнде жарықтандырылған", stDark:"Жарық жоқ", stSpeed:"Жылдамдық шегі {v} км/сағ", stLanes:"Жолақ: {n}", stSmooth:"Тегістігі", stIncline:"Еңіс {v}", pcRouteS:"Бағыт", pcCall:"Қоңырау", pcSave:"Сақтау", pcSaved:"Сақталды", pcShare:"Бөлісу", pcSavedT:"Орын «Менің орындарыма» сақталды", pcUnsaved:"«Менің орындарымнан» алынды", setZoomBtns:"Картадағы + және − батырмалары", zoomBtnsHelp:"Телефонда масштаб екі саусақпен өзгереді. Ыңғайсыз болса — батырмаларды қосыңыз.", rvS1:"Өте нашар", rvS2:"Нашар", rvS3:"Орташа", rvS4:"Жақсы", rvS5:"Өте жақсы", rvTapStars:"Бағалау үшін жұлдыздарды басыңыз", rvPhotos:"Фото", rvAddPhoto:"Қосу", rvDelPhoto:"Фотоны алып тастау", rvPhotoN:"Фото {n}", rvTextPh:"Не ыңғайлы болды, не кедергі келтірді?", rvEmpty:"Баға қойыңыз, тармақты белгілеңіз не бірер сөз жазыңыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
  mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
@@ -2080,7 +2087,7 @@ en:{
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
  meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
- you:"You are here", rvAvg:"average rating {v} out of 5", stSurface:"Surface", stSideNo:"No pavement", stSideBoth:"Pavements on both sides", stSideOne:"Pavement on one side", stLit:"Lit at night", stDark:"Not lit", stSpeed:"Speed limit {v} km/h", stLanes:"Lanes: {n}", stSmooth:"Smoothness", stIncline:"Incline {v}", pcRouteS:"Route", pcCall:"Call", pcSave:"Save", pcSaved:"Saved", pcShare:"Share", pcSavedT:"Saved to My places", pcUnsaved:"Removed from My places", setZoomBtns:"+ and − buttons on the map", zoomBtnsHelp:"On a phone you zoom with two fingers. If that’s hard, turn the buttons on.", rvS1:"Terrible", rvS2:"Poor", rvS3:"Okay", rvS4:"Good", rvS5:"Excellent", rvTapStars:"Tap the stars to rate", rvPhotos:"Photos", rvAddPhoto:"Add", rvDelPhoto:"Remove photo", rvPhotoN:"Photo {n}", rvTextPh:"What worked well and what got in the way?", rvEmpty:"Add a rating, tick an item or write a few words", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
+ you:"You are here", walkRun:"Run", rvAvg:"average rating {v} out of 5", stSurface:"Surface", stSideNo:"No pavement", stSideBoth:"Pavements on both sides", stSideOne:"Pavement on one side", stLit:"Lit at night", stDark:"Not lit", stSpeed:"Speed limit {v} km/h", stLanes:"Lanes: {n}", stSmooth:"Smoothness", stIncline:"Incline {v}", pcRouteS:"Route", pcCall:"Call", pcSave:"Save", pcSaved:"Saved", pcShare:"Share", pcSavedT:"Saved to My places", pcUnsaved:"Removed from My places", setZoomBtns:"+ and − buttons on the map", zoomBtnsHelp:"On a phone you zoom with two fingers. If that’s hard, turn the buttons on.", rvS1:"Terrible", rvS2:"Poor", rvS3:"Okay", rvS4:"Good", rvS5:"Excellent", rvTapStars:"Tap the stars to rate", rvPhotos:"Photos", rvAddPhoto:"Add", rvDelPhoto:"Remove photo", rvPhotoN:"Photo {n}", rvTextPh:"What worked well and what got in the way?", rvEmpty:"Add a rating, tick an item or write a few words", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
  mapPoint:"Point on the map", myLocation:"My location"
 }};
 
@@ -2224,7 +2231,10 @@ function setBasemap(key){
     basePreview=satLayer({tileSize:1024, zoomOffset:-2, maxNativeZoom:Math.max(3,(opts.maxNativeZoom||17)), minNativeZoom:2,
       maxZoom:def.max, keepBuffer:1, updateWhenIdle:false, className:def.cls||""}).addTo(map);
     basePreview.setZIndex(-1);
+    // как только чёткие плитки загрузились — прячем размытый «эскиз», чтобы он не просвечивал по краям
+    const bp=basePreview; setTimeout(()=>{ if(baseLayer) baseLayer.on("load",()=>{ if(bp && bp._container) bp._container.style.opacity="0"; }); baseLayer && baseLayer.on("loading",()=>{ if(bp && bp._container) bp._container.style.opacity="1"; }); },0);
   }
+  if(def.imagery) opts.className=((opts.className||"")+" sat-crisp").trim();
   baseLayer=satLayer(opts).addTo(map);
   const wb=document.getElementById("wbBtn"); if(wb) wb.hidden=!def.imagery;
   if(!def.imagery) toggleWayback(false);
@@ -2474,9 +2484,9 @@ function style3D(style){
     sources.sat={type:"raster", tileSize:256, maxzoom:19, attribution:"© Esri, Maxar, Vantor",
       tiles:[waybackRel ? WB_TILE.replace("{rel}",waybackRel) : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]};
     const b=clone(style.layers.find(l=>l.id==="building-3d") || {});
-    if(b.id) b.paint=Object.assign({},b.paint,{"fill-extrusion-color":"#e8e1d6","fill-extrusion-opacity":0.7});
+    if(b.id) b.paint=Object.assign({},b.paint,{"fill-extrusion-color":"#efe9df","fill-extrusion-opacity":0.55,"fill-extrusion-vertical-gradient":true});
     // номера домов в 3D — только вблизи, иначе ими усыпаны все крыши
-    layers=[{id:"sat", type:"raster", source:"sat"}].concat(b.id?[b]:[],
+    layers=[{id:"sat", type:"raster", source:"sat", paint:{"raster-contrast":0.12,"raster-saturation":0.12,"raster-brightness-min":0.02,"raster-fade-duration":0,"raster-resampling":"linear"}}].concat(b.id?[b]:[],
       overlayLayers(style).map(l=>l.id==="housenumber"?Object.assign(l,{minzoom:18}):l));
   } else {
     // мелкомасштабная подложка Natural Earth (растр до z6) в 3D только мешает рельефу
@@ -2502,7 +2512,7 @@ async function open3D(fromGesture, cam){
                         pitch:fromGesture?0:60, bearing:(typeof mapBearing==="function"?mapBearing():0)};
     box.hidden=false;
     map3d=new maplibregl.Map(Object.assign({
-      pixelRatio:Math.min(window.devicePixelRatio||1, sheetMode()?1.5:2),   // 3D тяжёлый — на телефоне чуть экономнее
+      pixelRatio:Math.min(window.devicePixelRatio||1, 2),   // чётко и на телефоне
       container:"map3d", maxPitch:85, fadeDuration:0,
       attributionControl:{compact:true}, style:style3D(style)
     }, start));
@@ -2641,22 +2651,53 @@ function open3DPopup(lid, lngLat){
   if(c instanceof HTMLElement) m3Popup.setDOMContent(c); else m3Popup.setHTML(String(c));
   m3Popup.addTo(map3d);
 }
-// Прогулка: камера опускается к земле, шаги по 15 м и повороты по 20°
+// Прогулка как в Google Earth: камера на уровне глаз, держите ↑ — идёте, тянете по экрану — осматриваетесь, «Бег» — быстрее
+let walkHeld=0, walkRaf=0, walkSpeed=1.6, walkTurnHeld=0, walkLast=0;
 function toggleWalk(){
   walking=!walking;
   document.getElementById("walkToggle").setAttribute("aria-pressed", String(walking));
   document.getElementById("walkPad").hidden=!walking;
   if(!map3d) return;
-  if(walking){ map3d.keyboard.disable(); map3d.easeTo({zoom:17.6, pitch:72, duration:900}); }
-  else{ map3d.keyboard.enable(); map3d.easeTo({zoom:16, pitch:62, duration:900}); }
+  if(walking){ map3d.keyboard.disable(); map3d.dragPan.disable(); map3d.easeTo({zoom:18.6, pitch:78, duration:1100}); walkKeys(true); walkLook(true); }
+  else{ walkHeld=0; walkTurnHeld=0; map3d.keyboard.enable(); map3d.dragPan.enable(); map3d.easeTo({zoom:16.5, pitch:60, duration:900}); walkKeys(false); walkLook(false); }
 }
-function walkStep(dir){
-  if(!map3d) return;
-  const c=map3d.getCenter(), b=map3d.getBearing()*Math.PI/180, d=15*dir;
-  const lat=c.lat + Math.cos(b)*d/111320, lng=c.lng + Math.sin(b)*d/(111320*Math.cos(c.lat*Math.PI/180));
-  map3d.easeTo({center:[lng,lat], duration:350});
+function walkLoop(now){
+  if(!map3d || !walking || (!walkHeld && !walkTurnHeld)){ walkRaf=0; return; }
+  const dt=Math.min(.05,(now-(walkLast||now))/1000); walkLast=now;
+  if(walkTurnHeld) map3d.setBearing(map3d.getBearing()+walkTurnHeld*55*dt);
+  if(walkHeld){ const c=map3d.getCenter(), b=map3d.getBearing()*Math.PI/180, d=walkHeld*walkSpeed*8*dt;   // ~13 м/с при беге, ~5 м/с шагом (ускорено, чтобы не скучно)
+    map3d.setCenter([c.lng+Math.sin(b)*d/(111320*Math.cos(c.lat*Math.PI/180)), c.lat+Math.cos(b)*d/111320]); }
+  walkRaf=requestAnimationFrame(walkLoop);
 }
-function walkTurn(dir){ if(map3d) map3d.easeTo({bearing:map3d.getBearing()+20*dir, duration:300}); }
+function walkGo(dir){ walkHeld=dir; walkLast=0; if(!walkRaf && dir) walkRaf=requestAnimationFrame(walkLoop); }
+function walkSpin(dir){ walkTurnHeld=dir; walkLast=0; if(!walkRaf && dir) walkRaf=requestAnimationFrame(walkLoop); }
+function walkRun(btn){ walkSpeed=walkSpeed>2?1.6:4; if(btn) btn.setAttribute("aria-pressed",String(walkSpeed>2)); }
+function walkKeys(on){
+  const kd=e=>{ if(!walking||/input|textarea/i.test((e.target&&e.target.tagName)||"")) return; const k=e.key.toLowerCase();
+    if(k==="arrowup"||k==="w"||k==="ц"){ e.preventDefault(); walkGo(1); } else if(k==="arrowdown"||k==="s"||k==="ы"){ e.preventDefault(); walkGo(-1); }
+    else if(k==="arrowleft"||k==="a"||k==="ф"){ e.preventDefault(); walkSpin(-1); } else if(k==="arrowright"||k==="d"||k==="в"){ e.preventDefault(); walkSpin(1); }
+    else if(k==="shift") walkSpeed=4; };
+  const ku=e=>{ const k=e.key.toLowerCase(); if(/arrowup|arrowdown|^w$|^s$|^ц$|^ы$/.test(k)) walkGo(0); if(/arrowleft|arrowright|^a$|^d$|^ф$|^в$/.test(k)) walkSpin(0); if(k==="shift") walkSpeed=1.6; };
+  if(on){ window.__wk=[kd,ku]; addEventListener("keydown",kd); addEventListener("keyup",ku); }
+  else if(window.__wk){ removeEventListener("keydown",window.__wk[0]); removeEventListener("keyup",window.__wk[1]); window.__wk=null; }
+}
+function walkStep(dir){ walkGo(dir); setTimeout(()=>walkGo(0),350); }
+// Осмотреться: ведёте пальцем/мышью по экрану — голова поворачивается и наклоняется
+function walkLook(on){
+  const cv=map3d&&map3d.getCanvas(); if(!cv) return;
+  if(!on){ if(cv.__look){ cv.removeEventListener("pointerdown",cv.__look[0]); removeEventListener("pointermove",cv.__look[1]); removeEventListener("pointerup",cv.__look[2]); cv.__look=null; } return; }
+  let p0=null;
+  const dn=e=>{ if(e.pointerType==="touch" && e.isPrimary===false) return; p0={x:e.clientX,y:e.clientY,b:map3d.getBearing(),pt:map3d.getPitch()}; };
+  const mv=e=>{ if(!p0||!map3d) return; map3d.setBearing(p0.b-(e.clientX-p0.x)*0.3); map3d.setPitch(Math.max(45,Math.min(85,p0.pt+(e.clientY-p0.y)*0.15))); };
+  const up=()=>{ p0=null; };
+  cv.addEventListener("pointerdown",dn); addEventListener("pointermove",mv); addEventListener("pointerup",up); cv.__look=[dn,mv,up];
+}
+function walkTurn(dir){ walkSpin(dir); setTimeout(()=>walkSpin(0),300); }
+// Кнопки прогулки: держите — идёте/поворачиваете, отпустили — стоп (и клавиатура: стрелки/WASD, Shift — бег)
+document.addEventListener("pointerdown",e=>{ const b=e.target.closest&&e.target.closest("#walkPad .hold"); if(!b) return; e.preventDefault();
+  try{ b.setPointerCapture(e.pointerId); }catch(_){}
+  if(b.dataset.go) walkGo(+b.dataset.go); if(b.dataset.spin) walkSpin(+b.dataset.spin); });
+["pointerup","pointercancel","lostpointercapture"].forEach(ev=>document.addEventListener(ev,e=>{ const b=e.target.closest&&e.target.closest("#walkPad .hold"); if(!b) return; if(b.dataset.go) walkGo(0); if(b.dataset.spin) walkSpin(0); }));
 // Жест как в 2ГИС: два пальца вместе ведут вверх — карта наклоняется и становится 3D.
 // От щипка (зума) отличаем по тому, что расстояние между пальцами почти не меняется.
 function initTiltGesture(){
