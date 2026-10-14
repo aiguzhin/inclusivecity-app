@@ -561,7 +561,8 @@ function bad(id,text){$(id).setAttribute("aria-invalid","true");msg(text);$(id).
 function setMode(m,silent){
   mode=m;const su=m==="signup";
   $("tabLogin").setAttribute("aria-selected",String(!su));$("tabSignup").setAttribute("aria-selected",String(su));
-  $("authTitle").textContent=t(su?"titleSignup":"titleLogin");$("authLead").textContent=t(su?"leadSignup":"leadLogin");
+  const prof=!su&&location.pathname==="/account"&&!currentUser;   // «Профиль» без входа — объясняем, что нужно войти
+  $("authTitle").textContent=t(su?"titleSignup":prof?"titleProfile":"titleLogin");$("authLead").textContent=t(su?"leadSignup":prof?"leadProfile":"leadLogin");
   $("loginForm").hidden=su;$("signupForm").hidden=!su;
   if(!silent)msg("");
 }
@@ -757,7 +758,6 @@ sb.auth.onAuthStateChange((event,session)=>{
   if(s&&wantReset){hold=true;show("reset");return;}
   if(s){showAccount(s.user);return;}
   show("auth");
-  if(location.pathname==="/account"&&!location.hash){$("authTitle").textContent=t("titleProfile");$("authLead").textContent=t("leadProfile");}
   if(urlErr)msg(urlErr.replace(/\+/g," "));
 })();
 

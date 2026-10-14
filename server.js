@@ -321,6 +321,7 @@ async function handleApi(req, res, pathname) {
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname === '/api/rating') { const done = await rating.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname.startsWith('/api/reviews') || pathname.startsWith('/api/help')) {
     const done = await social.handle(req, res, pathname, new URL(req.url, 'http://x'));
     if (done !== null) return;
@@ -521,6 +522,7 @@ const placeinfo = require('./placeinfo');
 const social = require('./social');
 const push = require('./push');
 const profile = require('./profile');
+const rating = require('./rating');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
@@ -833,6 +835,7 @@ server.listen(PORT, () => {
   social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));
   push.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR }).catch((e) => console.warn('push:', e.message));
   profile.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR });
+  rating.init({ sendJson, kvPut, kvGet });
   // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
   const selfUrl = process.env.RENDER_EXTERNAL_URL;
