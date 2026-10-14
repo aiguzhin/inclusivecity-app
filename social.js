@@ -66,7 +66,11 @@ async function handle(req, res, pathname, url) {
     if (place) {
       // то же место могли отметить по-разному (osm-id или координаты) — берём и отзывы в 30 м с тем же названием
       const lat = num(url.searchParams.get('lat')), lng = num(url.searchParams.get('lng')), nm = clean(url.searchParams.get('name'), 120).toLowerCase();
-      const same = (r) => r.place === place || (lat != null && lng != null && dist([lat, lng], [r.lat, r.lng]) < 30 && (!nm || !r.placeName || r.placeName.toLowerCase() === nm));
+      // улица длинная: отзыв, оставленный в другой её точке, — тот же, если название совпадает (до 600 м)
+      const street = url.searchParams.get('street') === '1';
+      const same = (r) => r.place === place || (lat != null && lng != null && (
+        (dist([lat, lng], [r.lat, r.lng]) < 40 && (!nm || !r.placeName || r.placeName.toLowerCase() === nm)) ||
+        (nm && r.placeName && r.placeName.toLowerCase() === nm && dist([lat, lng], [r.lat, r.lng]) < (street ? 600 : 80))));
       const list = all.filter(same).sort((a, b) => b.at.localeCompare(a.at)); return H.sendJson(res, 200, { summary: reviewSummary(list), reviews: list.slice(0, 50).map(pubReview) }); }
     const near = (url.searchParams.get('near') || '').split(',').map(Number);
     if (near.length === 2 && near.every(Number.isFinite)) {
@@ -77,7 +81,7 @@ async function handle(req, res, pathname, url) {
     return H.sendJson(res, 400, { error: 'place or near required' });
   }
   if (pathname === '/api/reviews' && req.method === 'POST') {
-    if (limited(req, 'rev', 10, 3600e3)) return H.sendJson(res, 429, { error: 'Слишком много отзывов, попробуйте позже' });
+    if (limited(req, 'rev', 30, 3600e3)) return H.sendJson(res, 429, { error: 'Слишком много отзывов, попробуйте позже' });
     const b = await body(req, res, 8 * 1024 * 1024); if (!b) return;
     const f = b.fields, lat = num(f.lat), lng = num(f.lng), place = clean(f.place, 60);
     if (lat == null || lng == null || !place) return H.sendJson(res, 400, { error: 'Нет места' });
