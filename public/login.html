@@ -18,29 +18,35 @@ d.setAttribute("data-theme",th);d.setAttribute("data-font",g("ic_font")||"normal
 <style>
 :root{
   --ink:#070b12; --card:#0d1520; --field:#111c29; --fg:#e9eef2; --soft:#c9d3dc; --muted:#93a1b0;
-  --line:rgba(160,200,220,.18); --ok:#3fe0a8; --ok-t:#3fe0a8; --ok-ink:#04201a; --err:#ff7b75; --warn:#ffb547; --toast:rgba(13,21,32,.92);
-  --glow1:rgba(63,224,168,.12); --glow2:rgba(90,184,255,.08);
+  --line:rgba(160,200,220,.18); --ok:#2563eb; --ok-t:#8ab8ff; --ok-ink:#ffffff; --good:#3fe0a8; --ring:rgba(37,99,235,.35); --err:#ff7b75; --warn:#ffb547; --toast:rgba(13,21,32,.92);
+  --glow1:rgba(37,99,235,.16); --glow2:rgba(63,224,168,.06);
   --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
   --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
 /* Светлая тема и крупный шрифт — те же настройки, что в приложении (ic_theme, ic_font, ic_contrast) */
 html[data-theme="light"]{--ink:#f3f6f8;--card:#ffffff;--field:#f2f5f8;--fg:#111722;--soft:#323c4a;--muted:#566173;
-  --line:rgba(17,23,34,.16);--ok:#2fd39b;--ok-t:#0a6e4f;--ok-ink:#04201a;--err:#b42318;--warn:#9a5b00;--toast:rgba(255,255,255,.96);
-  --glow1:rgba(47,211,155,.16);--glow2:rgba(23,105,194,.08);color-scheme:light}
+  --line:rgba(17,23,34,.16);--ok:#1769c2;--ok-t:#1557a8;--ok-ink:#ffffff;--good:#0a6e4f;--ring:rgba(23,105,194,.3);--err:#b42318;--warn:#9a5b00;--toast:rgba(255,255,255,.96);
+  --glow1:rgba(23,105,194,.14);--glow2:rgba(47,211,155,.08);color-scheme:light}
 html[data-theme="light"] .card{box-shadow:0 10px 40px rgba(17,23,34,.08)}
 html[data-theme="light"] .msg.err{background:#fdecea;border-color:#f3b8b1}
 html[data-theme="light"] .msg.ok{background:#e7f7f0;border-color:#9edcc4}
 html[data-theme="light"] .prov .soon{background:#fff2dc}
 html[data-theme="light"] .sw i{background:#c5ccd6}
 html[data-theme="light"] .crop{background:rgba(17,23,34,.55)}
-html[data-contrast="high"]{--line:currentColor;--muted:var(--soft)}
-html[data-contrast="high"][data-theme="light"]{--fg:#000;--soft:#000;--muted:#1b1b1b;--card:#fff;--field:#fff;--ink:#fff;--ok-t:#004d36}
-html[data-contrast="high"]:not([data-theme="light"]){--fg:#fff;--soft:#fff;--muted:#e6e6e6;--card:#000;--field:#000;--ink:#000}
+/* Высокий контраст: чёрное/белое + жёлтые кнопки (для слабовидящих) */
+html[data-contrast="high"]{--line:currentColor;--muted:var(--soft);--ok:#ffd400;--ok-ink:#000;--glow1:transparent;--glow2:transparent;--ring:rgba(255,212,0,.6)}
+html[data-contrast="high"] .card{border-width:3px;border-radius:8px}
+html[data-contrast="high"] input,html[data-contrast="high"] select,html[data-contrast="high"] .prov,html[data-contrast="high"] .tabs,html[data-contrast="high"] .tbtn,html[data-contrast="high"] .group,html[data-contrast="high"] .chip,html[data-contrast="high"] .ghost{border-width:2px;border-color:currentColor}
+html[data-contrast="high"] .submit,html[data-contrast="high"] .tabs button[aria-selected="true"]{border:2px solid currentColor}
+html[data-contrast="high"] .brand b{background:#ffd400;color:#000}
+html[data-contrast="high"][data-theme="light"]{--fg:#000;--soft:#000;--muted:#1b1b1b;--card:#fff;--field:#fff;--ink:#fff;--ok-t:#000;--good:#004d36}
+html[data-contrast="high"]:not([data-theme="light"]){--fg:#fff;--soft:#fff;--muted:#e6e6e6;--card:#000;--field:#000;--ink:#000;--ok-t:#ffd400}
 html[data-font="large"] body{zoom:1.15} html[data-font="xlarge"] body{zoom:1.3}
 .top-tools{display:flex;align-items:center;gap:8px}
 .tbtn{min-width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--field);color:var(--fg);font:700 15px var(--f-body);cursor:pointer;display:grid;place-items:center;padding:0 10px}
 .tbtn svg{width:18px;height:18px}
+.tbtn[aria-pressed="true"]{background:var(--ok);color:var(--ok-ink);border-color:var(--ok)}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{background:var(--ink);color:var(--fg)}
@@ -71,19 +77,19 @@ h1{font:800 clamp(24px,6vw,30px)/1.1 var(--f-display);margin:0 0 8px;text-wrap:b
 form{display:grid;gap:14px}
 label{display:grid;gap:6px;font-size:14px;color:var(--soft)}
 input{font:inherit;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:48px;width:100%}
-input:focus{outline:none;border-color:var(--ok);box-shadow:0 0 0 3px rgba(63,224,168,.2)}
+input:focus{outline:none;border-color:var(--ok);box-shadow:0 0 0 3px var(--ring)}
 input[aria-invalid="true"]{border-color:var(--err)}
 .pw{position:relative}
 .pw input{padding-right:84px}
 .pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);font:500 13px var(--f-body);color:var(--muted);background:none;border:0;cursor:pointer;padding:6px 8px}
 .hint{font-size:12px;color:var(--muted)}
 .submit{font:600 16px var(--f-body);color:var(--ok-ink);background:var(--ok);border:0;border-radius:12px;min-height:50px;cursor:pointer;margin-top:4px}
-.submit:hover{background:#6af0c0}
+.submit:hover{filter:brightness(1.1)}
 .submit[disabled]{opacity:.6;cursor:progress}
 .link{font:500 14px var(--f-body);color:var(--ok-t);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
 .msg{font-size:14px;border-radius:12px;padding:12px 14px;margin:0 0 16px}
 .msg.err{color:var(--err);background:rgba(255,123,117,.1);border:1px solid rgba(255,123,117,.3)}
-.msg.ok{color:var(--ok-t);background:rgba(63,224,168,.08);border:1px solid rgba(63,224,168,.3)}
+.msg.ok{color:var(--good);background:rgba(63,224,168,.08);border:1px solid rgba(63,224,168,.3)}
 .terms{font-size:12px;color:var(--muted);margin:16px 0 0;text-align:center}
 .who{display:flex;align-items:center;gap:14px;margin:6px 0 20px}
 .ava{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:var(--ok-ink);font:800 22px var(--f-display);flex:none;overflow:hidden}
@@ -106,7 +112,7 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(
 .muted{color:var(--muted);font-size:14px}
 .forgot-row{display:flex;justify-content:flex-end;margin-top:-4px}
 .hero{position:relative;display:flex;align-items:center;gap:16px;margin:0 0 12px}
-.ava.big{width:84px;height:84px;font-size:32px;border:0;cursor:pointer;padding:0;box-shadow:0 0 0 3px var(--card),0 0 0 5px rgba(63,224,168,.5)}
+.ava.big{width:84px;height:84px;font-size:32px;border:0;cursor:pointer;padding:0;box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--ring)}
 .ava.big.busy{opacity:.5}
 .cam{position:absolute;left:58px;top:58px;width:30px;height:30px;border-radius:50%;background:var(--fg);color:var(--ink);display:grid;place-items:center;pointer-events:none;box-shadow:0 0 0 3px var(--card)}
 .cam svg{width:16px;height:16px}
@@ -125,7 +131,7 @@ h2.sec{font:600 13px var(--f-body);text-transform:uppercase;letter-spacing:.06em
 .inline{padding:4px 14px 14px;gap:10px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .submit.sm,.ghost.sm{min-height:44px;font-size:14px;margin:0}
-.pl-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(63,224,168,.12);color:var(--ok-t);flex:none}
+.pl-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--ring);color:var(--ok-t);flex:none}
 .pl-ic svg{width:18px;height:18px}
 .pl-t{flex:1;min-width:0}.pl-t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-t small{color:var(--muted);font-size:12px}
 .empty{padding:14px 14px 0;margin:0;color:var(--muted);font-size:14px}
@@ -157,8 +163,10 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
 .tabs button{min-height:44px}
 .pw button{min-height:40px;padding:8px 10px}
 .forgot-row .link{min-height:44px;display:inline-flex;align-items:center}
-.prov .soon{font-size:12px}
+.prov .soon{font-size:12px;position:static;margin-left:2px}
 .egov{font-size:12px}
+/* Web Interface Guidelines (vercel-labs): без задержки двойного тапа */
+a,button,input,select,label,summary,[role="button"]{touch-action:manipulation}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -171,9 +179,10 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 </head>
 <body>
 <div class="top">
-  <a class="brand" href="/"><b>i</b>ICity</a>
+  <a class="brand" href="/" translate="no"><b>i</b>ICity</a>
   <div class="top-tools">
     <button type="button" class="tbtn" id="fontBtn" data-ta="fontBtn" aria-label="Размер шрифта">Aa</button>
+    <button type="button" class="tbtn" id="contrastBtn" data-ta="contrastBtn" aria-label="Высокий контраст" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
     <button type="button" class="tbtn" id="themeBtn" data-ta="themeBtn" aria-label="Светлая или тёмная тема"></button>
     <label class="sr" for="lang">Тіл / Язык / Language</label>
     <select id="lang"><option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option></select>
@@ -211,7 +220,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <!-- Вход -->
       <form id="loginForm" novalidate>
         <label><span data-t="ident">Телефон или почта</span>
-          <input id="ident" name="username" autocomplete="username" placeholder="+7 701 123 45 67" required>
+          <input id="ident" spellcheck="false" autocapitalize="none" name="username" autocomplete="username" placeholder="+7 701 123 45 67" required>
         </label>
         <label><span data-t="password">Пароль</span>
           <span class="pw"><input id="password" name="password" type="password" autocomplete="current-password" required>
@@ -235,7 +244,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
           <span class="hint" data-t="phoneHint">Пришлём SMS с кодом подтверждения.</span>
         </label>
         <label id="emailRow" hidden><span data-t="email">Почта</span>
-          <input id="sEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@mail.kz">
+          <input id="sEmail" spellcheck="false" autocapitalize="none" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@mail.kz">
         </label>
         <label><span data-t="password">Пароль</span>
           <span class="pw"><input id="sPassword" name="new-password" type="password" autocomplete="new-password" minlength="8" required>
@@ -276,7 +285,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <h1 data-t="forgotTitle">Восстановить пароль</h1>
       <p class="lead" data-t="forgotLead">Введи номер или почту, с которыми регистрировался. На телефон придёт код в SMS, на почту — ссылка.</p>
       <form id="forgotForm" novalidate>
-        <label><span data-t="ident">Телефон или почта</span><input id="fIdent" autocomplete="username" placeholder="+7 701 123 45 67" required></label>
+        <label><span data-t="ident">Телефон или почта</span><input id="fIdent" spellcheck="false" autocapitalize="none" autocomplete="username" placeholder="+7 701 123 45 67" required></label>
         <button class="submit" type="submit" data-t="restore">Восстановить</button>
         <button type="button" class="link" id="backBtn2" data-t="back">Назад ко входу</button>
       </form>
@@ -309,7 +318,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         <div class="item kv"><span class="k" data-t="name">Имя</span><span class="v" id="vName"></span><button type="button" class="edit" data-open="nameForm" data-t="change">Изменить</button></div>
         <form class="inline" id="nameForm" hidden novalidate><input id="eName" maxlength="60" autocomplete="name" required><div class="two"><button type="button" class="ghost sm" data-close="nameForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
         <div class="item kv"><span class="k" data-t="email">Почта</span><span class="v" id="accEmail"></span><button type="button" class="edit" data-open="emailForm" id="emailEdit" data-t="change">Изменить</button></div>
-        <form class="inline" id="emailForm" hidden novalidate><input id="eEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.kz" required><small class="hint" data-t="emailHint">Придёт письмо со ссылкой — адрес сменится после подтверждения.</small><div class="two"><button type="button" class="ghost sm" data-close="emailForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
+        <form class="inline" id="emailForm" hidden novalidate><input id="eEmail" spellcheck="false" autocapitalize="none" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.kz" required><small class="hint" data-t="emailHint">Придёт письмо со ссылкой — адрес сменится после подтверждения.</small><div class="two"><button type="button" class="ghost sm" data-close="emailForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="save">Сохранить</button></div></form>
         <div class="item kv"><span class="k" data-t="phone">Номер телефона</span><span class="v" id="accPhone"></span><button type="button" class="edit" data-open="phoneForm" id="phoneEdit" data-t="change">Изменить</button></div>
         <form class="inline" id="phoneForm" hidden novalidate><span class="phone"><span aria-hidden="true">+7</span><input id="ePhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="701 123 45 67" maxlength="13" required></span><small class="hint" data-t="phoneHint2">Пришлём SMS с кодом на новый номер.</small><div class="two"><button type="button" class="ghost sm" data-close="phoneForm" data-t="cancel">Отмена</button><button class="submit sm" type="submit" data-t="getCode2">Получить код</button></div></form>
       </div>
@@ -446,21 +455,21 @@ Object.assign(T.ru,{avaChange:"Сменить фото",avaDel:"Убрать ф�
  pushNo:"Этот браузер не умеет присылать уведомления. На iPhone — добавьте ICity на экран «Домой».",pushDenied:"Уведомления запрещены в настройках браузера",pushOn:"Уведомления включены",pushOff:"Уведомления выключены",
  secSafe:"Безопасность",password:"Пароль",pwNone:"не задан",setPw:"Задать",nameSaved:"Имя сохранено",emailSent:"Письмо отправлено на {e}. Откройте его, чтобы подтвердить новый адрес.",
  phoneSaved:"Номер обновлён",avaSaved:"Фото обновлено",avaRemoved:"Фото убрано",avaFail:"Не получилось загрузить фото. Попробуйте другую картинку.",
- plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",pwLoginHint:"Теперь можно входить и по почте {e} с этим паролем.",viaPw:"Почта и пароль",secSos:"Близкий человек для SOS",sosWho:"Кому звонить и писать в беде",sosNamePh:"Имя, например «Мама»",sosHint:"В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.",avaDel2:"Удалить",sosSaved:"Контакт для SOS сохранён",sosRemoved:"Контакт для SOS удалён",sosNeed:"Укажите имя и номер",secAct:"Моя активность",actRep:"Жалобы на барьеры",actRepV:"{n} · исправлено {f}",actNone:"пока нет",actHelp:"Просьба о помощи",actHelpOn:"активна",open:"Открыть",fontBtn:"Размер шрифта",themeBtn:"Светлая или тёмная тема",cropTitle:"Настройте фото",cropLead:"Двигайте фото пальцем, приближайте ползунком или двумя пальцами.",cropOut:"Отдалить",cropIn:"Приблизить",cropRot:"Повернуть",cropZoomL:"Масштаб",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
+ plNone:"Пока пусто. Добавьте дом, работу и любимые места на карте — они сохранятся в аккаунте и появятся на других устройствах.",plHome:"Дом",plWork:"Работа",plRoute:"Маршрут",plPlace:"Место",plRemoved:"Место удалено",pwLoginHint:"Теперь можно входить и по почте {e} с этим паролем.",viaPw:"Почта и пароль",secSos:"Близкий человек для SOS",sosWho:"Кому звонить и писать в беде",sosNamePh:"Имя, например «Мама»",sosHint:"В приложении в окне SOS появятся кнопки «Позвонить» и «Отправить SMS» с вашим местом.",avaDel2:"Удалить",sosSaved:"Контакт для SOS сохранён",sosRemoved:"Контакт для SOS удалён",sosNeed:"Укажите имя и номер",secAct:"Моя активность",actRep:"Жалобы на барьеры",actRepV:"{n} · исправлено {f}",actNone:"пока нет",actHelp:"Просьба о помощи",actHelpOn:"активна",open:"Открыть",fontBtn:"Размер шрифта",contrastBtn:"Высокий контраст",themeBtn:"Светлая или тёмная тема",cropTitle:"Настройте фото",cropLead:"Двигайте фото пальцем, приближайте ползунком или двумя пальцами.",cropOut:"Отдалить",cropIn:"Приблизить",cropRot:"Повернуть",cropZoomL:"Масштаб",phUnverified:"без подтверждения",phHintNoSms:"SMS-коды пока не подключены — сохраним номер для связи (волонтёрам, SOS), без кода.",phSavedNoSms:"Номер сохранён. Подтверждение по SMS появится позже.",plAdd:"Добавить на карте"});
 Object.assign(T.kk,{avaChange:"Суретті ауыстыру",avaDel:"Суретті алып тастау",secMe:"Жеке деректер",change:"Өзгерту",add:"Қосу",cancel:"Болдырмау",save:"Сақтау",
  emailHint:"Сілтемесі бар хат келеді — растағаннан кейін пошта ауысады.",phoneHint2:"Жаңа нөмірге SMS-код жібереміз.",getCode2:"Код алу",
  secPlaces:"Менің орындарым",secNotify:"Хабарламалар",pushTitle:"Шағымдарым мен волонтёрлар туралы хабарлау",pushSub:"Қосымша жабық болса да келеді",
  pushNo:"Бұл браузер хабарлама жібере алмайды. iPhone-да ICity-ді «Үй» экранына қосыңыз.",pushDenied:"Хабарламаларға браузер баптауында тыйым салынған",pushOn:"Хабарламалар қосулы",pushOff:"Хабарламалар өшірулі",
  secSafe:"Қауіпсіздік",password:"Құпиясөз",pwNone:"орнатылмаған",setPw:"Орнату",nameSaved:"Аты сақталды",emailSent:"Хат {e} мекенжайына жіберілді. Жаңа поштаны растау үшін оны ашыңыз.",
  phoneSaved:"Нөмір жаңартылды",avaSaved:"Сурет жаңартылды",avaRemoved:"Сурет алынды",avaFail:"Суретті жүктеу мүмкін болмады. Басқа сурет таңдап көріңіз.",
- plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",pwLoginHint:"Енді {e} поштасы мен осы құпиясөз арқылы да кіруге болады.",viaPw:"Пошта мен құпиясөз",secSos:"SOS үшін жақын адам",sosWho:"Қиын жағдайда кімге қоңырау шалу",sosNamePh:"Аты, мысалы «Анам»",sosHint:"Қосымшадағы SOS терезесінде орныңызбен «Қоңырау шалу» және «SMS жіберу» батырмалары шығады.",avaDel2:"Өшіру",sosSaved:"SOS байланысы сақталды",sosRemoved:"SOS байланысы өшірілді",sosNeed:"Аты мен нөмірін жазыңыз",secAct:"Менің белсенділігім",actRep:"Кедергі туралы шағымдар",actRepV:"{n} · жойылғаны {f}",actNone:"әзірге жоқ",actHelp:"Көмек сұрау",actHelpOn:"белсенді",open:"Ашу",fontBtn:"Қаріп өлшемі",themeBtn:"Ашық не күңгірт тақырып",cropTitle:"Суретті реттеңіз",cropLead:"Суретті саусақпен жылжытыңыз, жүгірткімен не екі саусақпен үлкейтіңіз.",cropOut:"Кішірейту",cropIn:"Үлкейту",cropRot:"Бұру",cropZoomL:"Масштаб",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
+ plNone:"Әзірге бос. Үйді, жұмысты және сүйікті орындарды картадан қосыңыз — олар аккаунтта сақталып, басқа құрылғыларда да көрінеді.",plHome:"Үй",plWork:"Жұмыс",plRoute:"Бағыт",plPlace:"Орын",plRemoved:"Орын өшірілді",pwLoginHint:"Енді {e} поштасы мен осы құпиясөз арқылы да кіруге болады.",viaPw:"Пошта мен құпиясөз",secSos:"SOS үшін жақын адам",sosWho:"Қиын жағдайда кімге қоңырау шалу",sosNamePh:"Аты, мысалы «Анам»",sosHint:"Қосымшадағы SOS терезесінде орныңызбен «Қоңырау шалу» және «SMS жіберу» батырмалары шығады.",avaDel2:"Өшіру",sosSaved:"SOS байланысы сақталды",sosRemoved:"SOS байланысы өшірілді",sosNeed:"Аты мен нөмірін жазыңыз",secAct:"Менің белсенділігім",actRep:"Кедергі туралы шағымдар",actRepV:"{n} · жойылғаны {f}",actNone:"әзірге жоқ",actHelp:"Көмек сұрау",actHelpOn:"белсенді",open:"Ашу",fontBtn:"Қаріп өлшемі",contrastBtn:"Жоғары контраст",themeBtn:"Ашық не күңгірт тақырып",cropTitle:"Суретті реттеңіз",cropLead:"Суретті саусақпен жылжытыңыз, жүгірткімен не екі саусақпен үлкейтіңіз.",cropOut:"Кішірейту",cropIn:"Үлкейту",cropRot:"Бұру",cropZoomL:"Масштаб",phUnverified:"расталмаған",phHintNoSms:"SMS-кодтар әзірге қосылмаған — нөмірді байланыс үшін (волонтёрлер, SOS) кодсыз сақтаймыз.",phSavedNoSms:"Нөмір сақталды. SMS арқылы растау кейін қосылады.",plAdd:"Картадан қосу"});
 Object.assign(T.en,{avaChange:"Change photo",avaDel:"Remove photo",secMe:"Personal details",change:"Change",add:"Add",cancel:"Cancel",save:"Save",
  emailHint:"We'll email you a link — the address changes once you confirm it.",phoneHint2:"We'll text a code to the new number.",getCode2:"Get code",
  secPlaces:"My places",secNotify:"Notifications",pushTitle:"Tell me about my reports and volunteers",pushSub:"Arrives even when the app is closed",
  pushNo:"This browser can't show notifications. On iPhone, add ICity to your Home Screen first.",pushDenied:"Notifications are blocked in your browser settings",pushOn:"Notifications are on",pushOff:"Notifications are off",
  secSafe:"Security",password:"Password",pwNone:"not set",setPw:"Set",nameSaved:"Name saved",emailSent:"We sent an email to {e}. Open it to confirm the new address.",
  phoneSaved:"Number updated",avaSaved:"Photo updated",avaRemoved:"Photo removed",avaFail:"Couldn't upload the photo. Try another picture.",
- plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",pwLoginHint:"You can now also sign in with {e} and this password.",viaPw:"Email and password",secSos:"SOS contact",sosWho:"Who to call and text in an emergency",sosNamePh:"Name, e.g. “Mum”",sosHint:"The SOS window in the app will get “Call” and “Send SMS” buttons with your location.",avaDel2:"Delete",sosSaved:"SOS contact saved",sosRemoved:"SOS contact removed",sosNeed:"Enter a name and a number",secAct:"My activity",actRep:"Barrier reports",actRepV:"{n} · fixed {f}",actNone:"none yet",actHelp:"Help request",actHelpOn:"active",open:"Open",fontBtn:"Text size",themeBtn:"Light or dark theme",cropTitle:"Adjust your photo",cropLead:"Drag to move, zoom with the slider or two fingers.",cropOut:"Zoom out",cropIn:"Zoom in",cropRot:"Rotate",cropZoomL:"Zoom",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
+ plNone:"Nothing here yet. Add home, work and favourite places on the map — they'll be saved to your account and show up on your other devices.",plHome:"Home",plWork:"Work",plRoute:"Route",plPlace:"Place",plRemoved:"Place removed",pwLoginHint:"You can now also sign in with {e} and this password.",viaPw:"Email and password",secSos:"SOS contact",sosWho:"Who to call and text in an emergency",sosNamePh:"Name, e.g. “Mum”",sosHint:"The SOS window in the app will get “Call” and “Send SMS” buttons with your location.",avaDel2:"Delete",sosSaved:"SOS contact saved",sosRemoved:"SOS contact removed",sosNeed:"Enter a name and a number",secAct:"My activity",actRep:"Barrier reports",actRepV:"{n} · fixed {f}",actNone:"none yet",actHelp:"Help request",actHelpOn:"active",open:"Open",fontBtn:"Text size",contrastBtn:"High contrast",themeBtn:"Light or dark theme",cropTitle:"Adjust your photo",cropLead:"Drag to move, zoom with the slider or two fingers.",cropOut:"Zoom out",cropIn:"Zoom in",cropRot:"Rotate",cropZoomL:"Zoom",phUnverified:"not verified",phHintNoSms:"SMS codes aren't switched on yet — we'll save the number for contact (volunteers, SOS) without a code.",phSavedNoSms:"Number saved. SMS verification will come later.",plAdd:"Add on the map"});
 const $=id=>document.getElementById(id);
 let lang="ru";try{lang=localStorage.getItem("ic_lang")||"ru"}catch(e){}
 if(!T[lang])lang="ru";
@@ -511,7 +520,9 @@ const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
  MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 function themeUi(){const th=document.documentElement.getAttribute("data-theme");$("themeBtn").innerHTML=th==="light"?MOON:SUN;
   const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=th==="light"?"#f3f6f8":"#070b12";
+  $("contrastBtn").setAttribute("aria-pressed",String(document.documentElement.getAttribute("data-contrast")==="high"));
   const f=document.documentElement.getAttribute("data-font");$("fontBtn").setAttribute("aria-pressed",String(f!=="normal"));$("fontBtn").style.fontSize=f==="xlarge"?"19px":f==="large"?"17px":"";}
+$("contrastBtn").onclick=()=>{const v=document.documentElement.getAttribute("data-contrast")==="high"?"normal":"high";document.documentElement.setAttribute("data-contrast",v);try{localStorage.setItem("ic_contrast",v)}catch(e){}themeUi();};
 $("themeBtn").onclick=()=>{const v=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",v);try{localStorage.setItem("ic_theme",v)}catch(e){}themeUi();};
 $("fontBtn").onclick=()=>{const order=["normal","large","xlarge"],cur=document.documentElement.getAttribute("data-font")||"normal",v=order[(order.indexOf(cur)+1)%3];
   document.documentElement.setAttribute("data-font",v);try{localStorage.setItem("ic_font",v)}catch(e){}themeUi();};

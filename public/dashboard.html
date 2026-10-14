@@ -42,6 +42,8 @@ color:var(--blue);cursor:pointer;min-height:44px}
 select{border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600}
 .muted{color:var(--ink-soft)}.small{font-size:.85rem}
 .empty{text-align:center;padding:36px 10px;color:var(--ink-soft)}
+/* Web Interface Guidelines (vercel-labs): без задержки двойного тапа */
+a,button,input,select,label,summary,[role="button"]{touch-action:manipulation}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -54,7 +56,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 </head>
 <body>
 <header>
-  <div class="brand">I<b>City</b> · <span data-i18n="dash">дашборд</span></div>
+  <div class="brand" translate="no">I<b>City</b> · <span data-i18n="dash">дашборд</span></div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <select id="langSel" aria-label="Тіл / Язык / Language" onchange="setLang(this.value)">
       <option value="ru">Русский</option><option value="kk">Қазақша</option><option value="en">English</option>

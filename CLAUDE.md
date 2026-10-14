@@ -95,6 +95,11 @@
 
 ## Как работать
 
+- Навыки в `.claude/skills`: `find-skills` (vercel-labs, поиск навыков; CLI `npx skills find` отсюда не достаёт API — смотреть skills.sh через WebFetch),
+  `web-design-guidelines` (vercel-labs; правила — github.com/vercel-labs/web-interface-guidelines `command.md`), `ui-ux-pro-max`.
+- Фирменный цвет — синий (#1769c2 светлая / #2563eb тёмная) на главной, входе и карте; зелёный — только смысл «доступно».
+  Высокий контраст (`ic_contrast=high`) — чёрный/белый + жёлтые кнопки #ffd400 на всех страницах; на главной и входе кнопки «Аа», ◐ и тема
+  (на главной на телефоне — в меню `#vMenuBtn`); главная в светлой теме — дневной 3D-город (`sceneTheme`, событие `ic-theme`).
 - Навык дизайна UI/UX Pro Max (MIT, github.com/nextlevelbuilder/ui-ux-pro-max-skill) — в `.claude/skills/ui-ux-pro-max`:
   перед правками интерфейса — `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<запрос>" --design-system` или `--domain ux|color|typography`.
 
