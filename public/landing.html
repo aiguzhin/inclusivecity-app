@@ -46,6 +46,9 @@ section.center{justify-content:center;text-align:center}
 .panel{max-width:560px;min-width:0;padding:28px 30px;border-radius:18px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .hero .panel{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;max-width:900px}
 .hero{align-items:flex-end;padding-bottom:14vh}
+html .hero .panel{box-shadow:none!important;background:none!important;border:0!important;padding:0!important}
+.hero h1{margin-bottom:.14em}
+.hero-cta{margin:22px 0 6px}.hero-cta .btn{font-size:17px;padding:16px 30px;min-height:52px;font-weight:600}
 .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-t);margin:0 0 14px}
 h1,h2{font-family:var(--f-display);font-weight:800;line-height:1;margin:0 0 18px;text-wrap:balance;letter-spacing:-.01em}
 h1{font-size:clamp(80px,19vw,240px);line-height:.85;letter-spacing:-.03em;display:flex}
@@ -222,6 +225,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <p class="eyebrow intro d1">Доступная карта Казахстана</p>
       <h1 aria-label="ICity" class="intro d2"><span class="i">I</span><span class="c">City</span></h1>
       <p class="lead intro d3">Помогаем заранее узнать, как добраться до места без лестниц, высоких бордюров и других барьеров. На коляске, с тростью, с детской коляской и без зрения.</p>
+      <div class="hero-cta intro d3"><a class="btn primary" href="/map">Открыть карту</a></div>
       <div class="hint intro d4"><i></i>Листай вниз</div>
     </div>
   </section>
