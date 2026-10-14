@@ -7,8 +7,9 @@
   Хостинг — Render, бесплатный план, Blueprint из `render.yaml`, деплой автоматически из `main`;
   адрес https://inclusivecity.onrender.com/ тоже работает.
   Railway (inclusivecity-production.up.railway.app) остановлен: закончился пробный период.
-- `.github/workflows/keepalive.yml` раз в 10 минут дёргает `/api/health`: не даёт Render заснуть
-  и присылает письмо, если сайт не отвечает.
+- Репозиторий приватный (с 14.10.2026): у GitHub Actions лимит 2000 минут в месяц.
+- Не засыпать: сервер сам раз в 10 минут заходит на `RENDER_EXTERNAL_URL/api/health`; `.github/workflows/keepalive.yml` — раз в час
+  (запасной будильник и письмо, если сайт не отвечает).
 - Репозиторий: https://github.com/aiguzhin/inclusivecity-app
 - Отображаемое название — «ICity»; домен и имя репозитория остаются `inclusivecity`.
 

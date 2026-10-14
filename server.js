@@ -825,6 +825,10 @@ server.listen(PORT, () => {
   social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));
   push.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR }).catch((e) => console.warn('push:', e.message));
   profile.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR });
+  // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
+  // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
+  const selfUrl = process.env.RENDER_EXTERNAL_URL;
+  if (selfUrl) setInterval(() => { fetch(selfUrl.replace(/\/$/, '') + '/api/health').catch(() => {}); }, 10 * 60e3).unref();
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (!process.env.ADMIN_TOKEN || process.env.ADMIN_TOKEN !== ADMIN_TOKEN) {

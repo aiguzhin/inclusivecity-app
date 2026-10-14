@@ -6,7 +6,7 @@ name: keepalive
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "7 * * * *"   # раз в час: сайт сам себя будит каждые 10 минут, а в приватном репозитории минуты Actions ограничены
   workflow_dispatch:
 
 jobs:
