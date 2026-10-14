@@ -914,6 +914,10 @@ html[data-contrast="high"] .btn-primary:hover{background:#ffe14d}
 .mm-signup:hover{background:var(--blue-weak)}
 .mm-signup .ic{width:18px;height:18px}
 #signupBtn[hidden],#mmSignup[hidden]{display:none!important}
+.fpin{width:38px;height:38px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);display:grid;place-items:center;border:3px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.fpin svg,.fpin .ic{transform:rotate(45deg);width:18px;height:18px;color:#fff}
+.fpin.dest{background:var(--red)}.fpin.start{background:var(--blue)}
+.ac-empty{padding:12px 14px;color:var(--ink-soft);font-size:.92rem;list-style:none}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1803,7 +1807,7 @@ ru:{
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
  meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
+ you:"Вы здесь", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
@@ -1891,7 +1895,7 @@ kk:{
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
  meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
- you:"Сіз осындасыз", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ you:"Сіз осындасыз", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
  mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
@@ -1980,7 +1984,7 @@ en:{
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
  meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
- you:"You are here", start:"Start", finish:"Destination", barrier:"Barrier",
+ you:"You are here", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
  mapPoint:"Point on the map", myLocation:"My location"
 }};
 
@@ -3249,7 +3253,8 @@ function initMap(){
     if(e.target.tagName!=="A") e.currentTarget.classList.toggle("open");
   });
   // слой векторных подписей над спутником: выше снимка, ниже маршрутов и маркеров
-  map.createPane("labels"); map.getPane("labels").style.zIndex=350;
+  // с leaflet-rotate плитки лежат в rotatePane (z 400) — подписи и заведения кладём туда же, над снимком, но под значками
+  map.createPane("labels", map._rotatePane || undefined); map.getPane("labels").style.zIndex=250; map.getPane("labels").style.pointerEvents="none";
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
@@ -3636,15 +3641,29 @@ async function geoSearch(q, limit, inCityOnly){
   if(!r.ok) throw new Error("geocoder");
   return r.json();
 }
+function inCity(ll){ const [la,lo]=city().c; return Math.abs(ll[0]-la)<=CITY_DLAT && Math.abs(ll[1]-lo)<=CITY_DLON; }
+async function photonSearch(q){
+  const [la,lo]=city().c, bb=[lo-CITY_DLON, la-CITY_DLAT, lo+CITY_DLON, la+CITY_DLAT].map(v=>v.toFixed(4)).join(",");
+  const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&bbox=${bb}&lat=${la}&lon=${lo}`);
+  if(!r.ok) return [];
+  const j=await r.json();
+  return (j.features||[]).map(f=>{ const p=f.properties||{}, c=f.geometry&&f.geometry.coordinates; if(!c) return null;
+    const street=[p.street,p.housenumber].filter(Boolean).join(", ");
+    const title=p.name || street; if(!title) return null;
+    const sub=[p.name?street:"", p.district||p.locality, p.city].filter(Boolean).join(", ");
+    return {title, sub, ll:[c[1],c[0]]}; }).filter(Boolean);
+}
 const acCache=new Map();
 async function acSearch(q){
   const key=S.city+"|"+S.lang+"|"+q.toLowerCase();   // у каждого города свои подсказки
   if(acCache.has(key)) return acCache.get(key);
   // Сначала — только выбранный город: в Актобе ищем улицы Актобе, а не одноимённые в Алматы.
   // Если в городе ничего не нашлось — тогда уже по всему Казахстану.
-  let d=await geoSearch(q, 6, true);
-  if(d.length<2){ const all=await geoSearch(q, 6, false); d=d.concat(all.filter(x=>!d.some(y=>y.place_id===x.place_id))).slice(0,6); }
-  const out=d.map(x=>({ ...acLabel(x), ll:[Number(x.lat),Number(x.lon)] })).filter(x=>x.title);
+  // Только выбранный город: Nominatim в рамке города + Photon (лучше находит заведения по названию), тоже в рамке
+  const [d, ph]=await Promise.all([geoSearch(q, 6, true).catch(()=>[]), photonSearch(q).catch(()=>[])]);
+  let out=d.map(x=>({ ...acLabel(x), ll:[Number(x.lat),Number(x.lon)] })).filter(x=>x.title);
+  ph.forEach(x=>{ if(!out.some(y=>y.title.toLowerCase()===x.title.toLowerCase() && haversine(y.ll,x.ll)<300)) out.push(x); });
+  out=out.filter(x=>inCity(x.ll)).slice(0,7);
   acCache.set(key,out);
   return out;
 }
@@ -3690,7 +3709,7 @@ function attachAutocomplete(inputId){
   const choose=i=>{
     const it=items[i]; if(!it) return;
     input.value=it.title; SELECTED[inputId]={text:it.title, ll:it.ll};
-    if(inputId==="start"||inputId==="destination") store("f_"+inputId, JSON.stringify({name:it.title, ll:it.ll}));
+    if(inputId==="start"||inputId==="destination"){ store("f_"+inputId, JSON.stringify({name:it.title, ll:it.ll})); drawFieldPin(inputId, it.ll, it.title, true); }
     close();
     if(inputId==="pq") pfPick(it);
   };
@@ -3707,6 +3726,7 @@ function attachAutocomplete(inputId){
       items=local.concat(remote.filter(x=>!seen.has(x.title.toLowerCase()))).slice(0,7);
     }catch(e){ if(my!==seq) return; items=local; }
     idx=-1; paint();
+    if(!items.length && q.length>=3){ list.innerHTML=`<li class="ac-empty" role="option" aria-disabled="true">${esc(tf("acNoneCity",{c:cityName()}))}</li>`; list.hidden=false; }
   };
 
   input.addEventListener("input",()=>{
@@ -3721,11 +3741,15 @@ function attachAutocomplete(inputId){
     else if(e.key==="Enter"){ if(idx>=0){ e.preventDefault(); choose(idx); } else if(inputId==="pq"){ e.preventDefault(); close(); pfEnter(); } }
     else if(e.key==="Escape"){ close(); }
   });
-  list.addEventListener("mousedown",e=>{
+  // pointerdown срабатывает раньше blur и на пальце, и на мыши — выбор не теряется
+  let picked=false;
+  list.addEventListener("pointerdown",e=>{
     const li=e.target.closest(".ac-item"); if(!li) return;
-    e.preventDefault(); choose(Number(li.dataset.i));
+    e.preventDefault(); picked=true; choose(Number(li.dataset.i)); setTimeout(()=>picked=false,400);
   });
-  input.addEventListener("blur",()=>setTimeout(close,150));
+  list.addEventListener("mousedown",e=>{ if(e.target.closest(".ac-item")) e.preventDefault(); });
+  list.addEventListener("click",e=>{ const li=e.target.closest(".ac-item"); if(li && !picked) choose(Number(li.dataset.i)); });
+  input.addEventListener("blur",()=>setTimeout(close,250));
 }
 // Если пользователь выбрал подсказку и не менял текст — берём её координаты
 function fieldCoords(inputId){
@@ -4464,7 +4488,19 @@ async function savePlace(){
   document.getElementById("plPanel").hidden=true; toast(t("plSaved")); plType="place";
 }
 function delPlace(id){ PLACES=PLACES.filter(p=>p.id!==id); savePlaces(); renderPlaces(); const pn=document.getElementById("plPanel"); pn.hidden=true; if(PLACES.length) openPlPanel(true); }
-function setFieldPlace(id,name,ll){ const el=document.getElementById(id); el.value=name; SELECTED[id]={text:name, ll}; store("f_"+id, JSON.stringify({name,ll})); }
+function setFieldPlace(id,name,ll){ const el=document.getElementById(id); el.value=name; SELECTED[id]={text:name, ll}; store("f_"+id, JSON.stringify({name,ll})); drawFieldPin(id, ll, name, false); }
+/* Выбранные «Откуда/Куда» сразу видны на карте — ещё до построения маршрута */
+let fieldPins=null; const FIELD_PIN={};
+function drawFieldPin(id, ll, name, pan){
+  if(!mapReady || !Array.isArray(ll) || (id!=="start" && id!=="destination")) return;
+  if(!fieldPins) fieldPins=L.layerGroup().addTo(map);
+  if(FIELD_PIN[id]) fieldPins.removeLayer(FIELD_PIN[id]);
+  const dest=id==="destination";
+  FIELD_PIN[id]=L.marker(ll,{icon:L.divIcon({className:"",html:`<div class="fpin ${dest?"dest":"start"}">${svgI(dest?"flag":"walk")}</div>`,iconSize:[38,46],iconAnchor:[19,44]}),
+    alt:(dest?t("finish"):t("start"))+": "+name, keyboard:true, zIndexOffset:1000}).bindTooltip(esc(name),{direction:"top",offset:[0,-40]}).addTo(fieldPins);
+  if(pan){ map.setView(ll, Math.max(map.getZoom(),16), {animate:S.motion!=="off"}); }
+}
+function clearFieldPins(){ if(fieldPins) fieldPins.clearLayers(); delete FIELD_PIN.start; delete FIELD_PIN.destination; }
 function goPlace(id){
   const p=PLACES.find(x=>x.id===id); if(!p) return;
   if(p.type==="route"){ setFieldPlace("start",p.from.name,p.from.ll); if(p.mode && p.mode!==S.mode){ S.mode=p.mode; store("mode",p.mode); markMode(); } }
@@ -4493,8 +4529,9 @@ async function findPlace(v){
   if(userLatLng && anyLang("myLocation").some(x=>x.toLowerCase()===val.toLowerCase())) return userLatLng;
   const p=presetFor(v); if(p) return p;
   // Сначала в выбранном городе, и только если там нет — по всей стране
+  // Только в выбранном городе: Nominatim в рамке, потом Photon
   let d=await geoSearch(String(v), 1, true);
-  if(!d.length) d=await geoSearch(String(v), 1, false);
+  if(!d.length){ const ph=await photonSearch(String(v)).catch(()=>[]); const hit=ph.find(x=>inCity(x.ll)); if(hit) d=[{lat:hit.ll[0],lon:hit.ll[1]}]; }
   if(!d.length) throw new Error("not found");
   return [Number(d[0].lat),Number(d[0].lon)];
 }
@@ -4650,6 +4687,7 @@ function fitTrip(pts){
 }
 function tripMarkers(a,b){
   L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
+  clearFieldPins();
   L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
 }
 
@@ -5206,6 +5244,7 @@ function drawRoute(pts, a, b){
   routeLayer.clearLayers();
   L.polyline(pts,{color:"#1769c2",weight:7,opacity:.95}).addTo(routeLayer);
   L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
+  clearFieldPins();
   L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
   map.fitBounds(L.latLngBounds(pts),{padding:[50,50]});
 }
