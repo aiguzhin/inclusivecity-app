@@ -4950,9 +4950,9 @@ async function buildRoute(){
       + `${Math.max(1,Math.round((routes[0].duration/60)/prof.speed))} ${esc(t("min"))}</h2>`
       + `<p class="small muted">${esc(t("checking"))}</p>`;
 
-    let pool=[], slopes=[];
-    try{ pool = await fetchBarriers(routesPts); }catch(e){ pool=[]; }
-    try{ slopes = await checkSlopes(routesPts); }catch(e){ slopes=routesPts.map(()=>null); }
+    // барьеры и уклоны — параллельно и не дольше 8 с: если сервис тормозит, маршрут всё равно готов
+    const cap=(pr,ms,dflt)=>Promise.race([pr.catch(()=>dflt), new Promise(r=>setTimeout(()=>r(dflt),ms))]);
+    const [pool, slopes]=await Promise.all([cap(fetchBarriers(routesPts),8000,[]), cap(checkSlopes(routesPts),8000,routesPts.map(()=>null))]);
 
     routeVariants = routes.map((rt,i)=>({
       rt, a, b, pts:routesPts[i],
