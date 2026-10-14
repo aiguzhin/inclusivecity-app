@@ -181,6 +181,7 @@ function parseMultipart(buffer, contentType) {
   const boundaryBuf = Buffer.from(boundary);
   const fields = {};
   let file = null;
+  const files = [];
 
   let start = buffer.indexOf(boundaryBuf);
   while (start !== -1) {
@@ -203,12 +204,14 @@ function parseMultipart(buffer, contentType) {
         if (filename !== undefined) {
           if (filename) {
             const ctMatch = /Content-Type:\s*([^\r\n]+)/i.exec(rawHeaders);
-            file = {
+            const f = {
               fieldName: name,
               filename,
               mimetype: ctMatch ? ctMatch[1].trim() : 'application/octet-stream',
               data: content,
             };
+            if (!file) file = f;
+            files.push(f);
           }
         } else {
           fields[name] = content.toString('utf8');
@@ -217,7 +220,7 @@ function parseMultipart(buffer, contentType) {
     }
     start = nextStart;
   }
-  return { fields, file };
+  return { fields, file, files };
 }
 
 // Проверка токена админки: сравнение за постоянное время + не больше 10 ошибок за 15 минут с одного IP

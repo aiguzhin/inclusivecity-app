@@ -56,14 +56,18 @@ function reviewSummary(list) {
   }
   return out;
 }
-const pubReview = (r) => ({ id: r.id, name: r.author || '', stars: r.stars, checks: r.checks, text: r.text, photo: r.photo || null, profile: r.profile || '', at: r.at });
+const pubReview = (r) => ({ id: r.id, name: r.author || '', stars: r.stars, checks: r.checks, text: r.text, photo: r.photo || null, photos: r.photos || (r.photo ? [r.photo] : []), profile: r.profile || '', at: r.at });
 
 async function handle(req, res, pathname, url) {
   // GET /api/reviews?place=node/123  или ?near=lat,lng
   if (pathname === '/api/reviews' && req.method === 'GET') {
     const all = read('reviews').filter((r) => !r.hidden);
     const place = url.searchParams.get('place');
-    if (place) { const list = all.filter((r) => r.place === place).sort((a, b) => b.at.localeCompare(a.at)); return H.sendJson(res, 200, { summary: reviewSummary(list), reviews: list.slice(0, 50).map(pubReview) }); }
+    if (place) {
+      // то же место могли отметить по-разному (osm-id или координаты) — берём и отзывы в 30 м с тем же названием
+      const lat = num(url.searchParams.get('lat')), lng = num(url.searchParams.get('lng')), nm = clean(url.searchParams.get('name'), 120).toLowerCase();
+      const same = (r) => r.place === place || (lat != null && lng != null && dist([lat, lng], [r.lat, r.lng]) < 30 && (!nm || !r.placeName || r.placeName.toLowerCase() === nm));
+      const list = all.filter(same).sort((a, b) => b.at.localeCompare(a.at)); return H.sendJson(res, 200, { summary: reviewSummary(list), reviews: list.slice(0, 50).map(pubReview) }); }
     const near = (url.searchParams.get('near') || '').split(',').map(Number);
     if (near.length === 2 && near.every(Number.isFinite)) {
       const byPlace = {};
@@ -81,17 +85,19 @@ async function handle(req, res, pathname, url) {
     const ck = {}; for (const c of CHECKS) if (checks[c] === 'yes' || checks[c] === 'no') ck[c] = checks[c];
     const stars = Math.max(0, Math.min(5, Math.round(num(f.stars) || 0)));
     const text = clean(f.text, 600);
-    if (!stars && !Object.keys(ck).length && !text) return H.sendJson(res, 400, { error: 'Пустой отзыв' });
-    let photo = null;
-    if (b.file) {
-      if (!/^image\//.test(b.file.mimetype)) return H.sendJson(res, 400, { error: 'Нужна картинка' });
-      const name = crypto.randomUUID() + (/png/.test(b.file.mimetype) ? '.png' : /webp/.test(b.file.mimetype) ? '.webp' : '.jpg');
-      fs.writeFileSync(path.join(H.UPLOADS_DIR, name), b.file.data);
-      H.kvPut('photo:' + name, b.file.data, b.file.mimetype).catch((e) => console.warn(e.message));
-      photo = '/uploads/' + name;
+    if (!stars && !Object.keys(ck).length && !text && !(b.files || []).length) return H.sendJson(res, 400, { error: 'Пустой отзыв' });
+    // до 5 фото; каждое — на диск и копией в KV, чтобы не пропадали при передеплое
+    const photos = [];
+    for (const fl of (b.files || (b.file ? [b.file] : [])).filter((x) => x.fieldName === 'photo').slice(0, 5)) {
+      if (!/^image\/(jpeg|png|webp)$/.test(fl.mimetype) || fl.data.length < 100) continue;
+      const name = crypto.randomUUID() + (/png/.test(fl.mimetype) ? '.png' : /webp/.test(fl.mimetype) ? '.webp' : '.jpg');
+      fs.writeFileSync(path.join(H.UPLOADS_DIR, name), fl.data);
+      H.kvPut('photo:' + name, fl.data, fl.mimetype).catch((e) => console.warn(e.message));
+      photos.push('/uploads/' + name);
     }
+    const photo = photos[0] || null;
     const list = read('reviews');
-    const r = { id: crypto.randomUUID(), place, placeName: clean(f.placeName, 120), lat, lng, stars, checks: ck, text, photo,
+    const r = { id: crypto.randomUUID(), place, placeName: clean(f.placeName, 120), lat, lng, stars, checks: ck, text, photo, photos,
       author: clean(f.author, 40), profile: clean(f.profile, 30), at: new Date().toISOString(), ip: crypto.createHash('sha256').update(ipOf(req)).digest('hex').slice(0, 12) };
     list.unshift(r); write('reviews', list.slice(0, 20000));
     return H.sendJson(res, 201, { ok: true, id: r.id });

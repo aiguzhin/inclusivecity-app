@@ -945,6 +945,49 @@ body.nav-on .leaflet-control-zoom,body.nav-on .map-stack{display:none!important}
 .peek-route .pr-steps,.peek-route .pr-x{min-height:52px;min-width:52px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700}
 html[data-contrast="high"] .peek-route .pr-go{background:#ffd400;color:#000;border:2px solid currentColor}
 body:not(.soft-ui) .peek-route{margin-top:8px}
+
+/* Отзыв: крупные звёзды и плитки фото, как в 2ГИС */
+.rv-stars-big{display:flex;gap:6px;justify-content:center;margin:4px 0 0}
+.rv-stars-big button{width:48px;height:48px;padding:4px;border:0;background:none;cursor:pointer;color:var(--line);transition:transform .15s cubic-bezier(.2,1.6,.4,1)}
+.rv-stars-big button svg{width:100%;height:100%;fill:currentColor;stroke:#c9ced6;stroke-width:.8}
+.rv-stars-big button.on{color:#f5a623}.rv-stars-big button.on svg{stroke:#e08e00}
+.rv-stars-big button:active{transform:scale(.88)}
+.rv-star-label{text-align:center;margin:0;font-weight:700;color:var(--ink-soft);min-height:1.4em}
+.rv-tiles{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
+.rv-tile,.rv-add{flex:none;width:88px;height:88px;border-radius:14px;scroll-snap-align:start;position:relative}
+.rv-tile img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
+.rv-tile-x{position:absolute;top:4px;right:4px;width:28px;height:28px;min-height:0;padding:0;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem;display:grid;place-items:center}
+.rv-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px dashed var(--line);background:var(--paper);color:var(--blue);font-weight:700;font-size:.8rem;cursor:pointer;padding:4px}
+.rv-add .ic{width:26px;height:26px}.rv-add small{color:var(--ink-soft);font-weight:600}
+.rv-photos{display:flex;gap:6px;overflow-x:auto;margin-top:6px}
+.rv-ph{flex:none;padding:0;border:0;background:none;border-radius:10px;overflow:hidden;width:88px;height:88px;min-height:0}
+.rv-ph img{width:88px;height:88px;object-fit:cover;display:block}
+
+/* +/− на телефоне — только если включены в настройках (масштаб пальцами) */
+@media (max-width:860px){ html:not([data-zoombtns="on"]) .leaflet-control-zoom{display:none!important} }
+/* Пружинные анимации: шторка, карточки, окна, нажатия (уважают «меньше движения») */
+:root{--spring:cubic-bezier(.2,1.25,.35,1);--ease-out:cubic-bezier(.2,.8,.2,1)}
+@keyframes icUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@keyframes icPop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@keyframes icFade{from{opacity:0}to{opacity:1}}
+#placeCard:not([hidden]){animation:icUp .42s var(--spring)}
+.modal.open .dialog{animation:icPop .34s var(--spring)}
+.modal.open{animation:icFade .2s var(--ease-out)}
+.peek-route:not([hidden]),#navBar:not([hidden]){animation:icUp .4s var(--spring)}
+#navHud:not([hidden]){animation:icPop .35s var(--spring)}
+.ac-list:not([hidden]){animation:icFade .16s var(--ease-out)}
+button,.btn-primary,.btn-ghost,.btn-dark,.pf-cat,.pr-card,.pl-chip{transition:transform .16s var(--spring),background-color .2s,border-color .2s,box-shadow .2s}
+button:active:not(:disabled),.btn-primary:active,.btn-ghost:active,.pf-cat:active,.pr-card:active,.pl-chip:active{transform:scale(.96)}
+.sheet-peek{transition:max-height .45s var(--spring),transform .45s var(--spring),padding .2s}
+@media (prefers-reduced-motion:reduce){#placeCard,.modal .dialog,.modal,.peek-route,#navBar,#navHud,.ac-list{animation:none!important}button:active{transform:none!important}}
+html[data-motion="off"] button:active{transform:none!important}
+
+.pc-bar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:2px 0 12px}
+.pcb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:8px 4px;border-radius:16px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-weight:700;font-size:.8rem;text-decoration:none;cursor:pointer}
+.pcb .ic{width:22px;height:22px;color:var(--blue)}
+.pcb.main{background:var(--blue);border-color:var(--blue);color:#fff}.pcb.main .ic{color:#fff}
+.pcb[aria-pressed="true"] .ic{fill:#f5a623;color:#e08e00}
+html[data-contrast="high"] .pcb.main{background:#ffd400;color:#000;border:2px solid currentColor}html[data-contrast="high"] .pcb.main .ic{color:#000}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -961,15 +1004,15 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <!-- Заставка при каждом открытии: сеть 22 городов → полёт к своему городу → знак ICity. Холст 2D, слои предрисованы, касание — пропустить -->
 <div id="icIntro" aria-hidden="true">
 <style>
-#icIntro{position:fixed;inset:0;z-index:100000;background:#040912;overflow:hidden;contain:strict;transition:opacity .55s ease,transform .7s cubic-bezier(.6,0,.2,1),filter .55s ease}
+#icIntro{position:fixed;inset:0;z-index:100000;background:#040912;overflow:hidden;contain:strict;transition:opacity .35s ease,transform .45s cubic-bezier(.6,0,.2,1),filter .35s ease}
 #icIntro canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #icIntro.out{opacity:0;transform:scale(1.18);filter:blur(6px)}
 #icIntro .ii-brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none}
-#icIntro .ii-logo{width:96px;height:96px;border-radius:26px;opacity:0;transform:scale(.4) rotate(-12deg);transition:opacity .45s ease,transform .9s cubic-bezier(.2,1.4,.4,1);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 60px rgba(23,105,194,.55),0 0 90px rgba(63,224,168,.35)}
+#icIntro .ii-logo{width:96px;height:96px;border-radius:26px;opacity:0;transform:scale(.4) rotate(-12deg);transition:opacity .25s ease,transform .45s cubic-bezier(.2,1.4,.4,1);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 60px rgba(23,105,194,.55),0 0 90px rgba(63,224,168,.35)}
 #icIntro .ii-logo svg{width:100%;height:100%;display:block;border-radius:26px}
 #icIntro .ii-logo .fig{stroke-dasharray:420;stroke-dashoffset:420}
 #icIntro.s2 .ii-logo{opacity:1;transform:none}
-#icIntro.s2 .ii-logo .fig{animation:iiDraw 1s .15s cubic-bezier(.6,0,.2,1) forwards}
+#icIntro.s2 .ii-logo .fig{animation:iiDraw .45s .05s cubic-bezier(.6,0,.2,1) forwards}
 #icIntro.s2 .ii-logo .dot{animation:iiPop .5s .05s cubic-bezier(.2,1.6,.4,1) both}
 #icIntro .ii-name{font:800 44px/1 "Unbounded","Arial Black",system-ui,sans-serif;letter-spacing:.02em;color:#fff;display:flex;position:relative;overflow:hidden;padding:2px 4px}
 #icIntro .ii-name i{font-style:normal;display:inline-block;opacity:0;transform:translateY(60%) scale(.8);filter:blur(4px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,1.3,.4,1),filter .5s ease}
@@ -1009,7 +1052,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     // ещё полсекунды гасим случайные нажатия, пока заставка растворяется
     var guard=function(e){ e.preventDefault(); e.stopPropagation(); }, until=Date.now()+600;
     document.addEventListener("click",function g(e){ if(Date.now()<until) guard(e); else document.removeEventListener("click",g,true); },true);
-    setTimeout(function(){ root.remove(); window.__icIntroDone=1; dispatchEvent(new Event("icintro")); },700);
+    setTimeout(function(){ root.remove(); window.__icIntroDone=1; dispatchEvent(new Event("icintro")); },420);
   }
   function at(ms,f){ timers.push(setTimeout(f,ms)); }
   // Пропуск — по «click», а не по касанию: иначе отпущенный палец «проваливается» на кнопку под заставкой (например, «Профиль»)
@@ -1059,14 +1102,14 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   var PN=low?26:60, parts=[]; for(var k=0;k<PN;k++) parts.push({e:E[k%E.length], t:Math.random(), v:.25+Math.random()*.5, dir:Math.random()<.5});
   var slow=0, t0=performance.now()+1e6, last=performance.now(), started=false;
   function start(){ if(started) return; started=true; requestAnimationFrame(function(n){ t0=n; last=n;
-    at(1500,function(){ root.classList.add("s2"); }); at(1850,function(){ root.classList.add("s3"); });
-    at(2250,function(){ root.classList.add("s4"); }); at(3350,finish); }); }
+    at(520,function(){ root.classList.add("s2"); }); at(680,function(){ root.classList.add("s3"); });
+    at(820,function(){ root.classList.add("s4"); }); at(1250,finish); }); }
   if(document.readyState!=="loading") start(); else document.addEventListener("DOMContentLoaded",start);
   setTimeout(start,2500);   // страховка: приложение грузится слишком долго
   var ease=function(x){ return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2; }, clamp=function(x){ return x<0?0:x>1?1:x; };
   function frame(now){
     if(finished) return;
-    var t=Math.max(0,(now-t0)/1000), dt=Math.min(.05,(now-last)/1000); last=now;
+    var t=Math.max(0,(now-t0)/1000)*2.7, dt=Math.min(.05,(now-last)/1000); last=now;   // заставка ускорена до ~1,2 с
     // автоподстройка: кадры опаздывают — снижаем разрешение и число частиц
     if(started && t>.1){ slow=slow*.85+(dt>.026?1:0)*.15; if(slow>.5 && dpr>1){ dpr=1; size(); S1=starLayer(90,.9,7); S2=starLayer(30,1.6,99); parts.length=Math.min(parts.length,20); slow=0; } }
     g.setTransform(dpr,0,0,dpr,0,0); g.globalCompositeOperation="source-over"; g.globalAlpha=1;
@@ -1547,6 +1590,13 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         </div></div>
       </details>
       <details class="set-sec" name="settings">
+        <summary><span data-i18n="setZoomBtns">Кнопки + и − на карте</span><b class="set-val" id="svZoomBtns"></b></summary>
+        <div class="set-body"><p class="small muted" style="margin:0 0 8px" data-i18n="zoomBtnsHelp">На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.</p><div class="seg" id="segZoomBtns">
+          <button onclick="setZoomBtns('on')" data-v="on" data-i18n="hintsOn">Включены</button>
+          <button onclick="setZoomBtns('off')" data-v="off" data-i18n="hintsOff">Выключены</button>
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
         <summary><span data-i18n="setHints">Голосовые подсказки</span><b class="set-val" id="svHints"></b></summary>
         <div class="set-body"><p class="small muted" style="margin:0 0 8px" data-i18n="hintsHelp">Для незрячих: первое касание называет кнопку, второе — нажимает.</p><div class="seg" id="segHints">
           <button onclick="setHints('on')" data-v="on" data-i18n="hintsOn">Включены</button>
@@ -1695,6 +1745,7 @@ const ICONS={
   swap:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
   flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
   nav:'<path d="M12 3 5 20l7-3.5 7 3.5z"/>',
+  camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   layers:'<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
   stop:'<path d="M12 21V10"/><rect x="6.5" y="3" width="11" height="7" rx="1.5"/><path d="M9.5 6.5h5"/>',
   wc:'<circle cx="11" cy="4" r="1.8"/><path d="M11 7v6h5l2 5M11 10h4"/><path d="M8.5 11.2A5 5 0 1 0 14.8 18"/>',
@@ -1843,7 +1894,7 @@ ru:{
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
  meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
+ you:"Вы здесь", stSurface:"Покрытие", stSideNo:"Тротуара нет", stSideBoth:"Тротуары с обеих сторон", stSideOne:"Тротуар с одной стороны", stLit:"Освещена ночью", stDark:"Не освещена", stSpeed:"Ограничение скорости {v} км/ч", stLanes:"Полос: {n}", stSmooth:"Ровность", stIncline:"Уклон {v}", pcRouteS:"Маршрут", pcCall:"Позвонить", pcSave:"Сохранить", pcSaved:"Сохранено", pcShare:"Поделиться", pcSavedT:"Место сохранено в «Мои места»", pcUnsaved:"Убрано из «Моих мест»", setZoomBtns:"Кнопки + и − на карте", zoomBtnsHelp:"На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.", rvS1:"Ужасно", rvS2:"Плохо", rvS3:"Нормально", rvS4:"Хорошо", rvS5:"Отлично", rvTapStars:"Нажмите на звёзды, чтобы оценить", rvPhotos:"Фото", rvAddPhoto:"Добавить", rvDelPhoto:"Убрать фото", rvPhotoN:"Фото {n}", rvTextPh:"Что было удобно, а что мешало?", rvEmpty:"Поставьте оценку, отметьте пункт или напишите пару слов", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
@@ -1931,7 +1982,7 @@ kk:{
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
  meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
- you:"Сіз осындасыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ you:"Сіз осындасыз", stSurface:"Жабыны", stSideNo:"Тротуар жоқ", stSideBoth:"Екі жағында тротуар бар", stSideOne:"Бір жағында тротуар бар", stLit:"Түнде жарықтандырылған", stDark:"Жарық жоқ", stSpeed:"Жылдамдық шегі {v} км/сағ", stLanes:"Жолақ: {n}", stSmooth:"Тегістігі", stIncline:"Еңіс {v}", pcRouteS:"Бағыт", pcCall:"Қоңырау", pcSave:"Сақтау", pcSaved:"Сақталды", pcShare:"Бөлісу", pcSavedT:"Орын «Менің орындарыма» сақталды", pcUnsaved:"«Менің орындарымнан» алынды", setZoomBtns:"Картадағы + және − батырмалары", zoomBtnsHelp:"Телефонда масштаб екі саусақпен өзгереді. Ыңғайсыз болса — батырмаларды қосыңыз.", rvS1:"Өте нашар", rvS2:"Нашар", rvS3:"Орташа", rvS4:"Жақсы", rvS5:"Өте жақсы", rvTapStars:"Бағалау үшін жұлдыздарды басыңыз", rvPhotos:"Фото", rvAddPhoto:"Қосу", rvDelPhoto:"Фотоны алып тастау", rvPhotoN:"Фото {n}", rvTextPh:"Не ыңғайлы болды, не кедергі келтірді?", rvEmpty:"Баға қойыңыз, тармақты белгілеңіз не бірер сөз жазыңыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
  mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
@@ -2020,7 +2071,7 @@ en:{
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
  meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
- you:"You are here", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
+ you:"You are here", stSurface:"Surface", stSideNo:"No pavement", stSideBoth:"Pavements on both sides", stSideOne:"Pavement on one side", stLit:"Lit at night", stDark:"Not lit", stSpeed:"Speed limit {v} km/h", stLanes:"Lanes: {n}", stSmooth:"Smoothness", stIncline:"Incline {v}", pcRouteS:"Route", pcCall:"Call", pcSave:"Save", pcSaved:"Saved", pcShare:"Share", pcSavedT:"Saved to My places", pcUnsaved:"Removed from My places", setZoomBtns:"+ and − buttons on the map", zoomBtnsHelp:"On a phone you zoom with two fingers. If that’s hard, turn the buttons on.", rvS1:"Terrible", rvS2:"Poor", rvS3:"Okay", rvS4:"Good", rvS5:"Excellent", rvTapStars:"Tap the stars to rate", rvPhotos:"Photos", rvAddPhoto:"Add", rvDelPhoto:"Remove photo", rvPhotoN:"Photo {n}", rvTextPh:"What worked well and what got in the way?", rvEmpty:"Add a rating, tick an item or write a few words", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
  mapPoint:"Point on the map", myLocation:"My location"
 }};
 
@@ -3479,11 +3530,28 @@ function placeFacts(tg){
     tg.step_count ? ["steps", tf("pcfSteps",{n:tg.step_count}), +tg.step_count>0?"warn":"good"] : null,
     tg.kerb ? ["kerb", tf("pcfKerb",{v:tg.kerb}), /lowered|flush|no/.test(tg.kerb)?"good":"warn"] : null,
     tg["capacity:disabled"] ? ["parking", tf("pcfParking",{n:tg["capacity:disabled"]}), "good"] : null,
-    tg.opening_hours ? ["clock", tg.opening_hours, ""] : null
+    tg.opening_hours ? ["clock", tg.opening_hours, ""] : null,
+    ...streetFacts(tg)
   ].filter(Boolean);
   return f;
 }
-const PC_ICON={wc:"wc",ramp:"walk",toilet:"wc",lift:"cube",tactile:"walk",sound:"speaker",door:"map",steps:"warn",kerb:"warn",parking:"car",clock:"clock"};
+// Улица: тип, покрытие, тротуары, освещение, скорость, полосы, ровность, уклон — из тегов OSM
+const ST_SURF={asphalt:["асфальт","асфальт","asphalt"],paving_stones:["плитка","плита","paving stones"],concrete:["бетон","бетон","concrete"],gravel:["гравий","қиыршық тас","gravel"],dirt:["грунт","топырақ","dirt"],unpaved:["без покрытия","жабынсыз","unpaved"],compacted:["укатанный грунт","тығыздалған","compacted"],sett:["брусчатка","тас төсеніш","sett"],ground:["грунт","топырақ","ground"],sand:["песок","құм","sand"]};
+const ST_HW={primary:["магистраль","магистраль","main road"],secondary:["улица городского значения","қалалық көше","secondary road"],tertiary:["районная улица","аудандық көше","local road"],residential:["жилая улица","тұрғын көше","residential street"],living_street:["жилая зона","тұрғын аймақ","living street"],service:["проезд","өткел","service road"],footway:["пешеходная дорожка","жаяу жол","footway"],pedestrian:["пешеходная улица","жаяу көше","pedestrian street"],path:["тропинка","соқпақ","path"],cycleway:["велодорожка","велосипед жолы","cycleway"],steps:["лестница","баспалдақ","steps"],unclassified:["улица","көше","street"],trunk:["трасса","трасса","trunk road"]};
+function streetFacts(tg){
+  if(!tg.highway || tg.highway==="elevator" || tg.highway==="bus_stop" || tg.highway==="traffic_signals" || tg.highway==="crossing") return [];
+  const li={ru:0,kk:1,en:2}[S.lang]||0, f=[];
+  if(ST_HW[tg.highway]) f.push(["road", ST_HW[tg.highway][li], tg.highway==="steps"?"bad":""]);
+  if(tg.surface) f.push(["road", t("stSurface")+": "+((ST_SURF[tg.surface]||[tg.surface,tg.surface,tg.surface])[li]), /asphalt|paving_stones|concrete/.test(tg.surface)?"good":"warn"]);
+  if(tg.sidewalk||tg["sidewalk:both"]){ const v=tg.sidewalk||tg["sidewalk:both"]; f.push(["walk", t(v==="no"||v==="none"?"stSideNo":v==="both"||v==="yes"?"stSideBoth":"stSideOne"), v==="no"||v==="none"?"bad":"good"]); }
+  if(tg.lit) f.push(["sun", t(tg.lit==="yes"?"stLit":"stDark"), tg.lit==="yes"?"good":"warn"]);
+  if(tg.maxspeed) f.push(["car", tf("stSpeed",{v:tg.maxspeed}), ""]);
+  if(tg.lanes) f.push(["road", tf("stLanes",{n:tg.lanes}), ""]);
+  if(tg.smoothness) f.push(["road", t("stSmooth")+": "+tg.smoothness, /excellent|good/.test(tg.smoothness)?"good":"warn"]);
+  if(tg.incline) f.push(["warn", tf("stIncline",{v:tg.incline}), ""]);
+  return f;
+}
+const PC_ICON={road:"routeI",sun:"sun",wc:"wc",ramp:"walk",toilet:"wc",lift:"cube",tactile:"walk",sound:"speaker",door:"map",steps:"warn",kerb:"warn",parking:"car",clock:"clock"};
 function openPlace(def,it){
   showPlace({lat:it.lat, lon:it.lon, name:poiName(it.tags||{}, layerLabel(def)), cat:layerLabel(def), color:def.color, tags:it.tags||{}, osm:it.osm,
     addr:[(it.tags||{})["addr:street"], (it.tags||{})["addr:housenumber"]].filter(Boolean).join(", ")});
@@ -3518,7 +3586,15 @@ function showPlace(p){
   const facts=placeFacts(tg);
   const desc=tg["wheelchair:description:"+S.lang]||tg["wheelchair:description"];
   const hasAccess=cls!=="none"||facts.some(f=>f[0]!=="clock");
+  const ph0=String(tg.phone||tg["contact:phone"]||tg["contact:mobile"]||"").split(/[;,]/)[0].trim();
+  const saved=PLACES.some(x=>x.type==="place"&&Array.isArray(x.ll)&&haversine(x.ll,[p.lat,p.lon])<25);
   document.getElementById("pcBody").innerHTML=`
+    <div class="pc-bar">
+      <button type="button" class="pcb main" onclick="placeRoute()">${svgI("routeI")}<span>${esc(t("pcRouteS"))}</span></button>
+      ${ph0?`<a class="pcb" href="tel:${esc(kzPhone(ph0).tel)}">${svgI("phone")}<span>${esc(t("pcCall"))}</span></a>`:""}
+      <button type="button" class="pcb" onclick="placeSave(this)" aria-pressed="${saved}">${svgI("star")}<span>${esc(t(saved?"pcSaved":"pcSave"))}</span></button>
+      <button type="button" class="pcb" onclick="placeShare()">${svgI("send")}<span>${esc(t("pcShare"))}</span></button>
+    </div>
     ${p.loading?`<p class="pc-loading">${esc(t("pcLoading"))}</p>`:""}
     ${hasAccess||p.layer!==false?`<p class="pc-status ${cls}">${svgI("wc")} ${esc(t(key))}</p>`:""}
     ${facts.length?`<ul class="pc-facts">${facts.map(([ic,txt,c])=>`<li class="${c}">${svgI(PC_ICON[ic]||"map")}<span>${esc(txt)}</span></li>`).join("")}</ul>`:""}
@@ -3527,7 +3603,6 @@ function showPlace(p){
     <div id="pcContacts">${contactsHtml(tg, p.name)}</div>
     <div id="pcReviews" class="pc-rev"></div>
     <div class="pc-actions">
-      <button type="button" class="btn-dark" onclick="placeRoute()">${svgI("walk")} ${esc(t("pcRoute"))}</button>
       <button type="button" class="btn-ghost" onclick="placeBarrier()">${svgI("warn")} ${esc(t("pcBarrier"))}</button>
     </div>
     ${p.osm?`<a class="pc-edit" href="https://www.openstreetmap.org/${esc(p.osm)}" target="_blank" rel="noopener">${esc(t("pcEdit"))} ↗</a>`:""}`;
@@ -3600,20 +3675,36 @@ async function placeAt(latlng){
   if(placePin) placePin.remove();
   placePin=L.marker([lat,lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[18,18],iconAnchor:[9,9]}), interactive:false}).addTo(map);
   showPlace({lat,lon,name:poi?poi.name:"", cat:poi?placeKind({},poi.cls):"", tags:{}, loading:true, layer:false});
-  const q=poi ? `[out:json][timeout:12];nwr(around:45,${lat},${lon})["name"="${String(poi.raw).replace(/["\\]/g,"")}"];out tags center 1;` : null;
+  const q=poi ? `[out:json][timeout:12];nwr(around:45,${lat},${lon})["name"="${String(poi.raw).replace(/["\\]/g,"")}"];out tags center 1;` : `[out:json][timeout:12];way(around:18,${lat},${lon})["highway"]["name"];out tags 1;`;
   const [rv, ov, nm]=await Promise.all([reverseGeo(lat,lon).catch(()=>null), q?overpassQuery(q,9000).catch(()=>null):null,
     poi?nominatimPlace(poi.raw||poi.name,lat,lon).catch(()=>null):null]);
   if(seq!==placeSeq) return;
   const el=(ov&&ov.elements&&ov.elements[0]) || (nm?{type:nm.osm_type,id:nm.osm_id,tags:nm.tags}:null);
   const tags=Object.assign({}, (rv&&rv.extratags)||{}, (nm&&nm.tags)||{}, el?el.tags:{});
   const rvName=rv&&((rv.namedetails&&(rv.namedetails["name:"+S.lang]||rv.namedetails.name))||rv.name);
-  const name=poi?poi.name:(rv&&rv.category!=="highway"&&rv.category!=="place"&&rv.category!=="building"?rvName:"");
+  const street=!poi && el && el.tags && el.tags.highway ? el : null;
+  const name=poi?poi.name:street?(el.tags["name:"+S.lang]||el.tags.name):(rv&&rv.category!=="highway"&&rv.category!=="place"&&rv.category!=="building"?rvName:"");
   const addr=rv?revAddr(rv):"";
   const kind=placeKind(el?el.tags:Object.assign({}, rv&&rv.type?{[rv.category]:rv.type}:{}), poi&&poi.cls);
   showPlace({lat,lon,name,addr,cat:(name?kind:""),tags,layer:false,
     osm: el?`${el.type}/${el.id}`:(rv&&rv.osm_type&&name?`${rv.osm_type}/${rv.osm_id}`:null)});
 }
 function closePlace(){ const c=document.getElementById("placeCard"); if(c) c.hidden=true; document.body.classList.remove("place-open"); placeNow=null; placeSeq++; if(placePin){ placePin.remove(); placePin=null; } }
+function placeSave(btn){
+  const p=placeNow; if(!p) return;
+  const i=PLACES.findIndex(x=>x.type==="place"&&Array.isArray(x.ll)&&haversine(x.ll,[p.lat,p.lon])<25);
+  if(i>=0){ PLACES.splice(i,1); toast(t("pcUnsaved")); }
+  else { PLACES.unshift({id:Date.now().toString(36), type:"place", name:p.name||p.addr||t("pcPoint"), ll:[p.lat,p.lon], addr:p.addr||""}); toast(t("pcSavedT")); }
+  savePlaces(); try{ renderPlaces(); }catch(e){}
+  if(btn){ const on=i<0; btn.setAttribute("aria-pressed",String(on)); btn.querySelector("span").textContent=t(on?"pcSaved":"pcSave"); }
+}
+async function placeShare(){
+  const p=placeNow; if(!p) return;
+  const url=`${location.origin}/map?at=${(+p.lat).toFixed(6)},${(+p.lon).toFixed(6)}&n=${encodeURIComponent(p.name||p.addr||"")}`;
+  const text=[p.name||p.addr||"", p.addr&&p.name?p.addr:""].filter(Boolean).join(", ");
+  if(navigator.share){ try{ await navigator.share({title:p.name||"ICity", text, url}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+  try{ await navigator.clipboard.writeText(url); toast(t("copied")); }catch(e){ toast(url); }
+}
 function placeRoute(){
   if(!placeNow) return;
   const p=placeNow, nm=p.name || p.addr || `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
@@ -4037,45 +4128,67 @@ const placeKey=p=>p.osm || `${(+p.lat).toFixed(5)},${(+p.lon).toFixed(5)}`;
 const starsTxt=n=>"★★★★★".slice(0,Math.round(n))+"☆☆☆☆☆".slice(0,5-Math.round(n));
 async function loadReviews(p, all){
   const box=document.getElementById("pcReviews"); if(!box) return; const my=p;
-  let d=null; try{ const r=await fetch("/api/reviews?place="+encodeURIComponent(placeKey(p))); if(r.ok) d=await r.json(); }catch(e){}
+  let d=null; try{ const r=await fetch("/api/reviews?place="+encodeURIComponent(placeKey(p))+`&lat=${(+p.lat).toFixed(6)}&lng=${(+p.lon).toFixed(6)}&name=${encodeURIComponent(p.name||"")}`); if(r.ok) d=await r.json(); }catch(e){}
   if(placeNow!==my) return;
   if(!d){ box.innerHTML=""; return; }
   const sm=d.summary||{count:0,checks:{}};
   const ck=Object.entries(sm.checks||{}).map(([k,v])=>`<span class="${v.yes>=v.no?"yes":"no"}">${v.yes>=v.no?"✓":"✗"} ${esc(t("ck_"+k))} · ${v.yes>=v.no?v.yes:v.no}</span>`).join("");
   const list=(d.reviews||[]).slice(0, all?50:3).map(r=>`<div class="rv-item">${r.stars?`<span class="rv-stars" aria-label="${r.stars}/5">${starsTxt(r.stars)}</span> `:""}<small>${esc(r.name||"")} · ${new Date(r.at).toLocaleDateString(locale())}</small>
-    ${r.text?`<div>${esc(r.text)}</div>`:""}${r.photo?`<img src="${esc(r.photo)}" alt="" loading="lazy">`:""}
+    ${r.text?`<div>${esc(r.text)}</div>`:""}${(r.photos&&r.photos.length?r.photos:(r.photo?[r.photo]:[])).length?`<div class="rv-photos">${(r.photos&&r.photos.length?r.photos:[r.photo]).map((u,i,arr)=>`<button type="button" class="rv-ph" onclick='rvView(${JSON.stringify(arr).replace(/'/g,"")},${i})' aria-label="${esc(t("rvPhotoN").replace("{n}",i+1))}"><img src="${esc(u)}" alt="" loading="lazy" width="88" height="88"></button>`).join("")}</div>`:""}
     <button type="button" class="link" style="font-size:.75rem" onclick="flagReview('${esc(r.id)}',this)">${esc(t("rvFlag"))}</button></div>`).join("");
   box.innerHTML=`<h4>${svgI("star")} ${esc(t("rvTitle"))}${sm.count?` <span class="rv-stars">${sm.stars?starsTxt(sm.stars):""}</span> <small class="muted">${esc(tf("rvCount",{n:sm.count}))}</small>`:""}</h4>
     ${sm.count?`<div class="rv-checks">${ck}</div>${list}${!all&&sm.count>3?`<button type="button" class="link" onclick="loadReviews(placeNow,true)">${esc(tf("rvAll",{n:sm.count}))}</button>`:""}`:`<p class="small muted">${esc(t("rvNone"))}</p>`}
     <div id="rvFormBox"><button type="button" class="btn-ghost" style="width:100%;margin-top:8px" onclick="reviewForm()">${svgI("star")} ${esc(t("rvAdd"))}</button></div>`;
 }
+const RV_LABELS=["rvS1","rvS2","rvS3","rvS4","rvS5"];
 function reviewForm(){
-  rvDraft={checks:{}, stars:0};
+  rvDraft={checks:{}, stars:0, photos:[]};
   const box=document.getElementById("rvFormBox"); if(!box) return;
   const nm=read("myName","");
   box.innerHTML=`<div class="rv-form">
+    <div class="rv-stars-big" role="radiogroup" aria-label="${esc(t("rvStars"))}">${[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="false" aria-label="${esc(n+" — "+t(RV_LABELS[n-1]))}" onclick="rvStar(${n})" onpointerenter="rvHover(${n})" onpointerleave="rvHover(0)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg></button>`).join("")}</div>
+    <p class="rv-star-label" id="rvStarLabel" aria-live="polite">${esc(t("rvTapStars"))}</p>
     ${RV_CHECKS.map(k=>`<div class="rv-q"><span>${esc(t("ck_"+k))}</span><button type="button" class="y" aria-pressed="false" onclick="rvSet('${k}','yes',this)">${esc(t("rvYes"))}</button><button type="button" class="n" aria-pressed="false" onclick="rvSet('${k}','no',this)">${esc(t("rvNo"))}</button></div>`).join("")}
-    <div class="rv-q"><span>${esc(t("rvStars"))}</span><div class="rv-starpick" role="radiogroup" aria-label="${esc(t("rvStars"))}">${[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="false" aria-label="${n}" onclick="rvStar(${n})">★</button>`).join("")}</div></div>
-    <label class="field" for="rvText">${esc(t("rvText"))}</label><textarea id="rvText" rows="3" maxlength="600"></textarea>
-    <label class="field" for="rvPhoto">${esc(t("rvPhoto"))}</label><input type="file" id="rvPhoto" accept="image/*">
-    <label class="field" for="rvName">${esc(t("rvName"))}</label><input type="text" id="rvName" maxlength="40" value="${esc(nm)}">
+    <label class="field" for="rvText">${esc(t("rvText"))}</label><textarea id="rvText" rows="3" maxlength="600" placeholder="${esc(t("rvTextPh"))}"></textarea>
+    <p class="field" id="rvPhL">${esc(t("rvPhotos"))}</p>
+    <div class="rv-tiles" id="rvTiles" aria-labelledby="rvPhL"></div>
+    <input type="file" id="rvPhoto" accept="image/*" multiple hidden>
+    <label class="field" for="rvName">${esc(t("rvName"))}</label><input type="text" id="rvName" maxlength="40" value="${esc(nm)}" autocomplete="nickname">
     <button type="button" class="btn-primary" id="rvSend" onclick="sendReview()">${esc(t("rvSend"))}</button></div>`;
+  document.getElementById("rvPhoto").onchange=async e=>{
+    const fs=[...e.target.files].slice(0, 5-rvDraft.photos.length); e.target.value="";
+    for(const f of fs){ const small=await shrinkImage(f); rvDraft.photos.push({file:small, url:URL.createObjectURL(small)}); rvTiles(); }
+  };
+  rvTiles();
 }
+function rvTiles(){
+  const box=document.getElementById("rvTiles"); if(!box||!rvDraft) return;
+  box.innerHTML=rvDraft.photos.map((ph,i)=>`<div class="rv-tile"><img src="${ph.url}" alt="${esc(t("rvPhotoN").replace("{n}",i+1))}"><button type="button" class="rv-tile-x" onclick="rvDelPhoto(${i})" aria-label="${esc(t("rvDelPhoto"))}">✕</button></div>`).join("")
+    +(rvDraft.photos.length<5?`<button type="button" class="rv-add" onclick="document.getElementById('rvPhoto').click()">${svgI("camera")}<span>${esc(t("rvAddPhoto"))}</span><small>${rvDraft.photos.length}/5</small></button>`:"");
+}
+function rvDelPhoto(i){ if(!rvDraft) return; const ph=rvDraft.photos.splice(i,1)[0]; if(ph) URL.revokeObjectURL(ph.url); rvTiles(); }
+function rvHover(n){ const v=n||((rvDraft&&rvDraft.stars)||0); document.querySelectorAll(".rv-stars-big button").forEach((b,i)=>b.classList.toggle("on",i<v));
+  const l=document.getElementById("rvStarLabel"); if(l) l.textContent=v?t(RV_LABELS[v-1]):t("rvTapStars"); }
+function rvView(arr,i){ PM_VIEW={photos:arr.map(u=>({src:u})), name:(placeNow&&placeNow.name)||"", i:0}; pmOpen(i); }
 function rvSet(k,v,btn){ const cur=rvDraft.checks[k]===v; rvDraft.checks[k]=cur?undefined:v;
   btn.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false")); if(!cur) btn.setAttribute("aria-pressed","true"); }
-function rvStar(n){ rvDraft.stars=n; document.querySelectorAll(".rv-starpick button").forEach((b,i)=>{ b.classList.toggle("on",i<n); b.setAttribute("aria-checked",String(i===n-1)); }); }
+function rvStar(n){ rvDraft.stars=n; document.querySelectorAll(".rv-stars-big button").forEach((b,i)=>{ b.classList.toggle("on",i<n); b.setAttribute("aria-checked",String(i===n-1)); });
+  rvHover(0); if(navigator.vibrate) navigator.vibrate(15); }
 async function sendReview(){
   const p=placeNow; if(!p||!rvDraft) return;
+  if(!rvDraft.stars && !Object.values(rvDraft.checks).some(Boolean) && !document.getElementById("rvText").value.trim() && !(rvDraft.photos||[]).length){ toast(t("rvEmpty")); return; }
   const btn=document.getElementById("rvSend"); btn.disabled=true;
   try{
     const fd=new FormData(); fd.append("place",placeKey(p)); fd.append("placeName",p.name||p.addr||""); fd.append("lat",p.lat); fd.append("lng",p.lon);
     const ck={}; Object.entries(rvDraft.checks).forEach(([k,v])=>{ if(v) ck[k]=v; }); fd.append("checks",JSON.stringify(ck)); fd.append("stars",rvDraft.stars||0);
     fd.append("text",document.getElementById("rvText").value); const nm=document.getElementById("rvName").value.trim(); fd.append("author",nm); if(nm) store("myName",nm);
     fd.append("profile",S.profile);
-    const ph=document.getElementById("rvPhoto"); if(ph.files[0]) fd.append("photo", await shrinkImage(ph.files[0]));
+    (rvDraft.photos||[]).forEach((ph,i)=>fd.append("photo", ph.file, `photo${i}.jpg`));
     const r=await fetch("/api/reviews",{method:"POST",body:fd}); const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||r.status);
-    toast(t("rvSent")); rvDraft=null; loadReviews(p);
+    try{ const mine=JSON.parse(read("myReviews","[]"))||[]; mine.unshift({id:d.id,name:p.name||p.addr||"",at:Date.now(),stars:rvDraft.stars||0}); store("myReviews",JSON.stringify(mine.slice(0,100))); }catch(e){}
+    (rvDraft.photos||[]).forEach(ph=>URL.revokeObjectURL(ph.url));
+    toast(t("rvSent")); rvDraft=null; loadReviews(p); try{ PM_CACHE.delete(pmKey(p)); placeMedia(p); }catch(e){}
   }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
 }
 async function flagReview(id,btn){ try{ await fetch(`/api/reviews/${encodeURIComponent(id)}/flag`,{method:"POST"}); btn.textContent=t("rvFlagged"); btn.disabled=true; }catch(e){} }
@@ -4243,7 +4356,10 @@ async function shareTrip(mins){
 }
 /* ============ Ярлыки приложения (долгое нажатие на иконку) ============ */
 function runShortcut(){
-  const q=new URLSearchParams(location.search).get("do"); if(!q) return;
+  const sp=new URLSearchParams(location.search), at=sp.get("at");
+  if(at && mapReady){ const [la,lo]=at.split(",").map(Number); if(Number.isFinite(la)&&Number.isFinite(lo)){ history.replaceState(null,"",location.pathname);
+    map.setView([la,lo],17); showPlace({lat:la, lon:lo, name:sp.get("n")||"", tags:{}, layer:false}); placeAt && setTimeout(()=>placeAt(L.latLng(la,lo)),300); return; } }
+  const q=sp.get("do"); if(!q) return;
   history.replaceState(null,"",location.pathname+location.hash);
   const home=PLACES.find(p=>p.type==="home");
   if(q==="home" && home) goPlace(home.id);
@@ -6019,6 +6135,8 @@ document.addEventListener("change",e=>{
   const el=e.target;
   if(el instanceof HTMLSelectElement){ const o=el.options[el.selectedIndex]; if(o) sayNow(o.text); }
 },true);
+function setZoomBtns(v){ store("zoomBtns",v); document.documentElement.setAttribute("data-zoombtns",v); mark("segZoomBtns",v);
+  const sv=document.getElementById("svZoomBtns"); if(sv) sv.textContent=t(v==="on"?"hintsOn":"hintsOff"); }
 function setHints(v,quiet){
   S.hints=v; store("hints",v); document.documentElement.setAttribute("data-hints",v);
   mark("segHints",v); updateSetVals();
@@ -6166,18 +6284,30 @@ async function freePhotos(tg){
       if(f) add(f);
     }catch(e){}
   }
+  const lat0=+tg.__lat, lon0=+tg.__lon;
+  // фото, которые люди приложили к отзывам об этом месте
+  if(isFinite(lat0)&&isFinite(lon0)){
+    try{ const j=await fetch(`/api/reviews?place=${encodeURIComponent(tg.__key||"")}&lat=${lat0.toFixed(6)}&lng=${lon0.toFixed(6)}&name=${encodeURIComponent(tg.__name||"")}`).then(r=>r.ok?r.json():null);
+      ((j&&j.reviews)||[]).forEach(r=>(r.photos||[]).forEach(u=>out.push({src:u, big:u, credit:r.name||""}))); }catch(e){}
+  }
+  // Wikimedia Commons: снимки, сделанные в радиусе 120 м
+  if(isFinite(lat0)&&isFinite(lon0) && out.length<8){
+    try{ const j=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat0}|${lon0}&gsradius=120&gsnamespace=6&gslimit=6&format=json&origin=*`).then(r=>r.json());
+      ((j.query&&j.query.geosearch)||[]).forEach(x=>{ if(/\.(jpe?g|png|webp)$/i.test(x.title)) add(x.title.replace(/^File:/i,"")); }); }catch(e){}
+  }
   // уличные снимки Panoramax рядом с местом (открытые, без ключа): видно вход, ступени, бордюры
-  if(out.length<2){
+  if(out.length<10){
     try{
-      const lat=+tg.__lat, lon=+tg.__lon, d=0.0006;
+      const lat=+tg.__lat, lon=+tg.__lon, d=0.0008;
       if(isFinite(lat)&&isFinite(lon)){
-        const j=await fetch(`https://api.panoramax.xyz/api/search?bbox=${lon-d},${lat-d},${lon+d},${lat+d}&limit=3`).then(r=>r.json());
+        const j=await fetch(`https://api.panoramax.xyz/api/search?bbox=${lon-d},${lat-d},${lon+d},${lat+d}&limit=6`).then(r=>r.json());
         (j.features||[]).forEach(f=>{ const a=f.assets||{}, th=(a.sd||a.thumb||{}).href, hd=(a.hd||a.sd||{}).href;
           if(th) out.push({src:th, big:hd||th, credit:"Panoramax"+(f.providers&&f.providers[0]&&f.providers[0].name?" · "+f.providers[0].name:""), href:"https://api.panoramax.xyz/#focus=pic&pic="+encodeURIComponent(f.id)}); });
       }
     }catch(e){}
   }
-  return out.slice(0,5);
+  // без повторов
+  const seen=new Set(); return out.filter(x=>!seen.has(x.src)&&seen.add(x.src)).slice(0,12);
 }
 function pmKey(p){ return [p.name||"",(+p.lat).toFixed(4),(+p.lon).toFixed(4),S.lang].join("|"); }
 function placeMedia(p){
@@ -6192,7 +6322,7 @@ function placeMedia(p){
         try{ const r=await fetch(`/api/place-info?name=${encodeURIComponent(p.name)}&lat=${(+p.lat).toFixed(6)}&lon=${(+p.lon).toFixed(6)}&lang=${S.lang}`);
              const j=await r.json(); if(r.ok){ pmEnabled=!!j.enabled; g=j.place||null; } }catch(e){}
       }
-      return {g, free:await freePhotos(Object.assign({__lat:p.lat,__lon:p.lon}, p.tags||{}))};
+      return {g, free:await freePhotos(Object.assign({__lat:p.lat,__lon:p.lon,__key:placeKey(p),__name:p.name||""}, p.tags||{}))};
     })());
   }
   PM_CACHE.get(key).then(d=>{ const b=document.getElementById("pcMedia"); if(b && b.dataset.key===key) renderMedia(b,d,p); });
@@ -6207,8 +6337,7 @@ function renderMedia(box,d,p){
   const rv=(g&&g.reviews)||[];
   if(rv.length) h+=`<div class="pm-reviews"><p class="pm-h">${esc(t("pmReviewsH"))}</p>${rv.slice(0,3).map(r=>`<div class="pm-rv"><p class="pm-rv-top"><b>${esc(r.author)}</b>${r.rating?`<span class="pm-stars" role="img" aria-label="${r.rating}/5">${pmStars(r.rating)}</span>`:""}<span class="muted">${esc(r.when)}</span></p><p class="pm-rv-text">${esc(r.text)}</p></div>`).join("")}
     ${rv.length>3?`<details class="pm-more"><summary>${esc(t("pmMore"))}</summary>${rv.slice(3).map(r=>`<div class="pm-rv"><p class="pm-rv-top"><b>${esc(r.author)}</b>${r.rating?`<span class="pm-stars" role="img" aria-label="${r.rating}/5">${pmStars(r.rating)}</span>`:""}<span class="muted">${esc(r.when)}</span></p><p class="pm-rv-text">${esc(r.text)}</p></div>`).join("")}</details>`:""}</div>`;
-  if(g) h+=`<p class="pm-src">${esc(t("pmFromGoogle"))}${g.url?` · <a href="${esc(g.url)}" target="_blank" rel="noopener">Google Maps ↗</a>`:""}</p>`;
-  else if(d.free.length) h+=`<p class="pm-src">${esc(t("pmFromCommons"))}</p>`;
+  // подписи об источниках в карточке не показываем; автор снимка — мелко только при просмотре на весь экран (так требуют лицензии)
   box.innerHTML=h; box.hidden=!h; PM_VIEW={photos, name:p.name||"", i:0};
 }
 // Просмотр фото на весь экран
@@ -6573,6 +6702,7 @@ function globeToMap(cityKey){
   step("places", ()=>{ restoreFields(); renderPlaces(); attachAutocomplete("psAddr"); attachAutocomplete("pq"); drawHomePins();
     const q=document.getElementById("pq"); if(q) q.addEventListener("keydown",e=>{ if(e.key==="Enter" && document.getElementById("ac-pq").hidden){ e.preventDefault(); pfEnter(); } if(e.key==="Escape") closePeekSearch(); }); });
   step("offline", ()=>offlineStatus());
+  step("zoombtns", ()=>setZoomBtns(read("zoomBtns","off")));
   step("shortcut", ()=>setTimeout(runShortcut, 900));
   step("push", ()=>setTimeout(pushSync, 4000));
   step("mapmenu", ()=>{ initMapMenu(); initPeekSwipe(); });
