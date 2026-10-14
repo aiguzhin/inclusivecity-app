@@ -403,7 +403,13 @@ body.place-open .leaflet-control-zoom{display:none}
 .pc-contacts a{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.84rem;font-weight:650;text-decoration:none}
 .pc-contacts a.wa .ic{color:#1f9d55}.pc-contacts a.ig .ic{color:#c13584}.pc-contacts a.tg .ic{color:#229ed9}.pc-contacts a.ph .ic{color:#1769c2}
 .pc-loading{margin:10px 0 4px;color:var(--ink-soft);font-size:.88rem}
-.place-pin{width:18px;height:18px;border-radius:50%;background:#1769c2;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.35)}
+.sos-calls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 12px}
+.sos-call{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:72px;border-radius:16px;background:#d92d20;color:#fff;text-decoration:none;font-weight:600}
+.sos-call b{font-size:1.7rem;line-height:1.1}.sos-call span{font-size:.82rem;opacity:.95}
+.sos-call.amb{background:#b42318}
+html[data-contrast="high"] .sos-call{background:#ffd400;color:#000;border:2px solid #000}
+.place-pin{width:22px;height:22px;border-radius:50%;background:#1769c2;border:3px solid #fff;box-shadow:0 0 0 6px rgba(23,105,194,.25),0 2px 8px rgba(0,0,0,.4)}
+
 @media(max-width:860px){ .place-card{left:0;right:0;width:auto;bottom:0;max-height:58vh;border-radius:28px 28px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px rgba(18,23,34,.18)}
   body.place-open .sheet-peek,body.place-open .leaflet-control-attribution,body.place-open .leaflet-control-zoom{display:none} }
 /* ===== Стиль «Мягкий минимализм» (html[data-ui="soft"]): светлый фон, белые карточки, крупные скругления, мягкие тени ===== */
@@ -636,7 +642,7 @@ ol.steps li{margin-bottom:8px}
 .set-sec>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:10px 14px;cursor:pointer;font-weight:700;user-select:none}
 .set-sec>summary::-webkit-details-marker{display:none}
 .set-sec>summary:focus-visible{outline:3px solid var(--focus);outline-offset:-3px;border-radius:12px}
-.set-sec>summary .set-val{margin-left:auto;max-width:55%;font-weight:500;font-size:.9rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-sec>summary .set-val{margin-left:auto;max-width:48%;font-weight:500;font-size:.9rem;color:var(--ink-soft);text-align:right;overflow-wrap:break-word;line-height:1.25}
 .set-sec>summary::after{content:"";flex:none;width:8px;height:8px;margin:0 2px 4px 4px;border-right:2px solid var(--ink-soft);border-bottom:2px solid var(--ink-soft);transform:rotate(45deg);transition:transform .2s}
 .set-sec[open]>summary::after{transform:rotate(-135deg);margin-bottom:-4px}
 .set-sec[open]>summary{border-bottom:1px solid var(--line)}
@@ -1656,11 +1662,12 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <option value="temporary" data-i18n="seasonTemp">Временный (ремонт) — 30 дней</option>
     </select>
     <label class="field" for="photo"><span data-i18n="repPhoto">Фото</span></label>
-    <input id="photo" type="file" accept="image/*" capture="environment">
+    <input id="photo" type="file" accept="image/*" hidden onchange="repTiles()">
+    <div class="rv-tiles" id="repTiles"></div>
     <label class="field" for="comment"><span data-i18n="repComment">Комментарий</span></label>
     <input type="text" id="comment" required data-i18n-ph="repCommentPh" placeholder="Например: съезд перекрыт автомобилем">
     <label class="field" for="reportPlace"><span data-i18n="repPlace">Метка на карте</span></label>
-    <input type="text" id="reportPlace" readonly value="—">
+    <input type="text" id="reportPlace" readonly value="" data-i18n-ph="repNoPoint" placeholder="Точка не выбрана — нажмите «Выбрать точку»">
     <div class="row" style="margin-top:14px">
       <button type="button" class="btn-ghost" onclick="setReportPick()" data-i18n="repPick">Выбрать точку</button>
       <button type="submit" class="btn-primary grow" id="submitReport" data-i18n="repSend">Отправить</button>
@@ -1674,6 +1681,11 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <div class="dialog-head">
       <h2 id="sosTitle" data-i18n="sosTitle">Экстренная помощь</h2>
       <button class="btn-ghost btn-sm" onclick="closeModal('sosModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+    </div>
+    <!-- Главное в беде — позвонить: крупные кнопки 112 и 103 сразу наверху -->
+    <div class="sos-calls">
+      <a class="sos-call" href="tel:112"><b>112</b><span data-i18n="sosUnified">единый номер</span></a>
+      <a class="sos-call amb" href="tel:103"><b>103</b><span data-i18n="sosAmbulance">скорая помощь</span></a>
     </div>
     <p class="small muted" data-i18n="sosHelp">Мы определим ваши координаты и подготовим сообщение — вы сами выберете, кому его отправить.</p>
     <div id="sosMine"></div>
@@ -1692,6 +1704,8 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <h3 data-i18n="sosNumbers">Экстренные службы Казахстана</h3>
       <p class="small" style="margin:4px 0"><a href="tel:112">112</a> — <span data-i18n="sosUnified">единый номер</span></p>
       <p class="small" style="margin:4px 0"><a href="tel:103">103</a> — <span data-i18n="sosAmbulance">скорая помощь</span></p>
+      <p class="small" style="margin:4px 0"><a href="tel:102">102</a> — <span data-i18n="sosPolice">полиция</span></p>
+      <p class="small" style="margin:4px 0"><a href="tel:101">101</a> — <span data-i18n="sosFire">пожарная служба</span></p>
     </div>
   </div>
 </div>
@@ -1910,7 +1924,7 @@ ru:{
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
  meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь",needStart:"Откуда идём?",needStartHint:"Впишите адрес в поле «Откуда» или нажмите ⌖, чтобы взять ваше место по GPS.", walkRun:"Бег", rvAvg:"средняя оценка {v} из 5", stSurface:"Покрытие", stSideNo:"Тротуара нет", stSideBoth:"Тротуары с обеих сторон", stSideOne:"Тротуар с одной стороны", stLit:"Освещена ночью", stDark:"Не освещена", stSpeed:"Ограничение скорости {v} км/ч", stLanes:"Полос: {n}", stSmooth:"Ровность", stIncline:"Уклон {v}", pcRouteS:"Маршрут", pcCall:"Позвонить", pcSave:"Сохранить", pcSaved:"Сохранено", pcShare:"Поделиться", pcSavedT:"Место сохранено в «Мои места»", pcUnsaved:"Убрано из «Моих мест»", setZoomBtns:"Кнопки + и − на карте", zoomBtnsHelp:"На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.", rvS1:"Ужасно", rvS2:"Плохо", rvS3:"Нормально", rvS4:"Хорошо", rvS5:"Отлично", rvTapStars:"Нажмите на звёзды, чтобы оценить", rvPhotos:"Фото", rvAddPhoto:"Добавить", rvDelPhoto:"Убрать фото", rvPhotoN:"Фото {n}", rvTextPh:"Что было удобно, а что мешало?", rvEmpty:"Поставьте оценку, отметьте пункт или напишите пару слов", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
+ you:"Вы здесь",repNoPoint:"Точка не выбрана — нажмите «Выбрать точку»",sosPolice:"полиция",sosFire:"пожарная служба",needStart:"Откуда идём?",needStartHint:"Впишите адрес в поле «Откуда» или нажмите ⌖, чтобы взять ваше место по GPS.", walkRun:"Бег", rvAvg:"средняя оценка {v} из 5", stSurface:"Покрытие", stSideNo:"Тротуара нет", stSideBoth:"Тротуары с обеих сторон", stSideOne:"Тротуар с одной стороны", stLit:"Освещена ночью", stDark:"Не освещена", stSpeed:"Ограничение скорости {v} км/ч", stLanes:"Полос: {n}", stSmooth:"Ровность", stIncline:"Уклон {v}", pcRouteS:"Маршрут", pcCall:"Позвонить", pcSave:"Сохранить", pcSaved:"Сохранено", pcShare:"Поделиться", pcSavedT:"Место сохранено в «Мои места»", pcUnsaved:"Убрано из «Моих мест»", setZoomBtns:"Кнопки + и − на карте", zoomBtnsHelp:"На телефоне масштаб меняется двумя пальцами. Если так неудобно — включите кнопки.", rvS1:"Ужасно", rvS2:"Плохо", rvS3:"Нормально", rvS4:"Хорошо", rvS5:"Отлично", rvTapStars:"Нажмите на звёзды, чтобы оценить", rvPhotos:"Фото", rvAddPhoto:"Добавить", rvDelPhoto:"Убрать фото", rvPhotoN:"Фото {n}", rvTextPh:"Что было удобно, а что мешало?", rvEmpty:"Поставьте оценку, отметьте пункт или напишите пару слов", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
@@ -1998,7 +2012,7 @@ kk:{
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
  meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
- you:"Сіз осындасыз",needStart:"Қайдан шығамыз?",needStartHint:"«Қайдан» өрісіне мекенжайды жазыңыз немесе GPS бойынша орныңызды алу үшін ⌖ басыңыз.", walkRun:"Жүгіру", rvAvg:"орташа баға 5-тен {v}", stSurface:"Жабыны", stSideNo:"Тротуар жоқ", stSideBoth:"Екі жағында тротуар бар", stSideOne:"Бір жағында тротуар бар", stLit:"Түнде жарықтандырылған", stDark:"Жарық жоқ", stSpeed:"Жылдамдық шегі {v} км/сағ", stLanes:"Жолақ: {n}", stSmooth:"Тегістігі", stIncline:"Еңіс {v}", pcRouteS:"Бағыт", pcCall:"Қоңырау", pcSave:"Сақтау", pcSaved:"Сақталды", pcShare:"Бөлісу", pcSavedT:"Орын «Менің орындарыма» сақталды", pcUnsaved:"«Менің орындарымнан» алынды", setZoomBtns:"Картадағы + және − батырмалары", zoomBtnsHelp:"Телефонда масштаб екі саусақпен өзгереді. Ыңғайсыз болса — батырмаларды қосыңыз.", rvS1:"Өте нашар", rvS2:"Нашар", rvS3:"Орташа", rvS4:"Жақсы", rvS5:"Өте жақсы", rvTapStars:"Бағалау үшін жұлдыздарды басыңыз", rvPhotos:"Фото", rvAddPhoto:"Қосу", rvDelPhoto:"Фотоны алып тастау", rvPhotoN:"Фото {n}", rvTextPh:"Не ыңғайлы болды, не кедергі келтірді?", rvEmpty:"Баға қойыңыз, тармақты белгілеңіз не бірер сөз жазыңыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ you:"Сіз осындасыз",repNoPoint:"Нүкте таңдалмаған — «Нүктені таңдау» басыңыз",sosPolice:"полиция",sosFire:"өрт сөндіру қызметі",needStart:"Қайдан шығамыз?",needStartHint:"«Қайдан» өрісіне мекенжайды жазыңыз немесе GPS бойынша орныңызды алу үшін ⌖ басыңыз.", walkRun:"Жүгіру", rvAvg:"орташа баға 5-тен {v}", stSurface:"Жабыны", stSideNo:"Тротуар жоқ", stSideBoth:"Екі жағында тротуар бар", stSideOne:"Бір жағында тротуар бар", stLit:"Түнде жарықтандырылған", stDark:"Жарық жоқ", stSpeed:"Жылдамдық шегі {v} км/сағ", stLanes:"Жолақ: {n}", stSmooth:"Тегістігі", stIncline:"Еңіс {v}", pcRouteS:"Бағыт", pcCall:"Қоңырау", pcSave:"Сақтау", pcSaved:"Сақталды", pcShare:"Бөлісу", pcSavedT:"Орын «Менің орындарыма» сақталды", pcUnsaved:"«Менің орындарымнан» алынды", setZoomBtns:"Картадағы + және − батырмалары", zoomBtnsHelp:"Телефонда масштаб екі саусақпен өзгереді. Ыңғайсыз болса — батырмаларды қосыңыз.", rvS1:"Өте нашар", rvS2:"Нашар", rvS3:"Орташа", rvS4:"Жақсы", rvS5:"Өте жақсы", rvTapStars:"Бағалау үшін жұлдыздарды басыңыз", rvPhotos:"Фото", rvAddPhoto:"Қосу", rvDelPhoto:"Фотоны алып тастау", rvPhotoN:"Фото {n}", rvTextPh:"Не ыңғайлы болды, не кедергі келтірді?", rvEmpty:"Баға қойыңыз, тармақты белгілеңіз не бірер сөз жазыңыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
  mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
@@ -2087,7 +2101,7 @@ en:{
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
  meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
- you:"You are here",needStart:"Where are you starting from?",needStartHint:"Type an address in “From” or tap ⌖ to use your GPS location.", walkRun:"Run", rvAvg:"average rating {v} out of 5", stSurface:"Surface", stSideNo:"No pavement", stSideBoth:"Pavements on both sides", stSideOne:"Pavement on one side", stLit:"Lit at night", stDark:"Not lit", stSpeed:"Speed limit {v} km/h", stLanes:"Lanes: {n}", stSmooth:"Smoothness", stIncline:"Incline {v}", pcRouteS:"Route", pcCall:"Call", pcSave:"Save", pcSaved:"Saved", pcShare:"Share", pcSavedT:"Saved to My places", pcUnsaved:"Removed from My places", setZoomBtns:"+ and − buttons on the map", zoomBtnsHelp:"On a phone you zoom with two fingers. If that’s hard, turn the buttons on.", rvS1:"Terrible", rvS2:"Poor", rvS3:"Okay", rvS4:"Good", rvS5:"Excellent", rvTapStars:"Tap the stars to rate", rvPhotos:"Photos", rvAddPhoto:"Add", rvDelPhoto:"Remove photo", rvPhotoN:"Photo {n}", rvTextPh:"What worked well and what got in the way?", rvEmpty:"Add a rating, tick an item or write a few words", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
+ you:"You are here",repNoPoint:"No point yet — tap “Pick a point”",sosPolice:"police",sosFire:"fire service",needStart:"Where are you starting from?",needStartHint:"Type an address in “From” or tap ⌖ to use your GPS location.", walkRun:"Run", rvAvg:"average rating {v} out of 5", stSurface:"Surface", stSideNo:"No pavement", stSideBoth:"Pavements on both sides", stSideOne:"Pavement on one side", stLit:"Lit at night", stDark:"Not lit", stSpeed:"Speed limit {v} km/h", stLanes:"Lanes: {n}", stSmooth:"Smoothness", stIncline:"Incline {v}", pcRouteS:"Route", pcCall:"Call", pcSave:"Save", pcSaved:"Saved", pcShare:"Share", pcSavedT:"Saved to My places", pcUnsaved:"Removed from My places", setZoomBtns:"+ and − buttons on the map", zoomBtnsHelp:"On a phone you zoom with two fingers. If that’s hard, turn the buttons on.", rvS1:"Terrible", rvS2:"Poor", rvS3:"Okay", rvS4:"Good", rvS5:"Excellent", rvTapStars:"Tap the stars to rate", rvPhotos:"Photos", rvAddPhoto:"Add", rvDelPhoto:"Remove photo", rvPhotoN:"Photo {n}", rvTextPh:"What worked well and what got in the way?", rvEmpty:"Add a rating, tick an item or write a few words", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
  mapPoint:"Point on the map", myLocation:"My location"
 }};
 
@@ -3663,7 +3677,7 @@ function showPlace(p){
   // место из поиска, «Моих мест» или категорий — тоже отмечаем значком на карте
   if(mapReady && isFinite(p.lat) && isFinite(p.lon) && !(placePin && placePin.getLatLng().equals(L.latLng(p.lat,p.lon)))){
     if(placePin) placePin.remove();
-    placePin=L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[18,18],iconAnchor:[9,9]}), interactive:false}).addTo(map);
+    placePin=L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[22,22],iconAnchor:[11,11]}), interactive:false}).addTo(map);
   }
   const tg=p.tags||{};
   const here=userLatLng || (mapReady?[map.getCenter().lat,map.getCenter().lng]:city().c);
@@ -3763,7 +3777,7 @@ async function placeAt(latlng){
   const poi=glPoiAt(latlng);
   const lat=poi?poi.lat:latlng.lat, lon=poi?poi.lon:latlng.lng;
   if(placePin) placePin.remove();
-  placePin=L.marker([lat,lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[18,18],iconAnchor:[9,9]}), interactive:false}).addTo(map);
+  placePin=L.marker([lat,lon],{icon:L.divIcon({className:"",html:'<div class="place-pin"></div>',iconSize:[22,22],iconAnchor:[11,11]}), interactive:false}).addTo(map);
   showPlace({lat,lon,name:poi?poi.name:"", cat:poi?placeKind({},poi.cls):"", tags:{}, loading:true, layer:false});
   const q=poi ? `[out:json][timeout:12];nwr(around:45,${lat},${lon})["name"="${String(poi.raw).replace(/["\\]/g,"")}"];out tags center 1;` : `[out:json][timeout:12];way(around:18,${lat},${lon})["highway"]["name"];out tags 1;`;
   const within=(pr,ms)=>Promise.race([pr, new Promise(r=>setTimeout(()=>r(null),ms))]);   // карточка не «висит», если сервис тормозит
@@ -6050,7 +6064,20 @@ async function verifyReport(id){
   try{ await fetch(`/api/reports/${id}/verify`,{method:"POST"}); toast(t("thanks")); showReports(); }
   catch(e){ toast(t("sendFail")); }
 }
-function openReport(){ openModal("reportModal"); }
+function openReport(){
+  // точка по умолчанию — где вы сейчас (если GPS уже известен); иначе просим выбрать на карте
+  if(!reportLatLng && userLatLng){ reportLatLng=L.latLng(userLatLng[0],userLatLng[1]); const rp=document.getElementById("reportPlace"); if(rp) rp.value=t("myLocation"); }
+  repTiles(); openModal("reportModal");
+}
+// Фото к жалобе — плиткой, как в отзывах, а не системной кнопкой «Choose file»
+function repTiles(){
+  const box=document.getElementById("repTiles"), ph=document.getElementById("photo"); if(!box||!ph) return;
+  const f=ph.files&&ph.files[0];
+  if(box._url){ URL.revokeObjectURL(box._url); box._url=null; }
+  if(f){ box._url=URL.createObjectURL(f);
+    box.innerHTML=`<div class="rv-tile"><img src="${box._url}" alt=""><button type="button" class="rv-tile-x" onclick="document.getElementById('photo').value='';repTiles()" aria-label="${esc(t("plDel"))}">✕</button></div>`; }
+  else box.innerHTML=`<button type="button" class="rv-add" onclick="document.getElementById('photo').click()">${svgI("camera")}<span>${esc(t("rvAddPhoto"))}</span></button>`;
+}
 async function saveReport(e){
   e.preventDefault();
   if(!reportLatLng){ setReportPick(); toast(t("needPoint")); return; }
@@ -6068,8 +6095,8 @@ async function saveReport(e){
     if(!res.ok){ const d=await res.json().catch(()=>({})); throw new Error(d.error||"error"); }
     try{ const d=await res.clone().json(); if(d&&d.id){ const l=myReports(); l.unshift({id:d.id,type:fd.get("type")||"",at:Date.now(),status:"pending"}); store("myReports",JSON.stringify(l.slice(0,50))); setTimeout(askNotify,1500); } }catch(e){}
     closeModal("reportModal");
-    document.getElementById("comment").value=""; ph.value="";
-    document.getElementById("reportPlace").value="—";
+    document.getElementById("comment").value=""; ph.value=""; repTiles();
+    document.getElementById("reportPlace").value="";
     lastComplaintPoint=[reportLatLng.lat,reportLatLng.lng];
     reportLatLng=null;
     toast(t("sent"));
@@ -6406,6 +6433,50 @@ function serikAsk(q){ document.getElementById("skInput").value=q; serikSend(); }
 function skRouteSummary(){
   try{ if(!lastSteps || !lastSteps.length) return ""; return lastSteps.slice(0,6).map((s,i)=>stepText(s,i)).join("; ").slice(0,300); }catch(e){ return ""; }
 }
+// Пока ИИ не подключён (или недоступен) — Серік отвечает сам на частые вопросы
+const SK_FAQ=[
+ {k:/маршрут|бағыт|route|доехать|дойти|как пройти|жету/i,
+  ru:"Нажмите «Куда едем?» внизу и впишите адрес или место — или выберите его на карте. Маршрут строится с учётом вашего профиля (коляска, трость и т. д.: Настройки → Профиль передвижения) и обходит ступени и барьеры, если может. Потом нажмите «Поехали» — я буду подсказывать голосом перед поворотами.",
+  kk:"Төмендегі «Қайда барамыз?» батырмасын басып, мекенжайды не орынды жазыңыз — немесе картадан таңдаңыз. Бағыт сіздің профиліңізге қарай құрылады (арба, таяқ т.б.: Баптаулар → Қозғалыс профилі) және мүмкін болса баспалдақ пен кедергілерді айналып өтеді. Содан кейін «Жүрдік» басыңыз — бұрылыс алдында дауыспен айтамын.",
+  en:"Tap “Where to?” at the bottom and type an address or place — or pick it on the map. The route follows your mobility profile (Settings → Mobility profile) and avoids steps and barriers where it can. Then tap “Go” and I’ll guide you by voice before each turn."},
+ {k:/тревож|страшно|боюсь|тяжело|грустно|одиноко|қорқ|мазасыз|anxious|scared|afraid|lonely|sad/i,
+  ru:"Это нормально — волноваться перед выходом. Можно начать с маленького: короткий знакомый маршрут, в спокойное время дня. Постройте его заранее и посмотрите, где туалеты и пандусы. Если нужна поддержка рядом — в окне SOS есть «Нужна помощь»: волонтёр может проводить. А если очень тяжело, позвоните на бесплатную линию психологической помощи 150. Я рядом.",
+  kk:"Үйден шығар алдында алаңдау — қалыпты нәрсе. Кішкентайдан бастауға болады: таныс қысқа бағыт, күннің тыныш уақыты. Бағытты алдын ала құрып, дәретхана мен пандустар қайда екенін қараңыз. Қасыңызда біреу керек болса — SOS терезесінде «Көмек керек» бар: волонтёр шығарып салады. Өте ауыр болса, 150 тегін психологиялық көмек желісіне қоңырау шалыңыз. Мен қасыңыздамын.",
+  en:"It’s normal to feel nervous about going out. Start small: a short, familiar route at a quiet time of day. Build it in advance and check where the toilets and ramps are. If you’d like someone with you, the SOS window has “I need help” — a volunteer can accompany you. If it feels very hard, call the free psychological support line 150. I’m here."},
+ {k:/куда сходить|куда пойти|сходить|қайда бар|where to go|go out|погулять|серуен/i,
+  ru:"Откройте «Куда едем?» — там категории: парки, поесть, ТЦ, аптеки и другие. На карте зелёные значки — места, где отмечен доступ для колясок. В меню ≡ есть «Рейтинг районов» — видно, где в городе удобнее всего. Нажмите на любое место, чтобы увидеть фото, отзывы о доступности и построить маршрут.",
+  kk:"«Қайда барамыз?» ашыңыз — онда санаттар бар: саябақтар, тамақ, СО, дәріханалар және т.б. Картадағы жасыл белгілер — арбамен кіруге болатын орындар. ≡ мәзірінде «Аудандар рейтингі» бар — қаланың қай жері ыңғайлы екені көрінеді. Кез келген орынды бассаңыз — фото, қолжетімділік туралы пікірлер және бағыт.",
+  en:"Open “Where to?” — there are categories: parks, food, malls, pharmacies and more. Green icons on the map are places marked as wheelchair-accessible. The ≡ menu has “District rating” to see which parts of town are easiest. Tap any place for photos, accessibility reviews and a route."},
+ {k:/туалет|дәретхана|toilet|wc|restroom/i,
+  ru:"Нажмите «Туалет» внизу — найду ближайший доступный туалет и построю к нему маршрут.",
+  kk:"Төмендегі «Дәретхана» батырмасын басыңыз — ең жақын қолжетімді дәретхананы тауып, бағыт құрамын.",
+  en:"Tap “Toilet” at the bottom — I’ll find the nearest accessible toilet and build a route to it."},
+ {k:/барьер|жалоб|пандус|бордюр|кедергі|шағым|barrier|report|ramp|kerb|curb/i,
+  ru:"Нажмите «Барьер», выберите тип (бордюр, ступени, нет пандуса…), добавьте фото и отметьте точку на карте. Жалоба появится на карте после проверки, а в меню «Мои жалобы» видно её статус. Можно также подготовить обращение в акимат через eOtinish.",
+  kk:"«Кедергі» батырмасын басып, түрін таңдаңыз (жиек, баспалдақ, пандус жоқ…), фото қосып, картадан нүктені белгілеңіз. Шағым тексерілген соң картада шығады, «Менің шағымдарым» мәзірінде мәртебесі көрінеді. eOtinish арқылы әкімдікке өтініш те дайындауға болады.",
+  en:"Tap “Barrier”, choose the type (kerb, steps, no ramp…), add a photo and mark the spot on the map. The report appears on the map after review, and “My reports” in the menu shows its status. You can also prepare an appeal to the akimat via eOtinish."},
+ {k:/sos|помощ|волонт|экстрен|көмек|волонтер|help|volunteer|emergency/i,
+  ru:"В экстренной ситуации звоните 112 (или 103 — скорая) — большие кнопки есть в окне SOS. Там же можно отправить близким ваши координаты. Если помощь не срочная (проводить, помочь со ступенями, сесть в транспорт) — нажмите «Помощь»: волонтёры рядом увидят просьбу.",
+  kk:"Төтенше жағдайда 112-ге (немесе 103 — жедел жәрдем) қоңырау шалыңыз — SOS терезесінде үлкен батырмалар бар. Сол жерден жақындарыңызға координаттарыңызды жіберуге болады. Көмек шұғыл болмаса (шығарып салу, баспалдақ, көлікке отыру) — «Көмек» басыңыз: жақын волонтёрлер көреді.",
+  en:"In an emergency call 112 (or 103 for an ambulance) — there are big buttons in the SOS window, where you can also send your location to loved ones. For non-urgent help (accompany you, steps, boarding transport) tap “Help” — nearby volunteers will see the request."},
+ {k:/такси|инватакси|taxi/i,
+  ru:"Выберите «Такси» в маршруте — покажу примерную цену и номера служб вашего города, включая инватакси. Право на инватакси с 20.09.2026 — по перечню показаний Минздрава; заявку подают в акимат или на Портале соцуслуг.",
+  kk:"Бағыттан «Такси» таңдаңыз — шамамен бағасын және қалаңыздағы қызметтердің нөмірлерін, соның ішінде инватаксиді көрсетемін. 2026 жылғы 20.09-дан инватаксиге құқық — Денсаулық сақтау министрлігінің көрсетілімдер тізімі бойынша; өтінім әкімдікке не Әлеуметтік қызметтер порталына беріледі.",
+  en:"Choose “Taxi” in the route panel — I’ll show an estimated fare and the taxi services of your city, including invataxi (paratransit). Since 20.09.2026 eligibility follows the Ministry of Health list; you apply via the akimat or the Social Services Portal."},
+ {k:/шрифт|крупн|контраст|плохо виж|не виж|қаріп|контраст|font|text size|contrast|blind|low vision/i,
+  ru:"Настройки → Размер текста (крупный, очень крупный) и Контрастность (повышенная — чёрно-жёлтая). Для незрячих — «Голосовые подсказки»: первое касание называет кнопку, второе нажимает.",
+  kk:"Баптаулар → Мәтін өлшемі (ірі, өте ірі) және Контраст (жоғары — қара-сары). Көрмейтіндерге — «Дауыстық кеңестер»: бірінші жанасу батырманы атайды, екіншісі басады.",
+  en:"Settings → Text size (large, extra large) and Contrast (high — black and yellow). For blind users there are “Voice hints”: the first tap names a button, the second presses it."},
+ {k:/автобус|остановк|аялдама|bus|stop|transport/i,
+  ru:"Выберите «Автобус» в маршруте — покажу подходящие маршруты и остановки. Если по вашему городу данных мало, подскажу, как дойти до ближайшей остановки.",
+  kk:"Бағыттан «Автобус» таңдаңыз — қолайлы маршруттар мен аялдамаларды көрсетемін. Қалаңыз бойынша дерек аз болса, ең жақын аялдамаға қалай жетуге болатынын айтамын.",
+  en:"Choose “Bus” in the route panel — I’ll show suitable lines and stops. If data for your city is thin, I’ll show how to reach the nearest stop."},
+ {k:/без интернета|офлайн|интернетсіз|offline/i,
+  ru:"Настройки → «Карта без интернета» → «Скачать город». Карта и слои доступности будут открываться даже без сети.",
+  kk:"Баптаулар → «Интернетсіз карта» → «Қаланы жүктеу». Карта мен қолжетімділік қабаттары желісіз де ашылады.",
+  en:"Settings → “Offline map” → “Download city”. The map and accessibility layers will open even without a connection."},
+];
+function serikLocal(q){ const f=SK_FAQ.find(x=>x.k.test(q)); return f ? (f[S.lang]||f.ru) : null; }
 async function serikSend(){
   const inp=document.getElementById("skInput");
   const text=inp.value.trim(); if(!text || SK.busy) return;
@@ -6418,10 +6489,10 @@ async function serikSend(){
       body:JSON.stringify({messages:SK.msgs.slice(-16),context:{lang:S.lang,city:cityName(),profile:(PROFILES[S.profile]||{})[S.lang]||"",route:skRouteSummary()}})});
     const j=await r.json().catch(()=>({}));
     if(r.ok && j.reply){ reply=j.reply; ok=true; }
-    else if(r.status===503){ reply=t("skOff"); SK.enabled=false; }
+    else if(r.status===503){ reply=serikLocal(text)||t("skOff"); SK.enabled=false; ok=!!serikLocal(text); }
     else if(r.status===429){ reply=t("skBusy"); }
     else reply=t("skErr");
-  }catch(e){ reply=t("skErr"); }
+  }catch(e){ reply=serikLocal(text)||t("skErr"); }
   wait.remove();
   if(ok){ SK.msgs.push({role:"assistant",content:reply}); skSave(); }
   else { SK.msgs.pop(); skSave(); }   // неотвеченный вопрос не отправляем повторно в историю
