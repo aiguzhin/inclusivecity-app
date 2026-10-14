@@ -7,6 +7,7 @@ const MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.ku
 const TTL = 7 * 864e5;
 const mem = new Map();       // city → {at, data}
 const busy = new Map();      // city → Promise
+const lastErr = new Map();   // city → текст последней ошибки (для отладки)
 
 function query(bb) {
   return `[out:json][timeout:110];node["place"~"^(suburb|quarter|neighbourhood)$"]["name"](${bb});out tags;make sep;out;`
@@ -64,10 +65,10 @@ async function handle(req, res, pathname, url) {
   const fresh = c && Date.now() - c.at < TTL;
   if (!fresh && !busy.has(city)) {
     const bbs = n.map((x) => x.toFixed(4)).join(',');
-    busy.set(city, compute(city, bbs).catch((e) => console.warn('rating', city, e.message)).finally(() => busy.delete(city)));
+    busy.set(city, compute(city, bbs).then(() => lastErr.delete(city)).catch((e) => { lastErr.set(city, String(e && (e.errors ? e.errors.map((x) => x.message).join('; ') : e.message)).slice(0, 200)); console.warn('rating', city, lastErr.get(city)); }).finally(() => busy.delete(city)));
   }
   if (c) return H.sendJson(res, 200, c);          // устаревший тоже отдаём сразу, свежий посчитается в фоне
-  return H.sendJson(res, 202, { pending: true });
+  return H.sendJson(res, 202, { pending: true, busy: busy.has(city), error: lastErr.get(city) || null });
 }
 
 module.exports = { init(h) { H = h; }, handle };

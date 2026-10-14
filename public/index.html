@@ -4197,20 +4197,25 @@ async function rtCompute(){
   const qPlaces=`[out:json][timeout:40];node["place"~"^(suburb|quarter|neighbourhood)$"]["name"](${bb});out tags;`;
   const qPos=`[out:json][timeout:60];(nwr["ramp:wheelchair"="yes"](${bb});nwr["wheelchair"="yes"](${bb});nwr["highway"="elevator"](${bb});nwr["toilets:wheelchair"="yes"](${bb});nwr["parking_space"="disabled"](${bb});node["tactile_paving"="yes"](${bb});nwr["traffic_signals:sound"="yes"](${bb}););out center skel;`;
   const qNeg=`[out:json][timeout:60];(way["highway"="steps"][!"ramp:wheelchair"][!"ramp"](${bb});nwr["wheelchair"="no"](${bb});node["kerb"="raised"](${bb}););out center skel;`;
-  // Считает сервер (ждёт Overpass сколько нужно и хранит результат неделю) — телефон только спрашивает
-  let srv=null;
-  for(let i=0;i<40 && !srv;i++){
+  // Считает сервер (ждёт Overpass сколько нужно и хранит результат неделю). Если сервер ещё считает,
+  // через 8 с параллельно пробуем и сами — кто первый, того и ответ.
+  const body=v=>v.replace(/^\[out:json\]\[timeout:\d+\];/,"");
+  let srv=null, own=null, ownStarted=false, ownFailed=false;
+  const ownRun=()=>{ ownStarted=true; overpassQuery(`[out:json][timeout:60];${body(qPlaces)}make sep;out;${body(qPos)}make sep;out;${body(qNeg)}`,65000)
+    .then(d=>{ own=d; }).catch(()=>{ ownFailed=true; }); };
+  for(let i=0;i<45 && !srv && !own;i++){
     let r=null; try{ r=await fetch(`/api/rating?city=${encodeURIComponent(S.city)}&bb=${bb}`); }catch(e){}
     if(r && r.status===200){ srv=await r.json(); break; }
-    if(!r || r.status!==202) break;
+    if(!ownStarted && (i>=2 || !r || r.status!==202)) ownRun();
+    if(ownFailed && (!r || r.status!==202)) break;
     const bar=document.querySelector("#rtBody .off-bar i"); if(bar) bar.style.width=Math.min(95,35+i*2)+"%";
     await new Promise(res=>setTimeout(res,4000));
   }
   let pl,pos,neg;
   if(srv){ pl={elements:srv.places.map(x=>({tags:x.tags,lat:x.lat,lon:x.lon}))}; pos={elements:srv.pos.map(p=>({lat:p[0],lon:p[1]}))}; neg={elements:srv.neg.map(p=>({lat:p[0],lon:p[1]}))}; }
   else{
-    const body=v=>v.replace(/^\[out:json\]\[timeout:\d+\];/,"");
-    const one=await overpassRace(`[out:json][timeout:50];${body(qPlaces)}make sep;out;${body(qPos)}make sep;out;${body(qNeg)}`,55000);
+    if(!own) throw new Error("rating unavailable");
+    const one=own;
     const parts=[[],[],[]]; let k=0; (one.elements||[]).forEach(e=>{ if(e.type==="sep") k++; else if(parts[k]) parts[k].push(e); });
     pl={elements:parts[0]}; pos={elements:parts[1]}; neg={elements:parts[2]};
   }
