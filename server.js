@@ -819,6 +819,11 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// Одна ошибка не должна ронять весь сайт: пишем в лог и продолжаем работать
+process.on('uncaughtException', (e) => console.error('uncaught:', e && e.stack || e));
+process.on('unhandledRejection', (e) => console.error('unhandled:', e && e.stack || e));
+server.keepAliveTimeout = 65e3; server.headersTimeout = 66e3;   // за прокси Render — без обрывов соединений
+
 server.listen(PORT, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();

@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v61";
+const CACHE = "ic-v62";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
@@ -21,6 +21,12 @@ const SHELL = [
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
   "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"
 ];
+// Страница на самый крайний случай: нет сети и ещё ни разу не открывали сайт на этом устройстве
+const OFFLINE_PAGE = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ICity</title><body style="margin:0;min-height:100vh;display:grid;place-items:center;font:17px/1.5 system-ui,sans-serif;background:#f3f6f8;color:#111722;padding:24px;text-align:center">
+<div><h1 style="font-size:24px">ICity загружается…</h1><p>Сервер просыпается или нет интернета. Страница обновится сама.</p>
+<p lang="kk">Сервер оянып жатыр немесе интернет жоқ.</p><button onclick="location.reload()" style="font:inherit;padding:12px 20px;border-radius:12px;border:0;background:#2fd39b">Обновить</button></div>
+<script>setTimeout(function(){location.reload()},8000)</script></body></html>`;
 const CDN_HOSTS = ["unpkg.com"];
 const TILE_HOSTS = ["tile.openstreetmap.org", "a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org",
   "server.arcgisonline.com", "a.tile.opentopomap.org", "b.tile.opentopomap.org", "c.tile.opentopomap.org"];
@@ -68,12 +74,23 @@ self.addEventListener("fetch", e => {
   try { url = new URL(req.url); } catch (_) { return; }
   const sameOrigin = url.origin === self.location.origin;
 
-  // 1. Переходы по страницам: сеть, при офлайне — сохранённая оболочка
+  // 1. Переходы по страницам: сеть, но если сервер молчит дольше 3,5 с (бесплатный Render просыпается)
+  //    или отвечает ошибкой — сразу сохранённая копия страницы, а свежая догрузится в кэш к следующему разу
   if (req.mode === "navigate") {
-    e.respondWith(
-      fetch(req).then(res => putInCache(req, res))
-        .catch(() => caches.match(req).then(hit => hit || caches.match("/index.html")))
-    );
+    e.respondWith((async () => {
+      const cached = () => caches.match(req, { ignoreSearch: true })
+        .then(hit => hit || caches.match(url.pathname === "/" ? "/" : "/map"))
+        .then(hit => hit || caches.match("/index.html"));
+      const net = fetch(req).then(res => {
+        if (!res || res.status >= 500) throw new Error("server " + (res && res.status));
+        return putInCache(req, res);
+      });
+      e.waitUntil(net.catch(() => {}));
+      const hit = await cached();
+      if (!hit) return net.catch(() => new Response(OFFLINE_PAGE, { headers: { "Content-Type": "text/html; charset=utf-8" } }));
+      const slow = new Promise(r => setTimeout(() => r(hit), 3500));
+      return Promise.race([net.catch(() => hit), slow]);
+    })());
     return;
   }
 
@@ -81,8 +98,10 @@ self.addEventListener("fetch", e => {
   //    кэш — только как запасной вариант при офлайне
   if (sameOrigin && (url.pathname.startsWith("/api/") || url.pathname.startsWith("/bus-") || url.pathname.startsWith("/places/") || url.pathname === "/taxi-osm.json" || url.pathname === "/auth-config.js")) {
     e.respondWith(
-      fetch(req).then(res => putInCache(req, res))
-        .catch(() => caches.match(req))
+      fetch(req).then(res => {
+        if (res && res.status >= 500) return caches.match(req).then(hit => hit || res);   // сервер просыпается — берём сохранённое
+        return putInCache(req, res);
+      }).catch(() => caches.match(req).then(hit => hit || new Response(JSON.stringify({ error: "offline" }), { status: 503, headers: { "Content-Type": "application/json" } })))
     );
     return;
   }

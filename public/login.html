@@ -962,5 +962,6 @@ pushInit();
 $("logoutBtn").onclick=async()=>{await sb.auth.signOut();history.replaceState(null,"","/login");msg("");};
 })();
 </script>
+<script>if("serviceWorker" in navigator&&/^(inclusivecity\.uk|www\.inclusivecity\.uk|inclusivecity\.onrender\.com)$/.test(location.hostname))addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})});</script>
 </body>
 </html>
