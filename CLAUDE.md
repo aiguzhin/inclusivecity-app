@@ -95,6 +95,9 @@
 
 ## Как работать
 
+- Навык дизайна UI/UX Pro Max (MIT, github.com/nextlevelbuilder/ui-ux-pro-max-skill) — в `.claude/skills/ui-ux-pro-max`:
+  перед правками интерфейса — `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<запрос>" --design-system` или `--domain ux|color|typography`.
+
 - На этом Mac нет Node.js и git. Проверка синтаксиса сервера:
   `/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -e 'checkSyntax("server.js")'`.
 - Фронтенд локально: `ruby -run -e httpd public -p 8765` (API там нет).
