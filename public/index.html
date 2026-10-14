@@ -892,6 +892,18 @@ body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:h
 .gl-load[hidden],.gl-hint[hidden]{display:none}
 .gl-attr{position:absolute;left:8px;bottom:6px;margin:0;font-size:.65rem;color:rgba(220,230,240,.55);z-index:2}
 @media(max-width:860px){ .gl-ui{bottom:calc(var(--peek-h) + 108px)} .gl-attr{bottom:calc(var(--peek-h) + 6px)} }
+
+/* Доступность (аудит UI/UX Pro Max + axe): цели нажатия ≥ 44 px, текст ≥ 12 px, контраст SOS в тёмной теме */
+.wx-pill{min-height:44px}
+html[data-ui="soft"] .peek-more{min-height:44px;font-size:.8rem}
+html[data-ui="soft"] .peek-nav button,html[data-ui="soft"] .peek-nav a{font-size:.78rem}
+.pl-chip{min-height:44px}
+#serikBtn,#viewToggle,#acctBtn{min-height:44px}
+#langSel{min-height:44px!important}
+.hamburger{min-width:44px;min-height:44px}
+.eyebrow{font-size:max(.75rem,12px)}
+html[data-theme="dark"] .sos{background:#c62f22;color:#fff}
+html[data-theme="dark"] .leaflet-control-attribution a{color:#004f73}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -3213,6 +3225,8 @@ function initMap(){
   if(typeof L==="undefined") throw new Error("leaflet");
   let pos=null; try{ pos=JSON.parse(read("mapPos","null")); }catch(e){}
   const okPos=pos && pos.city===S.city && isFinite(pos.lat) && isFinite(pos.lng) && pos.z>GLOBE_OPEN_Z && !/[?&#](lat|ll|to|from)=/.test(location.href);
+  // Значки-div на карте: Leaflet не передаёт alt в подпись — даём экранному диктору название значка
+  if(!L.Marker.__icAria){ L.Marker.__icAria=1; L.Marker.addInitHook(function(){ this.on("add",()=>{ const el=this.getElement&&this.getElement(); if(el && this.options.alt && !el.getAttribute("aria-label")) el.setAttribute("aria-label", this.options.alt); }); }); }
   map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z, rotate:true, touchRotate:true, rotateControl:false, shiftKeyRotate:true, bearing:0}).setView(okPos?[pos.lat,pos.lng]:city().c, okPos?pos.z:city().z);
   // запоминаем, где человек оставил карту, — при следующем входе откроется там же
   let posT=0; map.on("moveend",()=>{ clearTimeout(posT); posT=setTimeout(()=>{ if(map.getZoom()<=GLOBE_OPEN_Z) return;

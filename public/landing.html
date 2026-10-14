@@ -130,6 +130,13 @@ body.about #s10 .actions,body.about #s11,body.about .rail a[href="#s11"]{display
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #toast svg{width:18px;height:18px;flex:none}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+/* Доступность (аудит UI/UX Pro Max + axe): цели нажатия не меньше 44 px, мелкий текст не меньше 12 px */
+.brand{min-height:44px}
+.brand small{font-size:12px}
+.lang-sw button{min-width:40px;min-height:38px;font-size:13px}
+#acctTop,.top-actions .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.rail a{min-height:24px;font-size:12px}
+.rail a i{width:9px;height:9px}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -234,11 +241,11 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <p class="eyebrow">Общественный транспорт</p>
       <h2>Автобус, троллейбус, маршрутка, трамвай</h2>
       <p>Маршруты с пересадкой и отметки о доступности остановок, чтобы заранее знать, где удобно сесть и выйти.</p>
-      <div class="card" role="table" aria-label="Пример поездки">
-        <header><span>Пример поездки</span><span>с пересадкой</span></header>
-        <div class="row" role="row"><div><b>Остановка «Парк»</b><span class="sub">пандус, без бордюра</span></div><span class="tag t-ok">доступна</span></div>
-        <div class="row" role="row"><div><b>Автобус → троллейбус</b><span class="sub">пересадка на той же стороне</span></div><span class="tag t-bus">1 пересадка</span></div>
-        <div class="row" role="row"><div><b>Остановка «Центр»</b><span class="sub">высокий бордюр</span></div><span class="tag t-warn">с трудом</span></div>
+      <div class="card" role="list" aria-label="Пример поездки">
+        <header aria-hidden="true"><span>Пример поездки</span><span>с пересадкой</span></header>
+        <div class="row" role="listitem"><div><b>Остановка «Парк»</b><span class="sub">пандус, без бордюра</span></div><span class="tag t-ok">доступна</span></div>
+        <div class="row" role="listitem"><div><b>Автобус → троллейбус</b><span class="sub">пересадка на той же стороне</span></div><span class="tag t-bus">1 пересадка</span></div>
+        <div class="row" role="listitem"><div><b>Остановка «Центр»</b><span class="sub">высокий бордюр</span></div><span class="tag t-warn">с трудом</span></div>
       </div>
     </div>
   </section>
@@ -256,12 +263,12 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <p class="eyebrow">Жалобы на барьеры</p>
       <h2>Увидел барьер? Отметь его</h2>
       <p>Жалоба с фото попадает на карту после модерации. Жители подтверждают её, а ICity собирает готовое обращение в акимат.</p>
-      <div class="card" role="table" aria-label="Пример жалобы">
-        <header><span>Пример жалобы</span><span>вход в поликлинику</span></header>
-        <div class="row" role="row"><div><b>Ступени без пандуса</b><span class="sub">фото приложено</span></div><span class="tag t-bar">барьер</span></div>
-        <div class="row" role="row"><div><b>Подтвердили жители</b></div><span class="tag t-warn">14</span></div>
-        <div class="row" role="row"><div><b>Модерация</b></div><span class="tag t-ok">одобрено</span></div>
-        <div class="row" role="row"><div><b>Обращение в акимат</b></div><span class="tag t-ok">готово</span></div>
+      <div class="card" role="list" aria-label="Пример жалобы">
+        <header aria-hidden="true"><span>Пример жалобы</span><span>вход в поликлинику</span></header>
+        <div class="row" role="listitem"><div><b>Ступени без пандуса</b><span class="sub">фото приложено</span></div><span class="tag t-bar">барьер</span></div>
+        <div class="row" role="listitem"><div><b>Подтвердили жители</b></div><span class="tag t-warn">14</span></div>
+        <div class="row" role="listitem"><div><b>Модерация</b></div><span class="tag t-ok">одобрено</span></div>
+        <div class="row" role="listitem"><div><b>Обращение в акимат</b></div><span class="tag t-ok">готово</span></div>
       </div>
     </div>
   </section>

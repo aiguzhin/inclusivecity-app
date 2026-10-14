@@ -150,6 +150,15 @@ body.acc #msg .msg{margin:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:b
 .sw input:checked+i{background:var(--ok)}.sw input:checked+i::after{transform:translateX(20px)}
 .sw input:focus-visible+i{outline:2px solid var(--ok);outline-offset:3px}
 .sw input:disabled+i{opacity:.4}
+/* Доступность (аудит UI/UX Pro Max + axe): цели нажатия ≥ 44 px, текст ≥ 12 px */
+.tbtn{height:44px}
+.top select{min-height:44px}
+.brand{min-height:44px}
+.tabs button{min-height:44px}
+.pw button{min-height:40px;padding:8px 10px}
+.forgot-row .link{min-height:44px;display:inline-flex;align-items:center}
+.prov .soon{font-size:12px}
+.egov{font-size:12px}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
