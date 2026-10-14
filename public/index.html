@@ -133,7 +133,9 @@ label.field{display:block;font-size:.85rem;font-weight:750;margin:14px 0 5px}
 #map{position:absolute;inset:0;background:#dbe5ee}
 html[data-theme="dark"] #map{background:#101b25}
 #listview{position:absolute;inset:0;overflow:auto;padding:18px;background:var(--paper);display:none}
-body[data-view="list"] #listview{display:block}
+body[data-view="list"] #listview{display:block;z-index:600}
+body[data-view="list"] #map{visibility:hidden}
+.lv-back{width:100%;margin:0 0 14px}
 body[data-view="list"] .layerbar{display:none}
 body[data-view="list"] .wx,
 body[data-view="list"] .map-stack,
@@ -918,6 +920,31 @@ html[data-contrast="high"] .btn-primary:hover{background:#ffe14d}
 .fpin svg,.fpin .ic{transform:rotate(45deg);width:18px;height:18px;color:#fff}
 .fpin.dest{background:var(--red)}.fpin.start{background:var(--blue)}
 .ac-empty{padding:12px 14px;color:var(--ink-soft);font-size:.92rem;list-style:none}
+
+/* Навигация: сверху — манёвр, снизу — время, прибытие и кнопки */
+#navHud .nv-txtw{min-width:0}
+#navHud .nv-dist{font-size:1.9rem;font-weight:900;line-height:1.05;letter-spacing:-.01em}
+#navHud .nv-txt{font-size:1.05rem}
+#navBar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:1200;display:flex;align-items:center;gap:8px;padding:10px 10px 10px 16px;border-radius:22px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+#navBar[hidden]{display:none}
+#navBar .nb-info{flex:1;min-width:88px;display:grid}
+#navBar .nb-info b{font-size:1.35rem;font-weight:900;color:var(--green);white-space:nowrap}
+@media (max-width:420px){#navBar .nb-share{display:none!important}#navBar{gap:6px;padding-left:12px}}
+body.nav-on .wx,body.nav-on #wxPill,body.nav-on .wx-pill{display:none!important}
+#navBar .nb-info span{font-size:.85rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#navBar .nb-btn{width:48px;height:48px;min-width:48px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);display:grid;place-items:center;padding:0}
+#navBar .nb-btn .ic,#navBar .nb-btn svg{width:22px;height:22px}
+#navBar .nb-stop{min-height:48px;padding:0 16px;border-radius:14px;border:0;background:var(--red);color:#fff;font-weight:800}
+html[data-theme="dark"] #navBar .nb-stop{background:#c62f22}
+body.nav-on .leaflet-control-zoom,body.nav-on .map-stack{display:none!important}
+/* Маршрут готов: большая кнопка «Поехали» прямо в шторке */
+.peek-route{display:flex;gap:8px;margin:0 0 10px}
+.peek-route[hidden]{display:none}
+.peek-route .pr-go{flex:1;min-height:52px;border:0;border-radius:16px;background:var(--blue);color:#fff;font-weight:800;font-size:1.05rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.peek-route .pr-go .ic{width:22px;height:22px}
+.peek-route .pr-steps,.peek-route .pr-x{min-height:52px;min-width:52px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700}
+html[data-contrast="high"] .peek-route .pr-go{background:#ffd400;color:#000;border:2px solid currentColor}
+body:not(.soft-ui) .peek-route{margin-top:8px}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -930,6 +957,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 </head>
 <body data-view="map">
 <div id="navHud" role="region" aria-live="assertive" hidden></div>
+<div id="navBar" role="region" data-i18n-aria="navBarL" aria-label="Навигация" hidden></div>
 <!-- Заставка при каждом открытии: сеть 22 городов → полёт к своему городу → знак ICity. Холст 2D, слои предрисованы, касание — пропустить -->
 <div id="icIntro" aria-hidden="true">
 <style>
@@ -1247,7 +1275,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   </aside>
 
   <section class="stage">
-    <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="menu"></i><span class="mmb-badge" id="mmbBadge" hidden></span></button>
+    <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-badge" id="mmbBadge" hidden></span></button>
     <div class="map-menu" id="mapMenu" hidden role="dialog" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты">
       <div class="mpm-head"><b data-i18n="mmLayers">Слои и сведения карты</b><button type="button" class="mpm-x" onclick="toggleMapMenu(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
       <p class="mpm-h" data-i18n="mmLayersSub">Что показать на карте</p>
@@ -1312,6 +1340,11 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <span class="peek-grip" aria-hidden="true"></span>
       <button type="button" class="peek-more" id="peekMore" onclick="peekExpand(true)" data-i18n="peekMoreBtn">⌃ Дом, работа и быстрые кнопки</button>
       <div class="peek-hello" aria-live="polite"><span id="peekWhere"></span><b id="peekHi"></b></div>
+      <div class="peek-route" id="peekRoute" hidden>
+        <button type="button" class="pr-go" onclick="navStart()"><i data-ic="nav"></i> <span data-i18n="navGo">Поехали</span></button>
+        <button type="button" class="pr-steps" onclick="openSheet()" data-i18n="navSteps">Шаги</button>
+        <button type="button" class="pr-x" onclick="clearRouteAll()" data-i18n-aria="navClear" aria-label="Сбросить маршрут">✕</button>
+      </div>
       <button type="button" class="peek-search" id="peekSearch" onclick="openPeekSearch()"
               aria-controls="peekFind" aria-expanded="false">
         <span class="peek-ico"><i data-ic="search"></i></span>
@@ -1378,6 +1411,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <p class="gl-attr">NASA Blue Marble · Black Marble · Moon, clouds: NASA / three.js · Sky: three-globe</p>
     </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
+      <button type="button" class="btn-primary lv-back" onclick="setView('map')"><i data-ic="map"></i> <span data-i18n="backToMap">Вернуться к карте</span></button>
       <h2 data-i18n="listTitle">Текстовый режим</h2>
       <p class="small muted" data-i18n="listHelp">Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.</p>
       <div id="listRoute"></div>
@@ -1660,6 +1694,8 @@ const ICONS={
   walk:'<circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/>',
   swap:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
   flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
+  nav:'<path d="M12 3 5 20l7-3.5 7 3.5z"/>',
+  layers:'<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
   stop:'<path d="M12 21V10"/><rect x="6.5" y="3" width="11" height="7" rx="1.5"/><path d="M9.5 6.5h5"/>',
   wc:'<circle cx="11" cy="4" r="1.8"/><path d="M11 7v6h5l2 5M11 10h4"/><path d="M8.5 11.2A5 5 0 1 0 14.8 18"/>',
   wcp:'<circle cx="10" cy="4" r="1.8"/><path d="M10 7v6h5l2 5M10 10h4"/><path d="M7.5 11.2A5 5 0 1 0 13.8 18"/><path d="M20 2l-2.2 3.6h2.6L18 9.5"/>',
@@ -1807,7 +1843,7 @@ ru:{
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
  meters:"м", north:"на север", south:"на юг", east:"на восток", west:"на запад",
- you:"Вы здесь", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
+ you:"Вы здесь", navGo:"Поехали", navSteps:"Шаги", navClear:"Сбросить маршрут", navEta:"прибытие в {t}", navOverview:"Весь маршрут", navOverviewT:"Весь маршрут. Через 12 секунд карта снова поедет за вами", navBarL:"Навигация", backToMap:"Вернуться к карте", acNoneCity:"В городе {c} ничего не нашли. Проверьте название или смените город в настройках.", start:"Старт", finish:"Финиш", barrier:"Барьер", mapPoint:"Точка на карте", myLocation:"Моё местоположение"
 },
 kk:{
  basemapLabel:"Карта түрі", acNoResults:"Ештеңе табылмады",
@@ -1895,7 +1931,7 @@ kk:{
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
  meters:"м", north:"солтүстікке қарай", south:"оңтүстікке қарай", east:"шығысқа қарай", west:"батысқа қарай",
- you:"Сіз осындасыз", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
+ you:"Сіз осындасыз", navGo:"Жүрдік", navSteps:"Қадамдар", navClear:"Бағытты өшіру", navEta:"{t} жетесіз", navOverview:"Бүкіл бағыт", navOverviewT:"Бүкіл бағыт. 12 секундтан кейін карта қайта сізге ереді", navBarL:"Навигация", backToMap:"Картаға оралу", acNoneCity:"{c} қаласында ештеңе табылмады. Атауын тексеріңіз не баптауда қаланы ауыстырыңыз.", start:"Бастау нүктесі", finish:"Межелі нүкте", barrier:"Кедергі",
  mapPoint:"Картадағы нүкте", myLocation:"Менің орналасқан жерім"
 },
 en:{
@@ -1984,7 +2020,7 @@ en:{
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
  meters:"m", north:"to the north", south:"to the south", east:"to the east", west:"to the west",
- you:"You are here", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
+ you:"You are here", navGo:"Go", navSteps:"Steps", navClear:"Clear route", navEta:"arrive {t}", navOverview:"Whole route", navOverviewT:"Whole route. The map will follow you again in 12 seconds", navBarL:"Navigation", backToMap:"Back to the map", acNoneCity:"Nothing found in {c}. Check the name or switch the city in Settings.", start:"Start", finish:"Destination", barrier:"Barrier",
  mapPoint:"Point on the map", myLocation:"My location"
 }};
 
@@ -2221,7 +2257,7 @@ function overlayLayers(style){
 // показываем их на 2 уровня раньше, крупные первыми (rank), иконка остаётся, даже если подпись не влезла
 function morePoi(l){
   if(l["source-layer"]!=="poi" || l.type!=="symbol") return l;
-  l.minzoom=Math.max(14, (l.minzoom||14)-2);
+  l.minzoom=Math.max(14, (l.minzoom||14)-1);
   l.layout=Object.assign({}, l.layout, {"text-optional":true, "symbol-sort-key":["coalesce",["get","rank"],99]});
   return l;
 }
@@ -3175,6 +3211,7 @@ function updatePeek(){
     tl.textContent=modePeek.title; sub.textContent=modePeek.sub;
     return;
   }
+  { const pr=document.getElementById("peekRoute"); if(pr){ const on=!!(lastRoute && lastAnalysis && !modePeek); if(pr.hidden===on){ pr.hidden=!on; requestAnimationFrame(()=>{ try{ syncPeekHeight(); }catch(e){} }); } } }
   if(lastRoute && lastAnalysis){
     const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
     const km=(lastRoute.rt.distance/1000).toFixed(1);
@@ -3775,16 +3812,51 @@ function navSay(text){ // в навигации говорим всегда, д�
 function lowFirst(x){ return x ? x.charAt(0).toLowerCase()+x.slice(1) : x; }
 function navPhrase(i){ return stepText(NAV.steps[i],i).replace(/^\d+\.\s*/,""); }
 function navRender(here){
-  const hud=document.getElementById("navHud"); if(!hud) return;
+  const hud=document.getElementById("navHud"), bar=document.getElementById("navBar"); if(!hud) return;
   const st=NAV.steps[NAV.idx]||NAV.steps[NAV.steps.length-1];
   const dNext = here && st && st.loc ? Math.round(mDist(here,st.loc)) : null;
-  const left = here && NAV.b ? mDist(here,NAV.b) : null;
+  const left = here && NAV.b ? mDist(here,NAV.b) : (lastRoute&&lastRoute.rt?lastRoute.rt.distance:null);
   const mins = left!=null ? Math.max(1,Math.round(left/1000/4.2*60/(PROFILES[S.profile].speed||1))) : null;
-  const warn = NAV.warn ? `<div class="nv-warn">${svgI("warn")} ${esc(NAV.warn)}</div>` : "";
+  const eta = mins!=null ? new Intl.DateTimeFormat(locale(),{hour:"2-digit",minute:"2-digit"}).format(new Date(Date.now()+mins*60000)) : "";
+  const phrase = st ? navPhrase(Math.min(NAV.idx,NAV.steps.length-1)) : "";
   hud.innerHTML=`<div class="nv-main"><div class="nv-arrow" aria-hidden="true">${st&&st.type==="arrive"?"⚑":(NAV_ARROW[st&&st.mod]||"↑")}</div>
-    <div><div class="nv-txt">${dNext!=null&&dNext>15?esc(tf("navIn",{d:fmtDist(Math.round(dNext/5)*5)}))+" — "+esc(st?lowFirst(navPhrase(Math.min(NAV.idx,NAV.steps.length-1))):""):esc(st?navPhrase(Math.min(NAV.idx,NAV.steps.length-1)):"")}</div>
-    <div class="nv-sub">${left!=null?esc(tf("navLeft",{d:fmtDist(Math.round(left/10)*10),m:mins})):""}</div></div></div>
-    ${warn}<div class="nv-row"><button type="button" onclick="shareTrip()">${esc(t("shShort"))}</button><button type="button" onclick="navRepeat()">${esc(t("navRepeat"))}</button><button type="button" class="stop" onclick="navStop()">${esc(t("navStop"))}</button></div>`;
+    <div class="nv-txtw">${dNext!=null&&dNext>15?`<div class="nv-dist">${esc(fmtDist(Math.round(dNext/5)*5))}</div>`:""}<div class="nv-txt">${esc(phrase)}</div></div></div>
+    ${NAV.warn?`<div class="nv-warn">${svgI("warn")} ${esc(NAV.warn)}</div>`:""}`;
+  if(bar){ bar.hidden=false;
+    bar.innerHTML=`<div class="nb-info"><b>${mins!=null?esc(mins+" "+t("min")):""}</b><span>${left!=null?esc(fmtDist(Math.round(left/10)*10)):""}${eta?" · "+esc(tf("navEta",{t:eta})):""}</span></div>
+      <button type="button" class="nb-btn" onclick="navRepeat()" data-i18n-aria="navRepeat" aria-label="${esc(t("navRepeat"))}">${svgI("speaker")}</button>
+      <button type="button" class="nb-btn" onclick="navOverview()" aria-label="${esc(t("navOverview"))}">${svgI("routeI")}</button>
+      <button type="button" class="nb-btn nb-share" onclick="shareTrip()" aria-label="${esc(t("shShort"))}">${svgI("send")}</button>
+      <button type="button" class="nb-stop" onclick="navStop()">${esc(t("navStop"))}</button>`; }
+}
+function clearRouteAll(){
+  if(NAV.on) navStop();
+  if(routeLayer) routeLayer.clearLayers(); clearFieldPins();
+  lastRoute=null; lastAnalysis=null; lastSteps=[];
+  ["start","destination"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; delete SELECTED[id]; try{ localStorage.removeItem("ic_f_"+id); }catch(e){} });
+  const rc=document.getElementById("routeCard"); if(rc) rc.innerHTML="";
+  updatePeek();
+}
+/* Камера в навигации: крупно, человек в нижней трети, карта по направлению движения */
+let navFollowPause=0;
+function navCamera(here, pos){
+  if(!mapReady || !here || Date.now()<navFollowPause) return;
+  const z=Math.max(map.getZoom(),18);
+  let hd=null;
+  if(pos && pos.coords && pos.coords.heading!=null && !isNaN(pos.coords.heading) && (pos.coords.speed||0)>0.6) hd=pos.coords.heading;
+  else if(typeof heading==="number" && heading!=null) hd=heading;
+  if(hd!=null && map.setBearing && S.motion!=="off") map.setBearing(-hd);
+  // сдвиг вниз, чтобы впереди было видно больше дороги
+  const off=Math.round(map.getSize().y*0.18);
+  const pt=map.project(here,z).subtract([0,off]);   // центр выше человека — он внизу экрана, дорога впереди видна
+  map.setView(map.unproject(pt,z), z, {animate:S.motion!=="off"});
+}
+function navOverview(){
+  if(!mapReady || !NAV.pts || !NAV.pts.length) return;
+  navFollowPause=Date.now()+12000;
+  if(map.setBearing) map.setBearing(0);
+  map.fitBounds(L.latLngBounds(NAV.pts),{paddingTopLeft:[30,170],paddingBottomRight:[30,120]});
+  toast(t("navOverviewT"));
 }
 function navRepeat(){ if(NAV.steps[NAV.idx]) navSay(navPhrase(NAV.idx)); }
 async function navStart(reroute){
@@ -3794,6 +3866,8 @@ async function navStart(reroute){
   navStopWatch();
   Object.assign(NAV,{on:true, idx:lastSteps[0]&&lastSteps[0].type==="depart"?1:0, pre:-1, said:{}, off:0, steps:lastSteps.slice(), pts:lastRoute.pts, b:lastRoute.b, ob:lastAnalysis&&lastAnalysis.ob, warn:"", rerouting:false});
   document.body.classList.add("nav-on"); document.getElementById("navHud").hidden=false;
+  if(typeof startCompass==="function"){ try{ startCompass(); }catch(e){} }
+  navFollowPause=0; if(userLatLng) navCamera(userLatLng); else if(mapReady && lastRoute && lastRoute.pts) map.setView(lastRoute.pts[0], 18);
   if(sheetMode()) closeSheet();
   try{ if("wakeLock" in navigator) NAV.wake=await navigator.wakeLock.request("screen"); }catch(e){}
   navRender(userLatLng);
@@ -3804,6 +3878,8 @@ function navStopWatch(){ if(NAV.watch!=null){ navigator.geolocation.clearWatch(N
 function navStop(silent){
   navStopWatch(); NAV.on=false; document.body.classList.remove("nav-on");
   const hud=document.getElementById("navHud"); if(hud) hud.hidden=true;
+  const nb=document.getElementById("navBar"); if(nb) nb.hidden=true;
+  if(mapReady && map.setBearing && typeof compassMode!=="undefined" && compassMode!=="follow") map.setBearing(0);
   try{ NAV.wake&&NAV.wake.release(); }catch(e){} NAV.wake=null;
   if(!silent) try{ speechSynthesis.cancel(); }catch(e){}
 }
@@ -3812,7 +3888,7 @@ async function navTick(pos){
   if(!NAV.on) return;
   const here=[pos.coords.latitude,pos.coords.longitude], acc=pos.coords.accuracy||20;
   userLatLng=here;
-  if(mapReady){ if(userMarker) userMarker.setLatLng(here); else showMe(17); map.panTo(here,{animate:S.motion!=="off"}); }
+  if(mapReady){ if(userMarker) userMarker.setLatLng(here); else showMe(17); navCamera(here,pos); }
   // прибыли
   if(NAV.b && mDist(here,NAV.b) < Math.max(18,acc*.8)){ navVib("arrive"); navSay(t("navArrived")); navStop(true); return; }
   // ушли с маршрута — три точки подряд дальше 40 м
