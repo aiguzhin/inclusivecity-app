@@ -44,6 +44,9 @@ html[data-contrast="high"][data-theme="light"]{--fg:#000;--soft:#000;--muted:#1b
 html[data-contrast="high"]:not([data-theme="light"]){--fg:#fff;--soft:#fff;--muted:#e6e6e6;--card:#000;--field:#000;--ink:#000;--ok-t:#ffd400}
 html[data-font="large"] body{zoom:1.15} html[data-font="xlarge"] body{zoom:1.3}
 .top-tools{display:flex;align-items:center;gap:8px}
+.top-l{display:flex;align-items:center;gap:10px}
+.tbtn.back{text-decoration:none;padding:0}
+@media (max-width:440px){.top{gap:6px}.top-tools{gap:6px}.top .brand{font-size:0;gap:0}.top .brand b{font-size:15px}.tbtn{min-width:42px;padding:0 6px}.top select{max-width:92px;padding:7px 6px}}
 .tbtn{min-width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--field);color:var(--fg);font:700 15px var(--f-body);cursor:pointer;display:grid;place-items:center;padding:0 10px}
 .tbtn svg{width:18px;height:18px}
 .tbtn[aria-pressed="true"]{background:var(--ok);color:var(--ok-ink);border-color:var(--ok)}
@@ -194,7 +197,8 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 </head>
 <body>
 <div class="top">
-  <a class="brand" href="/" translate="no"><b>i</b>ICity</a>
+  <div class="top-l"><a class="tbtn back" id="backBtn" href="/map" data-ta="backBtn" aria-label="Назад к карте"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+  <a class="brand" href="/" translate="no"><b>i</b>ICity</a></div>
   <div class="top-tools">
     <button type="button" class="tbtn" id="fontBtn" data-ta="fontBtn" aria-label="Размер шрифта">Aa</button>
     <button type="button" class="tbtn" id="contrastBtn" data-ta="contrastBtn" aria-label="Высокий контраст" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
@@ -417,7 +421,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 (function(){
 const T={
 ru:{titleLogin:"Вход в ICity",titleSignup:"Регистрация в ICity",leadLogin:"Сохраняй маршруты и следи за своими жалобами на барьеры.",leadSignup:"Аккаунт нужен, чтобы сохранять маршруты и следить за своими жалобами.",
- tabLogin:"Войти",tabSignup:"Регистрация",google:"Продолжить с Google",apple:"Продолжить с Apple",egov:"Войти через eGov",soon:"скоро",or:"или",
+ backBtn:"Назад к карте",titleProfile:"Ваш профиль",leadProfile:"Вы пока не вошли на этом устройстве. Войдите или зарегистрируйтесь — и здесь появятся фото, имя, ваши места и настройки.",tabLogin:"Войти",tabSignup:"Регистрация",google:"Продолжить с Google",apple:"Продолжить с Apple",egov:"Войти через eGov",soon:"скоро",or:"или",
  ident:"Телефон или почта",name:"Имя",phone:"Номер телефона",phoneHint:"Пришлём SMS с кодом подтверждения.",email:"Почта",password:"Пароль",show:"Показать",hide:"Скрыть",
  pwHint:"Не меньше 8 символов.",forgot:"Забыли пароль?",byPhone:"По телефону",byEmail:"По почте",getCode:"Получить код по SMS",signupBtn:"Зарегистрироваться",
  terms:"Регистрируясь, ты соглашаешься, что ICity хранит твой телефон, почту и имя, чтобы ты мог входить в аккаунт, а возраст и особенности, если ты их указал, — чтобы настроить сайт. Изменить или убрать их можно в профиле.",
@@ -434,7 +438,7 @@ ru:{titleLogin:"Вход в ICity",titleSignup:"Регистрация в ICity"
  eRate:"Слишком много попыток. Подожди пару минут и попробуй снова.",eNet:"Нет связи с сервером входа. Проверь интернет.",eGeneric:"Не получилось. Попробуй ещё раз.",eProvider:"Вход через Google пока не включён.",
  soonMsg:"Этот способ входа появится позже. Пока можно войти по телефону, почте или через Google.",sentReset:"Если такая почта зарегистрирована, ссылка уже в пути.",welcome:"Готово, аккаунт создан."},
 kk:{titleLogin:"ICity-ге кіру",titleSignup:"ICity-де тіркелу",leadLogin:"Бағыттарды сақтап, кедергілер туралы шағымдарыңды бақыла.",leadSignup:"Аккаунт бағыттарды сақтау және шағымдарды бақылау үшін керек.",
- tabLogin:"Кіру",tabSignup:"Тіркелу",google:"Google арқылы жалғастыру",apple:"Apple арқылы жалғастыру",egov:"eGov арқылы кіру",soon:"жақында",or:"немесе",
+ backBtn:"Картаға оралу",titleProfile:"Сіздің профиліңіз",leadProfile:"Бұл құрылғыда әлі кірмегенсіз. Кіріңіз немесе тіркеліңіз — мұнда фото, атыңыз, орындарыңыз және баптаулар пайда болады.",tabLogin:"Кіру",tabSignup:"Тіркелу",google:"Google арқылы жалғастыру",apple:"Apple арқылы жалғастыру",egov:"eGov арқылы кіру",soon:"жақында",or:"немесе",
  ident:"Телефон немесе пошта",name:"Аты",phone:"Телефон нөмірі",phoneHint:"Растау коды бар SMS жібереміз.",email:"Пошта",password:"Құпиясөз",show:"Көрсету",hide:"Жасыру",
  pwHint:"Кемінде 8 таңба.",forgot:"Құпиясөзді ұмыттыңыз ба?",byPhone:"Телефон арқылы",byEmail:"Пошта арқылы",getCode:"SMS арқылы код алу",signupBtn:"Тіркелу",
  terms:"Тіркелу арқылы ICity аккаунтқа кіру үшін телефоныңды, поштаңды және атыңды, ал көрсетсең — сайтты баптау үшін жасың мен ерекшеліктеріңді сақтайтынына келісесің. Оларды профильде өзгертуге не өшіруге болады.",
@@ -451,7 +455,7 @@ kk:{titleLogin:"ICity-ге кіру",titleSignup:"ICity-де тіркелу",lea
  eRate:"Әрекет тым көп. Бірнеше минут күтіп, қайталап көр.",eNet:"Кіру серверімен байланыс жоқ. Интернетті тексер.",eGeneric:"Болмады. Қайталап көр.",eProvider:"Google арқылы кіру әлі қосылмаған.",
  soonMsg:"Бұл кіру тәсілі кейінірек қосылады. Әзірге телефон, пошта немесе Google арқылы кір.",sentReset:"Мұндай пошта тіркелген болса, сілтеме жіберілді.",welcome:"Дайын, аккаунт жасалды."},
 en:{titleLogin:"Sign in to ICity",titleSignup:"Join ICity",leadLogin:"Save your routes and follow your barrier reports.",leadSignup:"An account lets you save routes and follow your reports.",
- tabLogin:"Sign in",tabSignup:"Sign up",google:"Continue with Google",apple:"Continue with Apple",egov:"Sign in with eGov",soon:"soon",or:"or",
+ backBtn:"Back to the map",titleProfile:"Your profile",leadProfile:"You are not signed in on this device yet. Sign in or sign up to see your photo, name, places and settings here.",tabLogin:"Sign in",tabSignup:"Sign up",google:"Continue with Google",apple:"Continue with Apple",egov:"Sign in with eGov",soon:"soon",or:"or",
  ident:"Phone or email",name:"Name",phone:"Phone number",phoneHint:"We'll text you a confirmation code.",email:"Email",password:"Password",show:"Show",hide:"Hide",
  pwHint:"At least 8 characters.",forgot:"Forgot password?",byPhone:"By phone",byEmail:"By email",getCode:"Get SMS code",signupBtn:"Create account",
  terms:"By signing up you agree that ICity stores your phone, email and name so you can sign in, and your age and needs, if you add them, to set up the site. You can change or remove them in your profile.",
@@ -740,6 +744,7 @@ const params=new URLSearchParams(location.search);
 const wantReset=params.get("reset")==="1";
 const urlErr=params.get("error_description")||new URLSearchParams(location.hash.slice(1)).get("error_description");
 
+$("backBtn").onclick=e=>{try{const r=document.referrer&&new URL(document.referrer);if(r&&r.origin===location.origin&&!/^\/(login|account)/.test(r.pathname)&&history.length>1){e.preventDefault();history.back();}}catch(_){}};
 sb.auth.onAuthStateChange((event,session)=>{
   if(event==="PASSWORD_RECOVERY"){hold=true;show("reset");return;}
   if(event==="SIGNED_OUT"){currentUser=null;setMode("login",true);show("auth");return;}
@@ -752,6 +757,7 @@ sb.auth.onAuthStateChange((event,session)=>{
   if(s&&wantReset){hold=true;show("reset");return;}
   if(s){showAccount(s.user);return;}
   show("auth");
+  if(location.pathname==="/account"&&!location.hash){$("authTitle").textContent=t("titleProfile");$("authLead").textContent=t("leadProfile");}
   if(urlErr)msg(urlErr.replace(/\+/g," "));
 })();
 

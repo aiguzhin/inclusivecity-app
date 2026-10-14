@@ -1434,8 +1434,8 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         <button type="button" class="peek-chip" onclick="openSheet()" aria-controls="sidePanel"><i data-ic="menu"></i><span data-i18n="peekMore">Ещё</span></button>
       </div>
       <nav class="peek-nav" aria-label="Разделы">
-        <button type="button" class="on" onclick="closeSheet&&closeSheet()" aria-current="page"><i data-ic="map"></i><span data-i18n="navMap">Карта</span></button>
-        <button type="button" onclick="peekExpand(true)"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
+        <button type="button" class="on" onclick="navMapTab()" aria-current="page"><i data-ic="map"></i><span data-i18n="navMap">Карта</span></button>
+        <button type="button" onclick="navPlacesTab()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
         <button type="button" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
         <a href="/account"><i data-ic="user"></i><span data-i18n="navProfile">Профиль</span></a>
       </nav>
@@ -1717,8 +1717,8 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <div class="pm-view" id="pmView" hidden role="dialog" aria-modal="true" data-i18n-aria="pmViewer" aria-label="Фото места" onclick="if(event.target===this)pmClose()">
   <img id="pmImg" alt="">
   <button type="button" class="pm-x" id="pmClose" onclick="pmClose()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
-  <button type="button" class="pm-nav" id="pmPrev" onclick="pmOpen(PM_VIEW.i-1)" data-i18n-aria="pmPrev" aria-label="Предыдущее фото">‹</button>
-  <button type="button" class="pm-nav" id="pmNext" onclick="pmOpen(PM_VIEW.i+1)" data-i18n-aria="pmNext" aria-label="Следующее фото">›</button>
+  <button type="button" class="pm-nav" id="pmPrev" onclick="PM_VIEW&&pmOpen(PM_VIEW.i-1)" data-i18n-aria="pmPrev" aria-label="Предыдущее фото">‹</button>
+  <button type="button" class="pm-nav" id="pmNext" onclick="PM_VIEW&&pmOpen(PM_VIEW.i+1)" data-i18n-aria="pmNext" aria-label="Следующее фото">›</button>
   <div class="pm-foot"><span id="pmCount"></span><span id="pmCredit"></span></div>
 </div>
 <!-- Серік — ИИ-помощник: гид и поддержка -->
@@ -2231,8 +2231,7 @@ function setBasemap(key){
     basePreview=satLayer({tileSize:1024, zoomOffset:-2, maxNativeZoom:Math.max(3,(opts.maxNativeZoom||17)), minNativeZoom:2,
       maxZoom:def.max, keepBuffer:1, updateWhenIdle:false, className:def.cls||""}).addTo(map);
     basePreview.setZIndex(-1);
-    // как только чёткие плитки загрузились — прячем размытый «эскиз», чтобы он не просвечивал по краям
-    const bp=basePreview; setTimeout(()=>{ if(baseLayer) baseLayer.on("load",()=>{ if(bp && bp._container) bp._container.style.opacity="0"; }); baseLayer && baseLayer.on("loading",()=>{ if(bp && bp._container) bp._container.style.opacity="1"; }); },0);
+    // «эскиз» всегда лежит под чёткими плитками: где чёткой плитки нет, видно снимок, а не тёмные дыры и полосы
   }
   if(def.imagery) opts.className=((opts.className||"")+" sat-crisp").trim();
   baseLayer=satLayer(opts).addTo(map);
@@ -4547,6 +4546,19 @@ function peekExpand(on){
   p.classList.toggle("mini", !on); store("peekFull", on?"1":"0");
   requestAnimationFrame(syncPeekHeight);
 }
+// Нижнее меню: «Карта» — убрать всё лишнее с карты; «Мои места» — раскрыть плашку и подсветить Дом/Работу и список мест
+function navMapTab(){
+  if(typeof closeSheet==="function") closeSheet();
+  if(typeof closePeekSearch==="function") try{ closePeekSearch(); }catch(e){}
+  peekExpand(false);
+}
+function navPlacesTab(){
+  peekExpand(true);
+  const box=document.getElementById("peekPlaces");
+  if(box && box.animate && S.motion!=="off") box.animate([{transform:"scale(1)"},{transform:"scale(1.03)"},{transform:"scale(1)"}],{duration:420});
+  const extra=PLACES.filter(p=>p.type!=="home"&&p.type!=="work");
+  if(extra.length && typeof openSheet==="function"){ openSheet(); setTimeout(()=>{ const pl=document.getElementById("plPanel"); if(pl && pl.hidden) openPlPanel(true); pl && pl.scrollIntoView({block:"nearest"}); },250); }
+}
 function initPeekSwipe(){
   const p=document.getElementById("sheetPeek"); if(!p) return;
   p.classList.toggle("mini", read("peekFull","0")!=="1");
@@ -4578,25 +4590,31 @@ function tileAvail(rel,z,x,y){
     return tmCache.get(k);
   }
   const bx=x-(x%8), by=y-(y%8), k=`e/${z}/${by}/${bx}`;   // один запрос на блок 8×8 плиток
-  if(!tmCache.has(k)) tmCache.set(k, fetch(`${ESRI_MAP}${z}/${by}/${bx}/8/8`).then(r=>r.json()).then(d=>d&&Array.isArray(d.data)?d.data:null).catch(()=>null));
-  return tmCache.get(k).then(arr=>{ if(!arr) return ESRI_TILE.replace("{z}",z).replace("{y}",y).replace("{x}",x);   // служба молчит — грузим как обычно
-    return arr[(y-by)*8+(x-bx)] ? ESRI_TILE.replace("{z}",z).replace("{y}",y).replace("{x}",x) : null; });
+  if(!tmCache.has(k)) tmCache.set(k, fetch(`${ESRI_MAP}${z}/${by}/${bx}/8/8`).then(r=>r.json()).then(d=>d&&Array.isArray(d.data)&&d.data.length?d:null).catch(()=>null));
+  const url=ESRI_TILE.replace("{z}",z).replace("{y}",y).replace("{x}",x);
+  return tmCache.get(k).then(d=>{ if(!d) return url;   // служба молчит — грузим как обычно
+    const a=d.data; if(a.length===1) return a[0]?url:null;   // весь блок одинаковый — Esri отвечает одним числом
+    const L0=d.location||{left:bx,top:by,width:8}, i=(y-L0.top)*(L0.width||8)+(x-L0.left);
+    return (i<0||i>=a.length||a[i]) ? url : null; });
 }
 const SatLayer = (typeof L!=="undefined") ? L.TileLayer.extend({
   createTile(coords, done){
     const size=this.getTileSize(), c=document.createElement("canvas"); c.width=size.x; c.height=size.y;
     const g=c.getContext("2d"), z0=this._getZoomForUrl(), rel=this.options.rel||null;
-    const draw=(url,k)=>{ const im=new Image(); im.crossOrigin=null;
-      im.onload=()=>{ const n=1<<k, sub=im.width/n, sx=(coords.x-((coords.x>>k)<<k))*sub, sy=(coords.y-((coords.y>>k)<<k))*sub;
-        g.imageSmoothingQuality="high"; g.drawImage(im,sx,sy,sub,sub,0,0,size.x,size.y); done(null,c); };
-      im.onerror=()=>done(null,c); im.src=url; };
+    // картинка не пришла (сбой сети, лимит) — не оставляем пустой квадрат, а берём уровень крупнее
+    const load=(url)=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=url; });
     (async()=>{
       for(let k=0;k<=8 && z0-k>=1;k++){
-        const url=await tileAvail(rel, z0-k, coords.x>>k, coords.y>>k);
-        if(url){ draw(url,k); return; }
-        if(url===undefined && rel){ const u=await tileAvail(null, z0-k, coords.x>>k, coords.y>>k); if(u){ draw(u,k); return; } }
+        let url=await tileAvail(rel, z0-k, coords.x>>k, coords.y>>k);
+        if(url===undefined && rel) url=await tileAvail(null, z0-k, coords.x>>k, coords.y>>k);
+        if(!url) continue;
+        let im=await load(url); if(!im && k===0) im=await load(url+(url.includes("?")?"&":"?")+"r=1");   // одна повторная попытка
+        if(!im) continue;
+        const n=1<<k, sub=im.width/n, sx=(coords.x-((coords.x>>k)<<k))*sub, sy=(coords.y-((coords.y>>k)<<k))*sub;
+        g.imageSmoothingQuality="high"; g.drawImage(im,sx,sy,sub,sub,0,0,size.x,size.y);
+        return done(null,c);
       }
-      done(null,c);
+      done(new Error("no imagery"),c);   // Leaflet пометит плитку ошибкой — под ней останется «эскиз»
     })();
     return c;
   }
@@ -5942,7 +5960,8 @@ function locateUser(){
 function nearestCity(lat,lon){
   let best=null, bestKm=Infinity;
   Object.entries(CITIES).forEach(([k,d])=>{
-    const km=L.latLng(lat,lon).distanceTo(L.latLng(d.c[0],d.c[1]))/1000;
+    const R=Math.PI/180, a=Math.sin((d.c[0]-lat)*R/2)**2+Math.cos(lat*R)*Math.cos(d.c[0]*R)*Math.sin((d.c[1]-lon)*R/2)**2;
+    const km=12742*Math.asin(Math.min(1,Math.sqrt(a)));   // без Leaflet: работает, даже если карта ещё не загрузилась
     if(km<bestKm){ bestKm=km; best=k; }
   });
   return [best,bestKm];
