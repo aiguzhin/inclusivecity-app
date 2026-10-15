@@ -642,6 +642,7 @@ ol.steps li{margin-bottom:8px}
 .set-sec>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:10px 14px;cursor:pointer;font-weight:700;user-select:none}
 .set-sec>summary::-webkit-details-marker{display:none}
 .set-sec>summary:focus-visible{outline:3px solid var(--focus);outline-offset:-3px;border-radius:12px}
+.geo-steps{margin:8px 0 16px;padding-left:22px;display:grid;gap:8px;line-height:1.4}
 .lv-layers{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
 .lv-layers button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-weight:600}
 .lv-layers button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
@@ -3001,7 +3002,7 @@ function cityViewbox(){
 }
 let map, routeLayer, reportLayer, userMarker;
 const layerState = {};
-let pickMode=null, reportLatLng=null, userLatLng=null, sosLatLng=null, pickedLatLng=null;
+let pickMode=null, reportLatLng=null, userLatLng=(()=>{ try{ return JSON.parse(sessionStorage.getItem("ic_manualLoc")||"null"); }catch(e){ return null; } })(), sosLatLng=null, pickedLatLng=null;
 let lastRoute=null, lastSteps=[], lastComplaintPoint=null, lastAnalysis=null;
 
 const PRESETS = {
@@ -3425,6 +3426,12 @@ function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-po
 function onMapClick(e){
   // без режима выбора — как в 2ГИС: значок или любое место → карточка с адресом
   if(!pickMode){ if(placeNow){ closePlace(); return; } placeAt(e.latlng); return; }
+  if(pickMode==="me"){
+    userLatLng=[e.latlng.lat,e.latlng.lng]; pickMode=null;
+    try{ sessionStorage.setItem("ic_manualLoc", JSON.stringify(userLatLng)); }catch(err){}
+    showMe(Math.max(map.getZoom(),16)); renderNearby(); toast((GEO_HELP[S.lang]||GEO_HELP.ru).set);
+    return;
+  }
   if(pickMode==="destination"){
     pickedLatLng=[e.latlng.lat,e.latlng.lng];
     const ds=document.getElementById("destination"); ds.value=t("mapPoint");
@@ -4105,7 +4112,7 @@ async function navStart(reroute){
   navRender(userLatLng);
   { const first=NAV.steps[0]&&NAV.steps[0].type==="depart"?NAV.steps[0]:null, nx=NAV.steps[NAV.idx];
     navSay(reroute ? cap(navAction(NAV.idx)) : tf("navBegin",{s:(first&&first.name?tf("navGoAlong",{n:first.name,d:spokenDist(first.dist||0)}):tf("navGoStraight",{d:spokenDist((first&&first.dist)||0)}))+(nx&&nx.type!=="arrive"?", "+t("navThen")+" "+navAction(NAV.idx):"")})); }
-  NAV.watch=navigator.geolocation.watchPosition(navTick, err=>{ if(err&&err.code===1){ toast(t("navGeo")); navStop(); } }, {enableHighAccuracy:true, maximumAge:2000, timeout:20000});
+  NAV.watch=navigator.geolocation.watchPosition(navTick, err=>{ if(err&&err.code===1){ navStop(); geoHelp(err); } }, {enableHighAccuracy:true, maximumAge:2000, timeout:20000});
 }
 function navStopWatch(){ if(NAV.watch!=null){ navigator.geolocation.clearWatch(NAV.watch); NAV.watch=null; } }
 function navStop(silent){
@@ -4695,7 +4702,7 @@ function openPlaceSet(type){
   openModal("psModal"); setTimeout(()=>inp.focus(),50);
 }
 async function psHere(){
-  const ll=await hpGeo(); if(!ll){ toast(t("geoFail")); return; }
+  const ll=await hpGeo(); if(!ll){ closeModal("psModal"); geoHelp({code:1}); return; }
   const inp=document.getElementById("psAddr"); let nm=t("myLocation");
   try{ const rv=await reverseGeo(ll[0],ll[1]); const a=rv&&revAddr(rv); if(a) nm=a; }catch(e){}
   inp.value=nm; SELECTED.psAddr={text:nm, ll};
@@ -6019,13 +6026,67 @@ function showMe(zoom){
   map.setView(userLatLng,zoom);
 }
 function locateUser(){
-  if(!navigator.geolocation){ toast(t("geoOff")); return; }
+  if(!navigator.geolocation){ geoHelp({code:2}); return; }
   navigator.geolocation.getCurrentPosition(p=>{
     userLatLng=[p.coords.latitude,p.coords.longitude];
     showMe(16);
     toast(t("geoOk")); renderNearby();
-  }, ()=>toast(t("geoFail")), {enableHighAccuracy:true,timeout:10000});
+  }, err=>geoHelp(err), {enableHighAccuracy:true,timeout:10000});
 }
+/* ============ Геопозиция не включается: понятная инструкция + место вручную ============ */
+function geoPlatform(){
+  const ua=navigator.userAgent||"";
+  if(/\bClaude\//.test(ua)) return "claude";
+  const ios=/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints>1);
+  if(ios) return /CriOS|FxiOS|EdgiOS/.test(ua) ? "iosOther" : "ios";
+  if(/Android/.test(ua)) return "android";
+  if(/Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg\//.test(ua)) return "macSafari";
+  return "desktop";
+}
+const GEO_HELP={
+ ru:{t:"Как включить геопозицию",
+   denied:"Браузер запретил сайту видеть, где вы. Сайт сам не может снова спросить — разрешение включается в настройках:",
+   off:"Не удалось определить, где вы. Проверьте, что геолокация включена:",
+   claude:["Встроенный браузер приложения Claude не даёт сайтам геопозицию — это ограничение самого приложения, включить её там нельзя.","Откройте inclusivecity.uk в Safari или Chrome — там геопозиция работает.","Или отметьте своё место на карте вручную — кнопка ниже."],
+   ios:["Настройки → Конфиденциальность и безопасность → Службы геолокации — включите.","Там же найдите «Сайты Safari» → выберите «При использовании» и включите «Точная геопозиция».","Настройки → Приложения → Safari → Геопозиция → «Спрашивать» или «Разрешить».","Вернитесь в Safari, нажмите «аА» слева от адреса → «Настройки веб-сайта» → Геопозиция → «Разрешить».","Обновите страницу и нажмите ⌖ ещё раз."],
+   iosOther:["Настройки → Конфиденциальность и безопасность → Службы геолокации — включите.","Там же найдите свой браузер (Chrome и т. п.) → «При использовании», «Точная геопозиция» — вкл.","Обновите страницу и нажмите ⌖ ещё раз — браузер спросит разрешение."],
+   macSafari:["Safari → Настройки… → Веб-сайты → Геопозиция → для inclusivecity.uk выберите «Разрешить».","Системные настройки → Конфиденциальность и безопасность → Службы геолокации — включите и поставьте галочку у Safari.","Обновите страницу и нажмите ⌖ ещё раз."],
+   android:["Опустите шторку уведомлений и включите «Геолокация» (Местоположение).","В Chrome нажмите значок слева от адреса → Разрешения → Геопозиция → «Разрешить».","Обновите страницу и нажмите ⌖ ещё раз."],
+   desktop:["Нажмите значок слева от адреса сайта → Геопозиция (Местоположение) → «Разрешить».","Проверьте, что геолокация включена в настройках компьютера (Windows: Параметры → Конфиденциальность → Расположение).","Обновите страницу и нажмите ⌖ ещё раз."],
+   manual:"Отметить моё место на карте", retry:"Попробовать снова", pick:"Нажмите на карте, где вы сейчас", set:"Ваше место отмечено", copy:"Скопировать ссылку на сайт"},
+ kk:{t:"Геолокацияны қалай қосу керек",
+   denied:"Браузер сайтқа орныңызды көруге тыйым салды. Сайт қайта сұрай алмайды — рұқсат баптауларда қосылады:",
+   off:"Орныңызды анықтау мүмкін болмады. Геолокация қосулы екенін тексеріңіз:",
+   claude:["Claude қосымшасының ішкі браузері сайттарға геолокация бермейді — бұл қосымшаның өз шектеуі, оны онда қосу мүмкін емес.","inclusivecity.uk сайтын Safari не Chrome-да ашыңыз — онда геолокация жұмыс істейді.","Немесе орныңызды картадан қолмен белгілеңіз — төмендегі батырма."],
+   ios:["Баптаулар → Құпиялылық және қауіпсіздік → Геолокация қызметтері — қосыңыз.","Сол жерден «Safari сайттары» → «Пайдаланған кезде» және «Нақты геолокация» — қосу.","Баптаулар → Қолданбалар → Safari → Геолокация → «Сұрау» не «Рұқсат ету».","Safari-ге оралып, мекенжайдың сол жағындағы «аА» → «Веб-сайт баптаулары» → Геолокация → «Рұқсат ету».","Бетті жаңартып, ⌖ қайта басыңыз."],
+   iosOther:["Баптаулар → Құпиялылық және қауіпсіздік → Геолокация қызметтері — қосыңыз.","Сол жерден браузеріңізді (Chrome т.б.) тауып → «Пайдаланған кезде», «Нақты геолокация» — қосу.","Бетті жаңартып, ⌖ қайта басыңыз — браузер рұқсат сұрайды."],
+   macSafari:["Safari → Баптаулар… → Веб-сайттар → Геолокация → inclusivecity.uk үшін «Рұқсат ету».","Жүйе баптаулары → Құпиялылық және қауіпсіздік → Геолокация қызметтері — қосып, Safari-ге белгі қойыңыз.","Бетті жаңартып, ⌖ қайта басыңыз."],
+   android:["Хабарландыру шторкасын түсіріп, «Геолокация» (Орналасқан жер) қосыңыз.","Chrome-да мекенжайдың сол жағындағы белгі → Рұқсаттар → Геолокация → «Рұқсат ету».","Бетті жаңартып, ⌖ қайта басыңыз."],
+   desktop:["Сайт мекенжайының сол жағындағы белгіні басыңыз → Геолокация → «Рұқсат ету».","Компьютер баптауларында геолокация қосулы екенін тексеріңіз.","Бетті жаңартып, ⌖ қайта басыңыз."],
+   manual:"Орнымды картадан белгілеу", retry:"Қайта көру", pick:"Картадан қазір қай жерде екеніңізді басыңыз", set:"Орныңыз белгіленді", copy:"Сайт сілтемесін көшіру"},
+ en:{t:"How to turn on location",
+   denied:"Your browser has blocked this site from seeing where you are. The site can't ask again by itself — allow it in settings:",
+   off:"We couldn't find your location. Check that location is turned on:",
+   claude:["The Claude app's built-in browser doesn't give websites your location — it's a limitation of the app and can't be turned on there.","Open inclusivecity.uk in Safari or Chrome — location works there.","Or mark your spot on the map by hand — button below."],
+   ios:["Settings → Privacy & Security → Location Services — turn on.","In the same list, find “Safari Websites” → “While Using the App” and turn on “Precise Location”.","Settings → Apps → Safari → Location → “Ask” or “Allow”.","Back in Safari, tap “aA” left of the address → “Website Settings” → Location → “Allow”.","Reload the page and tap ⌖ again."],
+   iosOther:["Settings → Privacy & Security → Location Services — turn on.","Find your browser (Chrome etc.) there → “While Using the App”, “Precise Location” on.","Reload the page and tap ⌖ again — the browser will ask."],
+   macSafari:["Safari → Settings… → Websites → Location → set inclusivecity.uk to “Allow”.","System Settings → Privacy & Security → Location Services — turn on and tick Safari.","Reload the page and click ⌖ again."],
+   android:["Pull down the notification shade and turn on “Location”.","In Chrome tap the icon left of the address → Permissions → Location → “Allow”.","Reload the page and tap ⌖ again."],
+   desktop:["Click the icon left of the site address → Location → “Allow”.","Check that location is on in your computer's settings (Windows: Settings → Privacy → Location).","Reload the page and click ⌖ again."],
+   manual:"Mark my spot on the map", retry:"Try again", pick:"Tap the map where you are now", set:"Your spot is marked", copy:"Copy the site link"}
+};
+function geoHelp(err){
+  const L0=GEO_HELP[S.lang]||GEO_HELP.ru, pf=geoPlatform();
+  let m=document.getElementById("geoModal");
+  if(!m){ m=document.createElement("div"); m.className="modal"; m.id="geoModal"; m.setAttribute("role","dialog"); m.setAttribute("aria-modal","true"); m.setAttribute("aria-labelledby","geoH"); document.body.appendChild(m); }
+  const lead = pf==="claude" ? "" : `<p class="small muted">${esc(err&&err.code===1?L0.denied:L0.off)}</p>`;
+  m.innerHTML=`<div class="dialog"><div class="dialog-head"><h2 id="geoH">${esc(L0.t)}</h2><button class="btn-ghost btn-sm" onclick="closeModal('geoModal')" aria-label="${esc(t("close"))}">✕</button></div>
+    ${lead}<ol class="geo-steps">${(L0[pf]||L0.desktop).map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    <button class="btn-primary" style="width:100%" onclick="geoManual()">${esc(L0.manual)}</button>
+    <div class="row" style="margin-top:10px">${pf==="claude"?`<button class="btn-ghost grow" onclick="navigator.clipboard&&navigator.clipboard.writeText('https://inclusivecity.uk/map').then(()=>toast('✓'))">${esc(L0.copy)}</button>`:`<button class="btn-ghost grow" onclick="closeModal('geoModal');locateUser()">${esc(L0.retry)}</button>`}</div></div>`;
+  openModal("geoModal");
+}
+function geoManual(){ closeModal("geoModal"); if(typeof closeSheet==="function") try{ closeSheet(); }catch(e){} pickMode="me"; setView("map"); toast((GEO_HELP[S.lang]||GEO_HELP.ru).pick); }
 // Ближайший город из списка и расстояние до его центра, км
 function nearestCity(lat,lon){
   let best=null, bestKm=Infinity;
@@ -6054,7 +6115,7 @@ function autoLocate(manual){
     }
     if(manual) closeModal("settingsModal");
     renderNearby();
-  }, ()=>{ if(manual) toast(t("geoFail")); },
+  }, err=>{ if(manual){ closeModal("settingsModal"); geoHelp(err); } },
   {enableHighAccuracy:false,timeout:10000,maximumAge:300000});
 }
 
@@ -6130,7 +6191,7 @@ function sosLocate(){
     sosLatLng=[p.coords.latitude,p.coords.longitude];
     document.getElementById("sosCoords").textContent=
       `${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)}`;
-  }, ()=>toast(t("geoFail")), {enableHighAccuracy:true});
+  }, err=>{ if(userLatLng){ sosLatLng=userLatLng.slice(); document.getElementById("sosCoords").textContent=`${sosLatLng[0].toFixed(5)}, ${sosLatLng[1].toFixed(5)}`; } else { closeModal("sosModal"); geoHelp(err); } }, {enableHighAccuracy:true,timeout:10000});
 }
 function sosText(){
   if(!sosLatLng) return "";

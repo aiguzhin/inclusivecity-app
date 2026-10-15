@@ -69,6 +69,8 @@
   пока считает — 202, клиент (`rtCompute`) через ~8 с параллельно спрашивает Overpass сам. `overpassQuery` спрашивает два зеркала сразу.
 - Высоты для уклонов: сначала Open-Meteo elevation, потом opentopodata/open-elevation (`fetchElevations`).
 - Пустое «Откуда» при построении маршрута → берём GPS, иначе просим указать (`needStart`). Место из поиска/категорий отмечается `placePin` в `showPlace`.
+- Геопозиция не даётся → окно `geoHelp` с шагами под платформу (`geoPlatform`: iOS Safari, macOS Safari, Android, ПК, встроенный браузер Claude — там геопозиции нет совсем)
+  и кнопка «Отметить моё место на карте» (`geoManual`, `pickMode="me"`, хранится в sessionStorage `ic_manualLoc`).
 - Серік без ключа отвечает на частые вопросы сам (`SK_FAQ`, `serikLocal`).
 - `/login`, `/account`: кнопка «Назад» (`#backBtn`, назад по истории или на `/map`); без входа на `/account` — заголовок «Ваш профиль» и объяснение.
 - Нижнее меню: «Карта» — `navMapTab` (сворачивает шторку), «Мои места» — `navPlacesTab`.
