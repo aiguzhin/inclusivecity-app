@@ -547,7 +547,9 @@ html[data-theme="dark"] .wb-list button[aria-pressed="true"]{color:#04121f}
 @media(max-width:860px){ .wb-panel{left:10px;right:62px;width:auto;bottom:calc(var(--peek-h) + 12px)} }
 /* ===== Транспорт: значки,  плашки номеров, полоска поездки (как в 2ГИС) ===== */
 .ic{width:1.15em;height:1.15em;flex:0 0 auto;vertical-align:-.2em}
-.mode-tabs .ic{width:20px;height:20px}
+.mode-tabs .ic{width:20px;height:20px;flex:none}
+.mode-tabs button{min-width:0;padding:0 6px}
+@media (max-width:400px){.mode-tabs{gap:2px}.mode-tabs button{gap:4px;font-size:.92rem}.mode-tabs .ic{width:18px;height:18px}}
 .tr-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 5px;border-radius:7px;background:var(--k,#12935a);color:#fff;font-weight:800;font-size:.85rem;line-height:1.35;white-space:nowrap;vertical-align:middle}
 .tr-badge .ic{width:15px;height:15px;stroke-width:2}
 .tr-badge.big{font-size:1rem;padding:3px 10px 3px 7px;border-radius:9px}
@@ -722,7 +724,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
   .sheet-handle .grip::before{
     content:"";position:absolute;left:26px;right:26px;top:13px;height:5px;border-radius:99px;background:var(--line);
   }
-  .sheet-handle .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .sheet-handle .row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:-34px}
   .sheet-handle h2{font-size:1rem;margin:0;min-width:0}
   .sheet-handle .sheet-x{flex:none;position:relative;z-index:3;touch-action:manipulation;width:48px;height:48px}
 
@@ -1260,7 +1262,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <div class="sheet-handle">
       <button type="button" class="grip" onclick="if(event.detail===0) document.body.classList.toggle('sheet-full')" data-i18n-aria="sheetResize" aria-label="Развернуть или свернуть панель"></button>
       <div class="row">
-        <h2 data-i18n="panelTitle">Маршрут и доступность</h2>
+        <h2 class="sr" data-i18n="panelTitle">Маршрут и доступность</h2>
         <button type="button" class="btn-ghost icon-btn sheet-x" id="sheetClose" onclick="closeSheet()"
                 data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
@@ -3234,7 +3236,7 @@ function openSheet(full){
   if(p) p.setAttribute("aria-expanded","true");
   sheetReturn = document.activeElement;
   const panel=document.getElementById("sidePanel");
-  if(panel){ panel.scrollTop=0; const f=panel.querySelector("button, select, input, a"); if(f) f.focus(); }
+  if(panel){ panel.scrollTop=0; const f=panel.querySelector("button, select, input, a"); if(f) try{ f.focus({preventScroll:true, focusVisible:false}); }catch(e){ f.focus(); } }
 }
 function closeSheet(){
   document.body.classList.remove("sheet-open","sheet-full");
@@ -3270,11 +3272,19 @@ function initSheetSwipe(){
   let y0=null, h0=0, moved=false, lastY=0, lastT=0, vel=0;
   // Крестик закрывает сразу по отпусканию пальца/мыши: на iPad/iPhone «click» внутри
   // перетаскиваемой ручки (touch-action:none) иногда не приходит — тогда шторка не закрывалась
+  // Крестик: проверяем по координатам касания, а не по тому, какой элемент браузер «увидел» под пальцем —
+  // в Safari у прилипающей шапки внутри прокручиваемой шторки нажатие иногда уходит мимо кнопки
   const x=document.getElementById("sheetClose");
-  if(x){ let downX=false;
-    x.addEventListener("pointerdown", e=>{ downX=true; e.stopPropagation(); });
-    x.addEventListener("pointerup", e=>{ if(!downX) return; downX=false; e.stopPropagation(); e.preventDefault(); closeSheet(); });
-    x.addEventListener("pointercancel", ()=>{ downX=false; });
+  if(x){ let downAt=null;
+    const inX=(cx,cy)=>{ const r=x.getBoundingClientRect(); return r.width>0 && cx>=r.left-6 && cx<=r.right+6 && cy>=r.top-6 && cy<=r.bottom+6; };
+    document.addEventListener("pointerdown", e=>{ downAt = document.body.classList.contains("sheet-open") && inX(e.clientX,e.clientY) ? [e.clientX,e.clientY] : null; }, true);
+    document.addEventListener("pointerup", e=>{
+      if(!downAt) return; const d=Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt=null;
+      if(d<12 && inX(e.clientX,e.clientY)){ e.preventDefault(); e.stopPropagation(); closeSheet(); swallowUntil=Date.now()+600; }
+    }, true);
+    // после закрытия под пальцем уже карта — «досланный» click не должен открыть там карточку места
+    let swallowUntil=0;
+    document.addEventListener("click", e=>{ if(Date.now()<swallowUntil){ swallowUntil=0; e.preventDefault(); e.stopPropagation(); } }, true);
   }
   document.addEventListener("keydown", e=>{ if(e.key==="Escape" && document.body.classList.contains("sheet-open") && !document.querySelector(".modal.open")) closeSheet(); });
   h.addEventListener("pointerdown", e=>{
@@ -3435,7 +3445,12 @@ function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-po
 
 function onMapClick(e){
   // без режима выбора — как в 2ГИС: значок или любое место → карточка с адресом
-  if(!pickMode){ if(placeNow){ closePlace(); return; } placeAt(e.latlng); return; }
+  if(!pickMode){
+    if(sheetMode() && document.body.classList.contains("sheet-open")){ closeSheet(); return; }
+    if(placeNow){ closePlace(); return; }
+    // осталась только точка от прошлого места (карточка уже закрыта) — нажатие на карту её убирает
+    if(placePin){ placePin.remove(); placePin=null; return; }
+    placeAt(e.latlng); return; }
   if(pickMode==="me"){
     userLatLng=[e.latlng.lat,e.latlng.lng]; pickMode=null;
     try{ sessionStorage.setItem("ic_manualLoc", JSON.stringify(userLatLng)); }catch(err){}
