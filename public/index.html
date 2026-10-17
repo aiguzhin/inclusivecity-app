@@ -723,7 +723,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--blue);
     content:"";position:absolute;left:26px;right:26px;top:13px;height:5px;border-radius:99px;background:var(--line);
   }
   .sheet-handle .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .sheet-handle h2{font-size:1rem;margin:0}
+  .sheet-handle h2{font-size:1rem;margin:0;min-width:0}
+  .sheet-handle .sheet-x{flex:none;position:relative;z-index:3;touch-action:manipulation;width:48px;height:48px}
 
   /* Затемняем карту только в полноэкранном режиме — в половинном она нужна */
   .sheet-backdrop{
@@ -1260,7 +1261,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <button type="button" class="grip" onclick="if(event.detail===0) document.body.classList.toggle('sheet-full')" data-i18n-aria="sheetResize" aria-label="Развернуть или свернуть панель"></button>
       <div class="row">
         <h2 data-i18n="panelTitle">Маршрут и доступность</h2>
-        <button type="button" class="btn-ghost icon-btn" onclick="closeSheet()"
+        <button type="button" class="btn-ghost icon-btn sheet-x" id="sheetClose" onclick="closeSheet()"
                 data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
     </div>
@@ -3267,6 +3268,15 @@ function initSheetSwipe(){
   const h=document.querySelector(".sheet-handle"), side=document.getElementById("sidePanel");
   if(!h || !side) return;
   let y0=null, h0=0, moved=false, lastY=0, lastT=0, vel=0;
+  // Крестик закрывает сразу по отпусканию пальца/мыши: на iPad/iPhone «click» внутри
+  // перетаскиваемой ручки (touch-action:none) иногда не приходит — тогда шторка не закрывалась
+  const x=document.getElementById("sheetClose");
+  if(x){ let downX=false;
+    x.addEventListener("pointerdown", e=>{ downX=true; e.stopPropagation(); });
+    x.addEventListener("pointerup", e=>{ if(!downX) return; downX=false; e.stopPropagation(); e.preventDefault(); closeSheet(); });
+    x.addEventListener("pointercancel", ()=>{ downX=false; });
+  }
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape" && document.body.classList.contains("sheet-open") && !document.querySelector(".modal.open")) closeSheet(); });
   h.addEventListener("pointerdown", e=>{
     if(e.target.closest("button:not(.grip)")) return;      // крестик «Закрыть» работает как обычно
     y0=e.clientY; h0=side.offsetHeight; moved=false; lastY=y0; lastT=e.timeStamp; vel=0;
