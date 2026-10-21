@@ -901,14 +901,27 @@ html[data-motion="off"] .pm-skel span{animation:none}
 .globe canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .globe canvas:active{cursor:grabbing}
 body.globe-on #map,body.globe-on .img-info,body.globe-on .map-stack{visibility:hidden}
-.gl-ui{position:absolute;right:10px;bottom:96px;display:flex;flex-direction:column;gap:8px;z-index:2}
-.gl-btn{min-width:46px;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(10,20,36,.72);color:#fff;font:inherit;font-weight:750;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px)}
-.gl-btn.wide{font-size:.9rem;padding:0 14px}
-.gl-hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);max-width:min(420px,calc(100% - 32px));margin:0;padding:8px 14px;border-radius:99px;background:rgba(10,20,36,.6);color:#dbe6f3;font-size:.82rem;text-align:center;z-index:2;pointer-events:none}
-.gl-load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#c9d6e6;font-size:.9rem;z-index:2}
-.gl-load[hidden],.gl-hint[hidden]{display:none}
-.gl-attr{position:absolute;left:8px;bottom:6px;margin:0;font-size:.65rem;color:rgba(220,230,240,.55);z-index:2}
-@media(max-width:860px){ .gl-ui{bottom:calc(var(--peek-h) + 108px)} .gl-attr{bottom:calc(var(--peek-h) + 6px)} }
+/* Глобус: кнопки — две «стеклянные» капсулы справа по центру, «К карте» — крупная кнопка внизу по центру */
+#compassBtn{display:none!important}   /* поворота карты нет — компас не нужен */
+.gl-ui{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:2}
+.gl-grp{display:flex;flex-direction:column;border-radius:24px;overflow:hidden;background:rgba(14,22,38,.5);border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.gl-btn{width:48px;height:48px;min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:none}
+.gl-btn+.gl-btn{border-top:1px solid rgba(255,255,255,.12)}
+.gl-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gl-btn:hover{background:rgba(255,255,255,.08)} .gl-btn:active{background:rgba(255,255,255,.16)}
+.gl-btn:focus-visible,.gl-back:focus-visible{outline:3px solid #7cc4ff;outline-offset:-3px}
+.gl-back{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 22px;border:0;border-radius:25px;
+  background:#fff;color:#0f2a4d;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.gl-back svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+html[data-contrast="high"] .gl-back{background:#ffd400;color:#000}
+html[data-contrast="high"] .gl-grp{background:#000;border:2px solid #fff}
+.gl-load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12px;color:#c9d6e6;font-size:.9rem;z-index:2}
+.gl-load i{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#7cc4ff;animation:glSpin .8s linear infinite}
+@keyframes glSpin{to{transform:rotate(360deg)}}
+.gl-load[hidden]{display:none}
+.gl-attr{position:absolute;left:10px;bottom:6px;margin:0;font-size:.62rem;color:rgba(220,230,240,.45);z-index:2}
+@media(max-width:860px){ .gl-ui{top:calc(50% - var(--peek-h)/2)} .gl-back{bottom:calc(var(--peek-h) + 18px)} .gl-attr{bottom:calc(var(--peek-h) + 2px);left:50%;transform:translateX(-50%);white-space:nowrap} }
 
 /* Доступность (аудит UI/UX Pro Max + axe): цели нажатия ≥ 44 px, текст ≥ 12 px, контраст SOS в тёмной теме */
 .wx-pill{min-height:44px}
@@ -1470,18 +1483,21 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       </div>
     </div>
     <!-- Глобус: Земля в космосе при сильном отдалении карты -->
-    <div class="globe" id="globe" hidden tabindex="-1" role="application" data-i18n-aria="glTitle" aria-label="Глобус">
+    <div class="globe" id="globe" hidden tabindex="-1" role="application" aria-label="Глобус">
       <canvas id="globeCv" aria-hidden="true"></canvas>
-      <p class="gl-hint" data-i18n="glHint">Крутите Землю пальцем или мышью. Приблизьте — откроется карта.</p>
-      <p class="gl-load" id="globeLoad" data-i18n="glLoading">Загружаем Землю…</p>
-      <div class="gl-ui">
-        <button type="button" class="gl-btn" onclick="globeShow('sun')" data-i18n-aria="glSunBtn" aria-label="Показать Солнце">☀</button>
-        <button type="button" class="gl-btn" onclick="globeShow('moon')" data-i18n-aria="glMoonBtn" aria-label="Показать Луну">☾</button>
-        <button type="button" class="gl-btn" onclick="globeZoom(.8)" data-i18n-aria="glIn" aria-label="Приблизить">+</button>
-        <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить">−</button>
-        <button type="button" class="gl-btn wide" onclick="globeToMap()" data-i18n="glBack">К карте</button>
+      <div class="gl-load" id="globeLoad" role="status"><i aria-hidden="true"></i><span data-i18n="glLoading">Загружаем Землю…</span></div>
+      <div class="gl-ui" role="toolbar" aria-label="Глобус">
+        <div class="gl-grp">
+          <button type="button" class="gl-btn" onclick="globeShow('sun')" data-i18n-aria="glSunBtn" aria-label="Показать Солнце"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.3M12 19.2v2.3M2.5 12h2.3M19.2 12h2.3M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
+          <button type="button" class="gl-btn" onclick="globeShow('moon')" data-i18n-aria="glMoonBtn" aria-label="Показать Луну"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z"/></svg></button>
+        </div>
+        <div class="gl-grp">
+          <button type="button" class="gl-btn" onclick="globeZoom(.8)" data-i18n-aria="glIn" aria-label="Приблизить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
+          <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12h13"/></svg></button>
+        </div>
       </div>
-      <p class="gl-attr">NASA Blue Marble · Black Marble · Moon, clouds: NASA / three.js · Sky: three-globe</p>
+      <button type="button" class="gl-back" onclick="globeToMap()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5Z M9 4.5v13M15 6.5v13"/></svg><span data-i18n="glBack">К карте</span></button>
+      <p class="gl-attr">Земля: NASA Blue Marble, Black Marble · three.js</p>
     </div>
     <div id="listview" tabindex="-1" aria-label="Текстовый режим">
       <button type="button" class="btn-primary lv-back" onclick="setView('map')"><i data-ic="map"></i> <span data-i18n="backToMap">Вернуться к карте</span></button>
@@ -3204,7 +3220,8 @@ function dirName(deg){
   return (names[S.lang]||names.ru)[i];
 }
 let compassMode="north", bearSmooth=null, bearRaf=0;
-const canRotate=()=>!!(mapReady && map && typeof map.setBearing==="function");
+const MAP_ROTATE=false;
+const canRotate=()=>!!(MAP_ROTATE && mapReady && map && typeof map.setBearing==="function");
 const mapBearing=()=>canRotate()?(map.getBearing()||0):0;
 function applyHeading(){
   const n=document.getElementById("compassNeedle"); if(!n) return;
@@ -3453,7 +3470,9 @@ function initMap(){
   const okPos=pos && pos.city===S.city && isFinite(pos.lat) && isFinite(pos.lng) && pos.z>GLOBE_OPEN_Z && !/[?&#](lat|ll|to|from)=/.test(location.href);
   // Значки-div на карте: Leaflet не передаёт alt в подпись — даём экранному диктору название значка
   if(!L.Marker.__icAria){ L.Marker.__icAria=1; L.Marker.addInitHook(function(){ this.on("add",()=>{ const el=this.getElement&&this.getElement(); if(el && this.options.alt && !el.getAttribute("aria-label")) el.setAttribute("aria-label", this.options.alt); }); }); }
-  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z, rotate:true, touchRotate:true, rotateControl:false, shiftKeyRotate:true, bearing:0}).setView(okPos?[pos.lat,pos.lng]:city().c, okPos?pos.z:city().z);
+  // Поворот карты выключен: на телефоне два пальца постоянно чуть поворачивали карту, и слои снимка и дорог расходились.
+  // Север всегда вверху (как в 2ГИС по умолчанию); в навигации поворачивается стрелка «я», а не карта.
+  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z, rotate:MAP_ROTATE, touchRotate:MAP_ROTATE, rotateControl:false, shiftKeyRotate:MAP_ROTATE, bearing:0}).setView(okPos?[pos.lat,pos.lng]:city().c, okPos?pos.z:city().z);
   // запоминаем, где человек оставил карту, — при следующем входе откроется там же
   let posT=0; map.on("moveend",()=>{ clearTimeout(posT); posT=setTimeout(()=>{ if(map.getZoom()<=GLOBE_OPEN_Z) return;
     const c=map.getCenter(); store("mapPos",JSON.stringify({city:S.city,lat:+c.lat.toFixed(5),lng:+c.lng.toFixed(5),z:map.getZoom()})); },400); });
@@ -3468,7 +3487,7 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   reportLayer=L.layerGroup().addTo(map);
   map.on("click",onMapClick);
-  map.on("zoomend",()=>{ if(map.getZoom()<=GLOBE_OPEN_Z && !globeOpen()) openGlobe(); });
+  map.on("zoomend",()=>{ if(map.getZoom()<=GLOBE_OPEN_Z && !globeOpen()) openGlobe(); else if(map.getZoom()<=6) globePrefetch(); });
   // поворот двумя пальцами: компас сразу показывает, где север; если в это время включён режим «куда смотрю» — выключаем его
   map.on("rotate",()=>applyHeading());
   map.getContainer().addEventListener("touchstart",e=>{ if(e.touches.length===2 && compassMode==="follow"){ compassMode="north"; bearSmooth=null; } },{passive:true});
@@ -4123,8 +4142,8 @@ function navCamera(here, pos){
   let hd=null;
   if(pos && pos.coords && pos.coords.heading!=null && !isNaN(pos.coords.heading) && (pos.coords.speed||0)>0.6) hd=pos.coords.heading;
   else if(typeof heading==="number" && heading!=null) hd=heading;
-  if(hd!=null && map.setBearing && S.motion!=="off") map.setBearing(-hd);
-  { const el=userMarker&&userMarker.getElement&&userMarker.getElement(), ar=el&&el.querySelector(".nav-me"); if(ar) ar.style.transform=`rotate(${hd!=null&&!(map.setBearing&&S.motion!=="off")?hd:0}deg)`; }
+  if(hd!=null && canRotate() && S.motion!=="off") map.setBearing(-hd);
+  { const el=userMarker&&userMarker.getElement&&userMarker.getElement(), ar=el&&el.querySelector(".nav-me"); if(ar) ar.style.transform=`rotate(${hd!=null&&!(canRotate()&&S.motion!=="off")?hd:0}deg)`; }
   // сдвиг вниз, чтобы впереди было видно больше дороги
   const off=Math.round(map.getSize().y*0.18);
   const pt=map.project(here,z).subtract([0,off]);   // центр выше человека — он внизу экрана, дорога впереди видна
@@ -4133,7 +4152,7 @@ function navCamera(here, pos){
 function navOverview(){
   if(!mapReady || !NAV.pts || !NAV.pts.length) return;
   navFollowPause=Date.now()+12000;
-  if(map.setBearing) map.setBearing(0);
+  if(canRotate()) map.setBearing(0);
   map.fitBounds(L.latLngBounds(NAV.pts),{paddingTopLeft:[30,170],paddingBottomRight:[30,120]});
   toast(t("navOverviewT"));
 }
@@ -4182,7 +4201,7 @@ function navStop(silent){
   const nb=document.getElementById("navBar"); if(nb) nb.hidden=true;
   if(navDoneLine){ navDoneLine.remove(); navDoneLine=null; }
   if(userMarker) userMarker.setIcon(divIcon("pin-me",18));
-  if(mapReady && map.setBearing && typeof compassMode!=="undefined" && compassMode!=="follow") map.setBearing(0);
+  if(canRotate() && typeof compassMode!=="undefined" && compassMode!=="follow") map.setBearing(0);
   try{ NAV.wake&&NAV.wake.release(); }catch(e){} NAV.wake=null;
   if(!silent) try{ speechSynthesis.cancel(); }catch(e){}
 }
@@ -6833,6 +6852,11 @@ const GLOBE_OPEN_Z=3;          // карта на этом зуме и мень�
 const MOON_DIST=14;            // в радиусах Земли (настоящее ≈ 60)
 let GL3=null;                  // состояние глобуса
 function globeOpen(){ return document.body.classList.contains("globe-on"); }
+// Карту сильно отдалили — заранее, в фоне, грузим three.js и карту Земли, чтобы глобус открылся сразу
+let globePre=false;
+function globePrefetch(){ if(globePre || GL3) return; globePre=true;
+  const go=()=>{ loadScriptOnce(GLOBE_THREE).catch(()=>{}); const im=new Image(); im.crossOrigin="anonymous"; im.src=GLOBE_PL+"earth_atmos_2048.jpg"; };
+  (window.requestIdleCallback||setTimeout)(go, 300); }
 function loadScriptOnce(src){
   return new Promise((ok,fail)=>{
     if(window.THREE) return ok();
@@ -6884,13 +6908,17 @@ async function globeInit(){
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(42,1,0.05,4000); scene.add(camera);
-  const [day,night,spec,clouds,sky]=await Promise.all([
-    globeTexture(GLOBE_TEX+"earth-blue-marble.jpg",small), globeTexture(GLOBE_TEX+"earth-night.jpg",small),
-    globeTexture(GLOBE_PL+"earth_specular_2048.jpg",small,1024), globeTexture(GLOBE_PL+"earth_clouds_1024.png"),
-    globeTexture(GLOBE_TEX+"night-sky.png",small)]);
-  // Млечный Путь и звёзды — огромная сфера вокруг
-  const skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2500,64,32), new THREE.MeshBasicMaterial({map:sky||flatTex("#000"), side:THREE.BackSide, color:0x9a9a9a, depthWrite:false}));
-  scene.add(skyMesh);
+  // Быстрее: ждём только дневную карту Земли 2048 px (~0,5 МБ вместо ~4 МБ раньше), ночные огни, блики и облака
+  // подставляются, когда догрузятся; звёзды рисуем сами — без скачивания картинки неба
+  const nightP=globeTexture(GLOBE_PL+"earth_lights_2048.png"), specP=globeTexture(GLOBE_PL+"earth_specular_2048.jpg",small,1024), cloudsP=globeTexture(GLOBE_PL+"earth_clouds_1024.png");
+  const day=await globeTexture(GLOBE_PL+"earth_atmos_2048.jpg");
+  const night=null, spec=null, clouds=null;
+  { const n=small?1400:2600, pos=new Float32Array(n*3), col=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ const u=Math.random()*2-1, a=Math.random()*Math.PI*2, r=2000, q=Math.sqrt(1-u*u);
+      pos[i*3]=r*q*Math.cos(a); pos[i*3+1]=r*u; pos[i*3+2]=r*q*Math.sin(a); const b=.45+Math.random()*.55, w=Math.random();
+      col[i*3]=b*(w>.85?.8:1); col[i*3+1]=b*(w>.92?.85:.97); col[i*3+2]=b; }
+    const gg=new THREE.BufferGeometry(); gg.setAttribute("position",new THREE.BufferAttribute(pos,3)); gg.setAttribute("color",new THREE.BufferAttribute(col,3));
+    scene.add(new THREE.Points(gg,new THREE.PointsMaterial({size:small?1.6:1.4,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.9,depthWrite:false}))); }
   const sunU={value:new THREE.Vector3(1,0,0)}, camU={value:new THREE.Vector3()};
   // Земля: день, ночные огни, блик Солнца на воде, голубоватая дымка у края и закатная полоса у терминатора
   const earthMat=new THREE.ShaderMaterial({
@@ -6910,16 +6938,18 @@ async function globeInit(){
   const earth=new THREE.Mesh(new THREE.SphereGeometry(1,small?72:110,small?48:72), earthMat); scene.add(earth);
   // Облака — отдельный слой чуть выше поверхности, медленно плывут; ночью почти не видны
   let cloudMesh=null;
-  if(clouds){
-    cloudMesh=new THREE.Mesh(new THREE.SphereGeometry(1.008,small?64:96,small?40:64), new THREE.ShaderMaterial({
+  cloudsP.then(clouds=>{ if(!clouds) return;
+    const cm=new THREE.Mesh(new THREE.SphereGeometry(1.008,small?64:96,small?40:64), new THREE.ShaderMaterial({
       uniforms:{tex:{value:clouds}, sun:sunU}, transparent:true, depthWrite:false,
       vertexShader:`varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
       fragmentShader:`uniform sampler2D tex; uniform vec3 sun; varying vec2 vUv; varying vec3 vN;
         void main(){ vec4 t=texture2D(tex,vUv); float d=dot(normalize(vN),normalize(sun)); float a=t.a*0.95;
           vec3 c=vec3(1.0)*(0.02+1.05*max(d,0.0)) + vec3(1.0,0.5,0.25)*exp(-pow(d/0.08,2.0))*0.25;
           gl_FragColor=vec4(c, a*(0.12+0.88*smoothstep(-0.12,0.2,d))); }`
-    })); scene.add(cloudMesh);
-  }
+    })); scene.add(cm); if(GL3) GL3.cloudMesh=cm;
+  });
+  nightP.then(tx=>{ if(tx) earthMat.uniforms.night.value=tx; });
+  specP.then(tx=>{ if(tx) earthMat.uniforms.spec.value=tx; });
   // Атмосфера — тонкая светящаяся оболочка, ярче на дневной стороне
   const atm=new THREE.Mesh(new THREE.SphereGeometry(1.1,64,48), new THREE.ShaderMaterial({
     uniforms:{sun:sunU}, side:THREE.BackSide, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
@@ -6927,9 +6957,7 @@ async function globeInit(){
     fragmentShader:`uniform vec3 sun; varying vec3 vN; varying vec3 vNW; void main(){ float f=pow(clamp(0.68-dot(vN,vec3(0.0,0.0,1.0)),0.0,1.0),3.4);
       float day=0.15+0.85*smoothstep(-0.35,0.35,dot(-vNW,normalize(sun))); gl_FragColor=vec4(0.3,0.58,1.0,1.0)*f*day*1.05; }`
   })); scene.add(atm);
-  // Точки 22 городов ICity
-  const cityDots=[], dotMat=new THREE.MeshBasicMaterial({color:0x5fd3ff});
-  Object.entries(CITIES).forEach(([k,c])=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6), dotMat); m.position.copy(llVec(c.c[0],c.c[1],1.004)); m.userData.key=k; earth.add(m); cityDots.push(m); });
+  const cityDots=[];   // точки городов на глобусе убраны — Земля чище
   // Солнце — далеко, с настоящим угловым размером (~0.5°): «кипящая» плазма и слепящее сияние
   const sun=new THREE.Group();
   const sunMat=new THREE.ShaderMaterial({
@@ -7053,8 +7081,7 @@ async function openGlobe(){
   globeAstroUpdate();
   cancelAnimationFrame(GL3.raf); GL3.raf=requestAnimationFrame(globeFrame);
   box.focus({preventScroll:true});
-  const hint=box.querySelector(".gl-hint"); hint.hidden=false; clearTimeout(hint._t); hint._t=setTimeout(()=>{ hint.hidden=true; },8000);
-  announce(t("glTitle")+". "+t("glHint"));
+  announce(t("glTitle"));
 }
 function closeGlobeQuick(){ document.body.classList.remove("globe-on"); document.getElementById("globe").hidden=true; if(GL3) cancelAnimationFrame(GL3.raf); }
 // Вернуться на карту в той точке, на которую смотрим (или в выбранный город)
