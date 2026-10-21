@@ -2354,6 +2354,41 @@ function fullLayers(style){
   return style.layers.map(l=>{ l=morePoi(clone(l)); if(isNameLayer(l)) l.layout["text-field"]=nameExpr(); return l; })
     .concat([houseNumbers(false)]);
 }
+/* Векторный слой (дороги, подписи, заведения) едет вместе с картой без «уплывания».
+ * Плагин maplibre-gl-leaflet обновлялся раз в 32 мс, ставил холст по углу экрана (с поворотом карты
+ * угол смещается — дороги уезжали), во время щипка застревал в режиме «зум» и после анимаций
+ * сдвигал холст по своему таймеру. Здесь: квадратный холст с запасом по диагонали (хватает при любом
+ * повороте), стоит по центру карты в координатах поворотной панели; пока сдвиг в пределах запаса —
+ * ничего не перерисовываем (холст едет вместе с панелью), иначе и в конце движения — перецентровка
+ * и синхронная перерисовка в том же кадре (redraw), чтобы не было скачка. */
+function glPatch(gl){
+  const center=m=>m.latLngToLayerPoint(m.getCenter());
+  gl.getSize=function(){ const s=this._map.getSize(); const d=Math.ceil(Math.hypot(s.x,s.y)*1.3); return L.point(d,d); };
+  gl._tlFor=function(){ const m=this._map, s=this.getSize(); return this._roundPoint(center(m).subtract(s.divideBy(2))); };
+  gl._initContainer=function(){ const c=this._container=L.DomUtil.create("div","leaflet-gl-layer"); const s=this.getSize();
+    c.style.width=s.x+"px"; c.style.height=s.y+"px"; this._tl=this._tlFor(); L.DomUtil.setPosition(c,this._tl); this._c0=center(this._map); };
+  gl._sync=function(){
+    const m=this._map, g=this._glMap; if(!m || !g || m._animatingZoom) return;
+    const s=this.getSize(), c=this._container;
+    this._tl=this._tlFor(); this._c0=center(m);
+    L.DomUtil.setPosition(c,this._tl);
+    if(g._actualCanvas) L.DomUtil.setTransform(g._actualCanvas,null,1);
+    const tr=g.transform; tr.center=maplibregl.LngLat.convert([m.getCenter().lng,m.getCenter().lat]); tr.zoom=m.getZoom()-1;
+    if(tr.width!==s.x || tr.height!==s.y){ c.style.width=s.x+"px"; c.style.height=s.y+"px"; g.resize(); }
+    try{ g.redraw(); }catch(e){ try{ g._update ? g._update() : g.triggerRepaint(); }catch(e2){} }
+  };
+  // в пределах запаса холст просто едет с панелью; вышли за запас — перецентровка
+  gl._onMove=function(){ const m=this._map; if(!m || m._animatingZoom || !this._c0) return;
+    const s=this.getSize(), ms=m.getSize(), margin=(s.x-Math.hypot(ms.x,ms.y))/2-8, d=center(m).subtract(this._c0);
+    if(Math.abs(d.x)>margin || Math.abs(d.y)>margin) this._sync(); };
+  gl._animateZoom=function(e){ const m=this._map, g=this._glMap; if(!g || !this._tl) return;
+    const nw=m.layerPointToLatLng(this._tl), scale=m.getZoomScale(e.zoom);
+    L.DomUtil.setTransform(g._actualCanvas, m._latLngToNewLayerPoint(nw,e.zoom,e.center).subtract(this._tl), scale); };
+  gl._transitionEnd=function(){ L.Util.requestAnimFrame(()=>this._sync()); };
+  gl._resize=function(){ this._sync(); };
+  gl.getEvents=function(){ return { move:this._onMove, rotate:this._onMove, zoom:this._sync, zoomanim:this._animateZoom,
+    zoomend:this._sync, moveend:this._sync, viewreset:this._sync, resize:this._resize }; };
+}
 async function addGLLayer(key){
   const seq=++glSeq, def=BASEMAPS[key];
   if(!webglOk()) return;
@@ -2368,7 +2403,8 @@ async function addGLLayer(key){
       interactive:false, pane:onImagery?"labels":"tilePane", attribution:OFM_ATTR,
       // плавность на телефонах: не рисуем чётче 2×, подписи без анимации появления
       pixelRatio:Math.min(window.devicePixelRatio||1, sheetMode()?1.5:2), fadeDuration:0
-    }).addTo(map);
+    });
+    glPatch(gl); gl.addTo(map);
     glLayer=gl;
     const ml=gl.getMaplibreMap();
     ml.once("load",()=>{
