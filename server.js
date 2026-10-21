@@ -255,6 +255,7 @@ function tooMany(req, bucket, max, windowMs) {
   arr.push(now); apiHits.set(k, arr); return false;
 }
 setInterval(() => { const now = Date.now(); for (const [k, v] of apiHits) if (!v.length || now - v[v.length - 1] > 3600e3) apiHits.delete(k); for (const [k, v] of adminFails) if (now - v[v.length - 1] > 3600e3) adminFails.delete(k); }, 600e3).unref();
+let lastSbPing = null;   // последний «будильник» Supabase (см. ниже) — виден в /api/health
 const COSTLY = /^\/api\/(place-info|place-photo|transit|taxi-price|assistant|avatar)$/;
 function securityHeaders(res) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -317,7 +318,7 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/place-info' && req.method === 'GET') return await placeinfo.handleInfo(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/place-photo' && req.method === 'GET') return await placeinfo.handlePhoto(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/health' && req.method === 'GET') {
-    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready() });
+    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
@@ -840,6 +841,19 @@ server.listen(PORT, () => {
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
   const selfUrl = process.env.RENDER_EXTERNAL_URL;
   if (selfUrl) setInterval(() => { fetch(selfUrl.replace(/\/$/, '') + '/api/health').catch(() => {}); }, 10 * 60e3).unref();
+  // Supabase на бесплатном плане ставит проект на паузу после 7 дней без запросов — тогда вход и регистрация
+  // перестают работать. Раз в 6 часов делаем лёгкие запросы, которые доходят до базы (список хранилищ, схема API).
+  const sbUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, ''), sbKey = process.env.SUPABASE_ANON_KEY;
+  if (sbUrl && sbKey) {
+    const sbPing = () => {
+      const h = { apikey: sbKey, Authorization: 'Bearer ' + sbKey };
+      Promise.all([fetch(sbUrl + '/storage/v1/bucket', { headers: h }), fetch(sbUrl + '/rest/v1/', { headers: h }), fetch(sbUrl + '/auth/v1/health', { headers: h })])
+        .then((r) => { lastSbPing = { at: new Date().toISOString(), status: r.map((x) => x.status) }; })
+        .catch((e) => { lastSbPing = { at: new Date().toISOString(), error: e.message }; });
+    };
+    setTimeout(sbPing, 30e3).unref();
+    setInterval(sbPing, 6 * 3600e3).unref();
+  }
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (!process.env.ADMIN_TOKEN || process.env.ADMIN_TOKEN !== ADMIN_TOKEN) {

@@ -8,6 +8,8 @@
   адрес https://inclusivecity.onrender.com/ тоже работает.
   Railway (inclusivecity-production.up.railway.app) остановлен: закончился пробный период.
 - Репозиторий приватный (с 14.10.2026): у GitHub Actions лимит 2000 минут в месяц.
+- Supabase (бесплатный план) ставит проект на паузу после 7 дней без запросов: сервер раз в 6 ч дёргает `/storage/v1/bucket`, `/rest/v1/` и `/auth/v1/health`
+  с анонимным ключом (результат — `supabase` в `/api/health`). Если всё же на паузе — Supabase Dashboard → проект ICity → Resume project.
 - Не засыпать: сервер сам раз в 10 минут заходит на `RENDER_EXTERNAL_URL/api/health`; `.github/workflows/keepalive.yml` — раз в час
   (запасной будильник и письмо, если сайт не отвечает).
 - Репозиторий: https://github.com/aiguzhin/inclusivecity-app
