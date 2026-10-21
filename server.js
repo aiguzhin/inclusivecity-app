@@ -842,7 +842,7 @@ server.listen(PORT, () => {
   const selfUrl = process.env.RENDER_EXTERNAL_URL;
   if (selfUrl) setInterval(() => { fetch(selfUrl.replace(/\/$/, '') + '/api/health').catch(() => {}); }, 10 * 60e3).unref();
   // Supabase на бесплатном плане ставит проект на паузу после 7 дней без запросов — тогда вход и регистрация
-  // перестают работать. Раз в 6 часов делаем лёгкие запросы, которые доходят до базы (список хранилищ, схема API).
+  // перестают работать. Каждый час делаем лёгкие запросы, которые доходят до базы (список хранилищ, схема API).
   const sbUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, ''), sbKey = process.env.SUPABASE_ANON_KEY;
   if (sbUrl && sbKey) {
     const sbPing = () => {
@@ -852,7 +852,7 @@ server.listen(PORT, () => {
         .catch((e) => { lastSbPing = { at: new Date().toISOString(), error: e.message }; });
     };
     setTimeout(sbPing, 30e3).unref();
-    setInterval(sbPing, 6 * 3600e3).unref();
+    setInterval(sbPing, 3600e3).unref();
   }
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
