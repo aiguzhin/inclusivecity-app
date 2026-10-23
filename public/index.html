@@ -2281,7 +2281,9 @@ function setBasemap(key){
     baseOverlay=L.layerGroup([].concat(def.overlay).map((u,i)=>
       L.tileLayer(u,{maxZoom:def.max, maxNativeZoom:19}).setZIndex(1+i))).addTo(map);
   }
-  if(def.vector || def.imagery) addGLLayer(key);
+  // На спутнике векторный слой не накладываем: на телефонах он иногда оставался прямоугольником поверх снимка.
+  // Дороги и подписи там — растровые плитки Esri (baseOverlay), они всегда совпадают со снимком.
+  if(def.vector) addGLLayer(key);
   updateImgInfo();
   checkImageryZoom();
   // в 3D сменили вид карты — пересобираем объёмную карту с той же камерой
@@ -2383,8 +2385,8 @@ function glPatch(gl){
   gl._tlFor=function(){ const m=this._map, s=this.getSize(); return this._roundPoint(center(m).subtract(s.divideBy(2))); };
   gl._initContainer=function(){ const c=this._container=L.DomUtil.create("div","leaflet-gl-layer"); const s=this.getSize();
     c.style.width=s.x+"px"; c.style.height=s.y+"px"; this._tl=this._tlFor(); L.DomUtil.setPosition(c,this._tl); this._c0=center(this._map); };
-  gl._sync=function(){
-    const m=this._map, g=this._glMap; if(!m || !g || m._animatingZoom) return;
+  gl._sync=function(force){
+    const m=this._map, g=this._glMap; if(!m || !g || (m._animatingZoom && force!==true)) return;
     const s=this.getSize(), c=this._container;
     this._tl=this._tlFor(); this._c0=center(m);
     L.DomUtil.setPosition(c,this._tl);
@@ -2399,7 +2401,9 @@ function glPatch(gl){
     if(Math.abs(d.x)>margin || Math.abs(d.y)>margin) this._sync(); };
   gl._animateZoom=function(e){ const m=this._map, g=this._glMap; if(!g || !this._tl) return;
     const nw=m.layerPointToLatLng(this._tl), scale=m.getZoomScale(e.zoom);
-    L.DomUtil.setTransform(g._actualCanvas, m._latLngToNewLayerPoint(nw,e.zoom,e.center).subtract(this._tl), scale); };
+    L.DomUtil.setTransform(g._actualCanvas, m._latLngToNewLayerPoint(nw,e.zoom,e.center).subtract(this._tl), scale);
+    // страховка: если конец анимации зума не пришёл (бывает в Safari), через 0,6 с всё равно ставим холст на место
+    clearTimeout(this._zt); this._zt=setTimeout(()=>{ if(this._map && this._glMap){ this._map._animatingZoom ? this._sync(true) : this._sync(); } },600); };
   gl._transitionEnd=function(){ L.Util.requestAnimFrame(()=>this._sync()); };
   gl._resize=function(){ this._sync(); };
   gl.getEvents=function(){ return { move:this._onMove, rotate:this._onMove, zoom:this._sync, zoomanim:this._animateZoom,
