@@ -135,7 +135,7 @@
   В `server.js` — `uncaughtException`/`unhandledRejection` только в лог, `keepAliveTimeout` 65 с. GitHub cron на деле срабатывает раз в несколько часов.
 - Иконка приложения (Настройки → «Иконка приложения», `setAppIcon`, `ic_icon`): `public/appicon.js` в `<head>` всех страниц меняет favicon, apple-touch-icon и манифест
   (`manifest-<вид>.json`); виды `soft` (по умолчанию), `soft-dark` (стиль 07 «Мягкий объём» из Figma), `yellow`, `yellow-blue` (стиль 10 «Контраст: жёлтый»), `classic` (`/icon.svg`).
-  Файлы — `public/icons/<вид>.svg` и PNG 180/192/512.
+  Файлы — `public/icons/<вид>.svg` и PNG 180/192/512. Заставка `#icIntro` рисует ту же иконку (`.ii-new`: подложка, рост палочки «i», точка), для `classic` — прежний знак.
 - `/business` (`public/business.html`) — бизнес-план (рынок, конкуренты, модель дохода, финплан 2027–2029); `/pitch` (`public/pitch.html`) — анимированная презентация,
   12 слайдов (стрелки/свайп/«во весь экран», `#N` в адресе), в конце рекламный ролик `/media/icity-promo.mp4` (есть и вертикальный `icity-promo-vertical.mp4`).
   Ролик: сцена — HTML с `render(t)`, кадры Playwright → ffmpeg; музыка своя (синтез на numpy, без чужих треков). `serveFile` отдаёт видео частями (Range), SW не кэширует `/media/`.

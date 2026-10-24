@@ -1073,6 +1073,14 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 #icIntro .ii-tag{white-space:nowrap;font:500 13px/1.3 "Golos Text",system-ui,sans-serif;color:#a9c7e6;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:opacity .5s ease .1s,transform .5s ease .1s;text-align:center;padding:0 16px}
 #icIntro.s4 .ii-tag{opacity:1;transform:none}
 #icIntro .ii-skip{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);font:500 13px system-ui,sans-serif;color:#9fb6cf;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:8px 14px;cursor:pointer}
+#icIntro .ii-new{box-shadow:0 0 0 1px rgba(255,255,255,.14),0 18px 60px rgba(23,105,194,.45)}
+#icIntro .ii-new .dot,#icIntro .ii-new .plate{transform-box:fill-box;transform-origin:50% 50%}
+#icIntro .ii-new .stem{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0)}
+#icIntro.s2 .ii-new .plate{animation:iiPop .5s cubic-bezier(.2,1.4,.4,1) both}
+#icIntro.s2 .ii-new .stem{animation:iiGrow .45s .12s cubic-bezier(.2,1.3,.4,1) forwards}
+#icIntro.s2 .ii-new .dot{animation:iiPop .45s .38s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes iiGrow{to{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){#icIntro .ii-new .stem{transform:none;animation:none!important}}
 @keyframes iiDraw{to{stroke-dashoffset:0}}
 @keyframes iiPop{from{transform:scale(0)}to{transform:scale(1)}}
 </style>
@@ -1083,6 +1091,20 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <circle class="dot" cx="256" cy="132" r="40" fill="#fff" style="transform-origin:256px 132px"/>
     <path d="M196 196h120c14 0 24 11 24 24s-10 24-24 24h-52v52h76c13 0 23 10 23 23s-10 23-23 23h-99c-13 0-23-10-23-23V244h-22c-14 0-24-11-24-24s10-24 24-24z" fill="#fff"/>
     <path class="fig" d="M168 268c-34 20-56 57-56 100 0 63 51 114 114 114 48 0 89-29 106-71" fill="none" stroke="#3fe0a8" stroke-width="30" stroke-linecap="round"/></svg></div>
+  <script>
+  // Заставка показывает ту иконку, что выбрана в настройках (ic_icon)
+  (function(){
+    var k=null; try{ k=localStorage.getItem("ic_icon"); }catch(e){}
+    var V={soft:{bg:"#E8EDF3",hi:"#FFFFFF",lo:"#A7B4C6",d:"#5AA9FF",s:"#1769C2"},"soft-dark":{bg:"#262B33",hi:"#343B46",lo:"#0E1116",d:"#FFD166",s:"#5AA9FF"},
+           yellow:{bg:"#FFD400",d:"#000",s:"#000"},"yellow-blue":{bg:"#FFD400",d:"#1769C2",s:"#000"}};
+    if(k==="classic") return; var c=V[k]||V.soft, soft=!!c.hi, sc=soft?5.4:7.4, off=soft?242:142;
+    var el=document.querySelector("#icIntro .ii-logo"); if(!el) return;
+    el.className="ii-logo ii-new";
+    el.innerHTML='<svg viewBox="0 0 1024 1024"><defs><filter id="iiF" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="-24" dy="-24" stdDeviation="24" flood-color="'+(c.hi||"#fff")+'"/><feDropShadow dx="24" dy="24" stdDeviation="24" flood-color="'+(c.lo||"#000")+'"/></filter></defs>'
+      +'<rect width="1024" height="1024" fill="'+c.bg+'"/>'+(soft?'<circle class="plate" cx="512" cy="512" r="360" fill="'+c.bg+'" filter="url(#iiF)"/>':'')
+      +'<g transform="translate('+off+' '+off+') scale('+sc+')"><circle class="dot" cx="50" cy="25" r="8.5" fill="'+c.d+'"/><rect class="stem" x="41.5" y="39" width="17" height="43" rx="8.5" fill="'+c.s+'"/></g></svg>';
+  })();
+  </script>
   <div class="ii-name"><i>I</i><i>C</i><i>i</i><i>t</i><i>y</i></div>
   <div class="ii-tag"></div>
 </div>
