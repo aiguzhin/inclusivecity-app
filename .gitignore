@@ -4,3 +4,5 @@ data/*.json
 uploads/*
 !uploads/.gitkeep
 data/avatars/
+public/_scene.html
+public/_fonts/

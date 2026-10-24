@@ -274,6 +274,9 @@ const EXT_TYPES = {
   '.js': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mp3': 'audio/mpeg',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
@@ -291,6 +294,19 @@ function serveFile(res, filePath) {
     }
     const ext = path.extname(filePath).toLowerCase();
     const type = EXT_TYPES[ext] || 'application/octet-stream';
+    // видео и звук — с частями (Range): иначе Safari не играет ролик и не даёт перематывать
+    if (/^(video|audio)\//.test(type)) {
+      const total = data.length, rg = /bytes=(\d*)-(\d*)/.exec((res.req && res.req.headers.range) || '');
+      if (rg) {
+        let a = rg[1] === '' ? Math.max(0, total - Number(rg[2])) : Number(rg[1]);
+        let b = rg[1] !== '' && rg[2] !== '' ? Math.min(Number(rg[2]), total - 1) : total - 1;
+        if (!(a <= b && a < total)) { res.writeHead(416, { 'Content-Range': 'bytes */' + total }); return res.end(); }
+        res.writeHead(206, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Range': 'bytes ' + a + '-' + b + '/' + total, 'Content-Length': b - a + 1, 'Cache-Control': 'public, max-age=86400' });
+        return res.end(data.subarray(a, b + 1));
+      }
+      res.writeHead(200, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Length': total, 'Cache-Control': 'public, max-age=86400' });
+      return res.end(data);
+    }
     // текст сжимаем: страница и маршруты автобусов становятся в 4–6 раз легче
     const ae = (res.req && res.req.headers['accept-encoding']) || '';
     if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\bgzip\b/.test(ae)) {
@@ -800,6 +816,8 @@ const server = http.createServer(async (req, res) => {
     // Главная — лендинг, приложение с картой — /map (старый /index.html тоже открывает карту)
     if (pathname === '/' || pathname === '/about' || pathname === '/about/') return serveFile(res, path.join(PUBLIC_DIR, 'landing.html'));
     if (pathname === '/map' || pathname === '/map/') return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
+    if (pathname === '/business' || pathname === '/business/') return serveFile(res, path.join(PUBLIC_DIR, 'business.html'));
+    if (pathname === '/pitch' || pathname === '/pitch/') return serveFile(res, path.join(PUBLIC_DIR, 'pitch.html'));
     if (pathname === '/login' || pathname === '/account') return serveFile(res, path.join(PUBLIC_DIR, 'login.html'));
     // Ключи Supabase для входа: берутся из переменных окружения Render (anon-ключ публичный по замыслу Supabase)
     if (pathname === '/auth-config.js') {

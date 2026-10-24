@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v87";
+const CACHE = "ic-v88";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
@@ -75,14 +75,15 @@ self.addEventListener("fetch", e => {
   let url;
   try { url = new URL(req.url); } catch (_) { return; }
   const sameOrigin = url.origin === self.location.origin;
+  // видео ролика — напрямую с сервера (частями), без кэша
+  if (sameOrigin && url.pathname.startsWith("/media/")) return;
 
   // 1. Переходы по страницам: сеть, но если сервер молчит дольше 3,5 с (бесплатный Render просыпается)
   //    или отвечает ошибкой — сразу сохранённая копия страницы, а свежая догрузится в кэш к следующему разу
   if (req.mode === "navigate") {
     e.respondWith((async () => {
       const cached = () => caches.match(req, { ignoreSearch: true })
-        .then(hit => hit || caches.match(url.pathname === "/" ? "/" : "/map"))
-        .then(hit => hit || caches.match("/index.html"));
+        .then(hit => hit || (url.pathname === "/" ? caches.match("/") : /^\/(map|index\.html)?\/?$/.test(url.pathname) ? caches.match("/map").then(h => h || caches.match("/index.html")) : null));
       const net = fetch(req).then(res => {
         if (!res || res.status >= 500) throw new Error("server " + (res && res.status));
         return putInCache(req, res);

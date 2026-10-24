@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Бизнес-план ICity</title>
+<meta name="description" content="Бизнес-план ICity: карта доступности городов Казахстана. Рынок, продукт, конкуренты, модель дохода, финансовый план на 2027–2029 годы.">
+<meta name="theme-color" content="#1769c2">
+<link rel="icon" href="/icons/soft.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/soft-180.png">
+<script src="/appicon.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600;700&display=swap">
+<script>
+(function(){var d=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
+d.setAttribute("data-theme",g("ic_theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"));
+d.setAttribute("data-font",g("ic_font")||"normal");d.setAttribute("data-contrast",g("ic_contrast")||"normal");})();
+</script>
+<style>
+:root{
+  --paper:#eef1f4; --sheet:#ffffff; --ink:#14202e; --ink-2:#44546a; --rule:#cfd7e0;
+  --blue:#1769c2; --blue-2:#0f4f96; --yellow:#ffd400; --green:#1e8e5a; --red:#d7372f;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+html[data-theme="dark"]{--paper:#0e1620; --sheet:#152230; --ink:#e8eef4; --ink-2:#a7b6c6; --rule:#2a3b4e; --blue:#5aa9ff; --blue-2:#9cc9ff; color-scheme:dark}
+html[data-contrast="high"]{--paper:#fff; --sheet:#fff; --ink:#000; --ink-2:#000; --rule:#000; --blue:#000; --blue-2:#000}
+html[data-theme="dark"][data-contrast="high"]{--paper:#000; --sheet:#000; --ink:#fff; --ink-2:#fff; --rule:#fff; --blue:#ffd400; --blue-2:#ffd400}
+html[data-font="large"]{font-size:118%} html[data-font="xl"]{font-size:136%}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:var(--body);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;border-radius:4px}
+
+/* Шапка — как указатель на остановке */
+.top{position:sticky;top:0;z-index:5;background:#1769c2;color:#fff}
+html[data-theme="dark"] .top{background:#0f4f96}
+html[data-contrast="high"] .top{background:#000}
+.top-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:12px 24px;padding-top:max(12px,env(safe-area-inset-top))}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-family:var(--display);font-weight:700;font-size:17px}
+.logo img{width:30px;height:30px;border-radius:8px}
+.top nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.top nav a{color:#fff;text-decoration:none;font-weight:500;padding:8px 12px;border-radius:8px;font-size:16px}
+.top nav a:hover{background:rgba(255,255,255,.14)}
+.top nav a.cta{background:var(--yellow);color:#000}
+.top nav a.cta:hover{background:#ffe14d}
+
+/* Обложка */
+.cover{max-width:1180px;margin:0 auto;padding:72px 24px 56px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:end}
+.cover h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.4vw,84px);line-height:1;letter-spacing:-.02em;margin:0 0 24px}
+.cover .lead{font-size:clamp(19px,1.8vw,23px);line-height:1.5;color:var(--ink-2);max-width:34ch;margin:0}
+.cover .meta{margin-top:28px;color:var(--ink-2);font-size:16px}
+.facts{border-left:6px solid var(--yellow);padding:4px 0 4px 22px}
+.facts dl{margin:0;display:grid;gap:18px}
+.facts dt{font-family:var(--display);font-weight:700;font-size:34px;line-height:1;color:var(--blue)}
+.facts dd{margin:4px 0 0;color:var(--ink-2);font-size:16px;line-height:1.4}
+
+/* Тактильная полоса — фирменный разделитель */
+.tactile{height:22px;background:
+  radial-gradient(circle at 11px 11px,var(--yellow) 0 5px,transparent 5.5px) 0 0/22px 22px;max-width:1180px;margin:0 auto}
+html[data-theme="dark"] .tactile{opacity:.9}
+
+.doc{max-width:1180px;margin:0 auto;padding:24px 24px 96px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:56px}
+.toc{position:sticky;top:76px;align-self:start;font-size:15px;line-height:1.35}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:s;border-left:2px solid var(--rule)}
+.toc li{counter-increment:s}
+.toc a{display:block;padding:7px 0 7px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none}
+.toc a:hover{color:var(--ink)}
+.toc a.on{border-left-color:var(--blue);color:var(--ink);font-weight:600}
+
+article{min-width:0}
+article section{padding:40px 0 8px;border-top:1px solid var(--rule)}
+article section:first-child{border-top:0;padding-top:16px}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.01em;margin:0 0 20px;max-width:24ch}
+h3{font-size:20px;line-height:1.3;margin:28px 0 8px}
+p,li{max-width:68ch}
+p{margin:0 0 16px}
+ul{padding-left:22px;margin:0 0 16px} li{margin:0 0 8px}
+.note{font-size:15px;color:var(--ink-2)}
+.src{font-size:14px;color:var(--ink-2)}
+.src a{color:inherit}
+
+.split{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;background:var(--rule);border:2px solid var(--rule);border-radius:14px;overflow:hidden;margin:8px 0 20px}
+.split div{background:var(--sheet);padding:20px 20px 18px}
+.split b{display:block;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.1;margin-bottom:6px}
+.split span{color:var(--ink-2);font-size:16px;line-height:1.4;display:block}
+
+.tbl{overflow-x:auto;margin:8px 0 20px;border:1px solid var(--rule);border-radius:14px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:16px;line-height:1.35}
+th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+thead th{font-weight:600;color:var(--ink-2);font-size:15px;background:var(--paper)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sum td{font-weight:700}
+.cmp{font-size:15px}.cmp th,.cmp td{padding:11px 10px}.cmp td:first-child{min-width:190px}
+.cmp th:nth-child(2),.cmp td:nth-child(2){background:color-mix(in srgb,var(--blue) 9%,var(--sheet))}
+.y{color:var(--green);font-weight:600} .p{color:var(--ink-2)} .no{color:var(--ink-2);opacity:.7}
+.y::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);margin-right:8px;vertical-align:1px}
+
+.feat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 40px;margin:8px 0 12px;padding:0;list-style:none}
+.feat li{padding:12px 0;border-bottom:1px solid var(--rule);max-width:none}
+.feat b{display:block}
+.feat span{color:var(--ink-2);font-size:16px}
+
+.road{list-style:none;padding:0;margin:8px 0 16px;border-left:3px solid var(--blue)}
+.road li{position:relative;padding:0 0 18px 26px;max-width:68ch}
+.road li::before{content:"";position:absolute;left:-9px;top:6px;width:15px;height:15px;border-radius:50%;background:var(--sheet);border:3px solid var(--blue)}
+.road li.now::before{background:var(--blue)}
+.road b{display:block}
+
+.ask{background:#1769c2;color:#fff;border-radius:18px;padding:32px;margin:12px 0 24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:32px;align-items:center}
+html[data-contrast="high"] .ask{background:#000;border:3px solid var(--yellow)}
+.ask .sum{font-family:var(--display);font-weight:700;font-size:clamp(38px,5vw,60px);line-height:1}
+.ask .sum small{display:block;font-family:var(--body);font-weight:500;font-size:17px;margin-top:10px;opacity:.85}
+.ask ul{margin:0;padding:0;list-style:none} .ask li{margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+.sw{flex:none;width:12px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,.6)}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:0 0 14px}
+.bar i{display:block}
+
+.end{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:12px 22px;border-radius:12px;font-weight:600;text-decoration:none;font-size:17px}
+.btn.main{background:var(--blue);color:#fff} .btn.alt{border:2px solid var(--ink);color:var(--ink)}
+html[data-theme="dark"] .btn.main{background:#2563eb}
+html[data-contrast="high"] .btn.main{background:var(--yellow);color:#000}
+
+footer{border-top:1px solid var(--rule);color:var(--ink-2);font-size:15px}
+footer div{max-width:1180px;margin:0 auto;padding:24px}
+
+@media (max-width:960px){
+  .cover{grid-template-columns:1fr;gap:36px;padding-top:48px}
+  .doc{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .ask{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .top-in{padding:10px 16px}
+  .top nav a:not(.cta){display:none}
+  .cover,.doc{padding-left:16px;padding-right:16px}
+  .split{grid-template-columns:1fr}
+  .feat{grid-template-columns:1fr}
+  .ask{padding:24px}
+}
+@media print{.top,.toc,.end{display:none}.doc{grid-template-columns:1fr}body{background:#fff}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="logo" href="/"><img src="/icons/soft-192.png" alt="">ICity</a>
+  <nav aria-label="Разделы">
+    <a href="/">Главная</a>
+    <a href="/pitch">Презентация</a>
+    <a class="cta" href="/map">Открыть карту</a>
+  </nav>
+</div></header>
+
+<div class="cover">
+  <div>
+    <h1>Бизнес-план ICity</h1>
+    <p class="lead">Карта и навигатор для тех, кому лестница, высокий бордюр или гололёд мешают дойти куда нужно. Работает в 22 городах Казахстана.</p>
+    <p class="meta">Версия от октября 2026 года. Финансовые показатели — план, базовый сценарий.</p>
+  </div>
+  <aside class="facts" aria-label="Главное">
+    <dl>
+      <div><dt>750 тыс.</dt><dd>людей с инвалидностью в Казахстане</dd></div>
+      <div><dt>2 млн</dt><dd>жителей старше 65 лет</dd></div>
+      <div><dt>22 города</dt><dd>уже на карте, сервис работает</dd></div>
+    </dl>
+  </aside>
+</div>
+<div class="tactile" aria-hidden="true"></div>
+
+<div class="doc">
+<nav class="toc" aria-label="Содержание"><ol>
+  <li><a href="#summary">Коротко</a></li>
+  <li><a href="#problem">Проблема</a></li>
+  <li><a href="#product">Продукт</a></li>
+  <li><a href="#market">Рынок</a></li>
+  <li><a href="#rivals">Конкуренты</a></li>
+  <li><a href="#money">Как зарабатываем</a></li>
+  <li><a href="#growth">Продвижение</a></li>
+  <li><a href="#plan">План работ</a></li>
+  <li><a href="#finance">Финансы</a></li>
+  <li><a href="#risks">Риски</a></li>
+  <li><a href="#ask">Что нужно</a></li>
+</ol></nav>
+
+<article>
+<section id="summary">
+  <h2>Коротко</h2>
+  <p>ICity строит пешие маршруты в обход лестниц, крутых спусков и плохого покрытия, подсказывает автобус и такси, показывает доступные места и принимает жалобы на барьеры. Сервис бесплатный для жителей, открывается в браузере любого телефона и ставится на главный экран без магазина приложений.</p>
+  <p>Деньги приносят организации, которым нужны данные о доступности города: акиматы, бизнес, фонды. Для них ICity даёт кабинет с жалобами, рейтинг районов и отметку «доступно» в карточке заведения.</p>
+  <div class="split">
+    <div><b>35 млн ₸</b><span>нужно на 18 месяцев работы</span></div>
+    <div><b>2028</b><span>год выхода на операционную прибыль</span></div>
+    <div><b>150 млн ₸</b><span>выручка в 2029 году по плану</span></div>
+  </div>
+</section>
+
+<section id="problem">
+  <h2>Проблема</h2>
+  <p>Обычные карты считают, что человек может пройти везде, где есть тротуар. Человек на кресле-коляске узнаёт о лестнице в подземный переход, когда уже стоит перед ней. Незрячий не знает, где на маршруте нет тактильной плитки. Пожилой человек зимой не видит, какой спуск обледенел.</p>
+  <p>Государственная карта «Доступная среда» на friendlybuilding.kz показывает только социальные объекты: ЦОНы, больницы, акиматы. Жители не могут её дополнять, а маршрутов на ней нет. Общественные организации говорят, что людям с инвалидностью она почти не помогает.</p>
+  <p class="src">Источник: <a href="https://informburo.kz/novosti/invalidy-ne-polzuyutsya-kartoy-dostupnaya-sreda-ot-mintruda-obshchestvenniki-predlozhili-eyo-dorabotat.html">Informburo.kz</a>.</p>
+</section>
+
+<section id="product">
+  <h2>Продукт</h2>
+  <p>Всё ниже уже работает на inclusivecity.uk. Данные — OpenStreetMap, Overture Maps, Open-Meteo, Google Places и отметки самих жителей.</p>
+  <ul class="feat">
+    <li><b>Маршрут без барьеров</b><span>Учитывает лестницы, бордюры, уклон и покрытие. Пять профилей: кресло-коляска, трость, плохое зрение, детская коляска, пожилой возраст.</span></li>
+    <li><b>Погода на пути</b><span>В гололёд допустимый уклон снижается, маршрут обходит скользкие спуски. Прогноз по часам на время поездки.</span></li>
+    <li><b>Голосовой навигатор</b><span>Поворот за 150 и 50 метров, предупреждения о лестницах впереди, вибрация, экран не гаснет.</span></li>
+    <li><b>Автобусы и такси</b><span>Маршруты транспорта 22 городов, цена такси по тарифу, номера служб такси и инватакси своего города.</span></li>
+    <li><b>Жалобы на барьеры</b><span>Фото и точка на карте. Статус «в работе» или «исправлено» приходит уведомлением.</span></li>
+    <li><b>Помощь рядом</b><span>Просьба волонтёрам, SOS с вызовом 112 и 103, звонок или SMS близкому человеку, ближайший туалет.</span></li>
+    <li><b>Отзывы и места</b><span>Отзывы с фото о входе и пандусе, сохранённые места, дом и работа синхронизируются с аккаунтом.</span></li>
+    <li><b>Рейтинг районов</b><span>Оценка от 0 до 100 по удобствам, барьерам и жалобам. Показывает, где городу стоит вложиться.</span></li>
+    <li><b>Без интернета</b><span>Город скачивается целиком: карта и слои доступности работают офлайн.</span></li>
+    <li><b>Помощник Серік</b><span>Отвечает на вопросы о доступном городе и льготах на казахском, русском и английском.</span></li>
+    <li><b>Для любого зрения</b><span>Высокий контраст, крупный и очень крупный шрифт, озвучка элементов для незрячих.</span></li>
+    <li><b>Три языка</b><span>Казахский, русский, английский. Регистрация по номеру +7 или почте, вход через Google.</span></li>
+  </ul>
+</section>
+
+<section id="market">
+  <h2>Рынок</h2>
+  <p>Пользоваться ICity нужно не только людям с инвалидностью. Лестница мешает и пожилому человеку, и родителю с коляской, и тому, кто восстанавливается после травмы.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Группа</th><th class="n">Человек</th><th>Что им важно</th></tr></thead>
+    <tbody>
+      <tr><td>Люди с инвалидностью</td><td class="n">≈ 750 000</td><td>Маршрут без барьеров, инватакси, жалобы</td></tr>
+      <tr><td>Жители старше 65 лет</td><td class="n">≈ 2 000 000</td><td>Крупный шрифт, гололёд, туалеты, скамейки</td></tr>
+      <tr><td>Родители с детьми до 3 лет</td><td class="n">≈ 1 000 000</td><td>Пандусы, лифты, ровное покрытие</td></tr>
+    </tbody>
+  </table></div>
+  <p>Вместе это около 3,7 млн человек, почти каждый пятый житель страны. Первая цель — 50 тысяч активных пользователей в месяц к концу 2027 года, это меньше 2% аудитории.</p>
+  <p>Покупатели — 22 акимата городов из нашего списка, сети аптек, клиник, торговых центров и кафе, банки с программами доступности, международные фонды. Государство ставит цель довести доступность объектов до 80% к 2026 году, и акиматам нужен инструмент, который показывает реальную картину на улице.</p>
+  <p class="src">Источники: <a href="https://24.kz/ru/news/social/735327-v-kazakhstane-prozhivaet-pochti-750-tysyach-lits-s-invalidnostyu">24.kz</a>, данные на 1 июля 2025 года; <a href="https://kapital.kz/economic/147419/v-kazahstane-chislo-pozhilyh-rastet-bystree-chem-detej.html">Kapital.kz</a>, данные на начало 2026 года; цель 80% — <a href="https://kapital.kz/gosudarstvo/147170/dovesti-uroven-dostupnosti-sredy-dlya-lyudey-s-invalidnostyu-do-80percent-namecheno-v-2026-godu.html">Kapital.kz</a>. Число родителей — наша оценка по рождаемости.</p>
+</section>
+
+<section id="rivals">
+  <h2>Конкуренты</h2>
+  <p>Большие карты сильнее нас в данных о заведениях и в узнаваемости. Мы не пытаемся их заменить: ICity решает задачу, которую они не решают в Казахстане, — как дойти, если идти можно не везде.</p>
+  <div class="tbl"><table class="cmp">
+    <thead><tr><th></th><th>ICity</th><th>2ГИС</th><th>Google Карты</th><th>Яндекс Карты</th><th>Wheelmap</th><th>«Доступная среда»</th></tr></thead>
+    <tbody>
+      <tr><td>Пеший маршрут в обход лестниц и крутых спусков</td><td class="y">Да</td><td class="no">Нет</td><td class="no">Нет в Казахстане</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td></tr>
+      <tr><td>Настройка под коляску, трость, плохое зрение</td><td class="y">Да</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="p">Только коляска</td><td class="no">Нет</td></tr>
+      <tr><td>Гололёд и погода влияют на маршрут</td><td class="y">Да</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td></tr>
+      <tr><td>Жители отмечают барьеры с фото</td><td class="y">Да</td><td class="p">Правки карточек</td><td class="p">Отзывы</td><td class="p">Отзывы</td><td class="y">Да</td><td class="no">Нет</td></tr>
+      <tr><td>Статус жалобы от города</td><td class="y">Да</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td></tr>
+      <tr><td>Инватакси, волонтёры и SOS в одном месте</td><td class="y">Да</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td><td class="no">Нет</td></tr>
+      <tr><td>Подробные карточки заведений</td><td class="p">Частично</td><td class="y">Да</td><td class="y">Да</td><td class="y">Да</td><td class="p">Частично</td><td class="p">Соцобъекты</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Сравнение по нашей проверке в октябре 2026 года. У Google колясочные маршруты есть только для общественного транспорта и только в нескольких городах мира (<a href="https://www.afar.com/magazine/google-maps-is-making-travel-more-accessible-for-wheelchair-users">Afar</a>).</p>
+  <h3>Почему нас трудно повторить</h3>
+  <ul>
+    <li>Данные о барьерах собираются годами: каждая жалоба и отзыв с фото остаются в базе.</li>
+    <li>Связи с акиматами и общественными организациями — это работа людей, а не кода.</li>
+    <li>Для больших карт это узкая функция, которую невыгодно делать для одной страны.</li>
+  </ul>
+</section>
+
+<section id="money">
+  <h2>Как зарабатываем</h2>
+  <p>Для жителей ICity бесплатен всегда. Платят организации.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Источник</th><th>Кто платит</th><th>Что получает</th><th class="n">Цена</th></tr></thead>
+    <tbody>
+      <tr><td>Кабинет города</td><td>Акимат</td><td>Жалобы жителей с фото и статусами, рейтинг районов, отчёт для плана по доступности</td><td class="n">3–3,5 млн ₸ в год</td></tr>
+      <tr><td>Отметка «Проверено ICity»</td><td>Кафе, аптеки, клиники, ТЦ</td><td>Проверка входа, значок на карте, фото пандуса и туалета, место в подборках</td><td class="n">5 000 ₸ в месяц</td></tr>
+      <tr><td>Гранты и соцзаказ</td><td>Фонды, ПРООН, государство</td><td>Проверка улиц, обучение волонтёров, отчёт о результатах</td><td class="n">по проекту</td></tr>
+      <tr><td>Партнёрства</td><td>Такси, банки, страховые</td><td>Переход в заказ такси, программы для клиентов с инвалидностью</td><td class="n">процент или фикс</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="growth">
+  <h2>Продвижение</h2>
+  <ul>
+    <li>Общества инвалидов, центры реабилитации и школы для незрячих в каждом городе: показ на встречах, обучение.</li>
+    <li>Поликлиники и ЦОНы: плакат с QR-кодом у входа и в зоне ожидания.</li>
+    <li>Ролики в Instagram и TikTok про реальные маршруты: «как дойти до ЦОНа на коляске».</li>
+    <li>Акимат, подключивший кабинет, сам рассказывает о сервисе жителям.</li>
+    <li>Заведения с отметкой «Проверено ICity» ставят наклейку на дверь.</li>
+  </ul>
+</section>
+
+<section id="plan">
+  <h2>План работ</h2>
+  <ol class="road">
+    <li class="now"><b>2026, сейчас</b>22 города, маршруты, навигатор, жалобы, отзывы, SOS, помощник, офлайн-режим.</li>
+    <li><b>Первая половина 2027</b>Приложения в App Store и Google Play. Пилот кабинета города в Астане и Алматы. Первые 100 заведений с отметкой.</li>
+    <li><b>Вторая половина 2027</b>Проверка 2 000 км улиц с волонтёрами. Маршруты с учётом низкопольных автобусов. 50 тысяч пользователей в месяц.</li>
+    <li><b>2028</b>Кабинет в 6 городах, 600 заведений. Выход в Узбекистан и Кыргызстан.</li>
+    <li><b>2029</b>12 городов-клиентов, 1 500 заведений, 300 тысяч пользователей в месяц.</li>
+  </ol>
+  <h3>Команда</h3>
+  <p>Сейчас продукт делает основатель. На деньги раунда нанимаем трёх человек: мобильного разработчика, менеджера по работе с городами и бизнесом и координатора волонтёров. Дизайн и юридические вопросы — подрядчики.</p>
+</section>
+
+<section id="finance">
+  <h2>Финансы</h2>
+  <p>Базовый сценарий, тенге. Это план, а не отчёт: цифры пересматриваются после пилотов с городами.</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th class="n">2027</th><th class="n">2028</th><th class="n">2029</th></tr></thead>
+    <tbody>
+      <tr><td>Кабинеты городов</td><td class="n">6 млн</td><td class="n">18 млн</td><td class="n">42 млн</td></tr>
+      <tr><td>Отметки заведений</td><td class="n">6 млн</td><td class="n">36 млн</td><td class="n">90 млн</td></tr>
+      <tr><td>Гранты и соцзаказ</td><td class="n">10 млн</td><td class="n">10 млн</td><td class="n">8 млн</td></tr>
+      <tr><td>Партнёрства</td><td class="n">1 млн</td><td class="n">4 млн</td><td class="n">10 млн</td></tr>
+      <tr class="sum"><td>Выручка</td><td class="n">23 млн</td><td class="n">68 млн</td><td class="n">150 млн</td></tr>
+      <tr><td>Команда</td><td class="n">18 млн</td><td class="n">33 млн</td><td class="n">62 млн</td></tr>
+      <tr><td>Серверы, карты, ИИ-помощник</td><td class="n">3 млн</td><td class="n">6 млн</td><td class="n">11 млн</td></tr>
+      <tr><td>Проверка улиц и заведений</td><td class="n">3 млн</td><td class="n">7 млн</td><td class="n">14 млн</td></tr>
+      <tr><td>Продвижение</td><td class="n">5 млн</td><td class="n">9 млн</td><td class="n">18 млн</td></tr>
+      <tr class="sum"><td>Расходы</td><td class="n">29 млн</td><td class="n">55 млн</td><td class="n">105 млн</td></tr>
+      <tr class="sum"><td>Результат</td><td class="n">−6 млн</td><td class="n">+13 млн</td><td class="n">+45 млн</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Допущения: кабинет города — 3 млн ₸ в год в 2027–2028 и 3,5 млн с 2029 года; отметка заведения — 60 000 ₸ в год; 2, 6 и 12 городов-клиентов; 100, 600 и 1 500 заведений.</p>
+</section>
+
+<section id="risks">
+  <h2>Риски</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Риск</th><th>Что делаем</th></tr></thead>
+    <tbody>
+      <tr><td>Акиматы долго принимают решения о закупке</td><td>Бесплатный пилот на 3 месяца, отчёт по жалобам жителей как аргумент. Параллельно — гранты и бизнес.</td></tr>
+      <tr><td>Данные OpenStreetMap неполные</td><td>Волонтёрская проверка улиц, отметки жителей, Overture Maps и Google Places для заведений.</td></tr>
+      <tr><td>Большая карта добавит похожую функцию</td><td>Наша база барьеров и связи с городами останутся. Готовы отдавать данные партнёрам по лицензии.</td></tr>
+      <tr><td>Рост расходов на серверы и API</td><td>Кэширование, свои данные вместо платных API, лимиты на помощника.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="ask">
+  <h2>Что нужно</h2>
+  <div class="ask">
+    <div class="sum">35 млн ₸<small>грант или инвестиции на 18 месяцев</small></div>
+    <div>
+      <div class="bar" role="img" aria-label="Разработка 45%, проверка улиц и заведений 20%, продвижение 20%, серверы 15%">
+        <i style="width:45%;background:#fff"></i><i style="width:20%;background:#ffd400"></i><i style="width:20%;background:#9cc9ff"></i><i style="width:15%;background:#0f4f96"></i>
+      </div>
+      <ul>
+        <li><i class="sw" style="background:#fff"></i>45% — разработка: мобильные приложения, кабинет города</li>
+        <li><i class="sw" style="background:#ffd400"></i>20% — проверка 2 000 км улиц и 500 заведений</li>
+        <li><i class="sw" style="background:#9cc9ff"></i>20% — продвижение через организации и соцсети</li>
+        <li><i class="sw" style="background:#0f4f96"></i>15% — серверы и данные на полтора года</li>
+      </ul>
+    </div>
+  </div>
+  <p>Ищем партнёров среди акиматов для пилота, фондов и инвесторов. Напишите нам, и мы покажем ICity на вашем городе.</p>
+  <div class="end">
+    <a class="btn main" href="/pitch">Смотреть презентацию</a>
+    <a class="btn alt" href="/map">Открыть карту</a>
+  </div>
+</section>
+</article>
+</div>
+
+<footer><div>ICity, 2026. inclusivecity.uk</div></footer>
+
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll(".toc a")), map={};
+  links.forEach(function(a){ map[a.getAttribute("href").slice(1)]=a; });
+  if(!("IntersectionObserver" in window)) return;
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ links.forEach(function(a){a.classList.remove("on")}); var a=map[e.target.id]; if(a) a.classList.add("on"); } }); },{rootMargin:"-30% 0px -60% 0px"});
+  document.querySelectorAll("article section").forEach(function(s){ io.observe(s); });
+})();
+if(location.hostname!=="inclusivecity.uk"&&location.hostname!=="www.inclusivecity.uk"&&location.hostname!=="inclusivecity.onrender.com"&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){location.replace("https://inclusivecity.uk"+location.pathname);}
+</script>
+</body>
+</html>
