@@ -1,0 +1,29 @@
+{
+  "about": "Барьеры из проверенных открытых источников (СМИ), которых нет в OpenStreetMap. Только места, которые удалось точно найти на карте. Координаты — середина надземного перехода (OSM way). ex — радиус запретной зоны для маршрутизатора в метрах, r — на каком расстоянии от середины считаем, что маршрут идёт через переход. Записи старше двух лет удалять или перепроверять.",
+  "items": [
+    {
+      "city": "almaty", "lat": 43.25801, "lon": 76.87502, "osm": "way/538491821",
+      "title": "Надземный переход: Райымбек — Брусиловского",
+      "note": "На лестницах нет пандусов, лифты, по наблюдению журналистов, не работают; ближайший наземный переход примерно в 800 м",
+      "who": ["wheelchair_manual", "wheelchair_power", "stroller", "crutches", "temporary"],
+      "r": 6, "ex": 3,
+      "date": "25.11.2025", "url": "https://tengrinews.kz/article/pereyti-dorogu-poroy-nikak-redaktsiya-proverila-sostoyanie-3388/"
+    },
+    {
+      "city": "almaty", "lat": 43.26346, "lon": 76.89986, "osm": "way/406679490",
+      "title": "Надземный переход на Райымбека напротив ТРК «Максима»",
+      "note": "Пандусов нет, лифты есть, но работающими не выглядят",
+      "who": ["wheelchair_manual", "wheelchair_power", "stroller", "crutches", "temporary"],
+      "r": 6, "ex": 3,
+      "date": "25.11.2025", "url": "https://tengrinews.kz/article/pereyti-dorogu-poroy-nikak-redaktsiya-proverila-sostoyanie-3388/"
+    },
+    {
+      "city": "almaty", "lat": 43.1982, "lon": 76.90034, "osm": "way/502481864",
+      "title": "Надземный переход на Аль-Фараби у «Казахфильма»",
+      "note": "Переход ремонтировался; пандусов и лифтов нет",
+      "who": ["wheelchair_manual", "wheelchair_power", "stroller", "crutches", "temporary"],
+      "r": 6, "ex": 3,
+      "date": "25.11.2025", "url": "https://tengrinews.kz/article/pereyti-dorogu-poroy-nikak-redaktsiya-proverila-sostoyanie-3388/"
+    }
+  ]
+}

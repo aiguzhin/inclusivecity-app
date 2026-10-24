@@ -73,6 +73,12 @@
 - Рейтинг районов `openRating`: place=suburb/quarter из OSM, удобства/барьеры/жалобы → 0–100, теплокарта 600 м, кэш 7 дней.
 - `rating.js`: `/api/rating?city=&bb=` — рейтинг районов считает сервер (один запрос Overpass с `make sep`, до 2 мин), кэш 7 дней в памяти + KV `rating:<city>`;
   пока считает — 202, клиент (`rtCompute`) через ~8 с параллельно спрашивает Overpass сам. `overpassQuery` спрашивает два зеркала сразу.
+- Обход известных барьеров (`buildRoute`): сначала, как раньше, OSRM foot (3 варианта); затем `loadKnownBarriers` — `/api/barriers` (`barriers.js`: высокие бордюры,
+  турникеты, `wheelchair=no` из OSM по всему городу, кэш 7 дней + KV `barriers:<city>`; плюс `barriers-extra.json` — переходы из СМИ с датой и ссылкой)
+  и жалобы `/api/reports` (`REP_WHO` — каким профилям мешает тип жалобы). Если на лучшем варианте нет известных барьеров и лестниц — маршрут не меняется;
+  если есть — `valhallaRoutes` (valhalla1.openstreetmap.de, pedestrian `type:wheelchair` для колясок, `step_penalty` для трости, `exclude_polygons` вокруг барьеров
+  через `exPolygons`), варианты сравниваются `scoreVariant` (+900 за каждый известный барьер). В карточке — «Обошли известных барьеров: N», на карте — жёлтые точки с источником.
+  Слой «Барьеры» (`LAYERS` key `barrier`): лестницы без пандуса, бордюры, турникеты, `wheelchair=no` и записи СМИ. 2ГИС не используем: их данные нельзя копировать по лицензии.
 - Высоты для уклонов: сначала Open-Meteo elevation, потом opentopodata/open-elevation (`fetchElevations`).
 - Пустое «Откуда» при построении маршрута → берём GPS, иначе просим указать (`needStart`). Место из поиска/категорий отмечается `placePin` в `showPlace`.
 - Геопозиция не даётся → окно `geoHelp` с шагами под платформу (`geoPlatform`: iOS Safari, macOS Safari, Android, ПК, встроенный браузер Claude — там геопозиции нет совсем)
