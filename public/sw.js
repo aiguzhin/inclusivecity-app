@@ -5,7 +5,7 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v86";
+const CACHE = "ic-v87";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
 const SHELL = [
@@ -17,6 +17,8 @@ const SHELL = [
   "/dashboard.html",
   "/manifest.json",
   "/icon.svg",
+  "/appicon.js",
+  "/icons/soft.svg",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
   "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"

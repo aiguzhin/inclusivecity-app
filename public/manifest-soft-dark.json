@@ -1,0 +1,88 @@
+{
+  "name": "ICity — доступная карта Казахстана",
+  "short_name": "ICity",
+  "description": "Безбарьерные маршруты, автобусы и такси, пандусы, лифты и доступные места в 22 городах Казахстана — для людей на кресле-коляске, с нарушениями зрения и слуха, с тростью или детской коляской.",
+  "start_url": "/map",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f7fa",
+  "theme_color": "#1769c2",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icons/soft-dark-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/soft-dark-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/soft-dark-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/soft-dark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Домой",
+      "short_name": "Домой",
+      "url": "/map?do=home",
+      "icons": [
+        {
+          "src": "/icons/soft-dark-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Ближайший доступный туалет",
+      "short_name": "Туалет",
+      "url": "/map?do=toilet",
+      "icons": [
+        {
+          "src": "/icons/soft-dark-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Помощь волонтёра",
+      "short_name": "Помощь",
+      "url": "/map?do=help",
+      "icons": [
+        {
+          "src": "/icons/soft-dark-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "SOS",
+      "short_name": "SOS",
+      "url": "/map?do=sos",
+      "icons": [
+        {
+          "src": "/icons/soft-dark-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
