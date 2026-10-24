@@ -58,6 +58,7 @@ function expiryFor(season, fromDate) {
   return null;
 }
 
+const REPORT_RATE = new Map();
 function isExpired(r) {
   return !!(r.expiresAt && new Date(r.expiresAt).getTime() < Date.now());
 }
@@ -381,8 +382,15 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/reports' && req.method === 'GET') {
-    const list = readReports().filter((r) => (r.status === 'approved' || r.status === 'in_progress') && !isExpired(r));
-    return sendJson(res, 200, list.map(publicShape));
+    // Жалоба появляется на карте сразу, ещё до проверки (помечается «не проверено», фото — после проверки).
+    // Отклонённые и исправленные не показываем.
+    const list = readReports().filter((r) => (r.status === 'approved' || r.status === 'in_progress' || r.status === 'pending') && !isExpired(r));
+    return sendJson(res, 200, list.map((r) => {
+      const o = publicShape(r);
+      o.checked = r.status !== 'pending';
+      if (!o.checked) o.photo = null;
+      return o;
+    }));
   }
 
   // Подтверждение отчёта другим жителем — повышает доверие к данным
@@ -422,6 +430,11 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/reports' && req.method === 'POST') {
+    // жалобы публикуются сразу, поэтому не больше 12 в час с одного адреса
+    { const who = visitorHash(req), now = Date.now();
+      const arr = (REPORT_RATE.get(who) || []).filter((x) => now - x < 3600e3);
+      if (arr.length >= 12) return sendJson(res, 429, { error: 'Слишком много сообщений подряд — попробуйте через час' });
+      arr.push(now); REPORT_RATE.set(who, arr); }
     let buf;
     try {
       buf = await readBody(req, MAX_UPLOAD_BYTES);
