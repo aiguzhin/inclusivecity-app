@@ -1112,6 +1112,12 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <script>
 (function(){
   var root=document.getElementById("icIntro"); if(!root) return;
+  // Заставка — только при первом открытии за сеанс браузера; обновление страницы, возврат на карту
+  // и переходы внутри сайта её не показывают
+  // (и в новой вкладке, если сайт уже открывали меньше 30 минут назад)
+  var seen=false; try{ seen=sessionStorage.getItem("ic_introSeen")==="1" || Date.now()-(+localStorage.getItem("ic_introAt")||0)<30*60e3;
+    sessionStorage.setItem("ic_introSeen","1"); localStorage.setItem("ic_introAt",String(Date.now())); }catch(e){}
+  if(seen){ root.remove(); window.__icIntroDone=1; setTimeout(function(){ dispatchEvent(new Event("icintro")); },0); return; }
   var ls=function(k){ try{ return localStorage.getItem("ic_"+k); }catch(e){ return null; } };
   var lang=ls("lang")||"ru", cityKey=ls("city")||"almaty";
   var T={ru:["Город без барьеров","Пропустить"],kk:["Кедергісіз қала","Өткізу"],en:["A city without barriers","Skip"]}[lang]||["Город без барьеров","Пропустить"];
