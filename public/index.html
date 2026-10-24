@@ -5298,6 +5298,7 @@ async function buildRoute(){
     await cap(loadKnownBarriers(),4000,KB);
     const klist=knownList();
     routeVariants.forEach(v=>{ v.ob.known=knownOnRoute(v.pts,klist); });
+    const origV=routeVariants[0];   // обычный путь, который построили бы без учёта барьеров
     routeVariants.sort((x,y)=>scoreVariant(x)-scoreVariant(y));
     const blockedOf=v=>kbBlocking(v)+(prof.avoidStairs? v.ob.stairs.filter(x=>!x.ramp).length:0);
     const before=blockedOf(routeVariants[0]);
@@ -5317,10 +5318,9 @@ async function buildRoute(){
           if(!uniq.some(u=>Math.abs(u.rt.distance-v.rt.distance)<Math.max(25,v.rt.distance*0.02) && haversine(u.pts[Math.floor(u.pts.length/2)],m)<30)) uniq.push(v); });
         routeVariants=uniq;
         routeVariants.sort((x,y)=>scoreVariant(x)-scoreVariant(y));
-        const after=blockedOf(routeVariants[0]);
-        if(after<before) routeVariants[0].ob.avoided=before-after;
       }
     }
+    { const best=routeVariants[0], d=blockedOf(origV)-blockedOf(best); if(best!==origV && d>0) best.ob.avoided=d; }
     routeVariants=routeVariants.slice(0,4);
     showVariant(0);
 
