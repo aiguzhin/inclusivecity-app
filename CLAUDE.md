@@ -148,7 +148,7 @@
 - `/pitchday` (`public/pitchday.html`) — питч для IMPACT Pitch Day по регламенту: 7 слайдов (титул, проблема/решение, рынок, бизнес-модель, технология и MVP, команда, финал)
   + 3 запасных для вопросов; сцена 1600×900, «Режим докладчика» (P) — второе окно с текстом на 5 минут и таймером 5:00; имена команды вписываются прямо на слайде (localStorage `pd_team`);
   демо MVP на слайде 5 — `demoRender(t)`; шрифты свои (`public/fonts`). Офлайн-файл одним HTML — `tools/pitchday_offline.py` → `public/media/icity-pitchday-offline.html`;
-  также `icity-pitchday.pdf` и `icity-mvp-demo.gif`. Ролик с озвучкой — `public/media/icity-ad-voice.mp4` и `-vertical.mp4` (исходники и порядок сборки — `tools/promo2/README.md`).
+  также `icity-pitchday.pdf` и `icity-mvp-demo.gif`. Ролик с озвучкой (голос Дмитрий, Piper, CC0; произношение проверено распознаванием) — `public/media/icity-ad-voice.mp4` и `-vertical.mp4` (исходники и порядок сборки — `tools/promo2/README.md`).
 - `public/sw.js` — офлайн-кэш; при каждом изменении фронтенда поднимать `CACHE` (`ic-vN`).
 - `data/` на бесплатном Render не сохраняется между деплоями (нет диска) — кэши пересобираются,
   жалобы и фото пропадают; для постоянного хранения нужен платный план с диском (см. `render.yaml`).

@@ -32,9 +32,11 @@ const tr=(e,x,y,s=1,o=1)=>{e.style.transform=`translate(${x}px,${y}px) scale(${s
 const L={}; TL.lines.forEach(l=>L[l.id]=l);
 const at=(id,rel)=>L[id].t0+rel-L[id].trim;
 // моменты отдельных слов (по паузам в озвучке)
-const K={w1:at("l1",0),w2:at("l1",1.45),w3:at("l1",3.03),
-  pf:[at("l4",2.45),at("l4",3.97),at("l4",4.65),at("l4",6.07)],
-  f:[at("l7",0),at("l7",1.79),at("l7",3.03),at("l7",3.85),at("l7",5.19)]};
+const WD=TL.words, wt=(id,w,n=0)=>{ const a=WD[id].filter(x=>x[0]===w); return at(id,(a[n]||a[0])[1]); };
+const K={w1:wt("l1","лестница"),w2:wt("l1","высокий"),w3:wt("l1","гололед"),
+  pf:[wt("l4","под"),wt("l4","трость"),wt("l4","плохое"),wt("l4","или")],
+  f:[wt("l7","голосовой"),wt("l7","автобусы"),wt("l7","такси"),wt("l7","кнопка"),wt("l7","в")],
+  wall:wt("l2","это"), reroute:wt("l6","маршрут"), free:wt("l8","бесплатно"), slogan:wt("l9","город")};
 const SW=["l1","l2","l3","l4","l5","l6","l7","l8","l9"].map((id,i)=>i===0?0:L[id].t0-.25);   // начала сцен
 
 /* 1. Барьеры — слово за словом под голос */
@@ -47,9 +49,9 @@ const words=[["Лестница",K.w1],["Высокий бордюр",K.w2],["Г
 
 /* 2. 750 000 */
 const s2=scene("#0f1d2c");
-const n2=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?H/2-N(30):H/2-N(22)}px;font-size:${u(V?14.5:24)};color:#ffd400`,"0",s2); n2.className="D";
+const n2=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?H/2-N(30):H/2-N(22)}px;font-size:${u(V?14.5:20)};color:#ffd400`,"0",s2); n2.className="D";
 const t2=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?H/2+N(-6):H/2+N(6)}px;font-size:${u(V?5.4:5.6)};color:#fff;max-width:${V?u(84):u(120)};line-height:1.15`,"людей с инвалидностью в Казахстане",s2); t2.className="D";
-const wall=el("div",`position:absolute;${V?`left:${u(9)};top:${H/2+N(26)}px;width:${u(80)};height:${u(26)}`:`right:${u(12)};top:${H/2-N(26)}px;width:${u(30)};height:${u(52)}`};display:grid;grid-template-columns:repeat(6,1fr);gap:${u(1)}`,null,s2);
+const wall=el("div",`position:absolute;${V?`left:${u(9)};top:${H/2+N(26)}px;width:${u(80)};height:${u(26)}`:`right:${u(7)};top:${H/2-N(26)}px;width:${u(24)};height:${u(52)}`};display:grid;grid-template-columns:repeat(6,1fr);gap:${u(1)}`,null,s2);
 const bricks=[...Array(V?18:36)].map(()=>el("div",`background:#d7372f;border-radius:${u(.6)}`,null,wall));
 
 /* 3–4. Карта: обычный маршрут → ступени; ICity → обход + профили */
@@ -157,7 +159,7 @@ window.render=function(t){
   // 2
   { const a=L.l2.t0; const p=eio(P(t,a,a+2.4)); n2.textContent=Math.round(750000*p).toLocaleString("ru-RU"); tr(n2,0,(1-eo(P(t,a-.1,a+.4)))*N(3),1,P(t,a-.1,a+.3));
     tr(t2,0,(1-eo(P(t,a+.3,a+.9)))*N(3),1,P(t,a+.3,a+.8));
-    const wa=at("l2",4.4); bricks.forEach((b,i)=>{ const q=back(P(t,wa+i*.035,wa+i*.035+.35)); b.style.transform=`translateY(${(1-cl(q,0,1.2))*-N(4)}px) scale(${Math.max(.01,q)})`; b.style.opacity=P(t,wa+i*.035,wa+i*.035+.1); }); }
+    const wa=K.wall; bricks.forEach((b,i)=>{ const q=back(P(t,wa+i*.035,wa+i*.035+.35)); b.style.transform=`translateY(${(1-cl(q,0,1.2))*-N(4)}px) scale(${Math.max(.01,q)})`; b.style.opacity=P(t,wa+i*.035,wa+i*.035+.1); }); }
   // 3–4
   { const a=L.l3.t0, b=L.l4.t0;
     tr(map,0,(1-eo(P(t,a-.2,a+.4)))*N(4),1,P(t,a-.2,a+.2));
@@ -177,7 +179,7 @@ window.render=function(t){
     ice.querySelector("#lb1").setAttribute("opacity",P(t,a+.7,a+.9)*(1-.6*P(t,a+1.2,a+1.5))); ice.querySelector("#lb2").setAttribute("opacity",P(t,a+2.0,a+2.2));
     flakes.forEach(f=>{ f.c.setAttribute("cx",f.x+Math.sin(t*1.4+f.ph)*8); f.c.setAttribute("cy",((t-a+3)*f.sp+f.ph)%250); }); }
   // 6
-  { const a=L.l6.t0, ch=at("l6",2.3);
+  { const a=L.l6.t0, ch=K.reroute;
     tr(m6,0,0,1,P(t,a-.25,a));
     const d=back(P(t,a+.2,a+.65)); rep.setAttribute("transform",`translate(300 ${195-(1-cl(d,0,1))*120}) scale(${Math.max(.01,cl(d,0,1.3))}) translate(-300 -195)`); rep.style.opacity=P(t,a+.2,a+.3);
     const rp=P(t,a+.6,a+1.5); rip.setAttribute("r",20+90*rp); rip.style.opacity=(1-rp)*(t>a+.6?1:0);
@@ -191,10 +193,10 @@ window.render=function(t){
     cts.forEach(c=>{ const k2=order.indexOf(+c.dataset.i), s=a+.1+k2*.07; c.style.transformBox="fill-box"; c.style.transformOrigin="50% 50%"; c.style.transform=`scale(${Math.max(.01,back(P(t,s,s+.3)))})`; c.style.opacity=P(t,s,s+.1); });
     lks.forEach((l,j)=>{ const s=a+.1+links[j][2]*.07; l.style.strokeDashoffset=l.dataset.L*(1-eo(P(t,s,s+.35))); });
     n8.textContent=Math.round(P(t,a+.1,a+1.6)*22); n8.style.opacity=P(t,a-.1,a+.1); t8.style.opacity=P(t,a+.2,a+.6);
-    const fq=at("l8",2.3); tr(f8,0,(1-eo(P(t,fq,fq+.4)))*N(2),1,P(t,fq,fq+.3)); }
+    const fq=K.free-.1; tr(f8,0,(1-eo(P(t,fq,fq+.4)))*N(2),1,P(t,fq,fq+.3)); }
   // 9
   { const a=L.l9.t0-.1; fIc.style.transform=`scale(${Math.max(.01,back(P(t,a,a+.5)))})`; fIc.style.opacity=P(t,a,a+.15);
-    tr(fN,0,(1-eo(P(t,a+.3,a+.8)))*N(3),1,P(t,a+.3,a+.8)); tr(fS,0,(1-eo(P(t,at("l9",1.0),at("l9",1.5))))*N(3),1,P(t,at("l9",1.0),at("l9",1.4)));
+    tr(fN,0,(1-eo(P(t,a+.3,a+.8)))*N(3),1,P(t,a+.3,a+.8)); tr(fS,0,(1-eo(P(t,K.slogan-.1,K.slogan+.4)))*N(3),1,P(t,K.slogan-.1,K.slogan+.3));
     tr(fU,0,(1-eo(P(t,L.l9.t1,L.l9.t1+.5)))*N(3),1,P(t,L.l9.t1,L.l9.t1+.4));
     const fade=P(t,TL.dur-.8,TL.dur); st.style.filter=fade>0?`brightness(${1-fade})`:""; }
 };
