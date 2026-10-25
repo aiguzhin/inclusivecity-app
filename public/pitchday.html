@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ICity — IMPACT Pitch Day</title>
+<meta name="description" content="Питч ICity для IMPACT Pitch Day: проблема, решение, рынок, бизнес-модель, технология и MVP, команда, контакты.">
+<meta name="theme-color" content="#1769c2">
+<link rel="icon" href="/icons/soft.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:"Unbounded";font-weight:500;src:url(/fonts/unbounded-cyrillic-500-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Unbounded";font-weight:500;src:url(/fonts/unbounded-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Unbounded";font-weight:700;src:url(/fonts/unbounded-cyrillic-700-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Unbounded";font-weight:700;src:url(/fonts/unbounded-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:400;src:url(/fonts/golos-text-cyrillic-400-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Golos Text";font-weight:400;src:url(/fonts/golos-text-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:500;src:url(/fonts/golos-text-cyrillic-500-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Golos Text";font-weight:500;src:url(/fonts/golos-text-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:600;src:url(/fonts/golos-text-cyrillic-600-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Golos Text";font-weight:600;src:url(/fonts/golos-text-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:700;src:url(/fonts/golos-text-cyrillic-700-normal.woff2) format("woff2");unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:"Golos Text";font-weight:700;src:url(/fonts/golos-text-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+
+:root{
+  --paper:#eef1f4; --sheet:#fff; --ink:#14202e; --ink-2:#4a5a6e; --rule:#cfd7e0;
+  --blue:#1769c2; --blue-d:#0f4f96; --blue-l:#9cc9ff; --yellow:#ffd400; --green:#1e8e5a; --red:#d7372f;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0b1622;overflow:hidden}
+body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+
+/* Сцена 1600×900, масштабируется под экран без искажений — как в PowerPoint */
+#stage{position:fixed;left:50%;top:50%;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;background:var(--paper)}
+.slide{position:absolute;inset:0;padding:72px 96px 88px;visibility:hidden;opacity:0;transition:opacity .5s var(--ease),visibility 0s .5s}
+.slide.on{visibility:visible;opacity:1;transition:opacity .5s var(--ease),visibility 0s}
+.blue{background:var(--blue);color:#fff}
+.white{background:var(--sheet)}
+.dark{background:#0f1d2c;color:#fff}
+
+h1,h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;margin:0}
+h2{font-size:58px;line-height:1.05;max-width:16ch}
+.kick{font-size:22px;font-weight:600;color:var(--blue);margin:0 0 18px}
+.blue .kick,.dark .kick{color:var(--yellow)}
+.lead{font-size:28px;line-height:1.35;color:var(--ink-2);margin:0}
+.blue .lead{color:#dce9f8}
+.src{position:absolute;left:96px;bottom:34px;font-size:15px;color:var(--ink-2)}
+.blue .src{color:#cfe0f5}
+
+/* Появление элементов: одна сцена на слайд, без «прыгающих» карточек */
+.b{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.on .b{opacity:1;transform:none;transition-delay:calc(var(--d,0) * 140ms + 200ms)}
+.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.on .draw{animation:draw var(--dur,1.6s) var(--ease) var(--del,.5s) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pop{opacity:0;transform-box:fill-box;transform-origin:50% 50%;transform:scale(.3)}
+.on .pop{animation:pop .5s cubic-bezier(.2,1.5,.4,1) var(--del,1s) forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+
+/* 1. Титульный */
+.t1{display:grid;grid-template-columns:1fr 640px;gap:56px;align-items:center;height:100%}
+.logo{display:flex;align-items:center;gap:22px;margin-bottom:34px}
+.logo img{width:96px;height:96px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.logo b{font-family:var(--display);font-size:92px;letter-spacing:-.03em;line-height:1}
+.oneliner{font-family:var(--display);font-weight:500;font-size:44px;line-height:1.15;max-width:15ch;margin:0 0 44px}
+.people{font-size:22px;line-height:1.6;color:#dce9f8}
+.people [contenteditable]{display:inline-block;min-width:200px;border-bottom:2px dashed rgba(255,255,255,.55);padding:0 4px;color:#fff;outline:none}
+.people [contenteditable]:empty::before{content:attr(data-ph);color:rgba(255,255,255,.55)}
+.city .blk{fill:#2a7bd3}
+.route{fill:none;stroke:var(--yellow);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+
+/* 2. Проблема и решение */
+.ps{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+.card{background:var(--sheet);border-radius:24px;padding:28px 30px 26px;border:1px solid var(--rule)}
+.card .tag{display:inline-block;font-weight:700;font-size:18px;padding:6px 14px;border-radius:999px;margin-bottom:16px}
+.tag.bad{background:#fde5e3;color:#a32219} .tag.good{background:#dff3e8;color:#156b43}
+.card h3{font-size:34px;line-height:1.15;margin:0 0 18px;font-family:var(--display);font-weight:700;letter-spacing:-.01em}
+.mini{width:100%;height:auto;display:block;background:#e4ebf2;border-radius:16px}
+.mini .st{stroke:#fff;stroke-width:18;fill:none;stroke-linecap:round}
+.card p{font-size:22px;line-height:1.4;color:var(--ink-2);margin:16px 0 0}
+
+/* 3. Рынок */
+.mk{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;height:100%}
+.big{font-family:var(--display);font-weight:700;font-size:150px;line-height:.92;letter-spacing:-.04em;color:var(--blue)}
+.big small{display:block;font-family:var(--body);font-weight:600;font-size:30px;letter-spacing:0;color:var(--ink);margin-top:18px}
+.bars{display:grid;gap:30px}
+.row .t{display:flex;justify-content:space-between;font-size:24px;margin-bottom:10px}
+.row .t b{font-family:var(--display)}
+.track{height:24px;background:#dde4ec;border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--blue);border-radius:999px;transition:width 1.3s var(--ease)}
+.on .fill{width:var(--w);transition-delay:calc(var(--d) * 180ms + 500ms)}
+.vp{margin-top:44px;padding:22px 26px;border-left:8px solid var(--yellow);background:var(--sheet);border-radius:0 16px 16px 0;font-size:26px;line-height:1.35}
+.vp b{display:block;font-family:var(--display);font-size:30px;margin-bottom:6px}
+
+/* 4. Бизнес-модель */
+.bm{display:grid;grid-template-columns:1.05fr 1fr;gap:64px;margin-top:44px}
+.stream{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:22px 0;border-bottom:2px solid var(--rule)}
+.stream:first-child{border-top:2px solid var(--rule)}
+.stream i{width:18px;height:18px;border-radius:5px}
+.stream b{font-size:28px}
+.stream span{display:block;font-size:20px;color:var(--ink-2);margin-top:4px}
+.stream em{font-style:normal;font-family:var(--display);font-weight:700;font-size:28px;white-space:nowrap}
+.free{display:inline-flex;align-items:center;gap:12px;background:#dff3e8;color:#156b43;font-weight:700;font-size:22px;padding:10px 18px;border-radius:999px;margin-bottom:22px}
+.gtm{position:relative;display:grid;gap:22px}
+.gtm .st{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:center;background:var(--sheet);border-radius:20px;padding:20px 22px;border:1px solid var(--rule)}
+.gtm .n{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-family:var(--display);font-weight:700;font-size:28px}
+.gtm b{font-size:26px;display:block}
+.gtm span{font-size:20px;color:var(--ink-2)}
+
+/* 5. Технология и MVP */
+.tech{display:grid;grid-template-columns:1fr 340px;gap:72px;align-items:center;margin-top:24px}
+.tech .phone{margin-top:-60px}
+.arch{width:100%;height:auto}
+.arch text{font-family:var(--body)}
+.flow{stroke-dasharray:6 14;animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.phone{width:340px;height:700px;border-radius:50px;background:#14202e;padding:14px;box-shadow:0 40px 80px -30px rgba(20,32,46,.6);position:relative}
+.screen{position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:#e4ebf2}
+#demo{position:absolute;left:0;top:0;width:372px;height:792px;transform:scale(.8387);transform-origin:0 0;overflow:hidden}
+.live{position:absolute;left:96px;bottom:40px;display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border:0;border-radius:12px;padding:12px 18px;font-size:18px;font-weight:600;cursor:pointer}
+.live::before{content:"";width:10px;height:10px;border-radius:50%;background:#3fd47e}
+#liveBox{position:absolute;inset:0;z-index:20;background:#0b1622;display:none}
+#liveBox.open{display:block}
+#liveBox iframe{width:100%;height:100%;border:0}
+#liveBox button{position:absolute;top:18px;right:18px;z-index:2;background:var(--yellow);border:0;border-radius:12px;padding:12px 18px;font-weight:700;font-size:18px;cursor:pointer}
+
+/* 6. Команда и прогресс */
+.tm{display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:40px}
+.people2{display:grid;gap:16px}
+.person{display:grid;grid-template-columns:72px 1fr;gap:18px;align-items:center;background:var(--sheet);border-radius:20px;padding:16px 20px;border:1px solid var(--rule)}
+.ava{width:72px;height:72px;border-radius:50%;background:#dbe7f5;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--blue);font-size:26px}
+.person [contenteditable]{display:block;outline:none;border-bottom:2px dashed transparent;min-height:1.2em}
+.person [contenteditable]:focus{border-bottom-color:var(--blue)}
+.person [contenteditable]:empty::before{content:attr(data-ph);color:#9aa8b8}
+.person .nm{font-size:26px;font-weight:700}
+.person .rl{font-size:19px;color:var(--ink-2);margin-top:4px}
+.done{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.done li{display:flex;gap:16px;align-items:center;font-size:26px}
+.done li::before{content:"";flex:none;width:30px;height:30px;border-radius:50%;background:var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/18px no-repeat}
+.next{margin-top:28px;display:flex;gap:14px;align-items:center;font-size:22px;color:var(--ink-2)}
+.next b{background:var(--yellow);color:#000;border-radius:10px;padding:6px 12px;font-size:20px}
+
+/* 7. Финал */
+.fin{display:grid;grid-template-columns:1fr 360px;gap:80px;align-items:center;height:100%}
+.fin h2{font-size:76px;max-width:13ch}
+.asks{display:flex;gap:14px;flex-wrap:wrap;margin-top:36px}
+.asks span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:12px 20px;font-size:22px;font-weight:600}
+.contacts{margin-top:40px;font-size:26px;line-height:1.6}
+.contacts b{color:var(--yellow)}
+.qr{background:#fff;border-radius:28px;padding:28px;text-align:center;color:var(--ink)}
+.qr svg{width:100%;height:auto;display:block}
+.qr p{margin:14px 0 0;font-weight:700;font-size:22px}
+
+/* Запасные слайды для вопросов */
+.apx-tag{position:absolute;top:30px;right:96px;font-size:16px;font-weight:700;color:var(--ink-2);border:2px solid var(--rule);border-radius:999px;padding:6px 14px}
+.qa{display:grid;grid-template-columns:repeat(2,1fr);gap:24px 48px;margin-top:36px}
+.qa div{border-top:4px solid var(--blue);padding-top:16px}
+.qa b{display:block;font-size:24px;margin-bottom:8px}
+.qa span{font-size:20px;line-height:1.4;color:var(--ink-2)}
+.cmp{width:100%;border-collapse:collapse;font-size:21px;background:var(--sheet);border-radius:18px;overflow:hidden;margin-top:32px}
+.cmp th,.cmp td{padding:14px 16px;text-align:center;border-bottom:1px solid var(--rule)}
+.cmp td:first-child,.cmp th:first-child{text-align:left}
+.cmp th{color:var(--ink-2);font-size:18px}
+.cmp .us{background:#e6f0fb;font-weight:700}
+.dot{display:inline-block;width:18px;height:18px;border-radius:50%}
+.dot.y{background:var(--green)} .dot.p{border:3px solid var(--green)} .dot.n{background:#d3dae2;width:10px;height:10px}
+
+/* Управление — вне сцены, не попадает на проектор крупно */
+.ctl{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:10px 16px;z-index:10;opacity:0;transition:opacity .3s}
+body:hover .ctl,.ctl:focus-within,body.touch .ctl{opacity:1}
+.ctl .sp{flex:1}
+.ib{height:40px;min-width:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(15,29,44,.75);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;cursor:pointer;font-size:14px}
+.ib svg{width:18px;height:18px}
+.pg{color:#cfe0f5;font-size:14px;font-variant-numeric:tabular-nums;min-width:60px}
+.prog{position:fixed;left:0;top:0;height:4px;background:var(--yellow);z-index:11;transition:width .4s var(--ease)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-delay:0s!important;transition-duration:1ms!important;transition-delay:0s!important}}
+@media print{
+  @page{size:1600px 900px;margin:0}
+  html,body{background:#fff;overflow:visible;height:auto}
+  #stage{position:static;transform:none!important;width:1600px;height:auto;overflow:visible}
+  .slide{position:relative;visibility:visible;opacity:1;width:1600px;height:900px;page-break-after:always;break-after:page}
+  .b,.pop{opacity:1;transform:none}
+  .draw{stroke-dashoffset:0;animation:none}
+  .fill{width:var(--w)}
+  .ctl,.prog,.live,#liveBox{display:none!important}
+  [contenteditable]:empty::before{content:""}
+}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<main id="stage" aria-roledescription="презентация">
+
+<!-- 1. Титульный: название, логотип, слоган, участники и ментор -->
+<section class="slide blue" data-title="Титульный" aria-label="ICity">
+  <div class="t1">
+    <div>
+      <div class="logo b"><img src="/icons/soft-192.png" alt=""><b>ICity</b></div>
+      <p class="oneliner b" style="--d:1">Маршрут, в котором нет лестницы</p>
+      <div class="people b" style="--d:2">
+        Команда: <span contenteditable="true" spellcheck="false" data-key="team" data-ph="впишите имена участников"></span><br>
+        Ментор: <span contenteditable="true" spellcheck="false" data-key="mentor" data-ph="впишите имя ментора"></span>
+      </div>
+    </div>
+    <svg class="city" viewBox="0 0 640 520" aria-hidden="true">
+      <rect class="blk" x="20" y="20" width="130" height="110" rx="10"/><rect class="blk" x="180" y="20" width="160" height="110" rx="10"/><rect class="blk" x="370" y="20" width="110" height="110" rx="10"/><rect class="blk" x="510" y="20" width="110" height="110" rx="10"/>
+      <rect class="blk" x="20" y="160" width="130" height="150" rx="10"/><rect class="blk" x="180" y="160" width="160" height="150" rx="10"/><rect class="blk" x="370" y="160" width="250" height="150" rx="10"/>
+      <rect class="blk" x="20" y="340" width="200" height="160" rx="10"/><rect class="blk" x="250" y="340" width="90" height="160" rx="10"/><rect class="blk" x="370" y="340" width="110" height="160" rx="10"/><rect class="blk" x="510" y="340" width="110" height="160" rx="10"/>
+      <g class="pop" style="--del:.4s"><rect x="236" y="311" width="30" height="28" rx="6" fill="#d7372f"/><path d="M242 333 h6 v-6 h6 v-6 h6 v-6" stroke="#fff" stroke-width="3" fill="none" stroke-linejoin="round"/></g>
+      <path class="route draw" style="--len:900;--dur:2.2s;--del:.9s" d="M85 325 H165 V145 H355 V325 H495 V505"/>
+      <circle cx="85" cy="325" r="16" fill="#fff"/><circle cx="85" cy="325" r="7" fill="#1769c2"/>
+      <g class="pop" style="--del:3s"><path d="M495 505 c-18 -22 -26 -36 -26 -48 a26 26 0 0 1 52 0 c0 12 -8 26 -26 48z" fill="#ffd400"/><circle cx="495" cy="457" r="9" fill="#1769c2"/></g>
+    </svg>
+  </div>
+</section>
+
+<!-- 2. Проблема и решение — Innovation & Originality -->
+<section class="slide" data-title="Проблема и решение" aria-label="Проблема и решение">
+  <p class="kick b">750 000 людей с инвалидностью в Казахстане</p>
+  <h2 class="b" style="--d:1">Карта ведёт их к лестнице</h2>
+  <div class="ps">
+    <div class="card b" style="--d:2">
+      <span class="tag bad">Обычная карта</span>
+      <svg class="mini" viewBox="0 0 400 210" aria-hidden="true">
+        <path class="st" d="M20 105 H380 M120 15 V195 M280 15 V195"/>
+        <path class="draw" style="--len:330;--del:1s;stroke:#7a8899;stroke-width:8;fill:none;stroke-linecap:round" d="M40 105 H200"/>
+        <g class="pop" style="--del:2s"><rect x="186" y="83" width="44" height="44" rx="9" fill="#d7372f"/><path d="M196 119 h8 v-8 h8 v-8 h8 v-8" stroke="#fff" stroke-width="4" fill="none" stroke-linejoin="round"/></g>
+        <circle cx="40" cy="105" r="10" fill="#14202e"/><circle cx="360" cy="105" r="10" fill="#14202e"/>
+      </svg>
+      <p>Не знает о ступенях, бордюрах и гололёде</p>
+    </div>
+    <div class="card b" style="--d:3">
+      <span class="tag good">ICity</span>
+      <svg class="mini" viewBox="0 0 400 210" aria-hidden="true">
+        <path class="st" d="M20 105 H380 M120 15 V195 M280 15 V195 M120 180 H280"/>
+        <rect x="186" y="83" width="44" height="44" rx="9" fill="#d7372f" opacity=".25"/>
+        <path class="draw" style="--len:520;--del:2.4s;--dur:1.8s;stroke:#1e8e5a;stroke-width:8;fill:none;stroke-linecap:round;stroke-linejoin:round" d="M40 105 H120 V180 H280 V105 H360"/>
+        <circle cx="40" cy="105" r="10" fill="#14202e"/><circle cx="360" cy="105" r="10" fill="#14202e"/>
+      </svg>
+      <p>Обходит барьер. Жители отмечают новые — маршрут меняется для всех</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Анализ рынка — Market Understanding -->
+<section class="slide white" data-title="Рынок" aria-label="Рынок">
+  <div class="mk">
+    <div>
+      <p class="kick b">Кому это нужно</p>
+      <div class="big b" style="--d:1">3,7 млн<small>почти каждый пятый житель</small></div>
+      <div class="vp b" style="--d:3"><b>Дойти самому</b>Без помощи и бесплатно</div>
+    </div>
+    <div class="bars">
+      <div class="row b" style="--d:1"><div class="t"><span>Жители старше 65 лет</span><b>2 000 000</b></div><div class="track"><div class="fill" style="--w:100%;--d:1"></div></div></div>
+      <div class="row b" style="--d:2"><div class="t"><span>Родители с детьми до 3 лет</span><b>≈ 1 000 000</b></div><div class="track"><div class="fill" style="--w:50%;--d:2"></div></div></div>
+      <div class="row b" style="--d:3"><div class="t"><span>Люди с инвалидностью</span><b>750 000</b></div><div class="track"><div class="fill" style="--w:37.5%;--d:3"></div></div></div>
+      <div class="vp b" style="--d:5;margin-top:20px"><b>Почему сейчас</b>Цель государства — 80% доступных объектов</div>
+    </div>
+  </div>
+  <p class="src">24.kz (1.07.2025), Kapital.kz (2026); родители — оценка по рождаемости</p>
+</section>
+
+<!-- 4. Бизнес-модель — Business Model & Strategy -->
+<section class="slide" data-title="Бизнес-модель" aria-label="Бизнес-модель">
+  <h2 class="b">Платят организации, а не люди</h2>
+  <div class="bm">
+    <div>
+      <span class="free b" style="--d:1">Для жителей — бесплатно всегда</span>
+      <div class="stream b" style="--d:2"><i style="background:var(--blue)"></i><div><b>Кабинет города</b><span>Жалобы, статусы, рейтинг районов</span></div><em>3 млн ₸/год</em></div>
+      <div class="stream b" style="--d:3"><i style="background:var(--yellow)"></i><div><b>«Проверено ICity»</b><span>Значок для кафе, аптек, клиник</span></div><em>5 000 ₸/мес</em></div>
+      <div class="stream b" style="--d:4"><i style="background:var(--blue-l)"></i><div><b>Гранты и соцзаказ</b><span>Проверка улиц с волонтёрами</span></div><em>по проекту</em></div>
+    </div>
+    <div class="gtm">
+      <p class="kick b" style="--d:2;margin:0">Выход на рынок</p>
+      <div class="st b" style="--d:3"><span class="n">1</span><div><b>Пилот в Астане и Алматы</b><span>3 месяца бесплатно для акимата</span></div></div>
+      <div class="st b" style="--d:4"><span class="n">2</span><div><b>Через сообщества</b><span>Общества инвалидов, поликлиники, QR</span></div></div>
+      <div class="st b" style="--d:5"><span class="n">3</span><div><b>6 городов к 2028</b><span>Прибыль со второго года</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Технология и MVP — Technical Feasibility & MVP -->
+<section class="slide white" data-title="Технология и MVP" aria-label="Технология и MVP">
+  <h2 class="b">Работает уже сейчас</h2>
+  <div class="tech">
+    <svg class="arch b" style="--d:1" viewBox="0 0 900 560" aria-label="Данные о барьерах из OpenStreetMap, жалоб жителей и СМИ попадают на сервер ICity, маршрутизатор строит путь в обход, приложение ведёт голосом">
+      <g font-size="24" font-weight="600">
+        <rect x="0" y="30" width="250" height="78" rx="18" fill="#eef1f4"/><text x="125" y="78" text-anchor="middle" fill="#14202e">OpenStreetMap</text>
+        <rect x="0" y="140" width="250" height="78" rx="18" fill="#fff4b8"/><text x="125" y="188" text-anchor="middle" fill="#14202e">Жалобы жителей</text>
+        <rect x="0" y="250" width="250" height="78" rx="18" fill="#eef1f4"/><text x="125" y="298" text-anchor="middle" fill="#14202e">Проверки СМИ</text>
+        <rect x="340" y="120" width="230" height="118" rx="22" fill="#1769c2"/><text x="455" y="170" text-anchor="middle" fill="#fff" font-size="26" font-weight="700">Сервер ICity</text><text x="455" y="204" text-anchor="middle" fill="#dce9f8" font-size="19" font-weight="500">барьеры по городам</text>
+        <rect x="660" y="120" width="240" height="118" rx="22" fill="#0f1d2c"/><text x="780" y="170" text-anchor="middle" fill="#fff" font-size="26" font-weight="700">Маршрутизатор</text><text x="780" y="204" text-anchor="middle" fill="#cfe0f5" font-size="19" font-weight="500">путь в обход</text>
+        <rect x="340" y="380" width="560" height="150" rx="22" fill="#e6f0fb"/>
+        <text x="370" y="430" fill="#14202e" font-size="26" font-weight="700">Приложение в браузере</text>
+        <text x="370" y="470" fill="#4a5a6e" font-size="21" font-weight="500">Голосовой навигатор · автобусы и такси</text>
+        <text x="370" y="504" fill="#4a5a6e" font-size="21" font-weight="500">22 города · без установки · офлайн</text>
+      </g>
+      <g stroke="#1769c2" stroke-width="5" fill="none" stroke-linecap="round">
+        <path class="flow" d="M250 69 C300 69 300 160 340 160"/><path class="flow" d="M250 179 H340"/><path class="flow" d="M250 289 C300 289 300 200 340 200"/>
+        <path class="flow" d="M570 179 H660"/><path class="flow" d="M780 238 V380"/>
+      </g>
+    </svg>
+    <div class="phone b" style="--d:2" aria-label="Демонстрация: обычный маршрут упирается в переход со ступенями, ICity строит путь в обход и ведёт голосом"><div class="screen"><div id="demo"></div></div></div>
+  </div>
+  <button class="live" id="liveBtn" type="button">Живая демонстрация</button>
+  <div id="liveBox"><button type="button" id="liveClose">Закрыть демо</button><iframe title="ICity" loading="lazy"></iframe></div>
+</section>
+
+<!-- 6. Команда и прогресс — Team & Execution -->
+<section class="slide" data-title="Команда и прогресс" aria-label="Команда и прогресс">
+  <h2 class="b">Кто делает и что уже сделано</h2>
+  <div class="tm">
+    <div class="people2">
+      <div class="person b" style="--d:1"><span class="ava">1</span><div><span class="nm" contenteditable="true" spellcheck="false" data-key="p1n" data-ph="Имя"></span><span class="rl" contenteditable="true" spellcheck="false" data-key="p1r" data-ph="роль и суперсила: что сделал(а)"></span></div></div>
+      <div class="person b" style="--d:2"><span class="ava">2</span><div><span class="nm" contenteditable="true" spellcheck="false" data-key="p2n" data-ph="Имя"></span><span class="rl" contenteditable="true" spellcheck="false" data-key="p2r" data-ph="роль и суперсила: что сделал(а)"></span></div></div>
+      <div class="person b" style="--d:3"><span class="ava">3</span><div><span class="nm" contenteditable="true" spellcheck="false" data-key="p3n" data-ph="Имя"></span><span class="rl" contenteditable="true" spellcheck="false" data-key="p3r" data-ph="роль и суперсила: что сделал(а)"></span></div></div>
+      <div class="person b" style="--d:4"><span class="ava">М</span><div><span class="nm" contenteditable="true" spellcheck="false" data-key="mentor2" data-ph="Ментор"></span><span class="rl" contenteditable="true" spellcheck="false" data-key="mentorR" data-ph="чем помогает проекту"></span></div></div>
+    </div>
+    <div>
+      <ul class="done">
+        <li class="b" style="--d:2">Сайт работает в 22 городах</li>
+        <li class="b" style="--d:3">Маршрут в обход барьеров</li>
+        <li class="b" style="--d:4">Жалобы с фото и статусами</li>
+        <li class="b" style="--d:5">Голосовой навигатор</li>
+        <li class="b" style="--d:6">Офлайн и три языка</li>
+      </ul>
+      <p class="next b" style="--d:7"><b>Весна 2027</b> App Store, Google Play, пилот с городом</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Финал / Call to Action -->
+<section class="slide blue" data-title="Финал" aria-label="Контакты">
+  <div class="fin">
+    <div>
+      <h2 class="b">Город, в котором можно пройти везде</h2>
+      <div class="asks b" style="--d:1"><span>Пилот с акиматом</span><span>Грант 35 млн ₸</span><span>Волонтёры</span></div>
+      <div class="contacts b" style="--d:2"><b>inclusivecity.uk</b><br>inclusivecityimpact@gmail.com</div>
+    </div>
+    <div class="qr b" style="--d:3"><svg role="img" aria-label="QR-код: inclusivecity.uk" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29" shape-rendering="crispEdges"><path stroke="#14202e" d="M0 0.5h7m1 0h1m1 0h1m2 0h3m3 0h2m1 0h7M0 1.5h1m5 0h1m1 0h2m2 0h2m2 0h3m1 0h1m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h1m2 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h3m1 0h1m1 0h3m1 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m2 0h2m2 0h4m1 0h1M0 8.5h1m1 0h2m1 0h3m1 0h2m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h2M1 9.5h3m1 0h1m1 0h2m2 0h1m1 0h3m1 0h4m1 0h3m3 0h1M1 10.5h1m3 0h2m1 0h2m2 0h2m2 0h1m1 0h1m1 0h2m1 0h1m2 0h2M0 11.5h1m2 0h1m1 0h1m1 0h1m3 0h2m3 0h1m1 0h7m3 0h1M0 12.5h1m1 0h1m1 0h1m1 0h2m1 0h1m4 0h2m1 0h1m2 0h1m4 0h2M1 13.5h3m5 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h2m3 0h3M0 14.5h1m2 0h1m2 0h1m3 0h2m1 0h1m1 0h2m1 0h3m1 0h3m1 0h3M8 15.5h2m1 0h2m1 0h1m1 0h1m5 0h1m1 0h1m2 0h1M3 16.5h5m1 0h2m1 0h1m1 0h3m1 0h4m1 0h3m1 0h1M1 17.5h3m1 0h1m6 0h1m1 0h1m1 0h1m3 0h1m2 0h1m1 0h3M0 18.5h1m1 0h5m1 0h9m1 0h1m1 0h3m3 0h1M2 19.5h1m1 0h2m4 0h5m2 0h5m2 0h1m1 0h1M1 20.5h1m1 0h2m1 0h1m1 0h2m1 0h4m1 0h11M8 21.5h2m2 0h1m2 0h2m3 0h1m3 0h5M0 22.5h7m1 0h1m1 0h2m2 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1M0 23.5h1m5 0h1m1 0h1m4 0h3m4 0h1m3 0h2m2 0h1M0 24.5h1m1 0h3m1 0h1m3 0h1m5 0h1m1 0h1m1 0h5m1 0h1m1 0h1M0 25.5h1m1 0h3m1 0h1m1 0h1m1 0h4m5 0h3m1 0h3m1 0h1M0 26.5h1m1 0h3m1 0h1m1 0h3m1 0h3m2 0h2m2 0h1m1 0h1m2 0h1m1 0h1M0 27.5h1m5 0h1m2 0h2m4 0h1m1 0h2m1 0h1m2 0h3m1 0h1M0 28.5h7m1 0h2m4 0h1m2 0h4m1 0h3m2 0h1"/></svg>
+<p>Попробуйте сейчас</p></div>
+  </div>
+</section>
+
+<!-- Запасные слайды: только для ответов на вопросы жюри -->
+<section class="slide white apx" data-title="Вопросы: данные и безопасность" aria-label="Запасной слайд: вопросы">
+  <span class="apx-tag">Для вопросов</span>
+  <h2>Частые вопросы</h2>
+  <div class="qa">
+    <div><b>Откуда данные о барьерах?</b><span>OpenStreetMap, жалобы жителей и проверки СМИ. Каждая жалоба делает карту точнее.</span></div>
+    <div><b>Почему это не сделает 2ГИС?</b><span>Для них это узкая функция одной страны. Наше преимущество — база барьеров и связи с городами.</span></div>
+    <div><b>Будут ли города платить?</b><span>Начинаем с бесплатного пилота на 3 месяца. Параллельно — гранты и бизнес.</span></div>
+    <div><b>Как защищены данные?</b><span>Минимум личных данных. Точное место просьбы о помощи видит только волонтёр, который откликнулся.</span></div>
+  </div>
+</section>
+<section class="slide white apx" data-title="Вопросы: конкуренты" aria-label="Запасной слайд: конкуренты">
+  <span class="apx-tag">Для вопросов</span>
+  <h2>Чего нет у других</h2>
+  <table class="cmp">
+    <thead><tr><th></th><th class="us">ICity</th><th>2ГИС</th><th>Google Карты</th><th>Яндекс Карты</th><th>Wheelmap</th></tr></thead>
+    <tbody>
+      <tr><td>Маршрут в обход лестниц</td><td class="us"><i class="dot y"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td></tr>
+      <tr><td>Профиль: коляска, трость, зрение</td><td class="us"><i class="dot y"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot p"></i></td></tr>
+      <tr><td>Гололёд меняет маршрут</td><td class="us"><i class="dot y"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td></tr>
+      <tr><td>Жалоба сразу меняет маршрут</td><td class="us"><i class="dot y"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td><td><i class="dot n"></i></td></tr>
+      <tr><td>Карточки заведений</td><td class="us"><i class="dot p"></i></td><td><i class="dot y"></i></td><td><i class="dot y"></i></td><td><i class="dot y"></i></td><td><i class="dot p"></i></td></tr>
+    </tbody>
+  </table>
+  <p class="src">Сравнение по нашей проверке, октябрь 2026. Зелёный — есть, кольцо — частично, серый — нет</p>
+</section>
+<section class="slide white apx" data-title="Вопросы: финансы" aria-label="Запасной слайд: финансы">
+  <span class="apx-tag">Для вопросов</span>
+  <h2>Финансы, базовый сценарий</h2>
+  <svg id="chart" viewBox="0 0 1100 520" style="width:1100px;margin-top:30px" role="img" aria-label="Выручка и расходы: 2027 — 23 и 29 млн, 2028 — 68 и 55 млн, 2029 — 150 и 105 млн тенге"></svg>
+  <p class="src">Млн ₸. План, не отчёт: пересматриваем после пилотов. Подробно — inclusivecity.uk/business</p>
+</section>
+
+</main>
+
+<nav class="ctl" aria-label="Управление">
+  <button class="ib" id="prev" aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="ib" id="next" aria-label="Вперёд"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <span class="pg" id="pg"></span>
+  <span class="sp"></span>
+  <button class="ib" id="presBtn">Режим докладчика</button>
+  <button class="ib" id="printBtn">Сохранить PDF</button>
+  <button class="ib" id="fsBtn" aria-label="Во весь экран"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</nav>
+
+<script>
+/* ---------- Текст выступления (5 минут) и подсказки к вопросам ---------- */
+const NOTES=[
+ {t:"0:00–0:25",s:"Представьте: вы на коляске, навигатор ведёт вас к ЦОНу — и вы упираетесь в подземный переход со ступенями. [пауза 2 секунды] В Казахстане почти 750 тысяч человек с инвалидностью встречают такую стену каждый день. Мы — команда ICity. Мы делаем карту, по которой можно пройти везде."},
+ {t:"0:25–1:25",s:"Обычные карты считают, что пройти можно везде, где есть тротуар. Они не знают о лестницах, высоких бордюрах и гололёде. Государственная карта «Доступная среда» показывает только социальные объекты, и жители не могут её дополнить. ICity строит пеший маршрут в обход барьеров под ваш профиль: коляска, трость, плохое зрение, детская коляска. Новое в том, что карту делают сами жители: человек отмечает барьер с фото — и маршрут сразу перестраивается для всех остальных. А в гололёд мы обходим скользкие спуски."},
+ {t:"1:25–2:10",s:"Кому это нужно? 750 тысяч людей с инвалидностью, 2 миллиона жителей старше 65 и около миллиона родителей с малышами. Вместе — 3,7 миллиона. [пауза] Почти каждый пятый житель страны. Наша ценность простая: дойти куда нужно самому, без помощи и бесплатно. Почему сейчас: государство поставило цель — 80% доступных объектов, и городам нужен инструмент, который показывает реальную картину на улице."},
+ {t:"2:10–2:55",s:"Для жителей ICity бесплатен всегда. Платят организации. Акиматы — за кабинет города: жалобы с фото и статусами, рейтинг районов, 3 миллиона тенге в год. Кафе, аптеки и клиники — за отметку «Проверено ICity», 5 тысяч тенге в месяц. Плюс гранты. Выход на рынок: бесплатный пилот с акиматами Астаны и Алматы, затем общества инвалидов и поликлиники с QR-кодами, и шесть городов к 2028 году."},
+ {t:"2:55–3:55",s:"Как это работает. Данные о барьерах приходят из OpenStreetMap, из жалоб жителей и проверок СМИ. Сервер хранит их по каждому городу. Когда вы строите маршрут, мы сначала берём обычный путь. Если на нём известный барьер — маршрутизатор строит путь в обход, запретив эту точку. Смотрите на телефон: обычный маршрут ведёт через переход со ступенями — ICity его обходит, а навигатор ведёт голосом. Всё это уже работает на inclusivecity.uk, в 22 городах, без установки. [Если есть интернет — кнопка «Живая демонстрация» внизу справа.]"},
+ {t:"3:55–4:40",s:"Наша команда: [назовите каждого и что он сделал]. Что уже готово: сервис в 22 городах, маршруты в обход барьеров, жалобы с фото и статусами, голосовой навигатор, офлайн-режим и три языка. Дальше — весной 2027 приложения в App Store и Google Play и пилот с городом."},
+ {t:"4:40–5:00",s:"ICity — это город, в котором можно пройти везде. Нам нужен пилот с акиматом и грант на 35 миллионов тенге, чтобы проверить 2000 километров улиц. Отсканируйте QR-код и попробуйте сами. Спасибо! [Остановитесь и улыбнитесь — дальше вопросы.]"},
+ {t:"Q&A",s:"«Откуда данные?» — Отличный вопрос! OpenStreetMap, жалобы жителей и проверки СМИ; каждая жалоба делает карту точнее, а на грант мы с волонтёрами проверим 2000 км улиц. «Будут ли платить?» — Начинаем с бесплатного пилота на 3 месяца, параллельно гранты и бизнес. «Данные?» — Минимум личных данных, точное место просьбы о помощи видит только откликнувшийся волонтёр."},
+ {t:"Q&A",s:"«Чем вы лучше 2ГИС?» — Да, у 2ГИС лучше карточки заведений, и мы это честно показываем. Но маршрута в обход лестниц под профиль человека у них нет, и жалоба жителя не меняет маршрут. Для них это узкая функция, для нас — весь продукт."},
+ {t:"Q&A",s:"«Это реальные цифры?» — Это план по базовому сценарию, а не отчёт. Мы пока не подписали договор с городом, поэтому начинаем с бесплатного пилота. Если не знаете ответа — скажите: «Мы пока не замеряли этот показатель, это в нашем плане на ближайший месяц»."}
+];
+
+/* ---------- Сцена ---------- */
+const stage=document.getElementById("stage"), slides=[...document.querySelectorAll(".slide")];
+const MAIN=slides.filter(s=>!s.classList.contains("apx")).length;
+function fit(){ const k=Math.min(innerWidth/1600, innerHeight/900); stage.style.transform=`translate(${-800*k}px,${-450*k}px) scale(${k})`; }
+addEventListener("resize",fit); fit();
+if(matchMedia("(pointer:coarse)").matches) document.body.classList.add("touch");
+
+/* ---------- Имена: вписываются прямо на слайде и запоминаются в этом браузере ---------- */
+const fields=[...document.querySelectorAll("[contenteditable][data-key]")];
+let saved={}; try{ saved=JSON.parse(localStorage.getItem("pd_team")||"{}"); }catch(e){}
+fields.forEach(f=>{ if(saved[f.dataset.key]) f.textContent=saved[f.dataset.key];
+  f.addEventListener("input",()=>{ saved[f.dataset.key]=f.textContent.trim(); if(!saved[f.dataset.key]) f.textContent=""; try{ localStorage.setItem("pd_team",JSON.stringify(saved)); }catch(e){} });
+  f.addEventListener("keydown",e=>{ e.stopPropagation(); if(e.key==="Enter"){ e.preventDefault(); f.blur(); } }); });
+
+/* ---------- График для запасного слайда ---------- */
+(function(){ const d=[["2027",23,29],["2028",68,55],["2029",150,105]], H=400, max=160; let o="";
+  [0,50,100,150].forEach(v=>{ const y=450-v/max*H; o+=`<line x1="60" x2="1100" y1="${y}" y2="${y}" stroke="#cfd7e0"/><text x="48" y="${y+7}" text-anchor="end" font-size="20" fill="#4a5a6e">${v}</text>`; });
+  d.forEach((r,i)=>{ const x=160+i*320, h1=r[1]/max*H, h2=r[2]/max*H;
+    o+=`<rect x="${x}" y="${450-h1}" width="100" height="${h1}" rx="8" fill="#1769c2"/><rect x="${x+110}" y="${450-h2}" width="100" height="${h2}" rx="8" fill="#9fb0c2"/>`
+     +`<text x="${x+50}" y="${440-h1}" text-anchor="middle" font-size="26" font-weight="700" fill="#14202e">${r[1]}</text><text x="${x+160}" y="${440-h2}" text-anchor="middle" font-size="26" font-weight="700" fill="#14202e">${r[2]}</text>`
+     +`<text x="${x+105}" y="490" text-anchor="middle" font-size="24" fill="#4a5a6e">${r[0]}</text>`; });
+  o+=`<rect x="760" y="10" width="18" height="18" rx="4" fill="#1769c2"/><text x="788" y="26" font-size="20" fill="#4a5a6e">Выручка</text><rect x="900" y="10" width="18" height="18" rx="4" fill="#9fb0c2"/><text x="928" y="26" font-size="20" fill="#4a5a6e">Расходы</text>`;
+  document.getElementById("chart").innerHTML=o; })();
+
+/* ---------- Демонстрация MVP: петля 9 с, рисуется по времени (та же функция делает GIF) ---------- */
+const demo=document.getElementById("demo");
+demo.innerHTML=`<svg viewBox="0 0 372 792" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0">
+  <rect width="372" height="792" fill="#e4ebf2"/>
+  <g stroke="#fff" stroke-width="20" fill="none"><path d="M0 170 H372 M0 390 H372 M0 600 H372 M96 0 V792 M276 0 V792"/></g>
+  <g fill="#d3dce6"><rect x="118" y="190" width="136" height="180" rx="12"/><rect x="118" y="410" width="136" height="170" rx="12"/><rect x="0" y="190" width="74" height="180" rx="12"/><rect x="298" y="410" width="74" height="170" rx="12"/><rect x="0" y="410" width="74" height="170" rx="12"/><rect x="118" y="20" width="136" height="130" rx="12"/><rect x="298" y="190" width="74" height="180" rx="12"/></g>
+  <path id="dGray" d="M96 700 V390 H186" stroke="#7a8899" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <g id="dStairs"><rect x="166" y="370" width="42" height="40" rx="9" fill="#d7372f"/><path d="M176 402 h7 v-7 h7 v-7 h7 v-7" stroke="#fff" stroke-width="4" fill="none" stroke-linejoin="round"/></g>
+  <circle id="dX" cx="187" cy="390" r="34" fill="none" stroke="#d7372f" stroke-width="6"/>
+  <path id="dGreen" d="M96 700 V600 H276 V390 H276 V170" stroke="#1769c2" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="96" cy="700" r="12" fill="#fff" stroke="#1769c2" stroke-width="6"/>
+  <g id="dPin"><path d="M276 170 c-14 -17 -20 -28 -20 -37 a20 20 0 0 1 40 0 c0 9 -6 20 -20 37z" fill="#ffd400"/><circle cx="276" cy="133" r="7" fill="#1769c2"/></g>
+  <g id="dMe"><circle r="13" fill="#1769c2" stroke="#fff" stroke-width="5"/></g>
+</svg>
+<div id="dSearch" style="position:absolute;left:16px;right:16px;top:54px;background:#fff;border-radius:18px;padding:16px 18px;font-size:20px;box-shadow:0 6px 20px rgba(20,32,46,.15);display:flex;gap:10px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a5a6e" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span id="dQ" style="color:#14202e"></span><span id="dCaret" style="width:2px;height:22px;background:#1769c2"></span></div>
+<div id="dNav" style="position:absolute;left:16px;right:16px;top:54px;background:#0f1d2c;color:#fff;border-radius:18px;padding:16px 18px;display:flex;gap:14px;align-items:center;opacity:0">
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffd400" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20V9h9"/><path d="M14 4l5 5-5 5"/></svg>
+  <div><b style="font-size:26px;display:block;font-family:var(--display)">Через 50 м</b><span style="font-size:18px;color:#cfe0f5">направо, к переходу со светофором</span></div></div>
+<div id="dCard" style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:16px 20px 26px;box-shadow:0 -6px 24px rgba(20,32,46,.15)">
+  <div style="width:48px;height:5px;border-radius:3px;background:#cfd7e0;margin:0 auto 14px"></div>
+  <b style="font-size:24px;display:block">14 мин · 950 м</b>
+  <div id="dFact" style="margin-top:10px;display:inline-block;background:#dff3e8;color:#156b43;border-radius:10px;padding:7px 12px;font-size:17px;font-weight:600">Обошли известных барьеров: 1</div>
+  <div style="margin-top:14px;background:#1769c2;color:#fff;border-radius:14px;text-align:center;padding:13px;font-weight:700;font-size:19px">Поехали</div></div>`;
+const D=id=>document.getElementById(id);
+const gray=D("dGray"), green=D("dGreen"), LG=gray.getTotalLength(), LB=green.getTotalLength();
+gray.style.strokeDasharray=LG; green.style.strokeDasharray=LB;
+const P=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a))), eo=x=>1-Math.pow(1-x,3), back=x=>{const c=1.6;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const Q="ЦОН Алмалинского района";
+function demoRender(t){
+  t=t%9;
+  const q=Math.floor(Q.length*P(t,.2,1.4)); D("dQ").textContent=Q.slice(0,q); D("dCaret").style.opacity=(t<1.6 && Math.floor(t*3)%2===0)?1:0;
+  D("dSearch").style.opacity=1-P(t,5.2,5.5); D("dNav").style.opacity=P(t,5.3,5.6)*(1-P(t,8.4,8.8));
+  gray.style.strokeDashoffset=LG*(1-eo(P(t,1.6,2.6))); gray.style.opacity=1-.7*P(t,3.6,4.0);
+  const x=P(t,2.6,2.9); D("dX").style.opacity=x*(1-P(t,3.6,4)); D("dX").setAttribute("r",22+12*back(x));
+  D("dStairs").style.opacity=1-.6*P(t,3.6,4);
+  green.style.strokeDashoffset=LB*(1-eo(P(t,3.8,5.0)));
+  const pn=back(P(t,4.9,5.3)); D("dPin").setAttribute("transform",`translate(276 170) scale(${Math.max(0.001,pn)}) translate(-276 -170)`);
+  D("dCard").style.transform=`translateY(${(1-eo(P(t,4.6,5.2)))*110 + eo(P(t,8.4,8.9))*110}%)`;
+  // «я» идёт по маршруту во время навигации
+  const w=P(t,5.6,8.4); const pt=green.getPointAtLength(LB*w*0.55); D("dMe").setAttribute("transform",`translate(${pt.x} ${pt.y})`); D("dMe").style.opacity=t>5.5&&t<8.6?1:0;
+  const all=1-P(t,8.6,9); demo.style.opacity=t<0.15?P(t,0,.15):all;
+}
+window.demoRender=demoRender;
+// для печати и PDF — кадр, где маршрут уже в обход и видна карточка
+addEventListener("beforeprint",()=>{ demoStop(); demoRender(5.25); });
+let demoOn=false, demoT0=0;
+function demoLoop(now){ if(!demoOn) return; demoRender((now-demoT0)/1000); requestAnimationFrame(demoLoop); }
+function demoStart(){ if(demoOn) return; demoOn=true; demoT0=performance.now(); requestAnimationFrame(demoLoop); }
+function demoStop(){ demoOn=false; }
+demoRender(0);
+
+/* ---------- Живая демонстрация (нужен интернет) ---------- */
+const liveBox=D("liveBox");
+D("liveBtn").onclick=()=>{ const f=liveBox.querySelector("iframe"); if(!f.src) f.src="https://inclusivecity.uk/map"; liveBox.classList.add("open"); };
+D("liveClose").onclick=()=>liveBox.classList.remove("open");
+if(!/inclusivecity\.(uk|onrender\.com)$/.test(location.hostname)) D("liveBtn").onclick=()=>window.open("https://inclusivecity.uk/map","_blank");
+
+/* ---------- Переключение слайдов ---------- */
+let cur=-1;
+function go(i){
+  i=Math.max(0,Math.min(slides.length-1,i)); if(i===cur) return;
+  if(cur>=0){ slides[cur].classList.remove("on"); slides[cur].setAttribute("aria-hidden","true"); }
+  cur=i; slides[i].classList.add("on"); slides[i].removeAttribute("aria-hidden");
+  const isTech=slides[i].dataset.title==="Технология и MVP"; if(isTech) setTimeout(demoStart,900); else demoStop();
+  if(!isTech) liveBox.classList.remove("open");
+  D("pg").textContent = i<MAIN ? `${i+1} / ${MAIN}` : `вопросы ${i-MAIN+1}`;
+  D("prog").style.width = (Math.min(i+1,MAIN)/MAIN*100)+"%";
+  try{ history.replaceState(null,"","#"+(i+1)); }catch(e){}
+  presUpdate();
+}
+D("prev").onclick=()=>go(cur-1); D("next").onclick=()=>go(cur+1);
+D("fsBtn").onclick=()=>{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>{}); };
+D("printBtn").onclick=()=>window.print();
+addEventListener("keydown",e=>{
+  if(e.target.isContentEditable) return;
+  if(["ArrowRight","PageDown"," ","Enter"].includes(e.key)){ e.preventDefault(); go(cur+1); }
+  else if(["ArrowLeft","PageUp","Backspace"].includes(e.key)){ e.preventDefault(); go(cur-1); }
+  else if(e.key==="Home") go(0); else if(e.key==="End") go(MAIN-1);
+  else if(e.key==="f"||e.key==="F"||e.key==="а"||e.key==="А") D("fsBtn").click();
+  else if(e.key==="p"||e.key==="P"||e.key==="з"||e.key==="З") presOpen();
+  else if(e.key==="Escape") liveBox.classList.remove("open");
+});
+let x0=null; addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; },{passive:true});
+addEventListener("touchend",e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50) go(cur+(dx<0?1:-1)); x0=null; },{passive:true});
+
+/* ---------- Режим докладчика: второе окно с текстом и таймером 5:00 ---------- */
+let pres=null, tStart=null, tTimer=0;
+function presOpen(){
+  pres=window.open("","pd_presenter","width=980,height=720");
+  if(!pres){ alert("Разрешите всплывающие окна, чтобы открыть режим докладчика"); return; }
+  pres.document.open(); pres.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>ICity — докладчик</title><style>
+  body{margin:0;font-family:"Golos Text",system-ui,sans-serif;background:#0f1d2c;color:#fff;display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+  header{display:flex;align-items:center;gap:20px;padding:18px 24px;border-bottom:1px solid #2a3b4e}
+  #tm{font:700 56px/1 system-ui;font-variant-numeric:tabular-nums;padding:6px 16px;border-radius:12px;background:#1e8e5a}
+  #tm.warn{background:#c98a00} #tm.end{background:#d7372f}
+  #info{flex:1} #info b{font-size:26px;display:block} #info span{color:#9fb6cf;font-size:18px}
+  main{padding:22px 28px;font-size:30px;line-height:1.45;overflow:auto}
+  main i{color:#ffd400;font-style:normal}
+  footer{display:flex;gap:10px;padding:14px 24px;border-top:1px solid #2a3b4e;align-items:center}
+  button{font:600 18px system-ui;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;background:#1769c2;color:#fff}
+  button.y{background:#ffd400;color:#000} #nx{margin-left:auto;color:#9fb6cf;font-size:17px}
+  </style></head><body><header><div id="tm">5:00</div><div id="info"><b></b><span></span></div></header><main id="txt"></main>
+  <footer><button id="b1">◀ Назад</button><button id="b2">Вперёд ▶</button><button class="y" id="b3">Старт таймера</button><span id="nx"></span></footer></body></html>`);
+  pres.document.close();
+  pres.document.getElementById("b1").onclick=()=>go(cur-1);
+  pres.document.getElementById("b2").onclick=()=>go(cur+1);
+  pres.document.getElementById("b3").onclick=()=>{ tStart=Date.now(); };
+  pres.addEventListener("keydown",e=>{ if(["ArrowRight","PageDown"," "].includes(e.key)){ e.preventDefault(); go(cur+1); } else if(["ArrowLeft","PageUp"].includes(e.key)){ e.preventDefault(); go(cur-1); } });
+  clearInterval(tTimer); tTimer=setInterval(presTick,250); presUpdate();
+}
+function presUpdate(){
+  if(!pres||pres.closed) return; const d=pres.document, n=NOTES[cur]||{t:"",s:""};
+  d.querySelector("#info b").textContent=(cur<MAIN?`Слайд ${cur+1} из ${MAIN}: `:"Запасной: ")+slides[cur].dataset.title;
+  d.querySelector("#info span").textContent=n.t;
+  d.getElementById("txt").innerHTML=n.s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\[([^\]]+)\]/g,"<i>[$1]</i>");
+  const nx=slides[cur+1]; d.getElementById("nx").textContent=nx?("Дальше: "+nx.dataset.title):"Последний слайд";
+}
+function presTick(){
+  if(!pres||pres.closed){ clearInterval(tTimer); return; }
+  const el=pres.document.getElementById("tm"); if(!tStart){ el.textContent="5:00"; return; }
+  const left=300-Math.floor((Date.now()-tStart)/1000), a=Math.abs(left);
+  el.textContent=(left<0?"−":"")+Math.floor(a/60)+":"+String(a%60).padStart(2,"0");
+  el.className = left<=20 ? "end" : left<=60 ? "warn" : "";
+}
+D("presBtn").onclick=presOpen;
+
+const start=parseInt((location.hash||"").slice(1),10); go(start>0?start-1:0);
+</script>
+</body>
+</html>

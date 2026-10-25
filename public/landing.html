@@ -362,7 +362,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 </main>
 <div id="fade" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span></span></div>
-<footer>ICity · inclusivecity.uk<nav class="flinks" aria-label="Для партнёров"><a href="/pitch">Презентация</a><a href="/business">Бизнес-план</a></nav></footer>
+<footer>ICity · inclusivecity.uk<nav class="flinks" aria-label="Для партнёров"><a href="/pitchday">Питч</a><a href="/pitch">Презентация</a><a href="/business">Бизнес-план</a></nav></footer>
 <script>
 /* Если человек уже вошёл (сессия Supabase в localStorage), показываем «Профиль» вместо «Войти» */
 (function(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k)||"null");if(v&&v.user){const a=document.getElementById("acctTop");a.textContent="Профиль";a.href="/account";const su=document.getElementById("signupTop");if(su)su.hidden=true;const c=document.getElementById("acctCta");c.textContent="Мой профиль";c.href="/account";break;}}}}catch(e){}})();

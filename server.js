@@ -276,6 +276,8 @@ const EXT_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.mp4': 'video/mp4',
+  '.woff2': 'font/woff2',
+  '.pdf': 'application/pdf',
   '.webm': 'video/webm',
   '.mp3': 'audio/mpeg',
   '.jpg': 'image/jpeg',
@@ -833,6 +835,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/map' || pathname === '/map/') return serveFile(res, path.join(PUBLIC_DIR, 'index.html'));
     if (pathname === '/business' || pathname === '/business/') return serveFile(res, path.join(PUBLIC_DIR, 'business.html'));
     if (pathname === '/pitch' || pathname === '/pitch/') return serveFile(res, path.join(PUBLIC_DIR, 'pitch.html'));
+    if (pathname === '/pitchday' || pathname === '/pitchday/') return serveFile(res, path.join(PUBLIC_DIR, 'pitchday.html'));
     if (pathname === '/login' || pathname === '/account') return serveFile(res, path.join(PUBLIC_DIR, 'login.html'));
     // Ключи Supabase для входа: берутся из переменных окружения Render (anon-ключ публичный по замыслу Supabase)
     if (pathname === '/auth-config.js') {
