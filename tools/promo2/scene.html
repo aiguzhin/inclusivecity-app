@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"Unbounded";font-weight:700;src:url(/fonts/unbounded-cyrillic-700-normal.woff2) format("woff2");unicode-range:U+0400-04FF}
+@font-face{font-family:"Unbounded";font-weight:700;src:url(/fonts/unbounded-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Unbounded";font-weight:500;src:url(/fonts/unbounded-cyrillic-500-normal.woff2) format("woff2");unicode-range:U+0400-04FF}
+@font-face{font-family:"Unbounded";font-weight:500;src:url(/fonts/unbounded-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:500;src:url(/fonts/golos-text-cyrillic-500-normal.woff2) format("woff2");unicode-range:U+0400-04FF}
+@font-face{font-family:"Golos Text";font-weight:500;src:url(/fonts/golos-text-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:600;src:url(/fonts/golos-text-cyrillic-600-normal.woff2) format("woff2");unicode-range:U+0400-04FF}
+@font-face{font-family:"Golos Text";font-weight:600;src:url(/fonts/golos-text-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+@font-face{font-family:"Golos Text";font-weight:700;src:url(/fonts/golos-text-cyrillic-700-normal.woff2) format("woff2");unicode-range:U+0400-04FF}
+@font-face{font-family:"Golos Text";font-weight:700;src:url(/fonts/golos-text-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+20B8,U+2013-2026}
+*{box-sizing:border-box;margin:0}
+html,body{overflow:hidden;background:#000}
+#st{position:relative;overflow:hidden;font-family:"Golos Text",sans-serif;color:#14202e}
+.sc{position:absolute;inset:0;display:none}
+.D{font-family:"Unbounded",sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.02}
+#cap{position:absolute;left:50%;transform:translateX(-50%);text-align:center;color:#fff;font-weight:600;background:rgba(9,18,30,.78);border-radius:14px;z-index:8;white-space:normal}
+</style></head>
+<body><div id="st"></div>
+<script>
+const TL=__TL__;
+const V=new URLSearchParams(location.search).get("v")==="1";
+const W=V?1080:1920, H=V?1920:1080, U=1080/100, N=n=>n*U, u=n=>n*U+"px";
+const st=document.getElementById("st"); st.style.width=W+"px"; st.style.height=H+"px";
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)), P=(t,a,b)=>cl((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2, back=x=>{const c=1.6;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+function el(tag,css,html,par){const e=document.createElement(tag);if(css)e.style.cssText=css;if(html!=null)e.innerHTML=html;(par||st).appendChild(e);return e;}
+const scene=bg=>{const e=el("div","background:"+bg);e.className="sc";return e;};
+const tr=(e,x,y,s=1,o=1)=>{e.style.transform=`translate(${x}px,${y}px) scale(${s})`;e.style.opacity=o;};
+const L={}; TL.lines.forEach(l=>L[l.id]=l);
+const at=(id,rel)=>L[id].t0+rel-L[id].trim;
+// моменты отдельных слов (по паузам в озвучке)
+const K={w1:at("l1",0),w2:at("l1",1.45),w3:at("l1",3.03),
+  pf:[at("l4",2.45),at("l4",3.97),at("l4",4.65),at("l4",6.07)],
+  f:[at("l7",0),at("l7",1.79),at("l7",3.03),at("l7",3.85),at("l7",5.19)]};
+const SW=["l1","l2","l3","l4","l5","l6","l7","l8","l9"].map((id,i)=>i===0?0:L[id].t0-.25);   // начала сцен
+
+/* 1. Барьеры — слово за словом под голос */
+const s1=scene("#1769c2");
+const words=[["Лестница",K.w1],["Высокий бордюр",K.w2],["Гололёд",K.w3]].map((w,i)=>{
+  const r=el("div",`position:absolute;left:${V?u(9):u(14)};top:${(V?H/2-N(34):H/2-N(26))+i*N(V?18:16)}px;display:flex;align-items:center;gap:${u(4)}`,null,s1);
+  const sq=el("div",`width:${u(8)};height:${u(8)};border-radius:${u(2)};background:#d7372f;flex:none`,null,r);
+  const tx=el("div",`font-size:${u(V?9.5:12)};color:#fff`,w[0],r); tx.className="D"; return {r,sq,t:w[1]};
+});
+
+/* 2. 750 000 */
+const s2=scene("#0f1d2c");
+const n2=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?H/2-N(30):H/2-N(22)}px;font-size:${u(V?14.5:24)};color:#ffd400`,"0",s2); n2.className="D";
+const t2=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?H/2+N(-6):H/2+N(6)}px;font-size:${u(V?5.4:5.6)};color:#fff;max-width:${V?u(84):u(120)};line-height:1.15`,"людей с инвалидностью в Казахстане",s2); t2.className="D";
+const wall=el("div",`position:absolute;${V?`left:${u(9)};top:${H/2+N(26)}px;width:${u(80)};height:${u(26)}`:`right:${u(12)};top:${H/2-N(26)}px;width:${u(30)};height:${u(52)}`};display:grid;grid-template-columns:repeat(6,1fr);gap:${u(1)}`,null,s2);
+const bricks=[...Array(V?18:36)].map(()=>el("div",`background:#d7372f;border-radius:${u(.6)}`,null,wall));
+
+/* 3–4. Карта: обычный маршрут → ступени; ICity → обход + профили */
+const s3=scene("#eef1f4");
+const mW=V?N(86):N(96), mH=V?N(60):N(62), mX=V?(W-mW)/2:N(12), mY=V?N(30):(H-mH)/2;
+const map=el("div",`position:absolute;left:${mX}px;top:${mY}px;width:${mW}px;height:${mH}px;border-radius:${u(4)};overflow:hidden;background:#dfe7ef;box-shadow:0 ${u(2)} ${u(6)} rgba(20,32,46,.15)`,
+ `<svg viewBox="0 0 600 390" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <g fill="#cfd9e4"><rect x="40" y="30" width="150" height="120" rx="12"/><rect x="230" y="30" width="140" height="120" rx="12"/><rect x="410" y="30" width="160" height="120" rx="12"/><rect x="40" y="240" width="150" height="120" rx="12"/><rect x="230" y="240" width="140" height="120" rx="12"/><rect x="410" y="240" width="160" height="120" rx="12"/></g>
+  <path d="M0 195 H600 M210 0 V390 M390 0 V390 M210 370 H390" stroke="#fff" stroke-width="26" fill="none"/>
+  <path id="gr" d="M60 195 H300" stroke="#7a8899" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <g id="stp"><rect x="272" y="167" width="56" height="56" rx="12" fill="#d7372f"/><path d="M285 211 h10 v-10 h10 v-10 h10 v-10" stroke="#fff" stroke-width="5" fill="none" stroke-linejoin="round"/></g>
+  <circle id="xx" cx="300" cy="195" r="40" fill="none" stroke="#d7372f" stroke-width="7"/>
+  <path id="gn" d="M60 195 H210 V370 H390 V195 H540" stroke="#1769c2" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="60" cy="195" r="14" fill="#fff" stroke="#14202e" stroke-width="7"/>
+  <g id="pin3"><path d="M540 195 c-18 -22 -26 -36 -26 -48 a26 26 0 0 1 52 0 c0 12 -8 26 -26 48z" fill="#ffd400"/><circle cx="540" cy="147" r="9" fill="#1769c2"/></g>
+ </svg>`,s3);
+const gr=map.querySelector("#gr"), gn=map.querySelector("#gn"), LGR=gr.getTotalLength(), LGN=gn.getTotalLength();
+gr.style.strokeDasharray=LGR; gn.style.strokeDasharray=LGN;
+const lab3=el("div",`position:absolute;left:${mX}px;top:${V?mY+mH+N(5):mY-N(9)}px;font-size:${u(4.4)};font-weight:700;padding:${u(1)} ${u(2.4)};border-radius:${u(5)}`,"",s3);
+const prof=el("div",`position:absolute;${V?`left:${u(7)};right:${u(7)};top:${mY+mH+N(16)}px`:`left:${mX+mW+N(6)}px;width:${u(42)};top:${(H-N(52))/2}px`};display:flex;flex-wrap:wrap;gap:${u(2)}`,null,s3);
+const chips=["Кресло-коляска","Трость","Плохое зрение","Детская коляска"].map(x=>el("div",`font-size:${u(V?3.8:3.6)};font-weight:600;padding:${u(1.6)} ${u(3)};border-radius:${u(6)};border:${u(.35)} solid #cfd7e0;background:#fff`,x,prof));
+
+/* 5. Гололёд */
+const s5=scene("#e8f1fa");
+const iceT=el("div",`position:absolute;left:${V?u(9):u(14)};top:${V?u(22):u(16)};font-size:${u(V?7:7.6)};max-width:${u(86)}`,"Гололёд",s5); iceT.className="D";
+const gW=V?N(88):N(140), gH=gW*.42;
+const ice=el("div",`position:absolute;left:${V?(W-gW)/2:N(14)}px;top:${V?H/2-gH/2:N(38)}px;width:${gW}px;height:${gH}px`,
+ `<svg viewBox="0 0 600 252" width="100%" height="100%"><path d="M0 232 H600" stroke="#c6d3e0" stroke-width="3"/>
+  <path id="ist" d="M20 205 C120 205 160 205 220 120 S300 60 340 60 H580" stroke="#d7372f" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path id="ifl" d="M20 205 C200 205 260 170 380 130 S520 60 580 60" stroke="#1e8e5a" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g id="fl" fill="#9cc9ff"></g><g id="lb1" opacity="0"><rect x="196" y="18" width="138" height="52" rx="12" fill="#d7372f"/><text x="265" y="53" text-anchor="middle" font-family="Golos Text" font-weight="700" font-size="27" fill="#fff">уклон 9%</text></g><g id="lb2" opacity="0"><rect x="366" y="140" width="138" height="52" rx="12" fill="#1e8e5a"/><text x="435" y="175" text-anchor="middle" font-family="Golos Text" font-weight="700" font-size="27" fill="#fff">до 4%</text></g></svg>`,s5);
+const ist=ice.querySelector("#ist"), ifl=ice.querySelector("#ifl"), LIS=ist.getTotalLength(), LIF=ifl.getTotalLength(); ist.style.strokeDasharray=LIS; ifl.style.strokeDasharray=LIF;
+const flakes=[...Array(40)].map((_,i)=>{const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("r",2+(i*7)%4);ice.querySelector("#fl").appendChild(c);return {c,x:(i*97)%600,sp:25+(i*13)%35,ph:(i*37)%250};});
+
+/* 6. Жители отмечают барьер — маршрут меняется для всех */
+const s6=scene("#eef1f4");
+const m6=el("div",`position:absolute;left:${mX}px;top:${mY}px;width:${mW}px;height:${mH}px;border-radius:${u(4)};overflow:hidden;background:#dfe7ef`,
+ `<svg viewBox="0 0 600 390" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <g fill="#cfd9e4"><rect x="40" y="30" width="150" height="120" rx="12"/><rect x="230" y="30" width="140" height="120" rx="12"/><rect x="410" y="30" width="160" height="120" rx="12"/><rect x="40" y="240" width="150" height="120" rx="12"/><rect x="230" y="240" width="140" height="120" rx="12"/><rect x="410" y="240" width="160" height="120" rx="12"/></g>
+  <path d="M0 195 H600 M210 0 V390 M390 0 V390 M210 20 H390" stroke="#fff" stroke-width="26" fill="none"/>
+  <path id="r6a" d="M60 195 H540" stroke="#1769c2" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path id="r6b" d="M60 195 H210 V20 H390 V195 H540" stroke="#1769c2" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle id="rip" cx="300" cy="195" r="20" fill="none" stroke="#ffd400" stroke-width="6"/>
+  <g id="rep"><circle cx="300" cy="195" r="26" fill="#ffd400" stroke="#c2410c" stroke-width="6"/><path d="M291 207 V183 h16 l-3 6 3 6 h-16" fill="#c2410c"/></g>
+  <circle cx="60" cy="195" r="14" fill="#fff" stroke="#14202e" stroke-width="7"/><circle cx="540" cy="195" r="14" fill="#14202e"/>
+ </svg>`,s6);
+const r6a=m6.querySelector("#r6a"), r6b=m6.querySelector("#r6b"), rip=m6.querySelector("#rip"), rep=m6.querySelector("#rep"), L6B=r6b.getTotalLength(); r6b.style.strokeDasharray=L6B;
+const users=[...Array(3)].map((_,i)=>el("div",`position:absolute;${V?`left:${u(9+i*29)};top:${mY+mH+N(8)}px;width:${u(26)}`:`left:${mX+mW+N(6)}px;top:${mY+N(4)+i*N(20)}px;width:${u(40)}`};background:#fff;border-radius:${u(3)};padding:${u(2)} ${u(2.4)};font-size:${u(3.1)};font-weight:600;display:flex;gap:${u(1.6)};align-items:center;box-shadow:0 ${u(.6)} ${u(2)} rgba(20,32,46,.12)`,
+ `<span style="width:${u(3)};height:${u(3)};border-radius:50%;background:#1e8e5a;flex:none"></span>${["Айгерим","Даурен","Мария"][i]}: маршрут обновлён`,s6));
+
+/* 7. Всё в одном приложении */
+const s7=scene("#fff");
+const IC={voice:'<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',bus:'<rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 11h16M8 17l-2 4M16 17l2 4"/>',
+ car:'<path d="M5 16l1.5-5h11L19 16"/><rect x="3" y="15" width="18" height="5" rx="2"/><circle cx="7.5" cy="20" r="1"/><circle cx="16.5" cy="20" r="1"/>',sos:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/>'};
+const feats=[["voice","Голосовой навигатор"],["bus","Автобусы"],["car","Такси и инватакси"],["sos","Кнопка помощи"]].map((f,i)=>{
+  const c=el("div",`position:absolute;${V?`left:${u(9)};right:${u(9)};top:${N(26)+i*N(24)}px;height:${u(20)}`:`left:${N(10)+i*N(41)}px;top:${H/2-N(20)}px;width:${u(38)};height:${u(40)}`};background:#eef1f4;border-radius:${u(4)};padding:${u(4)};display:flex;${V?"align-items:center;gap:"+u(4):"flex-direction:column;justify-content:space-between"}`,
+   `<svg viewBox="0 0 24 24" width="${N(V?11:12)}" height="${N(V?11:12)}" fill="none" stroke="#1769c2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[f[0]]}</svg><div class="D" style="font-size:${u(V?5.4:4.4)};line-height:1.1">${f[1]}</div>`,s7);
+  return c;});
+const one=el("div",`position:absolute;left:0;right:0;text-align:center;top:${V?N(126):N(18)}px;font-size:${u(V?6:5.6)};color:#1769c2`,"в одном приложении",s7); one.className="D";
+
+/* 8. 22 города */
+const s8=scene("#0f4f96");
+const cities=__CITIES__;
+const cW=V?N(84):N(100), cH=V?N(54):N(58), cX=V?(W-cW)/2:W-N(10)-cW, cY=V?N(66):(H-cH)/2;
+const lon0=50.5,lon1=83.5,lat0=41.5,lat1=55.6, px=c=>[(c[2]-lon0)/(lon1-lon0)*cW,(lat1-c[1])/(lat1-lat0)*cH];
+const order=cities.map((c,i)=>i).sort((a,b)=>cities[a][2]-cities[b][2]); const links=[];
+order.forEach((ci,k)=>{ if(!k) return; let best=-1,bd=1e9; for(let j=0;j<k;j++){const o=order[j],a=px(cities[ci]),b=px(cities[o]),d=Math.hypot(a[0]-b[0],a[1]-b[1]); if(d<bd){bd=d;best=o;}} links.push([best,ci,k]); });
+let sv=`<svg width="${cW}" height="${cH}" overflow="visible">`;
+links.forEach(([a,b])=>{const p=px(cities[a]),q=px(cities[b]);sv+=`<line class="lk" x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="#5aa9ff" stroke-width="${U*.35}" stroke-linecap="round"/>`;});
+cities.forEach((c,i)=>{const p=px(c);sv+=`<circle class="ct" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="${U*1.1}" fill="#ffd400"/>`;});
+el("div",`position:absolute;left:${cX}px;top:${cY}px`,sv+"</svg>",s8);
+const lks=[...s8.querySelectorAll(".lk")], cts=[...s8.querySelectorAll(".ct")];
+lks.forEach(l=>{const Lx=Math.hypot(l.x2.baseVal.value-l.x1.baseVal.value,l.y2.baseVal.value-l.y1.baseVal.value);l.style.strokeDasharray=Lx;l.dataset.L=Lx;});
+const n8=el("div",`position:absolute;left:${V?u(9):u(12)};top:${V?u(16):H/2-N(24)+"px"};color:#fff;font-size:${u(V?22:24)}`,"0",s8); n8.className="D";
+const t8=el("div",`position:absolute;left:${V?u(9):u(12)};top:${V?u(40):H/2+N(2)+"px"};color:#fff;font-size:${u(4.6)};line-height:1.15;max-width:${u(60)}`,"города Казахстана",s8); t8.className="D";
+const f8=el("div",`position:absolute;left:${V?u(9):u(12)};top:${V?N(126)+"px":H/2+N(16)+"px"};display:flex;gap:${u(2)}`,
+ `<span style="background:#ffd400;color:#000;font-weight:700;font-size:${u(3.4)};padding:${u(1.4)} ${u(2.8)};border-radius:${u(4)}">Бесплатно</span><span style="background:rgba(255,255,255,.15);color:#fff;font-weight:700;font-size:${u(3.4)};padding:${u(1.4)} ${u(2.8)};border-radius:${u(4)}">Без установки</span>`,s8);
+
+/* 9. Финал */
+const s9=scene("#1769c2");
+const fin=el("div",`position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding-bottom:${V?u(10):u(6)}`,null,s9);
+const fIc=el("img",`width:${u(V?24:20)};height:${u(V?24:20)};border-radius:${u(5)};box-shadow:0 ${u(2)} ${u(6)} rgba(0,0,0,.25)`,null,fin); fIc.src="/icons/soft-512.png";
+const fN=el("div",`font-size:${u(V?15:13)};margin-top:${u(3.6)}`,"ICity",fin); fN.className="D";
+const fS=el("div",`font-size:${u(V?4.6:4.4)};margin-top:${u(2.2)};font-weight:600;color:#dce9f8;max-width:${u(80)}`,"Город, в котором можно пройти везде",fin);
+const fU=el("div",`font-size:${u(4.2)};margin-top:${u(4.4)};background:#ffd400;color:#000;padding:${u(1.6)} ${u(4.4)};border-radius:${u(2)};font-weight:700`,"inclusivecity.uk",fin);
+
+/* Субтитры и шторка */
+const cap=el("div",`bottom:${V?u(16):u(5.5)};max-width:${V?u(88):u(150)};font-size:${u(V?3.6:3.1)};padding:${u(1.4)} ${u(2.6)};line-height:1.3`,"",st); cap.id="cap";
+const wipe=el("div",`position:absolute;inset:0;background:#ffd400;z-index:9;transform:translateX(-101%)`);
+const SC=[s1,s2,s3,s3,s5,s6,s7,s8,s9];
+
+window.render=function(t){
+  // какая сцена
+  let k=0; SW.forEach((s,i)=>{ if(t>=s) k=i; });
+  [s1,s2,s3,s5,s6,s7,s8,s9].forEach(s=>s.style.display="none"); SC[k].style.display="block";
+  let w=null; SW.slice(1).forEach(c=>{ if(c!==SW[3] && t>c-.26&&t<c+.26) w=(t-(c-.26))/.52; });
+  wipe.style.transform= w===null ? "translateX(-101%)" : `translateX(${-101+eio(w)*202}%)`;
+  // субтитр
+  const ln=TL.lines.find(l=>t>=l.t0-.05&&t<=l.t1+.35);
+  if(ln){ cap.textContent=ln.cap; cap.style.opacity=P(t,ln.t0-.05,ln.t0+.12)*(1-P(t,ln.t1+.15,ln.t1+.35)); } else cap.style.opacity=0;
+  if(k===8) cap.style.opacity=0;   // в финале текст и так на экране
+
+  // 1
+  words.forEach(o=>{ const p=eo(P(t,o.t-.08,o.t+.35)); tr(o.r,(1-p)*-N(6),0,1,p); o.sq.style.transform=`scale(${back(P(t,o.t-.05,o.t+.35))})`; });
+  // 2
+  { const a=L.l2.t0; const p=eio(P(t,a,a+2.4)); n2.textContent=Math.round(750000*p).toLocaleString("ru-RU"); tr(n2,0,(1-eo(P(t,a-.1,a+.4)))*N(3),1,P(t,a-.1,a+.3));
+    tr(t2,0,(1-eo(P(t,a+.3,a+.9)))*N(3),1,P(t,a+.3,a+.8));
+    const wa=at("l2",4.4); bricks.forEach((b,i)=>{ const q=back(P(t,wa+i*.035,wa+i*.035+.35)); b.style.transform=`translateY(${(1-cl(q,0,1.2))*-N(4)}px) scale(${Math.max(.01,q)})`; b.style.opacity=P(t,wa+i*.035,wa+i*.035+.1); }); }
+  // 3–4
+  { const a=L.l3.t0, b=L.l4.t0;
+    tr(map,0,(1-eo(P(t,a-.2,a+.4)))*N(4),1,P(t,a-.2,a+.2));
+    gr.style.strokeDashoffset=LGR*(1-eo(P(t,a+.3,a+1.6))); gr.style.opacity=1-.75*P(t,b,b+.4);
+    const x=P(t,a+1.6,a+1.9); map.querySelector("#xx").style.opacity=x*(1-P(t,b,b+.3)); map.querySelector("#xx").setAttribute("r",26+14*back(x));
+    map.querySelector("#stp").style.opacity=1-.7*P(t,b,b+.4);
+    gn.style.strokeDashoffset=LGN*(1-eo(P(t,b+.2,b+1.9)));
+    const pp=back(P(t,b+1.8,b+2.2)); map.querySelector("#pin3").setAttribute("transform",`translate(540 195) scale(${Math.max(.001,pp)}) translate(-540 -195)`);
+    const isB=t>=b; lab3.textContent=isB?"ICity: в обход":"Обычная карта"; lab3.style.background=isB?"#dff3e8":"#fde5e3"; lab3.style.color=isB?"#156b43":"#a32219"; lab3.style.opacity=P(t,a,a+.3);
+    prof.style.opacity=P(t,K.pf[0]-.4,K.pf[0]-.1);
+    chips.forEach((c,i)=>{ const on=t>=K.pf[i] && (i===3 || t<K.pf[i+1]); const s=1+.06*back(P(t,K.pf[i],K.pf[i]+.25))*(on?1:0);
+      c.style.background=on?"#1769c2":"#fff"; c.style.color=on?"#fff":"#14202e"; c.style.borderColor=on?"#1769c2":"#cfd7e0"; c.style.transform=`scale(${on?s:1})`; }); }
+  // 5
+  { const a=L.l5.t0; tr(iceT,0,(1-eo(P(t,a-.2,a+.3)))*N(3),1,P(t,a-.2,a+.2));
+    ist.style.strokeDashoffset=LIS*(1-eo(P(t,a,a+.9))); ist.style.opacity=1-.7*P(t,a+1.2,a+1.5);
+    ifl.style.strokeDashoffset=LIF*(1-eo(P(t,a+1.1,a+2.2)));
+    ice.querySelector("#lb1").setAttribute("opacity",P(t,a+.7,a+.9)*(1-.6*P(t,a+1.2,a+1.5))); ice.querySelector("#lb2").setAttribute("opacity",P(t,a+2.0,a+2.2));
+    flakes.forEach(f=>{ f.c.setAttribute("cx",f.x+Math.sin(t*1.4+f.ph)*8); f.c.setAttribute("cy",((t-a+3)*f.sp+f.ph)%250); }); }
+  // 6
+  { const a=L.l6.t0, ch=at("l6",2.3);
+    tr(m6,0,0,1,P(t,a-.25,a));
+    const d=back(P(t,a+.2,a+.65)); rep.setAttribute("transform",`translate(300 ${195-(1-cl(d,0,1))*120}) scale(${Math.max(.01,cl(d,0,1.3))}) translate(-300 -195)`); rep.style.opacity=P(t,a+.2,a+.3);
+    const rp=P(t,a+.6,a+1.5); rip.setAttribute("r",20+90*rp); rip.style.opacity=(1-rp)*(t>a+.6?1:0);
+    r6a.style.opacity=1-P(t,ch,ch+.4); r6b.style.strokeDashoffset=L6B*(1-eo(P(t,ch,ch+1.2)));
+    users.forEach((x,i)=>{ const p=eo(P(t,ch+.7+i*.3,ch+1.1+i*.3)); tr(x,V?0:(1-p)*N(4),V?(1-p)*N(3):0,1,p); }); }
+  // 7
+  feats.forEach((c,i)=>{ const p=eo(P(t,K.f[i]-.1,K.f[i]+.35)); tr(c,0,(1-p)*N(4),.92+.08*p,p); c.style.background=(t>=K.f[i]&&t<(K.f[i+1]||99))?"#e6f0fb":"#eef1f4"; });
+  tr(one,0,(1-eo(P(t,K.f[4]-.1,K.f[4]+.4)))*N(2),1,P(t,K.f[4]-.1,K.f[4]+.3));
+  // 8
+  { const a=L.l8.t0;
+    cts.forEach(c=>{ const k2=order.indexOf(+c.dataset.i), s=a+.1+k2*.07; c.style.transformBox="fill-box"; c.style.transformOrigin="50% 50%"; c.style.transform=`scale(${Math.max(.01,back(P(t,s,s+.3)))})`; c.style.opacity=P(t,s,s+.1); });
+    lks.forEach((l,j)=>{ const s=a+.1+links[j][2]*.07; l.style.strokeDashoffset=l.dataset.L*(1-eo(P(t,s,s+.35))); });
+    n8.textContent=Math.round(P(t,a+.1,a+1.6)*22); n8.style.opacity=P(t,a-.1,a+.1); t8.style.opacity=P(t,a+.2,a+.6);
+    const fq=at("l8",2.3); tr(f8,0,(1-eo(P(t,fq,fq+.4)))*N(2),1,P(t,fq,fq+.3)); }
+  // 9
+  { const a=L.l9.t0-.1; fIc.style.transform=`scale(${Math.max(.01,back(P(t,a,a+.5)))})`; fIc.style.opacity=P(t,a,a+.15);
+    tr(fN,0,(1-eo(P(t,a+.3,a+.8)))*N(3),1,P(t,a+.3,a+.8)); tr(fS,0,(1-eo(P(t,at("l9",1.0),at("l9",1.5))))*N(3),1,P(t,at("l9",1.0),at("l9",1.4)));
+    tr(fU,0,(1-eo(P(t,L.l9.t1,L.l9.t1+.5)))*N(3),1,P(t,L.l9.t1,L.l9.t1+.4));
+    const fade=P(t,TL.dur-.8,TL.dur); st.style.filter=fade>0?`brightness(${1-fade})`:""; }
+};
+window.ready=Promise.all(["700 20px Unbounded","500 20px Unbounded","500 20px \"Golos Text\"","600 20px \"Golos Text\"","700 20px \"Golos Text\""].map(f=>document.fonts.load(f,"АаЯя"))).then(()=>new Promise(r=>{ if(fIc.complete) r(); else fIc.onload=r; }));
+render(0);
+</script></body></html>
