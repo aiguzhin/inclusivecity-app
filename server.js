@@ -876,8 +876,11 @@ server.listen(PORT, () => {
   barriers.init({ sendJson, kvPut, kvGet });
   // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
+  // Будим себя только на основном сервисе: копия (старый «inclusivecity-app») иначе тоже не спит
+  // и съедает бесплатные часы Render всего аккаунта (750 ч/мес — это ровно один сайт круглосуточно).
   const selfUrl = process.env.RENDER_EXTERNAL_URL;
-  if (selfUrl) setInterval(() => { fetch(selfUrl.replace(/\/$/, '') + '/api/health').catch(() => {}); }, 10 * 60e3).unref();
+  const MAIN_SERVICE = process.env.KEEPALIVE_SERVICE_ID || 'srv-db4agdbtqb8s73el6ka0';
+  if (selfUrl && process.env.RENDER_SERVICE_ID === MAIN_SERVICE) setInterval(() => { fetch(selfUrl.replace(/\/$/, '') + '/api/health').catch(() => {}); }, 10 * 60e3).unref();
   // Supabase на бесплатном плане ставит проект на паузу после 7 дней без запросов — тогда вход и регистрация
   // перестают работать. Каждый час делаем лёгкие запросы, которые доходят до базы (список хранилищ, схема API).
   const sbUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, ''), sbKey = process.env.SUPABASE_ANON_KEY;
