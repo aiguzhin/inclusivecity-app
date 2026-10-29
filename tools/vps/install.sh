@@ -87,11 +87,21 @@ PY
 fi
 ok "Настройки в $ENVF ($(grep -c = "$ENVF") строк)"
 
+# Если 80/443 держит Caddy из Docker (Cosplaygram), ICity слушает адрес docker0,
+# чтобы контейнер мог до него достучаться, а снаружи порт закрыт
+CG=/opt/cosplaygram
+BIND=127.0.0.1
+if command -v docker >/dev/null && [ -f "$CG/docker-compose.yml" ] && docker ps --format '{{.Names}}' | grep -q '^cosplaygram-caddy'; then
+  BIND=$(ip -4 -o addr show docker0 | awk '{print $4}' | cut -d/ -f1)
+  [ -n "$BIND" ] || die "Не нашёл адрес docker0"
+fi
+if grep -q '^HOST=' "$ENVF"; then sed -i "s/^HOST=.*/HOST=$BIND/" "$ENVF"; else echo "HOST=$BIND" >> "$ENVF"; fi
+
 say "5/7 Автозапуск и автообновление"
 cat > /etc/systemd/system/icity.service <<UNIT
 [Unit]
 Description=ICity (inclusivecity.uk)
-After=network-online.target
+After=network-online.target docker.service
 [Service]
 WorkingDirectory=$APP
 EnvironmentFile=$ENVF
@@ -130,19 +140,61 @@ UNIT
 systemctl daemon-reload
 systemctl enable -q --now icity icity-update.timer
 systemctl restart icity
-for i in $(seq 1 20); do curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null && break; sleep 1; done
-curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null || { journalctl -u icity -n 30 --no-pager; die "ICity не запустился"; }
-ok "ICity работает на 127.0.0.1:$PORT"
+for i in $(seq 1 20); do curl -fs "http://$BIND:$PORT/api/health" >/dev/null && break; sleep 1; done
+curl -fs "http://$BIND:$PORT/api/health" >/dev/null || { journalctl -u icity -n 30 --no-pager; die "ICity не запустился"; }
+ok "ICity работает на $BIND:$PORT"
 
 say "6/7 Веб-сервер и HTTPS"
 WEB=none
-if systemctl is-active -q caddy 2>/dev/null; then WEB=caddy
+if [ "$BIND" != 127.0.0.1 ]; then WEB=docker-caddy
+elif systemctl is-active -q caddy 2>/dev/null; then WEB=caddy
 elif systemctl is-active -q nginx 2>/dev/null; then WEB=nginx
 elif ss -ltn '( sport = :80 or sport = :443 )' | grep -q LISTEN; then
   ss -ltnp '( sport = :80 or sport = :443 )'; die "Порт 80/443 занят неизвестной программой — напишите Claude, что показано выше"
 fi
 echo "Найден: $WEB"
-if [ "$WEB" = none ]; then
+if [ "$WEB" = docker-caddy ]; then
+  # Caddyfile Cosplaygram лежит в git и перезаписывается его автообновлением,
+  # поэтому свои файлы — неотслеживаемые: Caddyfile.icity (импортирует их файл) и override для compose
+  OVR="$CG/docker-compose.override.yml"
+  if [ -f "$OVR" ] && ! grep -q "Caddyfile.icity" "$OVR"; then die "Уже есть $OVR — напишите Claude"; fi
+  cat > "$CG/deploy/Caddyfile.icity" <<CAD
+import /etc/caddy/cosplaygram.caddy
+
+# ICity
+inclusivecity.uk, www.inclusivecity.uk {
+	encode gzip
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy $BIND:$PORT
+}
+CAD
+  cat > "$OVR" <<YML
+# ICity: общий Caddy. Файл не в git, автообновление Cosplaygram его не трогает.
+services:
+  caddy:
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/cosplaygram.caddy:ro
+      - ./deploy/Caddyfile.icity:/etc/caddy/Caddyfile:ro
+YML
+  grep -qx "docker-compose.override.yml" "$CG/.git/info/exclude" 2>/dev/null || printf 'docker-compose.override.yml\ndeploy/Caddyfile.icity\n' >> "$CG/.git/info/exclude"
+  if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
+    ufw allow from 172.16.0.0/12 to any port "$PORT" proto tcp >/dev/null
+  fi
+  cd "$CG"
+  if ! docker compose run --rm --no-deps -T caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/tmp/icity-caddy.log 2>&1; then
+    cat /tmp/icity-caddy.log; rm -f "$OVR"; die "Настройка Caddy не прошла проверку — Cosplaygram не тронут, напишите Claude"
+  fi
+  docker compose up -d --no-deps caddy
+  sleep 5
+  if ! docker compose ps caddy --format '{{.State}}' | grep -q running; then
+    docker compose logs --tail 30 caddy; rm -f "$OVR"; docker compose up -d --no-deps caddy
+    die "Caddy не запустился — вернул как было, напишите Claude"
+  fi
+  cd - >/dev/null
+  ok "Caddy (Docker, общий с Cosplaygram): ICity подключён, HTTPS выпустится сам после смены DNS"
+elif [ "$WEB" = none ]; then
   apt-get install -y -qq debian-keyring debian-archive-keyring apt-transport-https gnupg >/dev/null
   curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
   curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt > /etc/apt/sources.list.d/caddy-stable.list
@@ -167,7 +219,7 @@ CAD
   caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null
   systemctl reload caddy || systemctl restart caddy
   ok "Caddy: сертификат HTTPS выпустится сам, как только домен будет смотреть на этот сервер"
-else
+elif [ "$WEB" = nginx ]; then
   cat > /etc/nginx/sites-available/inclusivecity.uk <<NGX
 server {
     listen 80;
