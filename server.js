@@ -866,7 +866,7 @@ process.on('uncaughtException', (e) => console.error('uncaught:', e && e.stack |
 process.on('unhandledRejection', (e) => console.error('unhandled:', e && e.stack || e));
 server.keepAliveTimeout = 65e3; server.headersTimeout = 66e3;   // за прокси Render — без обрывов соединений
 
-server.listen(PORT, () => {
+server.listen(PORT, process.env.HOST || undefined, () => {
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();
   social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));

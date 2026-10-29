@@ -2,7 +2,7 @@ services:
   - type: web
     name: inclusivecity
     env: node
-    plan: starter   # $7/мес: не засыпает и не тратит бесплатные часы аккаунта
+    plan: free
     buildCommand: echo "no dependencies to install"
     startCommand: node server.js
     healthCheckPath: /api/health
