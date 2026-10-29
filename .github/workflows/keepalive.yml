@@ -1,12 +1,10 @@
-# Проверка, что сайт жив, каждые 10 минут.
-# Заодно не даёт бесплатному Render усыпить сервис (он засыпает после 15 минут
-# без запросов). Если сайт не ответил — шаг падает, и GitHub присылает владельцу
-# письмо о проваленном запуске.
+# Проверка, что сайт жив (сервер ps.kz). Если сайт не ответил — шаг падает,
+# и GitHub присылает владельцу письмо о проваленном запуске.
 name: keepalive
 
 on:
   schedule:
-    - cron: "7 * * * *"   # раз в час: сайт сам себя будит каждые 10 минут, а в приватном репозитории минуты Actions ограничены
+    - cron: "7 */3 * * *"   # раз в 3 часа: в приватном репозитории минуты Actions ограничены
   workflow_dispatch:
 
 jobs:
@@ -17,8 +15,7 @@ jobs:
       - name: Ping /api/health
         run: |
           for i in 1 2 3; do
-            # после сна Render просыпается до минуты — поэтому длинный таймаут и повторы
-            if curl -fsS --max-time 90 https://inclusivecity.onrender.com/api/health; then
+            if curl -fsS --max-time 30 https://inclusivecity.uk/api/health; then
               echo; echo "site is up"; exit 0
             fi
             sleep 20

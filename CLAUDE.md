@@ -3,15 +3,18 @@
 Карта доступности для городов Казахстана: пешие маршруты с проверкой барьеров,
 общественный транспорт, такси, жалобы на барьеры.
 
-- Прод: https://inclusivecity.uk/ (домен на Cloudflare Registrar, DNS там же: CNAME `@` и `www` → `inclusivecity.onrender.com`, режим «DNS only»).
-  Хостинг — Render, бесплатный план, Blueprint из `render.yaml`, деплой автоматически из `main`;
-  адрес https://inclusivecity.onrender.com/ тоже работает.
-  Railway (inclusivecity-production.up.railway.app) остановлен: закончился пробный период.
+- Прод: https://inclusivecity.uk/ — свой сервер ps.kz (VPS 47767 «Cosplaygram», 212.116.235.159, Ubuntu 22.04, вход `ssh ubuntu@212.116.235.159` + sudo;
+  root по паролю закрыт). Домен на Cloudflare, DNS: A `@` и `www` → 212.116.235.159, «DNS only».
+  Установка — `tools/vps/install.sh` (повторный запуск безопасен): `/opt/icity`, systemd `icity` (порт 3010 на адресе docker0 172.17.0.1),
+  настройки `/etc/icity.env` (перенесены из Render), автообновление из `main` каждые 2 мин (`icity-update.timer`, deploy key `icity-vps`).
+  HTTPS — Caddy из Docker Cosplaygram (`/opt/cosplaygram`): свои неотслеживаемые `docker-compose.override.yml` и `deploy/Caddyfile.icity`
+  (импортирует их Caddyfile + блок inclusivecity.uk). Логи: `sudo journalctl -u icity -n 100`.
+  `data/` на сервере сохраняется между обновлениями.
+  Render (inclusivecity.onrender.com) приостановлен 27.10.2026 из-за лимита бесплатных часов — запасной, не используется.
 - Репозиторий приватный (с 14.10.2026): у GitHub Actions лимит 2000 минут в месяц.
 - Supabase (бесплатный план) ставит проект на паузу после 7 дней без запросов: сервер каждый час дёргает `/storage/v1/bucket`, `/rest/v1/` и `/auth/v1/health`
   с анонимным ключом (результат — `supabase` в `/api/health`). Если всё же на паузе — Supabase Dashboard → проект ICity → Resume project.
-- Не засыпать: сервер сам раз в 10 минут заходит на `RENDER_EXTERNAL_URL/api/health`; `.github/workflows/keepalive.yml` — раз в час
-  (запасной будильник и письмо, если сайт не отвечает).
+- `.github/workflows/keepalive.yml` раз в 3 часа проверяет https://inclusivecity.uk/api/health (письмо, если сайт не отвечает).
 - Репозиторий: https://github.com/aiguzhin/inclusivecity-app
 - Отображаемое название — «ICity»; домен и имя репозитория остаются `inclusivecity`.
 
