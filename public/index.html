@@ -1056,6 +1056,10 @@ html[data-contrast="high"] .icon-pick button.on{border-color:#ffd400}
 .fr-pin-ava{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;overflow:hidden}
 .fr-pin b{position:absolute;top:46px;left:50%;transform:translateX(-50%);white-space:nowrap;font:600 12px "Golos Text",sans-serif;background:var(--card);color:var(--ink);padding:1px 7px;border-radius:9px;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .fr-pop{display:flex;flex-direction:column;gap:6px;min-width:160px}.fr-pop small{color:#555}
+/* Панель действий у значков «Откуда»/«Куда» */
+.fpin{cursor:pointer}
+.fp-menu{display:flex;flex-direction:column;gap:6px;min-width:210px}.fp-menu small{color:#6b7280}.fp-menu b{font-size:1.02em;margin-bottom:2px}
+.fp-menu button{justify-content:flex-start;display:flex;align-items:center;gap:6px;width:100%}.fp-menu .ic{width:16px;height:16px}.fp-menu .fp-del{color:#c0392b}
 /* Скрыть левую панель на компьютере */
 .side-toggle{display:none}
 @media (min-width:861px){
@@ -2021,7 +2025,7 @@ ru:{
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
  setTitle:"Настройки", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
  setTheme:"Оформление", themeLight:"Светлое", themeDark:"Тёмное", setContrast:"Контрастность", contrastNormal:"Обычная", contrastHigh:"Повышенная",
- sideHide:"Скрыть панель", sideShow:"Показать панель", setLm:"Значки достопримечательностей", setLmHint:"Мечети, соборы, музеи, театры, стадионы, вокзалы и памятники — значками с подписью, как в 2ГИС.", lmOnT:"Показывать", lmOff:"Скрыть",
+ fpRouteHere:"Маршрут сюда", fpRouteFrom:"Маршрут отсюда", fpInfo:"Что здесь", fpSwap:"Поменять «Откуда» и «Куда»", fpRemove:"Убрать точку", fpNeedDest:"Укажите, куда едем", sideHide:"Скрыть панель", sideShow:"Показать панель", setLm:"Значки достопримечательностей", setLmHint:"Мечети, соборы, музеи, театры, стадионы, вокзалы и памятники — значками с подписью, как в 2ГИС.", lmOnT:"Показывать", lmOff:"Скрыть",
  setMotion:"Анимации", motionOn:"Включены", motionOff:"Отключены", setVoice:"Озвучка маршрута", voiceOn:"Включена", voiceOff:"Выключена",
  setSaved:"Настройки сохраняются в этом браузере.", close:"Закрыть", settingsBtn:"Настройки",
  repTitle:"Сообщить о барьере", repHelp:"Отчёт уходит на модерацию и появляется на карте после проверки.",
@@ -2110,7 +2114,7 @@ kk:{
  listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
  setTitle:"Баптаулар", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
  setTheme:"Безендіру", themeLight:"Ашық", themeDark:"Күңгірт", setContrast:"Айқындық", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
- sideHide:"Панельді жасыру", sideShow:"Панельді көрсету", setLm:"Көрікті жерлердің белгілері", setLmHint:"Мешіттер, соборлар, мұражайлар, театрлар, стадиондар, вокзалдар мен ескерткіштер — 2ГИС-тегідей белгі мен атауымен.", lmOnT:"Көрсету", lmOff:"Жасыру",
+ fpRouteHere:"Осында бағыт", fpRouteFrom:"Осыдан бағыт", fpInfo:"Мұнда не бар", fpSwap:"«Қайдан» мен «Қайда» ауыстыру", fpRemove:"Нүктені алып тастау", fpNeedDest:"Қайда баратыныңызды көрсетіңіз", sideHide:"Панельді жасыру", sideShow:"Панельді көрсету", setLm:"Көрікті жерлердің белгілері", setLmHint:"Мешіттер, соборлар, мұражайлар, театрлар, стадиондар, вокзалдар мен ескерткіштер — 2ГИС-тегідей белгі мен атауымен.", lmOnT:"Көрсету", lmOff:"Жасыру",
  setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстап оқу", voiceOn:"Қосулы", voiceOff:"Өшірулі",
  setSaved:"Баптаулар осы браузерде сақталады.", close:"Жабу", settingsBtn:"Баптаулар",
  repTitle:"Кедергі туралы хабарлау", repHelp:"Хабарлама модерацияға жіберіледі және тексерістен кейін картада көрінеді.",
@@ -2200,7 +2204,7 @@ en:{
  listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
  setTitle:"Settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
  setTheme:"Appearance", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
- sideHide:"Hide panel", sideShow:"Show panel", setLm:"Landmark icons", setLmHint:"Mosques, cathedrals, museums, theatres, stadiums, stations and monuments shown as labelled icons, like in 2GIS.", lmOnT:"Show", lmOff:"Hide",
+ fpRouteHere:"Route here", fpRouteFrom:"Route from here", fpInfo:"What's here", fpSwap:"Swap From and To", fpRemove:"Remove point", fpNeedDest:"Choose where to go", sideHide:"Hide panel", sideShow:"Show panel", setLm:"Landmark icons", setLmHint:"Mosques, cathedrals, museums, theatres, stadiums, stations and monuments shown as labelled icons, like in 2GIS.", lmOnT:"Show", lmOff:"Hide",
  setMotion:"Animations", motionOn:"On", motionOff:"Off", setVoice:"Route voice-over", voiceOn:"On", voiceOff:"Off",
  setSaved:"Settings are saved in this browser.", close:"Close", settingsBtn:"Settings",
  repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map once reviewed.",
@@ -5317,7 +5321,43 @@ function drawFieldPin(id, ll, name, pan){
   const dest=id==="destination";
   FIELD_PIN[id]=L.marker(ll,{icon:L.divIcon({className:"",html:`<div class="fpin ${dest?"dest":"start"}">${svgI(dest?"flag":"walk")}</div>`,iconSize:[38,46],iconAnchor:[19,44]}),
     alt:(dest?t("finish"):t("start"))+": "+name, keyboard:true, zIndexOffset:1000}).bindTooltip(esc(name),{direction:"top",offset:[0,-40]}).addTo(fieldPins);
+  FIELD_PIN[id].on("click",ev=>{ L.DomEvent.stop(ev); fpMenu(id); });
   if(pan){ map.setView(ll, Math.max(map.getZoom(),16), {animate:S.motion!=="off"}); }
+}
+// Нажатие на значок «Откуда»/«Куда» — панель действий: маршрут, подробнее, поменять местами, убрать
+function fpMenu(id){
+  const m=FIELD_PIN[id]; if(!m) return; const sel=SELECTED[id]||{}; const dest=id==="destination";
+  const ll=m.getLatLng(), name=sel.text||document.getElementById(id).value||"";
+  const html=`<div class="fp-menu"><small>${esc(t(dest?"finish":"start"))}</small><b>${esc(name)}</b>
+    <button type="button" class="btn btn-sm" onclick="fpAct('${id}','route')">${svgI("walk")} ${esc(t(dest?"fpRouteHere":"fpRouteFrom"))}</button>
+    <button type="button" class="btn-ghost btn-sm" onclick="fpAct('${id}','info')">${svgI("info")} ${esc(t("fpInfo"))}</button>
+    <button type="button" class="btn-ghost btn-sm" onclick="fpAct('${id}','swap')">⇅ ${esc(t("fpSwap"))}</button>
+    <button type="button" class="btn-ghost btn-sm fp-del" onclick="fpAct('${id}','remove')">✕ ${esc(t("fpRemove"))}</button></div>`;
+  m.closeTooltip(); m.unbindPopup(); m.bindPopup(html,{offset:[0,-36],closeButton:true,autoPan:true}).openPopup();
+}
+function fpAct(id,what){
+  const m=FIELD_PIN[id]; if(!m) return; map.closePopup();
+  const ll=m.getLatLng(), sel=SELECTED[id]||{}, name=sel.text||document.getElementById(id).value||"";
+  if(what==="route"){
+    if(id==="start"){ if(!fieldCoords("destination") && !document.getElementById("destination").value.trim()){ toast(t("fpNeedDest")); openSheet&&openSheet(); document.getElementById("destination").focus(); return; } }
+    else if(!fieldCoords("start") && !userLatLng && !document.getElementById("start").value.trim()){ toast(t("plNeedStart")); openSheet&&openSheet(); document.getElementById("start").focus(); return; }
+    buildRoute(); return;
+  }
+  if(what==="info"){ showPlace({lat:ll.lat, lon:ll.lng, name, tags:{}, layer:false}); placeAt && placeAt(ll); return; }
+  if(what==="swap"){
+    const a=SELECTED.start, b=SELECTED.destination, va=document.getElementById("start").value, vb=document.getElementById("destination").value;
+    clearFieldPins(); delete SELECTED.start; delete SELECTED.destination;
+    try{ localStorage.removeItem("ic_f_start"); localStorage.removeItem("ic_f_destination"); }catch(e){}
+    document.getElementById("start").value=vb; document.getElementById("destination").value=va;
+    if(b&&b.ll) setFieldPlace("start", b.text||vb, b.ll); if(a&&a.ll) setFieldPlace("destination", a.text||va, a.ll);
+    if(lastRoute) buildRoute(); return;
+  }
+  if(what==="remove"){
+    if(lastRoute){ if(routeLayer) routeLayer.clearLayers(); lastRoute=null; lastAnalysis=null; lastSteps=[]; const rc=document.getElementById("routeCard"); if(rc) rc.innerHTML=""; }
+    fieldPins.removeLayer(m); delete FIELD_PIN[id];
+    const el=document.getElementById(id); if(el) el.value=""; delete SELECTED[id]; try{ localStorage.removeItem("ic_f_"+id); }catch(e){}
+    updatePeek();
+  }
 }
 function clearFieldPins(){ if(fieldPins) fieldPins.clearLayers(); delete FIELD_PIN.start; delete FIELD_PIN.destination; }
 function goPlace(id){
