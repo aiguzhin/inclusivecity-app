@@ -1063,7 +1063,7 @@ html[data-contrast="high"] .icon-pick button.on{border-color:#ffd400}
 /* Скрыть левую панель на компьютере */
 .side-toggle{display:none}
 @media (min-width:861px){
-  .side-toggle{display:grid;place-items:center;position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:820;width:26px;height:56px;border:1px solid var(--line);border-left:0;border-radius:0 12px 12px 0;background:var(--card);color:var(--ink);box-shadow:var(--soft-sh,0 2px 8px rgba(0,0,0,.15));cursor:pointer;padding:0}
+  .side-toggle{display:grid;place-items:center;position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:1200;width:32px;height:72px;touch-action:manipulation;border:1px solid var(--line);border-left:0;border-radius:0 12px 12px 0;background:var(--card);color:var(--ink);box-shadow:var(--soft-sh,0 2px 8px rgba(0,0,0,.15));cursor:pointer;padding:0}
   .side-toggle svg{width:20px;height:20px;transition:transform .25s}
   body.side-off .side-toggle svg{transform:rotate(180deg)}
   body.side-off .app{grid-template-columns:1fr}
@@ -1443,7 +1443,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   </aside>
 
   <section class="stage">
-    <button type="button" class="side-toggle" id="sideToggle" onclick="toggleSide()" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-badge" id="mmbBadge" hidden></span></button>
     <div class="map-menu" id="mapMenu" hidden role="dialog" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты">
       <div class="mpm-head"><b data-i18n="mmLayers">Слои и сведения карты</b><button type="button" class="mpm-x" onclick="toggleMapMenu(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
@@ -7123,6 +7123,11 @@ function toggleMiniMenu(ev){
   m.hidden=false; document.getElementById("sheetBtn").setAttribute("aria-expanded","true");
   const f=m.querySelector("a,button"); if(f) f.focus();
 }
+// Кнопка ‹ у края карты: срабатывает уже по отпусканию (на тачпадах и во встроенных браузерах «click» иногда теряется)
+document.addEventListener("DOMContentLoaded",()=>{ const b=document.getElementById("sideToggle"); if(!b) return; let last=0;
+  const go=e=>{ e.preventDefault(); e.stopPropagation(); if(Date.now()-last<400) return; last=Date.now(); toggleSide(); };
+  b.addEventListener("pointerup",go); b.addEventListener("click",go);
+  ["pointerdown","mousedown","dblclick","wheel","touchstart"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true})); });
 function toggleSide(force){
   const off=typeof force==="boolean"?force:!document.body.classList.contains("side-off");
   document.body.classList.toggle("side-off",off); store("sideOff",off?"1":"0");
