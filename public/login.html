@@ -605,7 +605,8 @@ function errText(e){
 function busy(form,on){form.querySelectorAll("button[type=submit]").forEach(b=>b.disabled=on)}
 
 // Профиль передвижения — тот же список, что на карте; хранится в аккаунте (user_metadata.mobility) и в этом браузере (ic_profile)
-const MOB={wheelchair_manual:["Кресло-коляска (механическая)","Механикалық арба","Manual wheelchair"],
+const MOB={none:["Без ограничений","Шектеусіз","No restrictions"],
+  wheelchair_manual:["Кресло-коляска (механическая)","Механикалық арба","Manual wheelchair"],
   wheelchair_power:["Кресло-коляска (электрическая)","Электр арба","Power wheelchair"],
   crutches:["Трость, ходунки, костыли","Таяқ, жүргіш","Cane, walker, crutches"],
   blind:["Незрячий / слабовидящий","Көзі нашар көретін","Blind / low vision"],
@@ -615,7 +616,7 @@ const MOB={wheelchair_manual:["Кресло-коляска (механическ
 function fillMob(u){
   const sel=$("accMob"); if(!sel) return; const li={ru:0,kk:1,en:2}[lang]||0;
   let cur=(u&&u.user_metadata&&u.user_metadata.mobility)||""; try{ cur=cur||localStorage.getItem("ic_profile")||""; }catch(e){}
-  if(!MOB[cur]) cur="wheelchair_manual";
+  if(!MOB[cur]) cur="none";
   sel.innerHTML=Object.entries(MOB).map(([k,v])=>`<option value="${k}">${v[li]}</option>`).join(""); sel.value=cur;
   try{ localStorage.setItem("ic_profile",cur); }catch(e){}
 }

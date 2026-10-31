@@ -2176,8 +2176,9 @@ en:{
 }};
 
 /* ============ Профили передвижения ============ */
-const PROFILE_ICON={wheelchair_manual:"wc", wheelchair_power:"wcp", crutches:"cane", blind:"blind", deaf:"deaf", stroller:"stroller", temporary:"crutch"};
+const PROFILE_ICON={none:"walk", wheelchair_manual:"wc", wheelchair_power:"wcp", crutches:"cane", blind:"blind", deaf:"deaf", stroller:"stroller", temporary:"crutch"};
 const PROFILES = {
+  none:{ru:"Без ограничений",kk:"Шектеусіз",en:"No restrictions", maxSlope:99, maxStep:99, avoidStairs:false, speed:1.15, plain:true},
   wheelchair_manual:{ru:"Кресло-коляска (механическая)",kk:"Механикалық арба",en:"Manual wheelchair", maxSlope:5, maxStep:2, avoidStairs:true, speed:0.9},
   wheelchair_power:{ru:"Кресло-коляска (электрическая)",kk:"Электр арба",en:"Power wheelchair", maxSlope:8, maxStep:4, avoidStairs:true, speed:1.2},
   crutches:{ru:"Трость, ходунки, костыли",kk:"Таяқ, жүргіш",en:"Cane, walker, crutches", maxSlope:10, maxStep:12, avoidStairs:true, speed:0.7},
@@ -3066,7 +3067,7 @@ function cacheSet(key, items){
 
 /* ============ Состояние ============ */
 const S = {
-  lang:"ru", profile:"wheelchair_manual", theme:"light", font:"normal",
+  lang:"ru", profile:"none", theme:"light", font:"normal",
   contrast:"normal", motion:"on", voice:"on", view:"map", basemap:"osm", city:"almaty"
 };
 
@@ -3195,7 +3196,10 @@ function setProfile(v){
   if(v==="blind" && !wasBlind && read("hints","")===""){ setHints("on",true); setTimeout(()=>{ toast(t("hintsBlindAuto")); sayNow(t("hintsBlindAuto")); },300); }
   const p=PROFILES[v];
   const noLimit = p.maxStep >= 99;
-  document.getElementById("profileNote").textContent =
+  document.getElementById("profileNote").textContent = p.plain ? (
+    S.lang==="ru" ? "Обычный пешеходный маршрут: самый удобный путь без обходов. Для коляски, трости или травмы выберите профиль — маршрут подстроится." :
+    S.lang==="kk" ? "Қарапайым жаяу бағыт: айналмай, ең ыңғайлы жол. Арба, таяқ немесе жарақат болса — профильді таңдаңыз, бағыт соған бейімделеді." :
+                    "Regular walking route: the most convenient path, no detours. Pick a profile for a wheelchair, cane or injury and the route adapts.") :
     S.lang==="ru" ? `Максимальный уклон ${p.maxSlope}%` + (noLimit? ". Ступени не блокируют маршрут — предупреждаем о них отдельно." : `, порог до ${p.maxStep} см.`) :
     S.lang==="kk" ? `Ең үлкен еңіс ${p.maxSlope}%` + (noLimit? ". Баспалдақтар бағытты бөгемейді — бөлек ескертеміз." : `, табалдырық ${p.maxStep} см дейін.`) :
                     `Max slope ${p.maxSlope}%` + (noLimit? ". Steps don't block the route — we warn about them separately." : `, threshold up to ${p.maxStep} cm.`);
@@ -5187,6 +5191,7 @@ const REP_WHO={
 const WHEELED=["wheelchair_manual","wheelchair_power","stroller"];
 function knownList(){
   const p=S.profile, prof=PROFILES[p], out=[], d=KB.data||{};
+  if(!prof || prof.plain) return out;   // без ограничений — обычный маршрут, барьеры не обходим
   (d.kerbs||[]).forEach(k=>{ if(k[2]>prof.maxStep) out.push({ll:[k[0],k[1]], kind:"kerb", src:"osm", h:k[2]}); });
   if(WHEELED.includes(p)||p==="temporary") (d.gates||[]).forEach(g=>out.push({ll:[g[0],g[1]], kind:"gate", src:"osm"}));
   if(WHEELED.includes(p)) (d.nowc||[]).forEach(w=>out.push({ll:w.ll, g:w.g, kind:"nowc", src:"osm"}));
@@ -7453,7 +7458,7 @@ function globeToMap(cityKey){
 (function init(){
   S.lang=read("lang","ru"); S.profile=read("profile","");
   if(!S.profile){ try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^sb-.+-auth-token$/.test(k)){ const v=JSON.parse(localStorage.getItem(k)||"null"); const m=v&&v.user&&v.user.user_metadata&&v.user.user_metadata.mobility; if(m) S.profile=m; } } }catch(e){} }
-  if(!PROFILES[S.profile]) S.profile="wheelchair_manual";
+  if(!PROFILES[S.profile]) S.profile="none";
   S.theme=read("theme", (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
   S.font=read("font","normal"); S.contrast=read("contrast","normal"); S.ui=read("ui","soft");
   S.motion=read("motion", (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)?"off":"on");
