@@ -5246,18 +5246,19 @@ function lmIcon(it){
 }
 function lmOn(){ return read("lm","on")!=="off"; }
 async function lmLoad(){
-  if(LM.loading) return; if(LM.city===S.city && LM.items && Date.now()-LM.at<6*3600e3) return;
+  if(LM.city===S.city && (LM.loading || (LM.items && Date.now()-LM.at<6*3600e3))) return;
   if(LM.city!==S.city){ LM.city=S.city; LM.items=null; lmClear(); }
-  LM.loading=true;
+  const cityK=S.city; LM.loading=true;
   try{
-    for(let i=0;i<8;i++){
-      const r=await fetch(`/api/landmarks?city=${encodeURIComponent(S.city)}&bb=${cityBB()}`);
-      if(r.status===200){ const d=await r.json(); if(LM.city!==S.city) return; LM.items=d.items||[]; LM.at=Date.now(); lmDraw(); return; }
+    for(let i=0;i<10;i++){
+      const r=await fetch(`/api/landmarks?city=${encodeURIComponent(cityK)}&bb=${cityBB()}`);
+      if(LM.city!==cityK) return;
+      if(r.status===200){ const d=await r.json(); if(LM.city!==cityK) return; LM.items=d.items||[]; LM.at=Date.now(); lmDraw(); return; }
       if(r.status!==202) return;
-      await new Promise(ok=>setTimeout(ok, 8000+i*4000));   // сервер считает впервые — ждём
-      if(LM.city!==S.city) return;
+      await new Promise(ok=>setTimeout(ok, 6000+i*3000));   // сервер считает впервые — ждём
+      if(LM.city!==cityK) return;
     }
-  }catch(e){} finally{ LM.loading=false; }
+  }catch(e){} finally{ if(LM.city===cityK) LM.loading=false; }
 }
 function lmClear(){ if(LM.layer) LM.layer.clearLayers(); LM.shown.clear(); }
 function lmMinW(z){ return z>=16?0:z>=15?3:z>=14?4:z>=13?5:z>=12?6:99; }
