@@ -337,10 +337,11 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/place-info' && req.method === 'GET') return await placeinfo.handleInfo(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/place-photo' && req.method === 'GET') return await placeinfo.handlePhoto(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/health' && req.method === 'GET') {
-    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing });
+    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status() });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname === '/api/tts') return await tts.handle(req, res, new URL(req.url, 'http://x'), sendJson, tooMany);
   if (pathname === '/api/barriers') { const done = await barriers.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/rating') { const done = await rating.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname.startsWith('/api/reviews') || pathname.startsWith('/api/help')) {
@@ -557,6 +558,7 @@ const push = require('./push');
 const profile = require('./profile');
 const rating = require('./rating');
 const barriers = require('./barriers');
+const tts = require('./tts');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
@@ -867,6 +869,7 @@ process.on('unhandledRejection', (e) => console.error('unhandled:', e && e.stack
 server.keepAliveTimeout = 65e3; server.headersTimeout = 66e3;   // за прокси Render — без обрывов соединений
 
 server.listen(PORT, process.env.HOST || undefined, () => {
+  setTimeout(() => tts.ensure().catch(() => {}), 5000);   // голоса Piper скачиваются в фоне
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();
   social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));

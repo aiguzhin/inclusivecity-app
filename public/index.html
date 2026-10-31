@@ -4170,10 +4170,7 @@ function distToRoute(p,pts){ let best=Infinity; const k=Math.cos(p[0]*Math.PI/18
   return best; }
 const NAV_ARROW={left:"←",right:"→","slight left":"↖","slight right":"↗","sharp left":"↙","sharp right":"↘",straight:"↑",uturn:"↶"};
 function navVib(mod){ if(!navigator.vibrate) return; if(/left/.test(mod)) navigator.vibrate([350]); else if(/right/.test(mod)) navigator.vibrate([120,80,120]); else if(mod==="arrive") navigator.vibrate([100,60,100,60,400]); else navigator.vibrate(60); }
-function navSay(text){ // в навигации говорим всегда, даже если общий голос выключен — для этого её и включают
-  if(!("speechSynthesis" in window)) return;
-  try{ speechSynthesis.cancel(); const {voice}=pickVoice(S.lang); const u=new SpeechSynthesisUtterance(speechify(text));
-    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=1.02; u.pitch=1; speechSynthesis.speak(u); }catch(e){} }
+function navSay(text){ ttsSay(speechify(text),1.02); } // в навигации говорим всегда, даже если общий голос выключен — для этого её и включают
 function lowFirst(x){ return x ? x.charAt(0).toLowerCase()+x.slice(1) : x; }
 function navPhrase(i){ return stepText(NAV.steps[i],i).replace(/^\d+\.\s*/,""); }
 function navRender(here){
@@ -4271,7 +4268,7 @@ function navStop(silent){
   if(userMarker) userMarker.setIcon(divIcon("pin-me",18));
   if(canRotate() && typeof compassMode!=="undefined" && compassMode!=="follow") map.setBearing(0);
   try{ NAV.wake&&NAV.wake.release(); }catch(e){} NAV.wake=null;
-  if(!silent) try{ speechSynthesis.cancel(); }catch(e){}
+  if(!silent) ttsStop();
 }
 document.addEventListener("visibilitychange",async()=>{ if(NAV.on && !document.hidden && "wakeLock" in navigator){ try{ NAV.wake=await navigator.wakeLock.request("screen"); }catch(e){} } });
 async function navTick(pos){
@@ -6292,6 +6289,84 @@ function loadVoices(){
   apply();
   speechSynthesis.onvoiceschanged = apply;
 }
+/* ============ Голос ============
+ * Русский и казахский читает наш сервер (Piper: «Дмитрий» и ISSAI) — один и тот же живой голос
+ * на любом телефоне. Если сервер не ответил за 4 с, читает голос браузера. Английский — всегда браузер.
+ * Перед чтением убираем разметку, ссылки, обратные слэши и значки, чтобы голос не произносил «бэкслэш». */
+const TTS={a:null,gen:0,speaking:false,failAt:0,stopCur:null,unlocked:false};
+function ttsClean(s){
+  return String(s||"")
+    .replace(/\\[nrt]/g," ").replace(/\\/g," ")
+    .replace(/https?:\/\/\S+/g," ").replace(/[*_`#>|~^=<{}\[\]]/g," ")
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu," ")
+    .replace(/\s*[\r\n]+\s*[-•—–]?\s*/g,". ").replace(/(^|\s)[-•]\s+/g,"$1")
+    .replace(/\s*[→←↑↓↖↗↙↘↶]\s*/g,", ").replace(/\s*\/\s*/g," ")
+    .replace(/\.\s*\./g,".").replace(/([,.:;!?])\s*[,.]+/g,"$1").replace(/\s+([,.!?:;])/g,"$1").replace(/\s{2,}/g," ")
+    .replace(/^[\s,.;:]+/,"").trim();
+}
+function ttsChunks(text){
+  const out=[]; let cur="";
+  for(const p of text.split(/(?<=[.!?…])\s+/)){
+    if(cur && (cur+" "+p).length>230){ out.push(cur); cur=p; } else cur=cur?cur+" "+p:p;
+    while(cur.length>300){ const k=cur.lastIndexOf(",",280)>80?cur.lastIndexOf(",",280)+1:280; out.push(cur.slice(0,k)); cur=cur.slice(k).trim(); }
+  }
+  if(cur) out.push(cur); return out;
+}
+function ttsBusy(){ return TTS.speaking || !!(window.speechSynthesis&&speechSynthesis.speaking); }
+function ttsUnlock(){ // iOS разрешает звук только после касания — «будим» плеер при первом нажатии
+  if(TTS.unlocked) return; TTS.unlocked=true;
+  try{ TTS.a=TTS.a||new Audio(); TTS.a.muted=true; TTS.a.src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; const p=TTS.a.play(); if(p) p.then(()=>{TTS.a.pause(); TTS.a.muted=false;}).catch(()=>{TTS.a.muted=false;}); }catch(e){}
+}
+document.addEventListener("pointerdown",ttsUnlock,{capture:true,passive:true});
+function ttsStop(){
+  TTS.gen++; TTS.speaking=false;
+  if(TTS.stopCur){ const f=TTS.stopCur; TTS.stopCur=null; f(false); }
+  if(TTS.a) try{ TTS.a.pause(); }catch(e){}
+  if("speechSynthesis" in window) try{ speechSynthesis.cancel(); }catch(e){}
+}
+function ttsBrowser(text,rate,warn){
+  if(!("speechSynthesis" in window)){ if(warn) toast(t("voiceNo")); return; }
+  try{
+    const {voice,fallback}=pickVoice(S.lang); const u=new SpeechSynthesisUtterance(text);
+    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=rate||1; u.pitch=1;
+    if(warn && !window.__voiceWarned){ if(fallback){ toast(t("voiceFallback")); window.__voiceWarned=1; } else if(!voice){ toast(t("voiceMissing")); window.__voiceWarned=1; } }
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function ttsPlay(blob,rate){
+  return new Promise(res=>{
+    const a=TTS.a||(TTS.a=new Audio()); const url=URL.createObjectURL(blob);
+    let fin=false; const done=v=>{ if(fin) return; fin=true; TTS.stopCur=null; a.onended=a.onerror=null; setTimeout(()=>URL.revokeObjectURL(url),1000); res(v); };
+    TTS.stopCur=done; a.onended=()=>done(true); a.onerror=()=>done(false);
+    a.muted=false; a.src=url; try{ a.preservesPitch=true; a.playbackRate=rate||1; }catch(e){}
+    const p=a.play(); if(p) p.catch(()=>done(false));
+  });
+}
+function ttsFetch(lang,part){
+  const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),4000);
+  return fetch("/api/tts?l="+lang+"&t="+encodeURIComponent(part),{signal:ctl.signal})
+    .then(r=>{ clearTimeout(tm); if(!r.ok) throw new Error("tts "+r.status); return r.blob(); })
+    .finally(()=>clearTimeout(tm));
+}
+async function ttsSay(text,rate,warn){
+  ttsStop(); text=ttsClean(text); if(!text) return;
+  const lang=S.lang, g=TTS.gen;
+  if((lang==="ru"||lang==="kk") && Date.now()-TTS.failAt>120e3 && location.protocol!=="file:"){
+    const parts=ttsChunks(text); TTS.speaking=true;
+    let next=ttsFetch(lang,parts[0]);
+    for(let i=0;i<parts.length;i++){
+      let blob=null; try{ blob=await next; }catch(e){}
+      if(g!==TTS.gen) return;
+      if(!blob){ TTS.failAt=Date.now(); TTS.speaking=false; return ttsBrowser(parts.slice(i).join(" "),rate,warn); }
+      if(i+1<parts.length){ next=ttsFetch(lang,parts[i+1]); next.catch(()=>{}); }
+      const ok=await ttsPlay(blob,rate);
+      if(g!==TTS.gen) return;
+      if(!ok){ TTS.speaking=false; return ttsBrowser(parts.slice(i).join(" "),rate,warn); }
+    }
+    TTS.speaking=false; return;
+  }
+  ttsBrowser(text,rate,warn);
+}
 // Для голоса: «120 м» → «120 метров», «1.2 км» → «1,2 километра», без номеров шагов
 function spokenDist(d){
   d=Math.max(0,Math.round(d));
@@ -6325,31 +6400,18 @@ function pickVoice(lang){
   return {voice:null, fallback:false};
 }
 function speakRoute(){
-  if(!("speechSynthesis" in window)){ toast(t("voiceNo")); return; }
   stopSpeak();
   if(!lastRoute || !lastSteps.length) return;
   const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
   const n=lastAnalysis?countBarriers(lastAnalysis):0, turns=lastSteps.filter(x=>x.type!=="depart"&&x.type!=="arrive"&&x.mod&&x.mod!=="straight").length;
   const sum=tf("spSummary",{d:spokenDist(lastRoute.rt.distance), m:mins, t:turns})+" "+(n?tf("spBarriers",{n}):t("spClear"))+" "+t("spHint");
-  const {voice, fallback} = pickVoice(S.lang);
-  const u=new SpeechSynthesisUtterance(sum);
-  u.lang = BCP[S.lang] || "ru-RU";
-  if(voice) u.voice=voice;
-  u.rate=0.95;
-  if(!window.__voiceWarned){ if(fallback){ toast(t("voiceFallback")); window.__voiceWarned=1; } else if(!voice){ toast(t("voiceMissing")); window.__voiceWarned=1; } }
-  speechSynthesis.speak(u);
+  ttsSay(sum,0.97,true);
 }
-function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
+function stopSpeak(){ ttsStop(); }
 // Короткая фраза вслух (компас). Озвучиваем только если голос включён в настройках.
 function speak(text){
-  if(S.voice!=="on" || !("speechSynthesis" in window)) return;
-  try{
-    stopSpeak();
-    const {voice}=pickVoice(S.lang);
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=0.98;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  if(S.voice!=="on") return;
+  ttsSay(text,0.98);
 }
 function voiceInput(fieldId){
   const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -6626,7 +6688,7 @@ document.querySelectorAll(".modal").forEach(m=>{
 function toast(s){
   const el=document.getElementById("toast");
   el.textContent=s; el.classList.add("show");
-  if(S.hints==="on" && !(window.speechSynthesis&&speechSynthesis.speaking)) sayNow(s);
+  if(S.hints==="on" && !ttsBusy()) sayNow(s);
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),3800);
 }
 
@@ -6728,16 +6790,7 @@ Object.assign(I18N.en,{
 // Первое касание произносит название элемента, второе — нажимает. Поля и списки называются при фокусе.
 const HINT_SEL='button,a[href],summary,[role="button"],[role="menuitem"],[role="tab"],[role="switch"],[role="option"],input[type="checkbox"],input[type="radio"],[onclick],.leaflet-marker-icon';
 let hintArmed=null, hintAt=0, hintPass=null, hintPassAt=0, hintPtr=0, hintTips=0;
-function sayNow(text,rate){
-  if(!text || !("speechSynthesis" in window)) return;
-  try{
-    speechSynthesis.cancel();
-    const {voice}=pickVoice(S.lang);
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang=BCP[S.lang]||"ru-RU"; if(voice) u.voice=voice; u.rate=rate||1.05;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
+function sayNow(text,rate){ if(text) ttsSay(text,rate||1.05); }
 // Сообщение для экранного диктора (VoiceOver/TalkBack) и, в режиме подсказок, голосом
 function announce(text){
   const el=document.getElementById("srLive");
