@@ -5,6 +5,7 @@
 let H = null;
 const MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
 const TTL = 7 * 864e5;
+const VER = 2;   // меняем, когда меняются правила отбора, — старый кэш пересчитывается
 const mem = new Map();
 const busy = new Map();
 const lastErr = new Map();
@@ -12,7 +13,7 @@ const lastErr = new Map();
 function query(bb) {
   return `[out:json][timeout:110];(`
     + `nwr["tourism"~"^(attraction|museum|theme_park|zoo|gallery|viewpoint|aquarium)$"]["name"](${bb});`
-    + `nwr["historic"~"^(monument|memorial|castle|fort|ruins|archaeological_site|mausoleum|tomb)$"]["name"]["memorial"!~"^(plaque|blue_plaque|stolperstein|bench)$"](${bb});`
+    + `nwr["historic"~"^(monument|memorial|castle|fort|ruins|archaeological_site|mausoleum|tomb|aircraft|tank|locomotive)$"]["name"]["memorial"!~"^(plaque|blue_plaque|stolperstein|bench)$"](${bb});`
     + `nwr["amenity"="place_of_worship"]["name"](${bb});`
     + `nwr["amenity"~"^(theatre|arts_centre|bus_station|concert_hall|planetarium|circus)$"]["name"](${bb});`
     + `nwr["leisure"~"^(stadium|water_park|sports_centre)$"]["name"]["wikidata"](${bb});nwr["leisure"="stadium"]["name"](${bb});`
@@ -39,7 +40,7 @@ async function fetchOne(url, body) {
 // Вид значка и «вес» (чем больше — тем раньше виден при отдалении)
 function kindOf(g) {
   const rel = g.religion || '';
-  if (g.aeroway === 'aerodrome') return ['airport', 6];
+  if (g.aeroway === 'aerodrome') return g.military || g['aerodrome:type'] === 'military' || g.access === 'private' || g.access === 'no' || !/аэропорт|airport|әуежай/i.test(g.name || '') ? null : ['airport', 6];
   if (g.amenity === 'place_of_worship') {
     if (rel === 'muslim') return ['mosque', 3];
     if (rel === 'christian') return ['church', 3];
@@ -60,7 +61,8 @@ function kindOf(g) {
   if (g.historic === 'mausoleum' || g.historic === 'tomb') return ['mausoleum', 3];
   if (g.historic === 'monument') return ['monument', 2];
   if (g.historic === 'memorial') return ['memorial', 1];
-  if (g.historic) return ['ruins', 2];
+  if (g.historic === 'ruins' || g.historic === 'archaeological_site') return ['ruins', 2];
+  if (g.historic) return ['monument', 2];
   if (g.man_made) return ['tower', 3];
   if (g.tourism === 'viewpoint') return ['view', 1];
   return ['sight', 2];
@@ -81,7 +83,8 @@ async function compute(city, bb) {
     const g = e.tags || {}; const name = g['name:ru'] || g.name; if (!name) continue;
     const la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon;
     if (la == null || lo == null) continue;
-    const [k, base] = kindOf(g);
+    const kb = kindOf(g); if (!kb) continue;
+    const [k, base] = kb;
     // одно и то же место бывает и точкой, и контуром — оставляем одно
     const key = k + '|' + name.toLowerCase() + '|' + la.toFixed(3) + ',' + lo.toFixed(3);
     if (seen.has(key)) continue; seen.add(key);
@@ -91,7 +94,7 @@ async function compute(city, bb) {
     items.push({ id: e.type + '/' + e.id, n: name.slice(0, 80), nk: (g['name:kk'] || '').slice(0, 80), ne: (g['name:en'] || '').slice(0, 80), k, w, ll: [+la.toFixed(6), +lo.toFixed(6)], t });
   }
   items.sort((a, b) => b.w - a.w);
-  const data = { at: Date.now(), items: items.slice(0, 1500) };
+  const data = { at: Date.now(), v: VER, items: items.slice(0, 1500) };
   mem.set(city, data);
   H.kvPut('landmarks:' + city, JSON.stringify(data), 'application/json').catch(() => {});
   return data;
@@ -107,7 +110,7 @@ async function handle(req, res, pathname, url) {
   }
   let c = mem.get(city);
   if (!c) { try { const b = await H.kvGet('landmarks:' + city); if (b) { c = JSON.parse(b); mem.set(city, c); } } catch (e) {} }
-  const fresh = c && Date.now() - c.at < TTL;
+  const fresh = c && c.v === VER && Date.now() - c.at < TTL;
   if (!fresh && !busy.has(city)) {
     busy.set(city, compute(city, n.map((x) => x.toFixed(4)).join(',')).then(() => lastErr.delete(city))
       .catch((e) => { lastErr.set(city, String(e && (e.errors ? e.errors.map((x) => x.message).join('; ') : e.message)).slice(0, 200)); console.warn('landmarks', city, lastErr.get(city)); })
