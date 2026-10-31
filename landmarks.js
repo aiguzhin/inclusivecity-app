@@ -120,4 +120,45 @@ async function handle(req, res, pathname, url) {
   return H.sendJson(res, 202, { pending: true, error: lastErr.get(city) || null });
 }
 
-module.exports = { init(h) { H = h; }, handle };
+// Центры городов (как CITIES в index.html) — после запуска сервер по очереди готовит все города,
+// чтобы значки появлялись сразу, а не только там, где карту уже открывали
+const CITY_C = {
+  almaty: [43.2383, 76.9455],
+  astana: [51.1282, 71.4306],
+  shymkent: [42.3174, 69.5901],
+  karaganda: [49.8063, 73.0855],
+  aktobe: [50.2839, 57.1670],
+  taraz: [42.9000, 71.3667],
+  pavlodar: [52.2871, 76.9674],
+  oskemen: [49.9483, 82.6275],
+  semey: [50.4111, 80.2275],
+  atyrau: [47.0945, 51.9238],
+  kostanay: [53.2198, 63.6354],
+  kyzylorda: [44.8479, 65.5093],
+  oral: [51.2333, 51.3667],
+  petropavl: [54.8667, 69.1500],
+  aktau: [43.6410, 51.1975],
+  temirtau: [50.0547, 72.9644],
+  turkistan: [43.3000, 68.2500],
+  kokshetau: [53.2833, 69.4000],
+  taldykorgan: [45.0156, 78.3739],
+  ekibastuz: [51.7298, 75.3266],
+  konaev: [43.8552, 77.0615],
+  zhezkazgan: [47.8043, 67.7146]
+};
+async function warm() {
+  for (const [city, c] of Object.entries(CITY_C)) {
+    try {
+      let x = mem.get(city);
+      if (!x) { const b = await H.kvGet('landmarks:' + city); if (b) { x = JSON.parse(b); mem.set(city, x); } }
+      if (x && x.v === VER && Date.now() - x.at < TTL) continue;
+      if (busy.has(city)) continue;
+      const bb = [c[0] - 0.13, c[1] - 0.24, c[0] + 0.13, c[1] + 0.24].map((v) => v.toFixed(4)).join(',');
+      const job = compute(city, bb); busy.set(city, job);
+      await job.catch((e) => console.warn('landmarks warm', city, e.message)).finally(() => busy.delete(city));
+      await new Promise((r) => setTimeout(r, 20e3));   // бережём бесплатный Overpass
+    } catch (e) {}
+  }
+}
+
+module.exports = { init(h) { H = h; setTimeout(() => warm().catch(() => {}), 60e3); setInterval(() => warm().catch(() => {}), 24 * 3600e3); }, handle };
