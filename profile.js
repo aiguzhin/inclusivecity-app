@@ -6,15 +6,19 @@ const path = require('path');
 let H = null, DIR = null;
 const MAX = 400 * 1024;
 
+const whoCache = new Map();   // токен -> {id, at}: не спрашиваем Supabase на каждый запрос
 async function whoAmI(req) {
   const url = process.env.SUPABASE_URL, anon = process.env.SUPABASE_ANON_KEY;
   const auth = String(req.headers.authorization || '');
   if (!url || !anon || !/^Bearer [\w.-]{20,}$/.test(auth)) return null;
+  const hit = whoCache.get(auth); if (hit && Date.now() - hit.at < 120e3) return hit.id;
   try {
     const r = await fetch(url.replace(/\/$/, '') + '/auth/v1/user', { headers: { apikey: anon, Authorization: auth } });
     if (!r.ok) return null;
     const u = await r.json();
-    return u && /^[0-9a-f-]{36}$/.test(u.id) ? u.id : null;
+    const id = u && /^[0-9a-f-]{36}$/.test(u.id) ? u.id : null;
+    if (id) { if (whoCache.size > 5000) whoCache.clear(); whoCache.set(auth, { id, at: Date.now() }); }
+    return id;
   } catch (e) { return null; }
 }
 const isImage = (b) => (b[0] === 0xff && b[1] === 0xd8) || (b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP') || (b[0] === 0x89 && b[1] === 0x50);
@@ -54,4 +58,5 @@ async function handle(req, res, pathname) {
 module.exports = {
   init(helpers) { H = helpers; DIR = path.join(H.DATA_DIR, 'avatars'); fs.mkdirSync(DIR, { recursive: true }); },
   handle,
+  whoAmI,
 };

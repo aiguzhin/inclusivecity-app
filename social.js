@@ -101,7 +101,8 @@ async function handle(req, res, pathname, url) {
     }
     const photo = photos[0] || null;
     const list = read('reviews');
-    const r = { id: crypto.randomUUID(), place, placeName: clean(f.placeName, 120), lat, lng, stars, checks: ck, text, photo, photos,
+    const uid = H.whoAmI ? await H.whoAmI(req) : null;   // если автор вошёл — отзыв увидят его друзья
+    const r = { id: crypto.randomUUID(), place, placeName: clean(f.placeName, 120), lat, lng, stars, checks: ck, text, photo, photos, uid: uid || undefined,
       author: clean(f.author, 40), profile: clean(f.profile, 30), at: new Date().toISOString(), ip: crypto.createHash('sha256').update(ipOf(req)).digest('hex').slice(0, 12) };
     list.unshift(r); write('reviews', list.slice(0, 20000));
     return H.sendJson(res, 201, { ok: true, id: r.id });
@@ -161,4 +162,9 @@ async function handle(req, res, pathname, url) {
   return null;   // не наш маршрут
 }
 
-module.exports = { init(helpers) { H = helpers; return restore(); }, handle };
+// Отзывы одного автора (для его друзей), без служебных полей
+function reviewsBy(uid) {
+  return read('reviews').filter((r) => r.uid === uid && !r.hidden).slice(0, 60)
+    .map((r) => Object.assign(pubReview(r), { place: r.place, placeName: r.placeName || '', lat: r.lat, lng: r.lng }));
+}
+module.exports = { init(helpers) { H = helpers; return restore(); }, handle, reviewsBy };

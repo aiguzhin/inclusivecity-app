@@ -341,7 +341,9 @@ async function handleApi(req, res, pathname) {
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname.startsWith('/api/friends')) { const done = await friends.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/tts') return await tts.handle(req, res, new URL(req.url, 'http://x'), sendJson, tooMany);
+  if (pathname === '/api/landmarks') { const done = await landmarks.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/barriers') { const done = await barriers.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/rating') { const done = await rating.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname.startsWith('/api/reviews') || pathname.startsWith('/api/help')) {
@@ -558,7 +560,9 @@ const push = require('./push');
 const profile = require('./profile');
 const rating = require('./rating');
 const barriers = require('./barriers');
+const landmarks = require('./landmarks');
 const tts = require('./tts');
+const friends = require('./friends');
 const busbuild = require('./tools/busbuild');
 const BUS_CITIES = busbuild.BUS_CITIES;
 const BUS_DIR = path.join(DATA_DIR, 'bus');
@@ -872,11 +876,13 @@ server.listen(PORT, process.env.HOST || undefined, () => {
   setTimeout(() => tts.ensure().catch(() => {}), 5000);   // голоса Piper скачиваются в фоне
   console.log(`InclusiveCity server running on port ${PORT}`);
   kvRestore();
-  social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a) }).catch((e) => console.warn('social:', e.message));
+  social.init({ readBody, sendJson, parseMultipart, kvPut, kvGet, UPLOADS_DIR, DATA_DIR, notify: (...a) => push.notify(...a), whoAmI: profile.whoAmI }).catch((e) => console.warn('social:', e.message));
   push.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR }).catch((e) => console.warn('push:', e.message));
   profile.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR });
+  friends.init({ readBody, sendJson, kvPut, kvGet, DATA_DIR, whoAmI: profile.whoAmI, reviewsBy: social.reviewsBy }).catch((e) => console.warn('friends:', e.message));
   rating.init({ sendJson, kvPut, kvGet });
   barriers.init({ sendJson, kvPut, kvGet });
+  landmarks.init({ sendJson, kvPut, kvGet });
   // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
   // Будим себя только на основном сервисе: копия (старый «inclusivecity-app») иначе тоже не спит

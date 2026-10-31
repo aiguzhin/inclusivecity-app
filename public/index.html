@@ -1039,6 +1039,21 @@ html[data-contrast="high"] .sat-crisp{filter:contrast(1.25) saturate(1.1)}
 .icon-pick button.on{border-color:#1769c2}
 html[data-contrast="high"] .icon-pick button.on{border-color:#ffd400}
 .icon-note{margin:10px 2px 0;font-size:.85em;opacity:.75}
+/* Достопримечательности значками с подписью (как в 2ГИС) */
+:root{--lm-a:#6b7a8f;--lm-b:#a7b3c3;--lm-g:#b9cdb5;--lm-f:#e8893a;--lm-p:#7fb27f;--lm-p2:#5f9a63;--lm-t:#1769c2;--lm-txt:#344052;--lm-halo:#fff}
+html[data-theme="dark"]{--lm-a:#9aa8bb;--lm-b:#5d6b7e;--lm-g:#4d6650;--lm-p:#5d8f60;--lm-p2:#47784b;--lm-t:#2563eb;--lm-txt:#e3e8ef;--lm-halo:#0f1520}
+html[data-contrast="high"]{--lm-a:#000;--lm-b:#555;--lm-txt:#000;--lm-halo:#fff}
+.lm-mk{background:none;border:0}
+.lm-mk .lm-ico{display:block;width:32px;height:32px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18));transition:transform .15s}
+.lm-mk .lm-ico svg{width:32px;height:32px;display:block}
+.lm-mk .lm-ico.lm-tr{width:26px;height:26px;margin:3px;border-radius:8px;background:var(--lm-t);padding:2px}
+.lm-mk .lm-ico.lm-tr svg{width:22px;height:22px}
+.lm-mk:hover .lm-ico{transform:scale(1.12)}
+.lm-mk .lm-lb{position:absolute;top:31px;left:50%;transform:translateX(-50%);width:max-content;max-width:150px;text-align:center;
+  font:600 12px/1.15 "Golos Text",system-ui,sans-serif;color:var(--lm-txt);white-space:normal;pointer-events:none;
+  text-shadow:0 0 2px var(--lm-halo),0 0 2px var(--lm-halo),0 0 3px var(--lm-halo),0 0 4px var(--lm-halo)}
+html[data-font="large"] .lm-mk .lm-lb{font-size:14px}
+html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1629,6 +1644,13 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         </div></div>
       </details>
       <details class="set-sec" name="settings">
+        <summary><span data-i18n="setLm">Значки достопримечательностей</span><b class="set-val" id="svLm"></b></summary>
+        <div class="set-body"><p class="hint" data-i18n="setLmHint">Мечети, соборы, музеи, театры, стадионы, вокзалы и памятники — значками с подписью, как в 2ГИС.</p><div class="seg" id="segLm">
+          <button onclick="setLm('on')" data-v="on" data-i18n="lmOnT">Показывать</button>
+          <button onclick="setLm('off')" data-v="off" data-i18n="lmOff">Скрыть</button>
+        </div></div>
+      </details>
+      <details class="set-sec" name="settings">
         <summary><span data-i18n="setMotion">Анимации</span><b class="set-val" id="svMotion"></b></summary>
         <div class="set-body"><div class="seg" id="segMotion">
           <button onclick="setMotion('on')" data-v="on" data-i18n="motionOn">Включены</button>
@@ -1964,6 +1986,7 @@ ru:{
  listTitle:"Текстовый режим", listHelp:"Тот же контент без карты: маршрут по шагам и объекты рядом с указанием расстояния и направления.",
  setTitle:"Настройки", setFont:"Размер текста", fontNormal:"Обычный", fontLarge:"Крупный", fontXlarge:"Очень крупный",
  setTheme:"Оформление", themeLight:"Светлое", themeDark:"Тёмное", setContrast:"Контрастность", contrastNormal:"Обычная", contrastHigh:"Повышенная",
+ setLm:"Значки достопримечательностей", setLmHint:"Мечети, соборы, музеи, театры, стадионы, вокзалы и памятники — значками с подписью, как в 2ГИС.", lmOnT:"Показывать", lmOff:"Скрыть",
  setMotion:"Анимации", motionOn:"Включены", motionOff:"Отключены", setVoice:"Озвучка маршрута", voiceOn:"Включена", voiceOff:"Выключена",
  setSaved:"Настройки сохраняются в этом браузере.", close:"Закрыть", settingsBtn:"Настройки",
  repTitle:"Сообщить о барьере", repHelp:"Отчёт уходит на модерацию и появляется на карте после проверки.",
@@ -2052,6 +2075,7 @@ kk:{
  listTitle:"Мәтіндік режим", listHelp:"Картасыз дәл сол мазмұн: бағыт қадам-қадаммен және жақын маңдағы нысандар, қашықтығы мен бағыты көрсетіледі.",
  setTitle:"Баптаулар", setFont:"Мәтін өлшемі", fontNormal:"Қалыпты", fontLarge:"Үлкен", fontXlarge:"Өте үлкен",
  setTheme:"Безендіру", themeLight:"Ашық", themeDark:"Күңгірт", setContrast:"Айқындық", contrastNormal:"Қалыпты", contrastHigh:"Жоғары",
+ setLm:"Көрікті жерлердің белгілері", setLmHint:"Мешіттер, соборлар, мұражайлар, театрлар, стадиондар, вокзалдар мен ескерткіштер — 2ГИС-тегідей белгі мен атауымен.", lmOnT:"Көрсету", lmOff:"Жасыру",
  setMotion:"Анимациялар", motionOn:"Қосулы", motionOff:"Өшірулі", setVoice:"Бағытты дауыстап оқу", voiceOn:"Қосулы", voiceOff:"Өшірулі",
  setSaved:"Баптаулар осы браузерде сақталады.", close:"Жабу", settingsBtn:"Баптаулар",
  repTitle:"Кедергі туралы хабарлау", repHelp:"Хабарлама модерацияға жіберіледі және тексерістен кейін картада көрінеді.",
@@ -2141,6 +2165,7 @@ en:{
  listTitle:"Text mode", listHelp:"The same content without the map: the route step by step and nearby places with distance and direction.",
  setTitle:"Settings", setFont:"Text size", fontNormal:"Normal", fontLarge:"Large", fontXlarge:"Extra large",
  setTheme:"Appearance", themeLight:"Light", themeDark:"Dark", setContrast:"Contrast", contrastNormal:"Normal", contrastHigh:"High",
+ setLm:"Landmark icons", setLmHint:"Mosques, cathedrals, museums, theatres, stadiums, stations and monuments shown as labelled icons, like in 2GIS.", lmOnT:"Show", lmOff:"Hide",
  setMotion:"Animations", motionOn:"On", motionOff:"Off", setVoice:"Route voice-over", voiceOn:"On", voiceOff:"Off",
  setSaved:"Settings are saved in this browser.", close:"Close", settingsBtn:"Settings",
  repTitle:"Report a barrier", repHelp:"The report goes to moderation and appears on the map once reviewed.",
@@ -3138,7 +3163,7 @@ function applyAll(){
   h.setAttribute("lang",S.lang);
   document.body.setAttribute("data-view",S.view);
   mark("segFont",S.font); mark("segTheme",S.theme); mark("segContrast",S.contrast);
-  mark("segMotion",S.motion); mark("segVoice",S.voice); mark("segLang",S.lang); mark("segHints",S.hints);
+  mark("segMotion",S.motion); mark("segLm",read("lm","on")); mark("segVoice",S.voice); mark("segLang",S.lang); mark("segHints",S.hints);
   { const mb=document.getElementById("mmHints"); if(mb) mb.setAttribute("aria-pressed",String(S.hints==="on")); }
   updateSetVals();
   renderTexts();
@@ -3159,6 +3184,7 @@ function updateSetVals(){
   try{ put("svCity", cityName()); }catch(e){}
   put("svLang", {ru:"Русский",kk:"Қазақша",en:"English"}[S.lang]);
   put("svMotion", t(S.motion==="off"?"motionOff":"motionOn"));
+  put("svLm", t(read("lm","on")==="off"?"lmOff":"lmOnT"));
   put("svFont", t(S.font==="xlarge"?"fontXlarge":S.font==="large"?"fontLarge":"fontNormal"));
   put("svTheme", t(S.theme==="dark"?"themeDark":"themeLight"));
   put("svContrast", t(S.contrast==="high"?"contrastHigh":"contrastNormal"));
@@ -3172,6 +3198,7 @@ function updateSetVals(){
 function setVoice(v){ S.voice=v; store("voice",v); applyAll(); if(v==="off") stopSpeak(); }
 function setLang(v){
   S.lang=v; store("lang",v);
+  try{ lmRelabel(); }catch(e){}
   document.getElementById("langSel").value=v;
   const l2=document.getElementById("langSel2"); if(l2) l2.value=v;
   buildProfileSelect(); buildBarrierSelect(); buildLayerBar(); buildBasemapSelect(); buildCitySelect();
@@ -3501,6 +3528,7 @@ function setCity(key){
   const sel=document.getElementById("citySel"); if(sel) sel.value=key;
   applyCityTexts(); updateSetVals(); try{ offlineStatus(); }catch(e){}
   if(!changed) return;
+  try{ if(lmOn()) lmLoad(); else lmClear(); }catch(e){}
   // Всё, что было привязано к прежнему городу, сбрасываем, чтобы не вести
   // маршрут из Алматы в Астану и не показывать чужие подсказки.
   acCache.clear();
@@ -3552,6 +3580,7 @@ function initMap(){
   map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D();
     const wp=document.getElementById("wbPanel"); if(wp && !wp.hidden){ clearTimeout(wbTimer); wbTimer=setTimeout(refreshWayback,700); } });
   mapReady=true;
+  try{ if(lmOn()) lmLoad(); }catch(e){}
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
 function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-poi" style="background:${color}"></div>`,iconSize:[16,16],iconAnchor:[8,8]}); }
@@ -4528,7 +4557,8 @@ async function sendReview(){
     fd.append("text",document.getElementById("rvText").value); const nm=document.getElementById("rvName").value.trim(); fd.append("author",nm); if(nm) store("myName",nm);
     fd.append("profile",S.profile);
     (rvDraft.photos||[]).forEach((ph,i)=>fd.append("photo", ph.file, `photo${i}.jpg`));
-    const r=await fetch("/api/reviews",{method:"POST",body:fd}); const d=await r.json().catch(()=>({}));
+    const tk=sbSession(), hd={}; if(tk&&tk.v.access_token&&(!tk.v.expires_at||tk.v.expires_at*1000>Date.now())) hd.Authorization="Bearer "+tk.v.access_token;
+    const r=await fetch("/api/reviews",{method:"POST",body:fd,headers:hd}); const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||r.status);
     try{ const mine=JSON.parse(read("myReviews","[]"))||[]; mine.unshift({id:d.id,name:p.name||p.addr||"",at:Date.now(),stars:rvDraft.stars||0}); store("myReviews",JSON.stringify(mine.slice(0,100))); }catch(e){}
     (rvDraft.photos||[]).forEach(ph=>URL.revokeObjectURL(ph.url));
@@ -5178,6 +5208,85 @@ async function loadKnownBarriers(){
   await Promise.all(jobs);
   return KB;
 }
+// ── Достопримечательности значками с подписью (как в 2ГИС): мечети, соборы, музеи, театры, стадионы, вокзалы… ──
+// Данные — /api/landmarks (landmarks.js, OSM, кэш 7 дней). Чем крупнее масштаб, тем больше значков; подписи не налезают друг на друга.
+const LM={city:null, items:null, at:0, layer:null, shown:new Map(), loading:false};
+const LM_A="var(--lm-a)", LM_B="var(--lm-b)", LM_T="var(--lm-t)";
+const LM_SVG={
+  mosque:`<path d="M7 27V18h15v9z" fill="${LM_B}"/><path d="M8 18c0-4.2 3.2-7 6.5-8 3.3 1 6.5 3.8 6.5 8z" fill="${LM_A}"/><path d="M14 10.2V6.5h1v3.7" fill="${LM_A}"/><rect x="23.5" y="9" width="3" height="18" fill="${LM_A}"/><path d="M23.3 9 25 4l1.7 5z" fill="${LM_A}"/><rect x="12.5" y="21" width="4" height="6" rx="2" fill="${LM_A}"/>`,
+  church:`<path d="M8 27V16h16v11z" fill="${LM_B}"/><path d="M11.5 16c0-3 2-4.5 4.5-6 2.5 1.5 4.5 3 4.5 6z" fill="${LM_A}"/><path d="M15.4 3h1.2v7h-1.2zM13.5 5h5v1.2h-5z" fill="${LM_A}"/><rect x="14" y="20" width="4" height="7" rx="2" fill="${LM_A}"/>`,
+  temple:`<path d="M6 27V17h20v10z" fill="${LM_B}"/><path d="M4 17 16 8l12 9z" fill="${LM_A}"/><rect x="14" y="20" width="4" height="7" fill="${LM_A}"/>`,
+  stadium:`<ellipse cx="16" cy="20" rx="13" ry="6.5" fill="${LM_A}"/><ellipse cx="16" cy="17.5" rx="13" ry="6.5" fill="${LM_B}"/><ellipse cx="16" cy="17.5" rx="7.5" ry="3.4" fill="var(--lm-g)"/>`,
+  museum:`<path d="M5 13 16 6l11 7z" fill="${LM_A}"/><path d="M6 13h20v2H6z" fill="${LM_A}"/><path d="M8 15h2.6v9H8zM12.5 15h2.6v9h-2.6zM17 15h2.6v9H17zM21.4 15H24v9h-2.6z" fill="${LM_B}"/><path d="M5 24h22v3H5z" fill="${LM_A}"/>`,
+  theatre:`<path d="M6 27V12l10-5 10 5v15z" fill="${LM_B}"/><path d="M11 27v-8a5 5 0 0 1 10 0v8z" fill="${LM_A}"/><circle cx="16" cy="12" r="1.6" fill="${LM_A}"/>`,
+  monument:`<path d="M14 5h4l1.3 17h-6.6z" fill="${LM_A}"/><path d="M15 5l1-2.5L17 5z" fill="${LM_A}"/><path d="M9 22h14v2.5H9zM7 24.5h18V27H7z" fill="${LM_B}"/>`,
+  memorial:`<path d="M10 9h5v16h-5zM17 6h5v19h-5z" fill="${LM_A}"/><path d="M16 21c-2-1.4-2-3.4 0-5.6.4 1.3 1.4 1.6 1.4.4 1.8 1.8 1.4 4-1.4 5.2z" fill="var(--lm-f)"/><path d="M6 25h20v2.5H6z" fill="${LM_B}"/>`,
+  mausoleum:`<path d="M8 27V17h16v10z" fill="${LM_B}"/><path d="M9 17c0-5 3.2-8.5 7-9.5 3.8 1 7 4.5 7 9.5z" fill="${LM_A}"/><rect x="13.5" y="20" width="5" height="7" rx="2.5" fill="${LM_A}"/>`,
+  castle:`<path d="M9 27V10h3V7h2v3h4V7h2v3h3v17z" fill="${LM_A}"/><path d="M14 27v-6a2 2 0 0 1 4 0v6z" fill="${LM_B}"/>`,
+  tower:`<path d="M14.5 4h3l1.5 23h-6z" fill="${LM_A}"/><ellipse cx="16" cy="10" rx="4" ry="2" fill="${LM_B}"/><path d="M15.4 1h1.2v3h-1.2z" fill="${LM_A}"/>`,
+  ruins:`<path d="M7 27V14h3v13zM13 27V10h3v17zM19 27V16h3v11z" fill="${LM_A}"/><path d="M5 25h22v2.5H5z" fill="${LM_B}"/>`,
+  park:`<circle cx="16" cy="13" r="8" fill="var(--lm-p)"/><circle cx="11.5" cy="16" r="4.5" fill="var(--lm-p2)"/><rect x="15" y="18" width="2.2" height="9" fill="${LM_A}"/>`,
+  zoo:`<ellipse cx="16" cy="20" rx="5.5" ry="4.5" fill="${LM_A}"/><circle cx="9" cy="14" r="2.6" fill="${LM_A}"/><circle cx="13.5" cy="10" r="2.6" fill="${LM_A}"/><circle cx="18.5" cy="10" r="2.6" fill="${LM_A}"/><circle cx="23" cy="14" r="2.6" fill="${LM_A}"/>`,
+  fun:`<circle cx="16" cy="13" r="9" fill="none" stroke="${LM_A}" stroke-width="2.4"/><path d="M16 4v18M7 13h18M9.6 6.6l12.8 12.8M22.4 6.6 9.6 19.4" stroke="${LM_B}" stroke-width="1.4"/><path d="M11 27l5-14 5 14z" fill="${LM_A}"/>`,
+  mall:`<path d="M7 11h18l-1.4 16H8.4z" fill="${LM_A}"/><path d="M12 13V9a4 4 0 0 1 8 0v4" fill="none" stroke="${LM_B}" stroke-width="2"/>`,
+  uni:`<path d="M2.5 13 16 7l13.5 6L16 19z" fill="${LM_A}"/><path d="M9 16.5V22c2 2 4.4 3 7 3s5-1 7-3v-5.5L16 20z" fill="${LM_B}"/><path d="M26 14v7" stroke="${LM_A}" stroke-width="1.6"/>`,
+  view:`<path d="M3 16c3.6-5 8-7.5 13-7.5s9.4 2.5 13 7.5c-3.6 5-8 7.5-13 7.5S6.6 21 3 16z" fill="${LM_B}"/><circle cx="16" cy="16" r="4.2" fill="${LM_A}"/>`,
+  sight:`<path d="m16 4 3.5 7.4 8 .9-6 5.4 1.7 8L16 21.6 8.8 25.7l1.7-8-6-5.4 8-.9z" fill="${LM_A}"/>`,
+  airport:`<path d="M16 3.5c1.1 0 1.8 1 1.8 2.2V12l9.2 5.5v2.6l-9.2-2.6v5.6l2.7 2v2l-4.5-1.3-4.5 1.3v-2l2.7-2v-5.6L5 20.1v-2.6l9.2-5.5V5.7c0-1.2.7-2.2 1.8-2.2z" fill="#fff"/>`,
+  train:`<rect x="9" y="5" width="14" height="17" rx="3.5" fill="#fff"/><rect x="11.5" y="8" width="9" height="6" rx="1" fill="${LM_T}"/><circle cx="12.5" cy="18" r="1.4" fill="${LM_T}"/><circle cx="19.5" cy="18" r="1.4" fill="${LM_T}"/><path d="M11 22l-2.5 4.5M21 22l2.5 4.5" stroke="#fff" stroke-width="1.8"/>`,
+  bus:`<rect x="8" y="5" width="16" height="19" rx="3" fill="#fff"/><rect x="10" y="8" width="12" height="7" rx="1" fill="${LM_T}"/><circle cx="12" cy="19.5" r="1.4" fill="${LM_T}"/><circle cx="20" cy="19.5" r="1.4" fill="${LM_T}"/><path d="M10 24v3M22 24v3" stroke="#fff" stroke-width="2.2"/>`,
+  metro:`<path d="M7 24 11.3 8h1.6L16 17.5 19.1 8h1.6L25 24h-3.2l-2.4-9.5L16.8 22h-1.6l-2.6-7.5L10.2 24z" fill="#fff"/>`,
+};
+const LM_TRANSPORT={airport:1,train:1,bus:1,metro:1};
+function lmName(it){ return (S.lang==="kk"&&it.nk)||(S.lang==="en"&&it.ne)||it.n; }
+function lmIcon(it){
+  const svg=`<svg viewBox="0 0 32 32" aria-hidden="true">${LM_SVG[it.k]||LM_SVG.sight}</svg>`;
+  return L.divIcon({className:"lm-mk", iconSize:[32,32], iconAnchor:[16,16],
+    html:`<span class="lm-ico${LM_TRANSPORT[it.k]?" lm-tr":""}">${svg}</span><span class="lm-lb">${esc(lmName(it))}</span>`});
+}
+function lmOn(){ return read("lm","on")!=="off"; }
+async function lmLoad(){
+  if(LM.loading) return; if(LM.city===S.city && LM.items && Date.now()-LM.at<6*3600e3) return;
+  if(LM.city!==S.city){ LM.city=S.city; LM.items=null; lmClear(); }
+  LM.loading=true;
+  try{
+    for(let i=0;i<8;i++){
+      const r=await fetch(`/api/landmarks?city=${encodeURIComponent(S.city)}&bb=${cityBB()}`);
+      if(r.status===200){ const d=await r.json(); if(LM.city!==S.city) return; LM.items=d.items||[]; LM.at=Date.now(); lmDraw(); return; }
+      if(r.status!==202) return;
+      await new Promise(ok=>setTimeout(ok, 8000+i*4000));   // сервер считает впервые — ждём
+      if(LM.city!==S.city) return;
+    }
+  }catch(e){} finally{ LM.loading=false; }
+}
+function lmClear(){ if(LM.layer) LM.layer.clearLayers(); LM.shown.clear(); }
+function lmMinW(z){ return z>=16?0:z>=15?3:z>=14?4:z>=13?5:z>=12?6:99; }
+function lmDraw(){
+  if(!mapReady || !map) return;
+  if(!LM.layer){
+    map.createPane("lm", map._rotatePane || undefined); const pn=map.getPane("lm"); pn.style.zIndex=390;
+    LM.layer=L.layerGroup([], {pane:"lm"}).addTo(map);
+    map.on("moveend zoomend", lmDraw);
+  }
+  if(!lmOn() || !LM.items || (typeof globeOpen==="function" && globeOpen())){ lmClear(); return; }
+  const z=Math.round(map.getZoom()), minW=lmMinW(z), b=map.getBounds().pad(0.15), placed=[], keep=new Set();
+  const big=S.font==="xlarge"?1.35:S.font==="large"?1.15:1;
+  for(const it of LM.items){
+    if(it.w<minW || placed.length>=90) continue;
+    if(!b.contains(it.ll)) continue;
+    const p=map.latLngToContainerPoint(it.ll), half=Math.min(80, 8+lmName(it).length*3.4)*big;
+    if(placed.some(q=>Math.abs(q.x-p.x)<(half+q.h) && Math.abs(q.y-p.y)<40*big)) continue;
+    placed.push({x:p.x,y:p.y,h:half}); keep.add(it.id);
+    if(!LM.shown.has(it.id)){
+      const m=L.marker(it.ll,{icon:lmIcon(it), pane:"lm", keyboard:false, title:lmName(it), riseOnHover:true});
+      m.on("click",ev=>{ L.DomEvent.stop(ev); showPlace({lat:it.ll[0], lon:it.ll[1], name:lmName(it), tags:Object.assign({name:it.n},it.t), osm:it.id, layer:false}); });
+      LM.layer.addLayer(m); LM.shown.set(it.id,m);
+    }
+  }
+  LM.shown.forEach((m,id)=>{ if(!keep.has(id)){ LM.layer.removeLayer(m); LM.shown.delete(id); } });
+}
+function lmRelabel(){ lmClear(); lmDraw(); }
+function setLm(v){ store("lm",v); mark("segLm",v); updateSetVals(); if(v==="on") lmLoad().then(lmDraw); else lmClear(); }
 // Какие барьеры мешают этому профилю
 const REP_WHO={
   "Высокий бордюр":["wheelchair_manual","wheelchair_power","stroller","temporary"],
