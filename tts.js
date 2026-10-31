@@ -86,7 +86,7 @@ function ready(lang) {
 function worker(lang) {
   if (workers[lang] && !workers[lang].dead) return workers[lang];
   const v = VOICES[lang];
-  const p = spawn(BIN, ['--model', path.join(DIR, v.file), '--length_scale', String(v.scale), '--sentence_silence', '0.15', '--json-input', '-q'], { cwd: path.dirname(BIN) });
+  const p = spawn(BIN, ['--model', path.join(DIR, v.file), '--length_scale', String(v.scale), '--sentence_silence', '0.2', '--noise_scale', '0.5', '--noise_w', '0.6', '--json-input', '-q'], { cwd: path.dirname(BIN) });
   const w = { p, queue: [], busy: null, buf: '', dead: false };
   p.stdout.on('data', d => {
     w.buf += d; let i;
