@@ -1060,6 +1060,20 @@ html[data-contrast="high"] .icon-pick button.on{border-color:#ffd400}
 .fpin{cursor:pointer}
 .fp-menu{display:flex;flex-direction:column;gap:6px;min-width:210px}.fp-menu small{color:#6b7280}.fp-menu b{font-size:1.02em;margin-bottom:2px}
 .fp-menu button{justify-content:flex-start;display:flex;align-items:center;gap:6px;width:100%}.fp-menu .ic{width:16px;height:16px}.fp-menu .fp-del{color:#c0392b}
+.fr-pin b small{display:block;font-weight:500;font-size:10px;color:var(--muted);text-align:center}
+.fr-pin.fr-old .fr-pin-ava{filter:grayscale(.7);opacity:.75}
+.fr-tog{display:flex;align-items:center;gap:8px;margin:4px 0 6px;font-size:.95em;cursor:pointer}.fr-tog input{width:20px;height:20px;min-height:0}
+.fr-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--peek-h,190px) + 12px);z-index:1500;width:min(560px,calc(100% - 24px));background:var(--card);color:var(--ink);border-radius:20px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:10px 10px 8px}
+.fr-bar[hidden]{display:none}
+.fr-bar-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}.fr-bar-row::-webkit-scrollbar{display:none}
+.fr-chip{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:inherit;cursor:pointer;min-height:0;font:inherit}
+.fr-chip span{display:flex;flex-direction:column;text-align:left;line-height:1.15}.fr-chip small{color:var(--muted);font-size:.78em}
+.fr-chip.fr-off{opacity:.6}
+.fr-chip-ava{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;overflow:hidden;flex:none}.fr-chip-ava img{width:100%;height:100%;object-fit:cover}
+.fr-bar-acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:8px}
+.fr-bar-acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border:0;border-radius:12px;background:var(--blue-weak);color:var(--blue);font:inherit;font-weight:600;cursor:pointer}
+.fr-bar-acts .ic{width:18px;height:18px}
+@media(min-width:861px){ .fr-bar{left:auto;right:16px;transform:none;top:76px;bottom:auto} }
 /* Скрыть левую панель на компьютере */
 .side-toggle{display:none}
 @media (min-width:861px){
@@ -1338,7 +1352,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
   <button type="button" role="menuitem" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skOpenBtn">Серік — ИИ-помощник</span></button>
   <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>openFriends())"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>navFriendsTab())"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openHelp())"><i data-ic="user"></i><span data-i18n="hpMenu">Помощь волонтёров</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openMyReports())"><i data-ic="warn"></i><span data-i18n="mrTitle">Мои жалобы</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openRating())"><i data-ic="star"></i><span data-i18n="rtTitle">Рейтинг районов</span></button>
@@ -1546,7 +1560,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <nav class="peek-nav" aria-label="Разделы">
         <button type="button" class="on" onclick="navMapTab()" aria-current="page"><i data-ic="map"></i><span data-i18n="navMap">Карта</span></button>
         <button type="button" onclick="navPlacesTab()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
-        <button type="button" onclick="openFriends()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+        <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
         <a href="/account"><i data-ic="user"></i><span data-i18n="navProfile">Профиль</span></a>
       </nav>
     </div>
@@ -1577,6 +1591,9 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         <div class="gl-grp">
           <button type="button" class="gl-btn" onclick="globeZoom(.8)" data-i18n-aria="glIn" aria-label="Приблизить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
           <button type="button" class="gl-btn" onclick="globeZoom(1.25)" data-i18n-aria="glOut" aria-label="Отдалить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12h13"/></svg></button>
+        </div>
+        <div class="gl-grp">
+          <button type="button" class="gl-btn" onclick="globeLocate()" data-i18n-aria="myLocation" aria-label="Моё местоположение"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5 3.5 10.6l7 2.9 2.9 7z"/></svg></button>
         </div>
       </div>
       <button type="button" class="gl-back" onclick="globeToMap()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5Z M9 4.5v13M15 6.5v13"/></svg><span data-i18n="glBack">К карте</span></button>
@@ -1897,6 +1914,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <script>
 // ---- Значки интерфейса: свои линейные SVG вместо эмодзи (одинаково на любом телефоне) ----
 const ICONS={
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
   friends:'<circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c1-3.4 3.5-5.2 6.5-5.2s5.5 1.8 6.5 5.2"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.3 1.9 5 4.6"/>',
   b:'<rect x="4.5" y="3.5" width="15" height="14" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/>',
   t:'<path d="M9.5 3.5 7 .8M14.5 3.5 17 .8"/><rect x="4.5" y="4.5" width="15" height="13" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/>',
@@ -5072,21 +5090,21 @@ const FR_T={
   frList:"Мои друзья", frNone:"Пока никого. Отправьте ссылку-приглашение — и друг появится здесь.", frOnMap:"на карте · {t}", frHidden:"не показывает геопозицию", frAgoNow:"только что", frAgoMin:"{n} мин назад",
   frShow:"Показать", frRoute:"Маршрут", frPlaces:"Места", frReviews:"Отзывы", frRemove:"Удалить", frRemoveQ:"Удалить {n} из друзей?", frNoPlaces:"Друг пока не сохранил мест.", frNoReviews:"Друг пока не писал отзывов.",
   frWants:"{n} приглашает вас в друзья", frAccept:"Добавить в друзья", frDecline:"Не сейчас", frAdded:"{n} теперь ваш друг", frSelf:"Это ваша собственная ссылка — отправьте её другу", frAlready:"Вы уже друзья", frBadLink:"Ссылка устарела или неверная",
-  frInviteText:"Добавь меня в друзья в ICity — доступной карте города:", frProfile:"Профиль: {p}", frGeoNo:"Нет доступа к геопозиции — разрешите её в браузере", frErr:"Не получилось. Проверьте интернет и попробуйте ещё раз"},
+  frInviteText:"Добавь меня в друзья в ICity — доступной карте города:", frProfile:"Профиль: {p}", frGeoNo:"Нет доступа к геопозиции — разрешите её в браузере", frErr:"Не получилось. Проверьте интернет и попробуйте ещё раз", frAll:"Все", frListBtn:"Список", frHide:"Скрыть", frOnMapT:"Показывать друзей на карте", frHiddenT:"Друзья скрыты с карты", frShownT:"Друзья снова на карте", frNoneOnMap:"Сейчас никто из друзей не показывает геопозицию"},
  kk:{frTitle:"Достар", frLogin:"Дос қосу, бір-біріңізді картада көру және досқа бағыт құру үшін аккаунтқа кіріңіз.", frLoginBtn:"Кіру немесе тіркелу",
   frInvite:"Досты шақыру", frInviteHint:"Сілтемені жіберіңіз — досыңыз оны ашып, ICity-де досыңыз болады.", frShare:"Сілтемемен бөлісу", frCopy:"Көшіру", frCopied:"Сілтеме көшірілді", frNewCode:"Жаңа сілтеме", frNewCodeQ:"Ескі сілтеме жұмыс істемей қалады. Жаңасын жасаймыз ба?",
   frMyLoc:"Достарға менің орным", frOff:"Бөліспеу", fr1h:"1 сағатқа", frDay:"Күн соңына дейін", frAlways:"Өшіргенше", frSharingTill:"Достар сізді {t} дейін картада көреді", frSharingAlways:"Өшіргенше достар сізді картада көреді", frNotSharing:"Достар сіздің қайда екеніңізді көрмейді",
   frList:"Менің достарым", frNone:"Әзірге ешкім жоқ. Шақыру сілтемесін жіберіңіз — досыңыз осында пайда болады.", frOnMap:"картада · {t}", frHidden:"орнын көрсетпейді", frAgoNow:"жаңа ғана", frAgoMin:"{n} мин бұрын",
   frShow:"Көрсету", frRoute:"Бағыт", frPlaces:"Орындар", frReviews:"Пікірлер", frRemove:"Өшіру", frRemoveQ:"{n} достардан өшірілсін бе?", frNoPlaces:"Досыңыз әлі орын сақтамаған.", frNoReviews:"Досыңыз әлі пікір жазбаған.",
   frWants:"{n} сізді досқа шақырады", frAccept:"Досқа қосу", frDecline:"Қазір емес", frAdded:"{n} енді сіздің досыңыз", frSelf:"Бұл өз сілтемеңіз — оны досыңызға жіберіңіз", frAlready:"Сіздер дос екенсіздер", frBadLink:"Сілтеме ескірген немесе қате",
-  frInviteText:"ICity — қаланың қолжетімді картасында мені досқа қос:", frProfile:"Профиль: {p}", frGeoNo:"Геолокацияға рұқсат жоқ — браузерде рұқсат етіңіз", frErr:"Болмады. Интернетті тексеріп, қайталап көріңіз"},
+  frInviteText:"ICity — қаланың қолжетімді картасында мені досқа қос:", frProfile:"Профиль: {p}", frGeoNo:"Геолокацияға рұқсат жоқ — браузерде рұқсат етіңіз", frErr:"Болмады. Интернетті тексеріп, қайталап көріңіз", frAll:"Барлығы", frListBtn:"Тізім", frHide:"Жасыру", frOnMapT:"Достарды картада көрсету", frHiddenT:"Достар картадан жасырылды", frShownT:"Достар қайта картада", frNoneOnMap:"Қазір достардың ешқайсысы орнын көрсетпейді"},
  en:{frTitle:"Friends", frLogin:"Sign in to add friends, see each other on the map and get a route to a friend.", frLoginBtn:"Sign in or sign up",
   frInvite:"Invite a friend", frInviteHint:"Send the link — your friend opens it and becomes your friend in ICity.", frShare:"Share link", frCopy:"Copy", frCopied:"Link copied", frNewCode:"New link", frNewCodeQ:"The old link will stop working. Create a new one?",
   frMyLoc:"My location for friends", frOff:"Don't share", fr1h:"For 1 hour", frDay:"Until end of day", frAlways:"Until I turn it off", frSharingTill:"Friends see you on the map until {t}", frSharingAlways:"Friends see you on the map until you turn it off", frNotSharing:"Friends can't see where you are",
   frList:"My friends", frNone:"No one yet. Send your invite link and your friend will appear here.", frOnMap:"on the map · {t}", frHidden:"not sharing location", frAgoNow:"just now", frAgoMin:"{n} min ago",
   frShow:"Show", frRoute:"Route", frPlaces:"Places", frReviews:"Reviews", frRemove:"Remove", frRemoveQ:"Remove {n} from friends?", frNoPlaces:"No saved places yet.", frNoReviews:"No reviews yet.",
   frWants:"{n} invites you to be friends", frAccept:"Add friend", frDecline:"Not now", frAdded:"{n} is now your friend", frSelf:"This is your own link — send it to a friend", frAlready:"You are already friends", frBadLink:"The link is outdated or wrong",
-  frInviteText:"Add me as a friend on ICity, the accessible city map:", frProfile:"Profile: {p}", frGeoNo:"No location access — allow it in the browser", frErr:"Something went wrong. Check the connection and try again"}};
+  frInviteText:"Add me as a friend on ICity, the accessible city map:", frProfile:"Profile: {p}", frGeoNo:"No location access — allow it in the browser", frErr:"Something went wrong. Check the connection and try again", frAll:"All", frListBtn:"List", frHide:"Hide", frOnMapT:"Show friends on the map", frHiddenT:"Friends hidden from the map", frShownT:"Friends are back on the map", frNoneOnMap:"None of your friends is sharing location right now"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],FR_T[l]));
 const FR={me:null, list:[], layer:null, marks:new Map(), poll:0, watch:null, sentAt:0, sentLL:null, open:{}, synced:""};
 let frRefreshP=null;
@@ -5151,7 +5169,8 @@ function frRender(){
       <div class="fr-acts"><button type="button" class="btn btn-sm" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frCopy()">${esc(t("frCopy"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frNewCode()">${esc(t("frNewCode"))}</button></div></section>
     <section class="fr-sec"><h3>${esc(t("frMyLoc"))}</h3><div class="seg fr-seg">${seg}</div>
       <p class="fr-note ${on?"fr-live":""}">${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till})):t("frNotSharing"))}</p></section>
-    <section class="fr-sec"><h3>${esc(t("frList"))}${FR.list.length?" · "+FR.list.length:""}</h3>${FR.list.length?`<ul class="fr-list">${friends}</ul>`:`<p class="fr-note">${esc(t("frNone"))}</p>`}</section>`;
+    <section class="fr-sec"><h3>${esc(t("frList"))}${FR.list.length?" · "+FR.list.length:""}</h3>
+      ${FR.list.length?`<label class="fr-tog"><input type="checkbox" ${frHidden()?"":"checked"} onchange="frSetHidden(!this.checked)"> ${esc(t("frOnMapT"))}</label>`:""}${FR.list.length?`<ul class="fr-list">${friends}</ul>`:`<p class="fr-note">${esc(t("frNone"))}</p>`}</section>`;
   Object.entries(FR.open).forEach(([id,what])=>{ if(what) frFill(id,what); });
 }
 async function frShareLink(){ const u=frLink(); if(!u) return;
@@ -5166,7 +5185,7 @@ async function frSetShare(v){
 function frWatchSync(){
   if(frSharing()){
     if(FR.watch==null && navigator.geolocation){
-      FR.watch=navigator.geolocation.watchPosition(p=>frSendLoc(p.coords),err=>{ if(err&&err.code===1) toast(t("frGeoNo")); },{enableHighAccuracy:true,maximumAge:15e3,timeout:30e3});
+      FR.watch=navigator.geolocation.watchPosition(p=>frSendLoc(p.coords),err=>{ if(err&&err.code===1) toast(t("frGeoNo")); },{enableHighAccuracy:true,maximumAge:3e3,timeout:30e3});
     }
     if(FR.me.share>0){ clearTimeout(FR.shareT); FR.shareT=setTimeout(()=>{ FR.me.share=0; frWatchSync(); frRender(); }, Math.min(FR.me.share-Date.now()+500, 2**31-1)); }
   } else if(FR.watch!=null){ navigator.geolocation.clearWatch(FR.watch); FR.watch=null; }
@@ -5175,8 +5194,10 @@ async function frSendLoc(c){
   if(!frSharing()) return;
   const ll=[c.latitude,c.longitude], now=Date.now();
   const moved=FR.sentLL?map.distance(FR.sentLL,ll):1e9;
-  if(now-FR.sentAt<20e3 && moved<25) return;
-  if(now-FR.sentAt<8e3) return;
+  // как в 2ГИС: отправляем часто — каждые 5 с при движении (больше 8 м) и не реже раза в 15 с стоя на месте
+  if(now-FR.sentAt<15e3 && moved<8) return;
+  if(now-FR.sentAt<5e3) return;
+  if(c.accuracy>500 && FR.sentLL) return;   // грубую точку (по сотовым вышкам) не шлём, если уже есть точная
   FR.sentAt=now; FR.sentLL=ll;
   try{ await frApi("/loc",{lat:ll[0],lng:ll[1],acc:c.accuracy}); }catch(e){}
 }
@@ -5193,25 +5214,70 @@ async function frSyncMe(){
 function frPollSync(){
   clearInterval(FR.poll);
   if(!FR.me || (!FR.list.length && !frSharing())) return;
-  FR.poll=setInterval(()=>{ if(document.visibilityState==="visible") frLoad(false); },30e3);
+  // друзья видны на карте — обновляем каждые 10 с, иначе раз в 30 с
+  const fast=!frHidden() && FR.list.some(f=>f.loc);
+  FR.poll=setInterval(()=>{ if(document.visibilityState==="visible") frLoad(false); }, fast?10e3:30e3);
 }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && FR.me) frLoad(false); });
+function frHidden(){ return read("frHide","0")==="1"; }
 function frDraw(){
   if(!mapReady||!map) return;
-  if(!FR.layer) FR.layer=L.layerGroup().addTo(map);
-  const keep=new Set();
-  (FR.list||[]).forEach(f=>{ if(!f.loc) return; keep.add(f.id);
-    const ll=[f.loc.lat,f.loc.lng]; let m=FR.marks.get(f.id);
-    const html=`<div class="fr-pin">${frAva(f,"fr-pin-ava")}<b>${esc(f.name)}</b></div>`;
-    if(!m){ m=L.marker(ll,{icon:L.divIcon({className:"fr-pin-wrap",html,iconSize:[44,44],iconAnchor:[22,22]}),title:f.name,riseOnHover:true,zIndexOffset:500});
+  if(!FR.layer){ FR.layer=L.layerGroup().addTo(map); FR.rings=new Map(); }
+  const keep=new Set(), hide=frHidden();
+  (FR.list||[]).forEach(f=>{ if(!f.loc || hide) return; keep.add(f.id);
+    const ll=[f.loc.lat,f.loc.lng], old=Date.now()-f.loc.at>5*60e3; let m=FR.marks.get(f.id);
+    const html=`<div class="fr-pin${old?" fr-old":""}">${frAva(f,"fr-pin-ava")}<b>${esc(f.name)}<small>${esc(frAgo(f.loc.at))}</small></b></div>`;
+    const icon=L.divIcon({className:"fr-pin-wrap",html,iconSize:[44,44],iconAnchor:[22,22]});
+    if(!m){ m=L.marker(ll,{icon,title:f.name,riseOnHover:true,zIndexOffset:500});
       m.on("click",()=>frPopup(f.id)); FR.layer.addLayer(m); FR.marks.set(f.id,m); }
-    else { m.setLatLng(ll); m.setIcon(L.divIcon({className:"fr-pin-wrap",html,iconSize:[44,44],iconAnchor:[22,22]})); }
+    else { frGlide(m,ll); m.setIcon(icon); }
+    // круг точности, как в 2ГИС: чем шире — тем приблизительнее место
+    let r=FR.rings.get(f.id); const acc=Math.max(5,Math.min(f.loc.acc||0,300));
+    if(f.loc.acc>15){ if(!r){ r=L.circle(ll,{radius:acc,color:"#1769c2",weight:1,opacity:.5,fillOpacity:.1,interactive:false}); FR.layer.addLayer(r); FR.rings.set(f.id,r); } else { r.setLatLng(ll); r.setRadius(acc); } }
+    else if(r){ FR.layer.removeLayer(r); FR.rings.delete(f.id); }
   });
   FR.marks.forEach((m,id)=>{ if(!keep.has(id)){ FR.layer.removeLayer(m); FR.marks.delete(id); } });
+  FR.rings.forEach((r,id)=>{ if(!keep.has(id)){ FR.layer.removeLayer(r); FR.rings.delete(id); } });
+  frBarRender();
 }
+// плавно передвигаем значок друга к новой точке, а не прыжком
+function frGlide(m,to){ const from=m.getLatLng(), t0=performance.now(), d=900;
+  if(S.motion==="off" || map.distance(from,to)>3000){ m.setLatLng(to); return; }
+  const step=n=>{ const k=Math.min(1,(n-t0)/d), e=k*(2-k); m.setLatLng([from.lat+(to[0]-from.lat)*e, from.lng+(to[1]-from.lng)*e]); if(k<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step); }
+// Нижнее меню «Друзья» как в 2ГИС: сразу показывает друзей на карте и полоску с ними
+async function navFriendsTab(){
+  if(!sbSession()){ openFriends(); return; }
+  if(frHidden()) store("frHide","0");
+  FR.barOn=true; await frLoad(false);
+  const on=FR.list.filter(f=>f.loc);
+  if(!FR.list.length){ openFriends(); return; }
+  frBarRender(); if(on.length) frFit(); else toast(t("frNoneOnMap"));
+}
+function frFit(){ const pts=FR.list.filter(f=>f.loc).map(f=>[f.loc.lat,f.loc.lng]); if(!pts.length||!mapReady) return;
+  if(userLatLng) pts.push(userLatLng);
+  if(pts.length===1) map.setView(pts[0],16,{animate:S.motion!=="off"});
+  else { const bar=document.getElementById("frBar"), mob=innerWidth<=860, bh=bar&&!bar.hidden&&mob?bar.offsetHeight:0, mapR=map.getContainer().getBoundingClientRect();
+    const below=mob&&bar&&!bar.hidden?Math.max(0,mapR.bottom-bar.getBoundingClientRect().top):0;
+    map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[60,90],paddingBottomRight:[60,60+Math.max(bh*0,below)],maxZoom:16,animate:S.motion!=="off"}); } }
+function frSetHidden(h){ store("frHide",h?"1":"0"); if(h) FR.barOn=false; frDraw(); frPollSync(); frRender(); toast(t(h?"frHiddenT":"frShownT")); }
+function frBarRender(){
+  let bar=document.getElementById("frBar");
+  if(!FR.barOn || frHidden() || !FR.me){ if(bar) bar.hidden=true; return; }
+  if(!bar){ bar=document.createElement("div"); bar.id="frBar"; bar.className="fr-bar"; bar.setAttribute("role","region"); bar.setAttribute("aria-label",t("frTitle")); document.body.appendChild(bar); }
+  const chips=FR.list.map(f=>`<button type="button" class="fr-chip${f.loc?"":" fr-off"}" onclick="frChip('${f.id}')">${frAva(f,"fr-chip-ava")}<span><b>${esc(f.name)}</b><small>${esc(f.loc?frAgo(f.loc.at):t("frHidden"))}</small></span></button>`).join("");
+  bar.innerHTML=`<div class="fr-bar-row">${chips}</div><div class="fr-bar-acts">
+    <button type="button" onclick="frFit()" aria-label="${esc(t("frAll"))}">${svgI("friends")}<span>${esc(t("frAll"))}</span></button>
+    <button type="button" onclick="openFriends()">${svgI("list")}<span>${esc(t("frListBtn"))}</span></button>
+    <button type="button" onclick="frSetHidden(true)">${svgI("close")}<span>${esc(t("frHide"))}</span></button></div>`;
+  bar.hidden=false;
+}
+function frChip(id){ const f=FR.list.find(x=>x.id===id); if(!f) return; if(!f.loc){ openFriends(); return; }
+  map.setView([f.loc.lat,f.loc.lng],17,{animate:S.motion!=="off"}); setTimeout(()=>frPopup(id),350); }
 function frPopup(id){ const f=FR.list.find(x=>x.id===id); const m=FR.marks.get(id); if(!f||!m) return;
   const prof=frProfName(f.profile);
   m.bindPopup(`<div class="fr-pop"><b>${esc(f.name)}</b><small>${esc(tf("frOnMap",{t:frAgo(f.loc.at)}))}${prof?"<br>"+esc(tf("frProfile",{p:prof})):""}</small><button type="button" class="btn btn-sm" onclick="frRoute('${f.id}')">${esc(t("frRoute"))}</button></div>`,{closeButton:true}).openPopup(); }
-function frShow(id){ const f=FR.list.find(x=>x.id===id); if(!f||!f.loc) return; closeModal("frModal"); map.setView([f.loc.lat,f.loc.lng],17); setTimeout(()=>frPopup(id),400); }
+function frShow(id){ const f=FR.list.find(x=>x.id===id); if(!f||!f.loc) return; if(frHidden()) frSetHidden(false); FR.barOn=true; closeModal("frModal"); map.setView([f.loc.lat,f.loc.lng],17); setTimeout(()=>frPopup(id),400); }
 function frRoute(id){
   const f=FR.list.find(x=>x.id===id); if(!f||!f.loc) return;
   closeModal("frModal"); map.closePopup();
@@ -7830,6 +7896,16 @@ async function openGlobe(){
 }
 function closeGlobeQuick(){ document.body.classList.remove("globe-on"); document.getElementById("globe").hidden=true; if(GL3) cancelAnimationFrame(GL3.raf); }
 // Вернуться на карту в той точке, на которую смотрим (или в выбранный город)
+// Кнопка «Моё место» на глобусе: сразу спрашиваем геопозицию (пока жест пользователя) и возвращаемся на карту к себе
+function globeLocate(){
+  let pos=null, closed=false;
+  const fin=()=>{ if(!pos||!closed) return; userLatLng=pos; showMe(16); renderNearby(); };
+  if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>{ pos=[p.coords.latitude,p.coords.longitude]; fin(); },
+    err=>{ setTimeout(()=>geoHelp(err), closed?0:900); }, {enableHighAccuracy:true,timeout:12000,maximumAge:30e3});
+  else setTimeout(()=>geoHelp({code:2}),900);
+  if(!pos && userLatLng) pos=userLatLng.slice();
+  globeToMap(); setTimeout(()=>{ closed=true; fin(); }, S.motion==="off"?50:950);
+}
 function globeToMap(cityKey){
   const g=GL3; if(!g || g.closing) return; g.closing=true; g.fly=null;
   const lat=g.lat, lon=g.lon;
