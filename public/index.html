@@ -4341,7 +4341,7 @@ function navRender(here){
   const st=NAV.steps[NAV.idx]||NAV.steps[NAV.steps.length-1];
   const dNext = here && st && st.loc ? Math.round(mDist(here,st.loc)) : null;
   const left = here && NAV.b ? mDist(here,NAV.b) : (lastRoute&&lastRoute.rt?lastRoute.rt.distance:null);
-  const mins = left!=null ? Math.max(1,Math.round(left/1000/4.2*60/(PROFILES[S.profile].speed||1))) : null;
+  const mins = left!=null ? Math.max(1,Math.round(left/1000/navKmh()*60)) : null;
   const eta = mins!=null ? new Intl.DateTimeFormat(locale(),{hour:"2-digit",minute:"2-digit"}).format(new Date(Date.now()+mins*60000)) : "";
   const phrase = st ? navPhrase(Math.min(NAV.idx,NAV.steps.length-1)) : "";
   hud.innerHTML=`<div class="nv-main"><div class="nv-arrow" aria-hidden="true">${st&&st.type==="arrive"?"⚑":(NAV_ARROW[st&&st.mod]||"↑")}</div>
@@ -4393,7 +4393,7 @@ function navAction(i){
   if(st.type==="arrive") a = L==="kk"?"межелі жерге жетесіз":L==="en"?"you will arrive":"вы прибудете";
   else if(L==="kk") a = turning?`${mod} бұрылыңыз`:"тіке жүріңіз";
   else if(L==="en") a = turning?`turn ${mod}`:"continue straight";
-  else a = st.mod==="uturn" ? "развернитесь" : turning?`поверните ${mod}`:"идите прямо";
+  else a = st.mod==="uturn" ? "развернитесь" : turning?`поверните ${mod}`:(NAV.ride?"поезжайте прямо":"идите прямо");
   // Два поворота подряд (следующий ближе 40 м) — говорим сразу оба, как навигатор
   const nx=NAV.steps[i+1];
   if(st.type!=="arrive" && nx && (nx.prevDist!=null?nx.prevDist:st.dist)<40 && nx.type!=="arrive"){
@@ -4412,12 +4412,14 @@ function navProgress(here){
   else navDoneLine.setLatLngs(done);
 }
 function navRepeat(){ const st=NAV.steps[NAV.idx]; if(!st) return; const d=NAV.lastD; navSay(d!=null&&d>25 ? tf("navIn",{d:spokenDist(Math.round(d/10)*10)})+" "+navAction(NAV.idx) : cap(navAction(NAV.idx))); }
+// Скорость для оставшегося времени: пешком — по профилю, машина ~22 км/ч по городу, велосипед и самокат ~15 км/ч
+function navKmh(){ if(NAV.ride) return S.mode==="car"?22:15; return 4.2*(PROFILES[S.profile].speed||1); }
 async function navStart(reroute){
   if(!lastRoute || !lastRoute.pts){ toast(t("navNoRoute")); return; }
   if(!lastSteps.length){ toast(t("navNoSteps")); return; }
   if(!navigator.geolocation){ toast(t("navGeo")); return; }
   navStopWatch();
-  Object.assign(NAV,{on:true, idx:lastSteps[0]&&lastSteps[0].type==="depart"?1:0, pre:-1, said:{}, off:0, steps:lastSteps.slice(), pts:lastRoute.pts, b:lastRoute.b, ob:lastAnalysis&&lastAnalysis.ob, warn:"", rerouting:false});
+  Object.assign(NAV,{ride:!!lastRoute.ride, on:true, idx:lastSteps[0]&&lastSteps[0].type==="depart"?1:0, pre:-1, said:{}, off:0, steps:lastSteps.slice(), pts:lastRoute.pts, b:lastRoute.b, ob:lastAnalysis&&lastAnalysis.ob, warn:"", rerouting:false});
   NAV.steps.forEach((x,i)=>{ x.prevDist=i>0?(NAV.steps[i-1].dist||0):0; });
   if(userMarker && mapReady){ userMarker.setIcon(L.divIcon({className:"",html:'<div class="nav-me"><svg viewBox="0 0 24 24"><path d="M12 2 4.5 20.5 12 16.6l7.5 3.9z"/></svg></div>',iconSize:[34,34],iconAnchor:[17,17]})); }
   document.body.classList.add("nav-on"); document.getElementById("navHud").hidden=false;
@@ -4427,7 +4429,7 @@ async function navStart(reroute){
   try{ if("wakeLock" in navigator) NAV.wake=await navigator.wakeLock.request("screen"); }catch(e){}
   navRender(userLatLng);
   { const first=NAV.steps[0]&&NAV.steps[0].type==="depart"?NAV.steps[0]:null, nx=NAV.steps[NAV.idx];
-    navSay(reroute ? cap(navAction(NAV.idx)) : tf("navBegin",{s:(first&&first.name?tf("navGoAlong",{n:first.name,d:spokenDist(first.dist||0)}):tf("navGoStraight",{d:spokenDist((first&&first.dist)||0)}))+(nx&&nx.type!=="arrive"?", "+t("navThen")+" "+navAction(NAV.idx):"")})); }
+    navSay(reroute ? cap(navAction(NAV.idx)) : tf("navBegin",{s:(first&&first.name?tf(NAV.ride?"navRideAlong":"navGoAlong",{n:first.name,d:spokenDist(first.dist||0)}):tf(NAV.ride?"navRideStraight":"navGoStraight",{d:spokenDist((first&&first.dist)||0)}))+(nx&&nx.type!=="arrive"?", "+t("navThen")+" "+navAction(NAV.idx):"")})); }
   NAV.watch=navigator.geolocation.watchPosition(navTick, err=>{ if(err&&err.code===1){ navStop(); geoHelp(err); } }, {enableHighAccuracy:true, maximumAge:2000, timeout:20000});
 }
 function navStopWatch(){ if(NAV.watch!=null){ navigator.geolocation.clearWatch(NAV.watch); NAV.watch=null; } }
@@ -4852,7 +4854,7 @@ async function nearestToilet(){
 async function shareTrip(mins){
   const to=(document.getElementById("destination").value||"").trim() || t("finish");
   const here=userLatLng || (lastRoute&&lastRoute.a);
-  if(mins==null && NAV.on && userLatLng && NAV.b){ mins=Math.max(1,Math.round(mDist(userLatLng,NAV.b)/1000/4.2*60/(PROFILES[S.profile].speed||1))); }
+  if(mins==null && NAV.on && userLatLng && NAV.b){ mins=Math.max(1,Math.round(mDist(userLatLng,NAV.b)/1000/navKmh()*60)); }
   mins=mins||15;
   const at=new Date(Date.now()+mins*60000).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"});
   const link=here?`https://www.openstreetmap.org/?mlat=${here[0].toFixed(5)}&mlon=${here[1].toFixed(5)}#map=17/${here[0].toFixed(5)}/${here[1].toFixed(5)}`:"";
@@ -6521,21 +6523,21 @@ let taxiTrip=null;
 
 // ── Свой транспорт: машина (парковки для людей с инвалидностью у места назначения), велосипед, самокат ──
 const RIDE_T={
- ru:{rdCarH:"На машине", rdBikeH:"На велосипеде", rdScH:"На самокате", rdPark:"Парковки для людей с инвалидностью рядом с местом назначения",
+ ru:{navRideAlong:"поезжайте по {n} {d}", navRideStraight:"поезжайте прямо {d}", rdCarH:"На машине", rdBikeH:"На велосипеде", rdScH:"На самокате", rdPark:"Парковки для людей с инвалидностью рядом с местом назначения",
   rdParkNone:"В OpenStreetMap рядом нет отмеченных мест для людей с инвалидностью. Отметьте их, если знаете.", rdParkLoad:"Ищем парковки рядом…",
-  rdParkM:"{m} м до места", rdParkN:"мест: {n}", rdOpen:"Открыть в навигаторе", rdYa:"Яндекс Навигатор", rdGo:"Google Карты", rd2g:"2ГИС",
+  rdParkM:"{m} м до места", rdParkN:"мест: {n}",
   rdBikeNote:"Маршрут по велодорожкам и тихим улицам OpenStreetMap. Время — при скорости около 15 км/ч.",
   rdScNote:"Время — при скорости около 15 км/ч. Самокаты в аренду есть в приложениях Jet, Whoosh и Яндекс Самокаты. На тротуаре уступайте пешеходам и людям на колясках.",
   rdCarNote:"Время без учёта пробок, по городу в среднем около 22 км/ч.", rdFail:"Не удалось построить маршрут. Проверьте адреса и интернет."},
- kk:{rdCarH:"Көлікпен", rdBikeH:"Велосипедпен", rdScH:"Самокатпен", rdPark:"Межелі жердің жанындағы мүгедектігі бар адамдарға арналған тұрақтар",
+ kk:{navRideAlong:"{n} бойымен жүріңіз, {d}", navRideStraight:"тіке жүріңіз, {d}", rdCarH:"Көлікпен", rdBikeH:"Велосипедпен", rdScH:"Самокатпен", rdPark:"Межелі жердің жанындағы мүгедектігі бар адамдарға арналған тұрақтар",
   rdParkNone:"OpenStreetMap-та жақын жерде белгіленген орын жоқ. Білсеңіз, белгілеңіз.", rdParkLoad:"Жақын тұрақтарды іздеп жатырмыз…",
-  rdParkM:"межеге дейін {m} м", rdParkN:"орын: {n}", rdOpen:"Навигаторда ашу", rdYa:"Яндекс Навигатор", rdGo:"Google Maps", rd2g:"2ГИС",
+  rdParkM:"межеге дейін {m} м", rdParkN:"орын: {n}",
   rdBikeNote:"OpenStreetMap веложолдары мен тыныш көшелер бойынша. Уақыт — шамамен 15 км/сағ жылдамдықпен.",
   rdScNote:"Уақыт — шамамен 15 км/сағ. Жалға самокаттар Jet, Whoosh және Яндекс Самокаттар қосымшаларында бар. Тротуарда жаяу жүргіншілер мен арбадағы адамдарға жол беріңіз.",
   rdCarNote:"Кептелісті есептемегенде, қала ішінде орта есеппен 22 км/сағ.", rdFail:"Бағыт құру мүмкін болмады. Мекенжайлар мен интернетті тексеріңіз."},
- en:{rdCarH:"By car", rdBikeH:"By bike", rdScH:"By scooter", rdPark:"Disabled parking near your destination",
+ en:{navRideAlong:"drive along {n} for {d}", navRideStraight:"go straight for {d}", rdCarH:"By car", rdBikeH:"By bike", rdScH:"By scooter", rdPark:"Disabled parking near your destination",
   rdParkNone:"No disabled parking is mapped nearby in OpenStreetMap. Add it if you know a spot.", rdParkLoad:"Looking for parking nearby…",
-  rdParkM:"{m} m to the place", rdParkN:"spaces: {n}", rdOpen:"Open in a navigation app", rdYa:"Yandex Navigator", rdGo:"Google Maps", rd2g:"2GIS",
+  rdParkM:"{m} m to the place", rdParkN:"spaces: {n}",
   rdBikeNote:"Route along OpenStreetMap cycle paths and quiet streets. Time at about 15 km/h.",
   rdScNote:"Time at about 15 km/h. Rental scooters are available in the Jet, Whoosh and Yandex Scooters apps. On pavements, give way to pedestrians and wheelchair users.",
   rdCarNote:"Time without traffic, about 22 km/h on average in the city.", rdFail:"Couldn't build the route. Check the addresses and your connection."}};
@@ -6544,7 +6546,7 @@ async function buildRideTrip(a,b,kind){
   const card=document.getElementById("routeCard"), car=kind==="car";
   const prof=car?"routed-car":"routed-bike", color=car?"#b26a00":kind==="bike"?"#0a7350":"#7a3db8";
   let d=null;
-  try{ d=await (await fetch(`https://routing.openstreetmap.de/${prof}/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&alternatives=true`)).json(); }catch(e){}
+  try{ d=await (await fetch(`https://routing.openstreetmap.de/${prof}/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true&alternatives=true`)).json(); }catch(e){}
   if(!d||d.code!=="Ok"||!d.routes||!d.routes.length){ showTrip(`<h2>${esc(t("rdFail"))}</h2>`); return; }
   const rt=d.routes[0], pts=rt.geometry.coordinates.map(c=>[c[1],c[0]]), km=rt.distance/1000;
   const mins=Math.max(1,Math.round(car ? Math.max(rt.duration/60, km/22*60) : km/15*60));
@@ -6555,15 +6557,23 @@ async function buildRideTrip(a,b,kind){
     tripMarkers(a,b); fitTrip(pts);
   }
   const head=t(car?"rdCarH":kind==="bike"?"rdBikeH":"rdScH"), ic=car?"car":"walk";
-  const nav=car?`<p class="small muted" style="margin:12px 0 6px">${esc(t("rdOpen"))}</p><div class="row" style="gap:8px;flex-wrap:wrap">
-      <a class="btn-ghost btn-sm" href="yandexnavi://build_route_on_map?lat_from=${a[0]}&lon_from=${a[1]}&lat_to=${b[0]}&lon_to=${b[1]}">${esc(t("rdYa"))}</a>
-      <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=${a[0]},${a[1]}&destination=${b[0]},${b[1]}&travelmode=driving">${esc(t("rdGo"))}</a>
-      <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="https://2gis.kz/directions/points/${a[1]}%2C${a[0]}%7C${b[1]}%2C${b[0]}">${esc(t("rd2g"))}</a></div>`:"";
+  const nav=`<div class="row" style="margin-top:12px"><button type="button" class="btn grow" onclick="navStart()">${svgI("nav")} ${esc(t("navGo"))}</button></div>`;
   const html=`<h2>${svgI(ic)} ${esc(head)} · ~${mins} ${esc(t("min"))} · ${km.toFixed(1)} ${esc(t("km"))}</h2>
     <p class="small muted">${esc(t(car?"rdCarNote":kind==="bike"?"rdBikeNote":"rdScNote"))}</p>
     ${car?`<div id="carVars"></div><h3 class="taxi-h">${svgI("wc")} ${esc(t("rdPark"))}</h3><div id="rdPark"><p class="small muted">${esc(t("rdParkLoad"))}</p></div>`:""}${nav}`;
   showTrip(html,{title:`${head} · ~${mins} ${t("min")}`, sub:`${km.toFixed(1)} ${t("km")}`});
-  if(car){ taxiTrip={a,b}; carVariants(a,b,{pts,km,mins},null,false); rideParking(b); }
+  rideSetNav(a,b,rt,pts);
+  if(car){ taxiTrip={a,b}; carVariants(a,b,{pts,km,mins,rt},null,false); rideParking(b); }
+}
+
+// Маршрут машины/велосипеда/самоката — в наш навигатор: те же повороты, голос, перестроение, что и у пешего
+function rideSetNav(a,b,rt,pts){
+  lastRoute={a,b,rt,pts,ride:true}; lastAnalysis=null; lastComplaintPoint=b;
+  lastSteps=(rt&&rt.legs&&rt.legs[0]&&rt.legs[0].steps?rt.legs[0].steps:[])
+    .map(x=>({name:x.name||"", dist:Math.round(x.distance), mod:(x.maneuver&&x.maneuver.modifier)||"", type:(x.maneuver&&x.maneuver.type)||"",
+      loc:(x.maneuver&&x.maneuver.location)?[x.maneuver.location[1],x.maneuver.location[0]]:null}))
+    .filter(x=>x.dist>0||x.type==="arrive");
+  const pr=document.getElementById("peekRoute"); if(pr && lastSteps.length){ pr.hidden=false; requestAnimationFrame(()=>{ try{ syncPeekHeight(); }catch(e){} }); }
 }
 async function rideParking(b){
   const box=()=>document.getElementById("rdPark");
@@ -6647,8 +6657,8 @@ async function carVariants(a,b,base,T,live){
   };
   const [sh,up,hw,al]=await Promise.all([ask({shortest:true}),ask({exclude_unpaved:true}),ask({use_highways:0}),ask({},2)]);
   if(seq!==carSeq) return;
-  const mk=(rt,key)=>{ const km=rt.distance/1000; return {key:[key], pts:rt.geometry.coordinates.map(c=>[c[1],c[0]]), km, mins:Math.max(1,Math.round(Math.max(rt.duration/60, km/22*60)))}; };
-  const list=[{key:["carFast"], pts:base.pts, km:base.km, mins:base.mins}];
+  const mk=(rt,key)=>{ const km=rt.distance/1000; return {key:[key], rt, pts:rt.geometry.coordinates.map(c=>[c[1],c[0]]), km, mins:Math.max(1,Math.round(Math.max(rt.duration/60, km/22*60)))}; };
+  const list=[{key:["carFast"], rt:base.rt, pts:base.pts, km:base.km, mins:base.mins}];
   const add=(rt,key)=>{ if(!rt) return; const v=mk(rt,key), m=v.pts[Math.floor(v.pts.length/2)];
     const same=list.find(u=>Math.abs(u.km-v.km)<Math.max(0.15,v.km*0.015) && haversine(u.pts[Math.floor(u.pts.length/2)],m)<150);
     if(same){ if(!same.key.includes(key)) same.key.push(key); } else list.push(v); };
@@ -6668,6 +6678,7 @@ function carPick(i){
   L.polyline(v.pts,{color:"#b26a00",weight:7,opacity:.95}).addTo(routeLayer);
   tripMarkers(taxiTrip.a,taxiTrip.b); fitTrip(v.pts);
   document.querySelectorAll("#carVars .variant").forEach((b,k)=>b.setAttribute("aria-pressed",String(k===i)));
+  if(S.mode==="car" && v.rt) rideSetNav(taxiTrip.a,taxiTrip.b,v.rt,v.pts);
 }
 // У inDrive нет открытой ссылки с маршрутом: копируем адрес назначения,
 // чтобы его можно было сразу вставить в приложении, и открываем inDrive.
