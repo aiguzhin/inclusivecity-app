@@ -27,6 +27,8 @@ const BUS_CITIES = {
   temirtau: [50.0547, 72.9644], turkistan: [43.3000, 68.2500], kokshetau: [53.2833, 69.4000],
   taldykorgan: [45.0156, 78.3739], ekibastuz: [51.7298, 75.3266],
   konaev: [43.8552, 77.0615], zhezkazgan: [47.8043, 67.7146],
+  // Центральная Азия
+  tashkent: [41.2995, 69.2401], samarkand: [39.6542, 66.9597], bishkek: [42.8746, 74.5698],
 };
 const OVERPASS_MIRRORS = [
   'https://overpass-api.de/api/interpreter',

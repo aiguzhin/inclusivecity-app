@@ -166,6 +166,9 @@
   API: GET `/api/audits?near=lat,lon&r=` | `?city=`, POST `/api/audits`, `/api/audits/leaderboard`, `/api/audits/me`, DELETE `/api/admin/audits/:id`.
   В карточке места на карте — `loadAudit` (`#pcAudit`, тексты `AU_T` ru/kk/en): балл и пункты или ссылка «Проверить это место» (`/audit?lat=&lon=&n=`).
   `/volunteer`: цифры, таблица лучших, «мой вклад», печатная справка о часах (`@media print`, `#cert`). `/login?next=/путь` — после входа возвращает туда (`ic_next`).
+- Центральная Азия (с 07.11.2026): `tashkent`, `samarkand`, `bishkek` в `CITIES` (`index.html`, поле `cc: "uz"|"kg"`, в выборе города — « · Узбекистан/Кыргызстан»),
+  в заставке, `tools/busbuild.js` (`BUS_CITIES`, автобусы соберутся из Overpass), `landmarks.js`. Такси там: без цены в тенге (`abroad` → `taxiAbroad`), тарифов/инватакси нет.
+  Рейтинг городов и кабинеты акиматов — только Казахстан (`CITY_NAMES` в `akimat.js`).
 - `public/sw.js` — офлайн-кэш; при каждом изменении фронтенда поднимать `CACHE` (`ic-vN`).
 - `data/` на бесплатном Render не сохраняется между деплоями (нет диска) — кэши пересобираются,
   жалобы и фото пропадают; для постоянного хранения нужен платный план с диском (см. `render.yaml`).

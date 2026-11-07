@@ -144,7 +144,10 @@ const CITY_C = {
   taldykorgan: [45.0156, 78.3739],
   ekibastuz: [51.7298, 75.3266],
   konaev: [43.8552, 77.0615],
-  zhezkazgan: [47.8043, 67.7146]
+  zhezkazgan: [47.8043, 67.7146],
+  tashkent: [41.2995, 69.2401],
+  samarkand: [39.6542, 66.9597],
+  bishkek: [42.8746, 74.5698]
 };
 async function warm() {
   for (const [city, c] of Object.entries(CITY_C)) {

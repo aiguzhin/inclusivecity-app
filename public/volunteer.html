@@ -97,7 +97,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
 const hrs=h=>String(h).replace('.',',')+' ч';
-const CITY={almaty:'Алматы',astana:'Астана',shymkent:'Шымкент',karaganda:'Караганда',aktobe:'Актобе',taraz:'Тараз',pavlodar:'Павлодар',oskemen:'Усть-Каменогорск',semey:'Семей',atyrau:'Атырау',kostanay:'Костанай',kyzylorda:'Кызылорда',oral:'Уральск',petropavl:'Петропавловск',aktau:'Актау',temirtau:'Темиртау',turkistan:'Туркестан',kokshetau:'Кокшетау',taldykorgan:'Талдыкорган',ekibastuz:'Экибастуз',konaev:'Конаев',zhezkazgan:'Жезказган'};
+const CITY={almaty:'Алматы',astana:'Астана',shymkent:'Шымкент',karaganda:'Караганда',aktobe:'Актобе',taraz:'Тараз',pavlodar:'Павлодар',oskemen:'Усть-Каменогорск',semey:'Семей',atyrau:'Атырау',kostanay:'Костанай',kyzylorda:'Кызылорда',oral:'Уральск',petropavl:'Петропавловск',aktau:'Актау',temirtau:'Темиртау',turkistan:'Туркестан',kokshetau:'Кокшетау',taldykorgan:'Талдыкорган',ekibastuz:'Экибастуз',konaev:'Конаев',zhezkazgan:'Жезказган',tashkent:'Ташкент',samarkand:'Самарканд',bishkek:'Бишкек'};
 const fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
 
 async function board(){
