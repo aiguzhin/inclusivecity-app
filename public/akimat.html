@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ICity — кабинет акимата</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--ink:#102a43;--soft:#51657a;--paper:#f4f7fa;--card:#fff;--blue:#1769c2;--blue-weak:#e8f2ff;
+--green:#0a7350;--green-weak:#e0f5ed;--amber:#8a5300;--amber-weak:#fff2d7;--red:#b42318;--red-weak:#fdeceb;--line:#d5e1ec;--gray-weak:#eef2f5}
+@media (prefers-color-scheme:dark){:root{--ink:#e8eef5;--soft:#a8b8c8;--paper:#0e1720;--card:#17222e;--blue:#5aa9f0;--blue-weak:#16334f;
+--green:#4ecfa0;--green-weak:#123a2e;--amber:#f0b545;--amber-weak:#3b2c0e;--red:#f08b82;--red-weak:#3d1a17;--line:#2a3b4d;--gray-weak:#1f2c39}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px clamp(16px,4vw,32px);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:850;font-size:1.15rem;letter-spacing:-.5px}.brand b{color:var(--blue)}
+.who{font-size:13px;color:var(--soft);text-align:right}.who strong{display:block;color:var(--ink);font-size:14px}
+main{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
+button,input,textarea{font:inherit;color:inherit}
+button{border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;min-height:40px}
+button.ghost{background:var(--blue-weak);color:var(--blue)}
+button.ok{background:var(--green);color:#fff}
+button.link{background:none;color:var(--blue);padding:0;min-height:0;text-decoration:underline}
+button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.gate{max-width:440px;margin:70px auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate h1{font-size:21px;margin:0 0 8px}
+input[type=text],input[type=password],textarea{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px}
+.err{color:var(--red);font-size:13px;margin:8px 0}
+.muted{color:var(--soft);font-size:13px}
+h1.title{font-size:clamp(22px,3vw,28px);letter-spacing:-.6px;margin:4px 0 2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi .v{font-size:28px;font-weight:850;letter-spacing:-1px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13px;color:var(--soft);margin-top:4px}
+.kpi.warn .v{color:var(--red)}.kpi.good .v{color:var(--green)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+#map{height:520px;border-radius:14px;border:1px solid var(--line);position:sticky;top:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tab{background:var(--card);color:var(--soft);border:1px solid var(--line);font-size:13px;padding:7px 12px;min-height:36px}
+.tab[aria-pressed=true]{background:var(--blue-weak);border-color:var(--blue);color:var(--blue)}
+.spacer{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:12px}
+.card.sel{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-weak)}
+.ph{width:92px;flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+.ph img{width:92px;height:92px;object-fit:cover;border-radius:10px;background:var(--gray-weak);display:block}
+.ph .no{width:92px;height:92px;border-radius:10px;background:var(--gray-weak);display:flex;align-items:center;justify-content:center;color:var(--soft);font-size:11px;text-align:center}
+.ph small{font-size:11px;color:var(--soft);text-align:center}
+.body{flex:1;min-width:0}
+.body h3{margin:0 0 4px;font-size:15px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{font-size:11px;font-weight:750;padding:2px 8px;border-radius:99px}
+.pill.new{background:var(--amber-weak);color:var(--amber)}.pill.work{background:var(--blue-weak);color:var(--blue)}
+.pill.done{background:var(--green-weak);color:var(--green)}.pill.late{background:var(--red-weak);color:var(--red)}
+.meta{font-size:13px;color:var(--soft);margin-top:4px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--soft)}
+dialog{border:0;border-radius:16px;padding:0;width:min(460px,calc(100% - 24px));background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#071d3199}
+.dlg{padding:20px}.dlg h2{margin:0 0 4px;font-size:19px}
+.dlg label{display:block;font-weight:700;font-size:13px;margin:14px 0 6px}
+.dlg .row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:10px;display:none;z-index:2000}
+.toast.show{display:block}
+.help{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px;font-size:13px;color:var(--soft)}
+@media (max-width:860px){.grid{grid-template-columns:1fr}#map{height:320px;position:static}}
+@media print{header button,.bar,.acts,#map{display:none!important}.card{break-inside:avoid}}
+</style>
+<script>/* © ICity — inclusivecity.uk */
+(function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
+if(ok.indexOf(h)>-1)return;location.replace("https://inclusivecity.uk/akimat")})();</script>
+</head>
+<body>
+<header>
+  <div class="brand" translate="no">I<b>City</b> · кабинет акимата</div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="who" id="who" hidden><strong id="whoOrg"></strong><span id="whoCity"></span></div>
+    <button class="ghost" id="logoutBtn" hidden onclick="logout()">Выйти</button>
+  </div>
+</header>
+
+<main>
+  <section class="gate" id="gate" hidden>
+    <h1>Вход для акимата</h1>
+    <p class="muted">Откройте ссылку, которую прислала команда ICity, или вставьте ключ доступа. Ключ действует только для вашего города.</p>
+    <form onsubmit="event.preventDefault();login(document.getElementById('keyIn').value.trim())">
+      <label class="muted" for="keyIn" style="display:block;margin:14px 0 6px">Ключ доступа</label>
+      <input id="keyIn" type="password" autocomplete="off" required>
+      <div class="err" id="gateErr" role="alert"></div>
+      <button type="submit" style="width:100%;margin-top:8px">Войти</button>
+    </form>
+    <p class="muted" style="margin-top:16px">Нет ключа? Напишите на <a href="mailto:inclusivecityimpact@gmail.com">inclusivecityimpact@gmail.com</a>.</p>
+  </section>
+
+  <section id="panel" hidden>
+    <p class="muted" style="margin:0">Жалобы жителей на барьеры для людей с инвалидностью, пожилых и родителей с колясками</p>
+    <h1 class="title" id="title"></h1>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid">
+      <div id="map" role="region" aria-label="Карта жалоб"></div>
+      <div>
+        <div class="bar" role="group" aria-label="Фильтр жалоб">
+          <button class="tab" data-f="open" aria-pressed="true">Новые</button>
+          <button class="tab" data-f="work" aria-pressed="false">В работе</button>
+          <button class="tab" data-f="late" aria-pressed="false">Просрочены</button>
+          <button class="tab" data-f="done" aria-pressed="false">Исправлено</button>
+          <button class="tab" data-f="all" aria-pressed="false">Все</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="exportCsv()">Скачать таблицу</button>
+        </div>
+        <div id="list" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="help">
+      <b style="color:var(--ink)">Как это работает.</b> Житель отмечает барьер в приложении ICity. Жалоба сразу появляется здесь.
+      «Взять в работу» и «Исправлено» видят все на карте ICity, а автор жалобы получает уведомление.
+      Фото «после» подтверждает исправление и попадает в отчёт. Просроченными считаются жалобы старше 30 дней без исправления.
+    </div>
+  </section>
+</main>
+
+<dialog id="fixDlg" aria-labelledby="fixTitle">
+  <form class="dlg" method="dialog" onsubmit="event.preventDefault();sendFix()">
+    <h2 id="fixTitle">Отметить как исправленное</h2>
+    <p class="muted" id="fixWhat"></p>
+    <label for="fixPhoto">Фото после исправления (желательно)</label>
+    <input id="fixPhoto" type="file" accept="image/*">
+    <label for="fixNote">Что сделано</label>
+    <textarea id="fixNote" rows="3" maxlength="500" placeholder="Например: установлен съезд с бордюра, уклон 5%"></textarea>
+    <div class="row">
+      <button type="button" class="ghost" onclick="fixDlg.close()">Отмена</button>
+      <button type="submit" class="ok" id="fixBtn">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const LS='ic_akimat_key';
+let KEY='', DATA=null, filter='open', map=null, layer=null, markers={}, fixId=null;
+const $=id=>document.getElementById(id);
+const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const days=(a,b)=>Math.floor(((b?new Date(b):new Date())-new Date(a))/864e5);
+const fmt=d=>d?new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):'';
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3500)}
+
+function kind(r){
+  if(r.status==='fixed')return 'done';
+  if(days(r.createdAt)>30)return 'late';
+  return r.status==='in_progress'?'work':'open';
+}
+const PILL={open:['new','новая'],work:['work','в работе'],late:['late','просрочена'],done:['done','исправлено']};
+function match(r){const k=kind(r);
+  if(filter==='all')return true;
+  if(filter==='open')return r.status==='approved'||r.status==='pending';
+  if(filter==='work')return r.status==='in_progress';
+  if(filter==='late')return k==='late';
+  return k==='done';}
+
+async function api(path,opt={}){
+  const r=await fetch(path,{...opt,headers:{...(opt.headers||{}),'X-Akimat-Key':KEY}});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){logout(d.error||'Ключ не подошёл');throw new Error('auth')}
+  if(!r.ok)throw new Error(d.error||'Ошибка сервера');
+  return d;
+}
+async function login(k){
+  if(!k)return;
+  KEY=k;$('gateErr').textContent='';
+  try{DATA=await api('/api/akimat/me')}catch(e){if(e.message!=='auth'){$('gate').hidden=false;$('gateErr').textContent=e.message}return}
+  try{localStorage.setItem(LS,k)}catch(e){}
+  show();
+}
+function logout(msg){
+  KEY='';try{localStorage.removeItem(LS)}catch(e){}
+  $('panel').hidden=true;$('who').hidden=true;$('logoutBtn').hidden=true;$('gate').hidden=false;
+  if(msg)$('gateErr').textContent=msg;
+}
+async function reload(){DATA=await api('/api/akimat/me');render()}
+
+function show(){
+  $('gate').hidden=true;$('panel').hidden=false;$('who').hidden=false;$('logoutBtn').hidden=false;
+  $('whoOrg').textContent=DATA.org;$('whoCity').textContent='г. '+DATA.cityName;
+  $('title').textContent='Доступная среда — '+DATA.cityName;
+  if(!window.L){$('map').hidden=true;document.querySelector('.grid').style.gridTemplateColumns='1fr'}
+  if(!map&&window.L){
+    map=L.map('map').setView(DATA.center,12);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    layer=L.layerGroup().addTo(map);
+  }
+  render();
+}
+function kpis(){
+  const s=DATA.stats;
+  const k=[
+    ['Новых жалоб',s.open,''],['В работе',s.inProgress,''],['Исправлено',s.fixed,'good'],
+    ['Просрочено (>30 дней)',s.overdue,s.overdue?'warn':''],
+    ['Срок устранения (медиана)',s.medianFixDays==null?'—':plural(Math.round(s.medianFixDays),'день','дня','дней'),''],
+    ['Отработано жалоб',s.handledShare+'%',s.handledShare>=50?'good':''],
+  ];
+  $('kpis').innerHTML=k.map(([l,v,c])=>`<div class="kpi ${c}"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+}
+function render(){
+  kpis();
+  const list=DATA.reports.filter(match).sort((a,b)=>filter==='done'?new Date(b.fixedAt)-new Date(a.fixedAt):new Date(a.createdAt)-new Date(b.createdAt));
+  if(layer)layer.clearLayers();markers={};
+  const COL={open:'#df9818',work:'#1769c2',late:'#b42318',done:'#0a7350'};
+  if(map)list.forEach(r=>{
+    const m=L.circleMarker([r.lat,r.lng],{radius:8,weight:2,color:'#fff',fillColor:COL[kind(r)],fillOpacity:1}).addTo(layer)
+      .bindTooltip(esc(r.type)).on('click',()=>focusCard(r.id));
+    markers[r.id]=m;
+  });
+  if(map&&list.length)map.fitBounds(L.latLngBounds(list.map(r=>[r.lat,r.lng])),{padding:[30,30],maxZoom:15});
+  if(!list.length){$('list').innerHTML=`<div class="empty">${filter==='late'?'Просроченных жалоб нет. Отличная работа!':'Здесь пока пусто'}</div>`;return}
+  $('list').innerHTML=list.map(card).join('');
+}
+function card(r){
+  const k=kind(r),[pc,pt]=PILL[k],age=days(r.createdAt);
+  const before=r.photo&&r.status!=='pending'?`<img src="${esc(r.photo)}" alt="Фото барьера от жителя" loading="lazy">`:`<div class="no">нет фото</div>`;
+  const after=r.fixPhoto?`<img src="${esc(r.fixPhoto)}" alt="Фото после исправления" loading="lazy"><small>после</small>`:'';
+  const when=r.status==='fixed'?`исправлено ${fmt(r.fixedAt)} · за ${plural(days(r.createdAt,r.fixedAt),'день','дня','дней')}`:`ждёт ${plural(age,'день','дня','дней')}`;
+  const acts=r.status==='fixed'?'':`
+    ${r.status!=='in_progress'?`<button class="ghost" onclick="setStatus('${r.id}','progress')">Взять в работу</button>`:''}
+    <button class="ok" onclick="openFix('${r.id}')">Исправлено</button>`;
+  return `<article class="card" id="c-${r.id}">
+    <div class="ph">${before}${after}</div>
+    <div class="body">
+      <h3>${esc(r.type)} <span class="pill ${pc}">${pt}</span>${r.status==='pending'?'<span class="pill new">не проверена</span>':''}</h3>
+      <div>${esc(r.comment)}</div>
+      <div class="meta">${fmt(r.createdAt)} · ${when}${r.verifications?` · подтвердили жители: ${r.verifications}`:''}</div>
+      ${r.note?`<div class="meta">Ответ: ${esc(r.note)}</div>`:''}
+      <div class="acts">${acts}
+        <button class="ghost" onclick="focusMap('${r.id}')">На карте</button>
+        <a class="muted" style="align-self:center" target="_blank" rel="noopener" href="/map?at=${r.lat.toFixed(6)},${r.lng.toFixed(6)}">Открыть в ICity ↗</a>
+      </div>
+    </div></article>`;
+}
+function focusCard(id){document.querySelectorAll('.card.sel').forEach(e=>e.classList.remove('sel'));const c=$('c-'+id);if(c){c.classList.add('sel');c.scrollIntoView({behavior:'smooth',block:'center'})}}
+function focusMap(id){const m=markers[id];if(!m){window.open(`/map?at=${DATA.reports.find(r=>r.id===id).lat},${DATA.reports.find(r=>r.id===id).lng}`,'_blank');return}map.setView(m.getLatLng(),17);m.openTooltip();if(innerWidth<860)$('map').scrollIntoView({behavior:'smooth'})}
+
+async function setStatus(id,action,body){
+  try{await api(`/api/akimat/reports/${id}/${action}`,{method:'POST',body:body||'{}',headers:body?{}:{'Content-Type':'application/json'}});
+    toast(action==='fixed'?'Отмечено как исправленное. Автор жалобы получит уведомление.':'Жалоба взята в работу');await reload();return true}
+  catch(e){if(e.message!=='auth')toast(e.message);return false}
+}
+function openFix(id){fixId=id;const r=DATA.reports.find(x=>x.id===id);$('fixWhat').textContent=r?r.type+': '+r.comment:'';$('fixPhoto').value='';$('fixNote').value='';$('fixDlg').showModal()}
+async function sendFix(){
+  const fd=new FormData();const f=$('fixPhoto').files[0];if(f)fd.append('photo',f);fd.append('note',$('fixNote').value.trim());
+  $('fixBtn').disabled=true;const ok=await setStatus(fixId,'fixed',fd);$('fixBtn').disabled=false;if(ok)$('fixDlg').close();
+}
+function exportCsv(){
+  const head=['Тип','Описание','Статус','Создана','Дней ждёт / устранено за','Исправлена','Ответ акимата','Подтверждений','Широта','Долгота','Ссылка'];
+  const rows=DATA.reports.map(r=>[r.type,r.comment,PILL[kind(r)][1],fmt(r.createdAt),r.fixedAt?days(r.createdAt,r.fixedAt):days(r.createdAt),fmt(r.fixedAt),r.note,r.verifications,r.lat,r.lng,
+    `https://inclusivecity.uk/map?at=${r.lat.toFixed(6)},${r.lng.toFixed(6)}`]);
+  const csv='﻿'+[head,...rows].map(row=>row.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`icity-${DATA.city}-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.f;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-pressed',x===b));render()}));
+
+// Ключ из ссылки (#key=…) — запоминаем и убираем из адресной строки
+(function(){
+  const m=location.hash.match(/key=([A-Za-z0-9_-]+)/);
+  if(m){history.replaceState(null,'',location.pathname);login(m[1]);return}
+  let k='';try{k=localStorage.getItem(LS)||''}catch(e){}
+  if(k)login(k);else $('gate').hidden=false;
+})();
+</script>
+</body>
+</html>

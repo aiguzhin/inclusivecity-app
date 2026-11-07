@@ -340,6 +340,7 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status() });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname.startsWith('/api/akimat/') || pathname.startsWith('/api/admin/akimat')) { if (await akimat.handle(req, res, pathname)) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/friends')) { const done = await friends.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/tts') return await tts.handle(req, res, new URL(req.url, 'http://x'), sendJson, tooMany);
@@ -522,10 +523,7 @@ async function handleApi(req, res, pathname) {
     if (action === 'fixed') r.fixedAt = r.updatedAt;
     writeReports(list);
     // Уведомление автору жалобы — даже если приложение закрыто
-    const PUSH_ST = { approved: ['опубликована на карте', 'картада жарияланды', 'is now on the map'], rejected: ['отклонена модератором', 'модератор қабылдамады', 'was declined'],
-      in_progress: ['взята в работу', 'жұмысқа алынды', 'is being fixed'], fixed: ['— барьер устранён!', '— кедергі жойылды!', '— the barrier is fixed!'] };
-    const TTL = ['Ваша жалоба', 'Сіздің шағымыңыз', 'Your report'];
-    push.notify('report', r.id, (lang) => { const i = { ru: 0, kk: 1, en: 2 }[lang] || 0; return { title: 'ICity', body: `${TTL[i]} «${r.type}» ${PUSH_ST[r.status][i]}`, url: '/map?do=reports', tag: 'rep-' + r.id }; }).catch(() => {});
+    notifyReport(r);
     return sendJson(res, 200, { ok: true });
   }
 
@@ -564,7 +562,19 @@ const landmarks = require('./landmarks');
 const tts = require('./tts');
 const friends = require('./friends');
 const busbuild = require('./tools/busbuild');
+const akimat = require('./akimat');
+// Уведомление автору жалобы о смене статуса — даже если приложение закрыто
+function notifyReport(r) {
+  const PUSH_ST = { approved: ['опубликована на карте', 'картада жарияланды', 'is now on the map'], rejected: ['отклонена модератором', 'модератор қабылдамады', 'was declined'],
+    in_progress: ['взята в работу', 'жұмысқа алынды', 'is being fixed'], fixed: ['— барьер устранён!', '— кедергі жойылды!', '— the barrier is fixed!'] };
+  const TTL = ['Ваша жалоба', 'Сіздің шағымыңыз', 'Your report'];
+  if (!PUSH_ST[r.status]) return;
+  push.notify('report', r.id, (lang) => { const i = { ru: 0, kk: 1, en: 2 }[lang] || 0; return { title: 'ICity', body: `${TTL[i]} «${r.type}» ${PUSH_ST[r.status][i]}`, url: '/map?do=reports', tag: 'rep-' + r.id }; }).catch(() => {});
+}
+
 const BUS_CITIES = busbuild.BUS_CITIES;
+akimat.init({ DATA_DIR, UPLOADS_DIR, MAX_UPLOAD_BYTES, BUS_CITIES, readReports, writeReports, kvPut, kvGet, sendJson, readBody, parseMultipart,
+  requireAdmin, clientIp, notifyReport });
 const BUS_DIR = path.join(DATA_DIR, 'bus');
 const BUS_REPO_DIR = path.join(ROOT, 'bus-data');
 const BUS_RAW_URL = 'https://raw.githubusercontent.com/aiguzhin/inclusivecity-app/main/bus-data/';
@@ -851,6 +861,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(body);
     }
     if (pathname === '/admin' || pathname === '/admin.html') return serveFile(res, path.join(PUBLIC_DIR, 'admin.html'));
+    if (pathname === '/akimat' || pathname === '/akimat/') return serveFile(res, path.join(PUBLIC_DIR, 'akimat.html'));
 
     const bm = pathname.match(/^\/bus-([a-z]+)\.json$/);
     if (bm && req.method === 'GET') return await serveBus(res, bm[1]);

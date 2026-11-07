@@ -65,6 +65,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <button class="tab" data-s="fixed" onclick="setTab('fixed',this)">Исправлено</button>
       <button class="tab" data-s="rejected" onclick="setTab('rejected',this)">Отклонено</button>
       <button class="tab" data-s="all" onclick="setTab('all',this)">Все</button>
+          <button class="tab" data-s="akimat" onclick="setTab('akimat',this)">Кабинеты акиматов</button>
     </div>
     <div id="list"></div>
   </div>
@@ -110,6 +111,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
   function render(){
     const list=document.getElementById('list');
+    if(tab==='akimat'){renderAkimat();return}
     const filtered=tab==='all'?reports:reports.filter(r=>r.status===tab);
     if(!filtered.length){list.innerHTML='<div class="empty">Здесь пока пусто</div>';return}
     list.innerHTML=filtered.map(r=>`
@@ -137,6 +139,50 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     refresh();
   }
 
+
+  // --- Кабинеты акиматов: ссылка с ключом показывается один раз ---
+  async function renderAkimat(){
+    const list=document.getElementById('list');
+    list.innerHTML='<div class="empty">Загружаем…</div>';
+    const r=await fetch('/api/admin/akimat',{headers:{'X-Admin-Token':token}});
+    if(!r.ok){list.innerHTML='<div class="empty">Не удалось загрузить</div>';return}
+    const d=await r.json();
+    list.innerHTML=`
+      <div class="card" style="display:block">
+        <h3>Новый кабинет</h3>
+        <p class="muted">Акимат увидит жалобы только своего города и сможет отмечать «В работе» и «Исправлено». Ссылку покажем один раз — сразу отправьте её акимату.</p>
+        <select id="akCity" style="width:100%;border:1px solid #b9c9d8;border-radius:9px;padding:10px;margin-bottom:12px;font:inherit">
+          ${d.cities.map(c=>`<option value="${c.id}">${text(c.name)} — жалоб: ${c.reports}</option>`).join('')}
+        </select>
+        <input id="akOrg" placeholder="Организация, например: ГУ «Отдел ЖКХ, ПТ и АД г. Темиртау»">
+        <button onclick="akCreate()">Создать ссылку</button>
+        <div id="akOut"></div>
+      </div>
+      ${d.accounts.length?d.accounts.map(a=>`
+        <div class="card" style="display:block">
+          <h3>${text(a.cityName)}</h3>
+          <div class="muted">${text(a.org)}</div>
+          <div class="muted">Создан ${new Date(a.createdAt).toLocaleDateString('ru-RU')} · ${a.lastSeen?'последний вход '+new Date(a.lastSeen).toLocaleString('ru-RU'):'ещё не заходили'}</div>
+          <div class="actions"><button class="danger" onclick="akDelete('${a.id}')">Закрыть доступ</button></div>
+        </div>`).join(''):'<div class="empty">Кабинетов пока нет</div>'}`;
+  }
+  async function akCreate(){
+    const city=document.getElementById('akCity').value, org=document.getElementById('akOrg').value.trim();
+    const r=await fetch('/api/admin/akimat',{method:'POST',headers:{'X-Admin-Token':token,'Content-Type':'application/json'},body:JSON.stringify({city,org})});
+    const d=await r.json();
+    if(!r.ok){alert(d.error||'Ошибка');return}
+    const link=location.origin+d.link;
+    await renderAkimat();
+    document.getElementById('akOut').innerHTML=`<div style="margin-top:12px;padding:12px;border-radius:10px;background:var(--green-weak)">
+      <b>Ссылка для: ${text(d.org)}</b><br><input readonly value="${text(link)}" onclick="this.select()" style="margin:8px 0">
+      <button onclick="navigator.clipboard.writeText('${link}');this.textContent='Скопировано'">Скопировать</button>
+      <div class="muted" style="margin-top:6px">Больше эта ссылка показана не будет. Потеряли — закройте доступ и создайте новую.</div></div>`;
+  }
+  async function akDelete(id){
+    if(!confirm('Закрыть доступ этому акимату? Его ссылка перестанет работать.'))return;
+    await fetch('/api/admin/akimat/'+id,{method:'DELETE',headers:{'X-Admin-Token':token}});
+    renderAkimat();
+  }
   if(token){showPanel();}
 </script>
 </body></html>
