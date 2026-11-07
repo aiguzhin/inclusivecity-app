@@ -718,7 +718,8 @@ function fillAccount(u){
   $("accAct").innerHTML=`<div class="item kv"><span class="k">${esc(t("actRep"))}</span><span class="v">${reps.length?esc(t("actRepV").replace("{n}",reps.length).replace("{f}",reps.filter(r=>r.status==="fixed").length)):esc(t("actNone"))}</span>${reps.length?`<a class="edit" style="text-decoration:none" href="/map?do=reports">${esc(t("open"))}</a>`:""}</div>`
     +`<div class="item kv"><span class="k">${esc(t("actHelp"))}</span><span class="v">${esc(help&&help.id?t("actHelpOn"):t("actNone"))}</span>${help&&help.id?`<a class="edit" style="text-decoration:none" href="/map?do=help">${esc(t("open"))}</a>`:""}</div>`;
 }
-function showAccount(u){hold=false;currentUser=u;fillAccount(u);show("account");if(location.pathname!=="/account")history.replaceState(null,"","/account");}
+try{const nx=new URLSearchParams(location.search).get("next");if(nx&&/^\/[a-z]/.test(nx)&&!nx.startsWith("//"))sessionStorage.setItem("ic_next",nx)}catch(e){}
+function showAccount(u){try{const n=sessionStorage.getItem("ic_next");if(n){sessionStorage.removeItem("ic_next");location.replace(n);return}}catch(e){}hold=false;currentUser=u;fillAccount(u);show("account");if(location.pathname!=="/account")history.replaceState(null,"","/account");}
 
 /* ---------- таймер повторной отправки SMS ---------- */
 let timer=null;

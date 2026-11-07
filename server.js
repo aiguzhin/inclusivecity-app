@@ -340,6 +340,7 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status() });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname.startsWith('/api/audits') || pathname.startsWith('/api/admin/audits')) { if (await audits.handle(req, res, pathname)) return; }
   if (pathname === '/api/city-index' && req.method === 'GET') return sendJson(res, 200, akimat.cityIndex());
   if (pathname.startsWith('/api/akimat/') || pathname.startsWith('/api/admin/akimat')) { if (await akimat.handle(req, res, pathname)) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
@@ -564,6 +565,7 @@ const tts = require('./tts');
 const friends = require('./friends');
 const busbuild = require('./tools/busbuild');
 const akimat = require('./akimat');
+const audits = require('./audits');
 // Уведомление автору жалобы о смене статуса — даже если приложение закрыто
 function notifyReport(r) {
   const PUSH_ST = { approved: ['опубликована на карте', 'картада жарияланды', 'is now on the map'], rejected: ['отклонена модератором', 'модератор қабылдамады', 'was declined'],
@@ -576,6 +578,7 @@ function notifyReport(r) {
 const BUS_CITIES = busbuild.BUS_CITIES;
 akimat.init({ DATA_DIR, UPLOADS_DIR, MAX_UPLOAD_BYTES, BUS_CITIES, readReports, writeReports, kvPut, kvGet, sendJson, readBody, parseMultipart,
   requireAdmin, clientIp, notifyReport });
+audits.init({ DATA_DIR, UPLOADS_DIR, MAX_UPLOAD_BYTES, BUS_CITIES, kvPut, kvGet, sendJson, readBody, parseMultipart, requireAdmin });
 const BUS_DIR = path.join(DATA_DIR, 'bus');
 const BUS_REPO_DIR = path.join(ROOT, 'bus-data');
 const BUS_RAW_URL = 'https://raw.githubusercontent.com/aiguzhin/inclusivecity-app/main/bus-data/';
@@ -862,6 +865,8 @@ const server = http.createServer(async (req, res) => {
       return res.end(body);
     }
     if (pathname === '/admin' || pathname === '/admin.html') return serveFile(res, path.join(PUBLIC_DIR, 'admin.html'));
+    if (pathname === '/audit' || pathname === '/audit/') return serveFile(res, path.join(PUBLIC_DIR, 'audit.html'));
+    if (pathname === '/volunteer' || pathname === '/volunteer/') return serveFile(res, path.join(PUBLIC_DIR, 'volunteer.html'));
     if (pathname === '/ranking' || pathname === '/ranking/') return serveFile(res, path.join(PUBLIC_DIR, 'ranking.html'));
     if (pathname === '/akimat' || pathname === '/akimat/') return serveFile(res, path.join(PUBLIC_DIR, 'akimat.html'));
 

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Волонтёры ICity — проверяйте доступность мест</title>
+<meta name="description" content="Проверяйте, удобно ли зайти в кафе, аптеку или ЦОН на коляске. Получайте волонтёрские часы и справку ICity.">
+<meta property="og:title" content="Стань волонтёром ICity">
+<meta property="og:description" content="3 минуты у входа — и тысячи людей знают, могут ли они туда попасть.">
+<link rel="canonical" href="https://inclusivecity.uk/volunteer">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+:root{--ink:#102a43;--soft:#51657a;--paper:#f4f7fa;--card:#fff;--blue:#1769c2;--blue-weak:#e8f2ff;--green:#0a7350;--green-weak:#e0f5ed;--line:#d5e1ec}
+@media (prefers-color-scheme:dark){:root{--ink:#e8eef5;--soft:#a8b8c8;--paper:#0e1720;--card:#17222e;--blue:#5aa9f0;--blue-weak:#16334f;--green:#4ecfa0;--green-weak:#123a2e;--line:#2a3b4d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px clamp(16px,4vw,32px);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:850;font-size:1.15rem;letter-spacing:-.5px;text-decoration:none;color:var(--ink)}.brand b{color:var(--blue)}
+header nav{display:flex;gap:16px;font-weight:700;font-size:14px}header nav a{text-decoration:none}
+main{max-width:960px;margin:0 auto;padding:28px 16px 64px}
+.eyebrow{color:var(--blue);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0}
+h1{font-size:clamp(28px,4.4vw,42px);line-height:1.1;letter-spacing:-1.2px;margin:6px 0 10px}
+h2{font-size:22px;letter-spacing:-.5px;margin:34px 0 12px}
+.lead{font-size:18px;color:var(--soft);max-width:640px;margin:0 0 20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;text-decoration:none;font-weight:750;border-radius:12px;padding:12px 20px;min-height:48px;border:0;font:inherit;font-weight:750;cursor:pointer}
+.btn.ghost{background:var(--blue-weak);color:var(--blue)}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:26px 0}
+.t{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.t .v{font-size:30px;font-weight:850;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}.t .l{font-size:13px;color:var(--soft);margin-top:4px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.step b{display:flex;width:32px;height:32px;border-radius:50%;background:var(--blue-weak);color:var(--blue);align-items:center;justify-content:center;margin-bottom:8px}
+.step p{margin:0;color:var(--soft);font-size:15px}.step h3{margin:0 0 4px;font-size:16px}
+.board{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.lr{display:grid;grid-template-columns:40px 1fr auto auto;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:center;font-variant-numeric:tabular-nums}
+.lr:first-child{border-top:0}.lr .p{font-weight:850;color:var(--soft)}.lr .n{font-weight:700}.lr small{color:var(--soft);display:block;font-weight:400;font-size:13px}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;color:var(--soft)}
+.me{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.me .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.why{columns:2;column-gap:24px;color:var(--soft);padding-left:20px}.why li{margin:0 0 8px;break-inside:avoid}
+.cert{display:none}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+footer{color:var(--soft);font-size:13px;text-align:center;padding:24px 16px}
+@media (max-width:720px){.steps{grid-template-columns:1fr}.why{columns:1}}
+@media print{
+  body{background:#fff;color:#000}header,main,footer{display:none!important}
+  .cert{display:block;padding:40px 48px;font:16px/1.6 Georgia,serif;color:#000}
+  .cert h1{font:700 30px/1.2 Georgia,serif;letter-spacing:0;margin:20px 0}
+  .cert .brand{font:800 22px system-ui,sans-serif}.cert .sig{margin-top:60px;display:flex;justify-content:space-between}
+}
+</style>
+<script>(function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];if(ok.indexOf(h)<0)location.replace("https://inclusivecity.uk/volunteer")})();</script>
+</head>
+<body>
+<header>
+  <a class="brand" href="/" translate="no">I<b>City</b></a>
+  <nav aria-label="Разделы"><a href="/map">Карта</a><a href="/ranking">Рейтинг городов</a></nav>
+</header>
+<main>
+  <p class="eyebrow">Волонтёрам</p>
+  <h1>Три минуты у входа — и тысячи людей знают, смогут ли они туда попасть</h1>
+  <p class="lead">Проверьте кафе, аптеку, поликлинику или ЦОН по простому чек-листу. Место получит отметку «Проверено ICity», а вы — волонтёрские часы и справку.</p>
+  <a class="btn" href="/audit">Проверить место</a>
+
+  <div class="totals" id="totals"></div>
+
+  <h2>Как это работает</h2>
+  <div class="steps">
+    <div class="step"><b>1</b><h3>Встаньте у входа</h3><p>Откройте ICity на телефоне и нажмите «Я у входа», чтобы отметить место.</p></div>
+    <div class="step"><b>2</b><h3>Ответьте на 8 вопросов</h3><p>Ступеньки, пандус, дверь, туалет, парковка. Сфотографируйте вход.</p></div>
+    <div class="step"><b>3</b><h3>Место на карте</h3><p>Все видят балл доступности. Вам засчитываются полчаса волонтёрства.</p></div>
+  </div>
+
+  <h2>Ваш вклад</h2>
+  <div class="me" id="me"><p class="muted" style="margin:0;color:var(--soft)">Загружаем…</p></div>
+
+  <h2>Лучшие волонтёры</h2>
+  <div id="board"><div class="empty">Загружаем…</div></div>
+
+  <h2>Зачем это нужно</h2>
+  <ul class="why">
+    <li>В Казахстане больше 700 тысяч людей с инвалидностью, и почти никто заранее не знает, получится ли попасть в нужное место.</li>
+    <li>2ГИС и Google показывают адрес и часы работы, но не ступеньки и ширину двери.</li>
+    <li>Ваши проверки сразу видны на карте ICity и учитываются при построении маршрута.</li>
+    <li>Часы волонтёрства пригодятся при поступлении: справку можно распечатать на этой странице.</li>
+  </ul>
+</main>
+<footer>ICity · inclusivecity.uk · вопросы — <a href="mailto:inclusivecityimpact@gmail.com">inclusivecityimpact@gmail.com</a></footer>
+
+<section class="cert" id="cert" aria-hidden="true"></section>
+
+<script src="/auth-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
+const hrs=h=>String(h).replace('.',',')+' ч';
+const CITY={almaty:'Алматы',astana:'Астана',shymkent:'Шымкент',karaganda:'Караганда',aktobe:'Актобе',taraz:'Тараз',pavlodar:'Павлодар',oskemen:'Усть-Каменогорск',semey:'Семей',atyrau:'Атырау',kostanay:'Костанай',kyzylorda:'Кызылорда',oral:'Уральск',petropavl:'Петропавловск',aktau:'Актау',temirtau:'Темиртау',turkistan:'Туркестан',kokshetau:'Кокшетау',taldykorgan:'Талдыкорган',ekibastuz:'Экибастуз',konaev:'Конаев',zhezkazgan:'Жезказган'};
+const fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+
+async function board(){
+  let d;try{d=await (await fetch('/api/audits/leaderboard')).json()}catch(e){$('board').innerHTML='<div class="empty">Не удалось загрузить</div>';return}
+  $('totals').innerHTML=[[d.total,'мест проверено'],[d.good,'полностью доступны'],[d.volunteers,'волонтёров'],[hrs(d.hours),'волонтёрских часов']]
+    .map(([v,l])=>`<div class="t"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('board').innerHTML=d.top.length?`<div class="board">${d.top.map((v,i)=>`<div class="lr"><span class="p">${i+1}</span>
+    <span class="n">${esc(v.name)}<small>${v.cities.map(c=>CITY[c]||c).join(', ')}</small></span>
+    <span>${plural(v.audits,'место','места','мест')}</span><span>${hrs(v.hours)}</span></div>`).join('')}</div>`
+    :'<div class="empty">Пока никто не проверил ни одного места. Станьте первым — ваше имя будет здесь.</div>';
+}
+async function me(){
+  const cfg=window.ICITY_AUTH||{};let tk=null;
+  try{if(cfg.url&&window.supabase){const sb=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}});
+    const {data}=await sb.auth.getSession();tk=data.session&&data.session.access_token}}catch(e){}
+  if(!tk){$('me').innerHTML=`<p style="margin:0">Войдите, чтобы проверки засчитывались вам и можно было распечатать справку о волонтёрских часах.</p>
+    <div class="row"><a class="btn" href="/login?next=/volunteer">Войти</a><a class="btn ghost" href="/audit">Проверить место</a></div>`;return}
+  let d;try{const r=await fetch('/api/audits/me',{headers:{Authorization:'Bearer '+tk}});d=await r.json();if(!r.ok)throw 0}catch(e){$('me').innerHTML='<p style="margin:0">Не удалось загрузить ваши проверки.</p>';return}
+  $('me').innerHTML=`<p style="margin:0;font-size:18px"><b>${esc(d.name)}</b>, у вас ${plural(d.audits,'проверка','проверки','проверок')} и <b>${hrs(d.hours)}</b> волонтёрства.</p>
+    ${d.list.length?`<ul style="margin:12px 0 0;padding-left:20px;color:var(--soft)">${d.list.slice(0,5).map(a=>`<li>${esc(a.place)} — ${a.score}% · ${fmt(a.createdAt)}</li>`).join('')}</ul>`:''}
+    <div class="row"><a class="btn" href="/audit">Проверить место</a>${d.audits?'<button class="btn ghost" type="button" id="printBtn">Распечатать справку</button>':''}</div>`;
+  if(d.audits){
+    $('cert').innerHTML=`<div class="brand">ICity · inclusivecity.uk</div>
+      <h1>Справка о волонтёрской деятельности</h1>
+      <p>Настоящим подтверждается, что <b>${esc(d.name)}</b> с ${fmt(d.first)} по ${fmt(d.last)} принимал(а) участие
+      в волонтёрском проекте ICity — карте доступности городов Казахстана для людей с инвалидностью, пожилых и родителей с колясками.</p>
+      <p>Проверено мест по чек-листу доступности: <b>${d.audits}</b>.<br>Волонтёрских часов: <b>${hrs(d.hours)}</b>.</p>
+      <p>Проверенные места: ${d.list.slice(0,20).map(a=>esc(a.place)).join('; ')}${d.list.length>20?'; и другие':''}.</p>
+      <p>Данные о каждой проверке открыты и доступны на inclusivecity.uk.</p>
+      <div class="sig"><span>Команда ICity<br>inclusivecityimpact@gmail.com</span><span>${fmt(new Date())}</span></div>`;
+    $('printBtn').onclick=()=>window.print();
+  }
+}
+board();me();
+</script>
+</body>
+</html>

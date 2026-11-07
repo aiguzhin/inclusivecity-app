@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Проверить место — ICity</title>
+<meta name="description" content="Проверьте доступность кафе, аптеки, поликлиники или ЦОНа за 3 минуты. Волонтёрский чек-лист ICity.">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--ink:#102a43;--soft:#51657a;--paper:#f4f7fa;--card:#fff;--blue:#1769c2;--blue-weak:#e8f2ff;
+--green:#0a7350;--green-weak:#e0f5ed;--amber:#8a5300;--amber-weak:#fff2d7;--red:#b42318;--red-weak:#fdeceb;--line:#d5e1ec;--gray:#eef2f5}
+@media (prefers-color-scheme:dark){:root{--ink:#e8eef5;--soft:#a8b8c8;--paper:#0e1720;--card:#17222e;--blue:#5aa9f0;--blue-weak:#16334f;
+--green:#4ecfa0;--green-weak:#123a2e;--amber:#f0b545;--amber-weak:#3b2c0e;--red:#f08b82;--red-weak:#3d1a17;--line:#2a3b4d;--gray:#1f2c39}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:1000}
+.brand{font-weight:850;font-size:1.1rem;letter-spacing:-.5px;text-decoration:none;color:var(--ink)}.brand b{color:var(--blue)}
+header a.v{font-weight:700;font-size:14px;color:var(--blue);text-decoration:none}
+main{max-width:640px;margin:0 auto;padding:18px 16px 120px}
+h1{font-size:26px;letter-spacing:-.6px;line-height:1.15;margin:0 0 6px}
+.lead{color:var(--soft);margin:0 0 18px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.box h2{font-size:17px;margin:0 0 10px}
+label.f{display:block;font-weight:700;font-size:14px;margin:0 0 6px}
+input[type=text],textarea{width:100%;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:10px;padding:12px;font:inherit}
+button{font:inherit;border:0;border-radius:12px;padding:12px 16px;font-weight:750;cursor:pointer;min-height:48px}
+.primary{background:var(--blue);color:#fff;width:100%}
+.ghost{background:var(--blue-weak);color:var(--blue)}
+button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+#map{height:240px;border-radius:12px;margin-top:10px;border:1px solid var(--line)}
+.loc{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.loc .muted{flex:1;min-width:150px}
+.muted{color:var(--soft);font-size:14px}
+.q{padding:14px 0;border-top:1px solid var(--line)}.q:first-of-type{border-top:0;padding-top:0}
+.q p{margin:0 0 4px;font-weight:700}.q small{display:block;color:var(--soft);margin-bottom:10px;font-size:13px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{background:var(--gray);color:var(--ink);font-weight:700;min-height:46px;padding:8px}
+.seg button[aria-pressed=true][data-v=yes]{background:var(--green);color:#fff}
+.seg button[aria-pressed=true][data-v=no]{background:var(--red);color:#fff}
+.seg button[aria-pressed=true][data-v=na]{background:var(--soft);color:#fff}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.photos img{width:84px;height:84px;object-fit:cover;border-radius:10px}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));z-index:1000}
+.sticky .in{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.sticky .sc{font-size:13px;color:var(--soft);min-width:90px}.sticky .sc b{display:block;font-size:20px;color:var(--ink)}
+.err{color:var(--red);font-size:14px;margin:8px 0 0}
+.result{text-align:center;padding:26px 18px}
+.big{font-size:56px;font-weight:850;letter-spacing:-2px;line-height:1}
+.lvl{display:inline-block;margin:10px 0;padding:6px 14px;border-radius:99px;font-weight:800}
+.lvl.good{background:var(--green-weak);color:var(--green)}.lvl.partial{background:var(--amber-weak);color:var(--amber)}.lvl.bad{background:var(--red-weak);color:var(--red)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.row2 a,.row2 button{display:flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;font-weight:750;min-height:48px}
+.gate{text-align:center}
+</style>
+<script>(function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];if(ok.indexOf(h)<0)location.replace("https://inclusivecity.uk/audit")})();</script>
+</head>
+<body>
+<header><a class="brand" href="/" translate="no">I<b>City</b></a><a class="v" href="/volunteer">Волонтёрам</a></header>
+<main>
+  <section id="gate" class="box gate" hidden>
+    <h1>Проверьте место за 3 минуты</h1>
+    <p class="lead">Чтобы проверки засчитывались вам как волонтёрские часы, войдите в аккаунт ICity. Это бесплатно.</p>
+    <a class="primary" style="display:flex;align-items:center;justify-content:center;border-radius:12px;min-height:48px;text-decoration:none;font-weight:750" href="/login?next=/audit">Войти или зарегистрироваться</a>
+    <p class="muted" style="margin-top:12px"><a href="/volunteer">Как это работает</a></p>
+  </section>
+
+  <form id="form" hidden onsubmit="event.preventDefault();submitAudit()">
+    <h1>Проверка места</h1>
+    <p class="lead">Встаньте у входа и ответьте на 8 вопросов. Если чего-то нет совсем (например, парковки), выберите «нет такого».</p>
+
+    <div class="box">
+      <h2>1. Какое место</h2>
+      <label class="f" for="place">Название</label>
+      <input id="place" type="text" required maxlength="120" placeholder="Например: Аптека «Биосфера» на Абая, 12" autocomplete="off">
+      <div class="loc">
+        <span class="muted" id="locText">Место ещё не отмечено</span>
+        <button type="button" class="ghost" onclick="useGps()">Я у входа</button>
+      </div>
+      <div id="map" role="region" aria-label="Карта: нажмите, чтобы отметить вход"></div>
+      <p class="muted" style="margin:6px 0 0">Или нажмите на карте точно в место входа.</p>
+    </div>
+
+    <div class="box">
+      <h2>2. Чек-лист</h2>
+      <div id="qs"></div>
+    </div>
+
+    <div class="box">
+      <h2>3. Фото и комментарий</h2>
+      <label class="f" for="photos">Фото входа (до 3)</label>
+      <input id="photos" type="file" accept="image/*" multiple>
+      <div class="photos" id="prev"></div>
+      <label class="f" for="comment" style="margin-top:14px">Что ещё важно знать</label>
+      <textarea id="comment" rows="3" maxlength="500" placeholder="Например: пандус есть, но зимой не чистят"></textarea>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+  </form>
+
+  <section id="done" class="box result" hidden aria-live="polite"></section>
+</main>
+
+<div class="sticky" id="bar" hidden>
+  <div class="in">
+    <div class="sc">Доступность<b id="live">—</b></div>
+    <button class="primary" id="sendBtn" type="submit" form="form">Отправить проверку</button>
+  </div>
+</div>
+
+<script src="/auth-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const Q=[
+  ['entrance','Вход без ступенек или есть пандус','Человек на коляске может заехать без посторонней помощи'],
+  ['ramp','Пандус удобный','Не крутой, с поручнями, без выбоин. Нет пандуса и он не нужен — «нет такого»'],
+  ['door','Дверь широкая и открывается легко','Проём около 90 см, дверь не тугая, порог ниже 2 см'],
+  ['inside','Внутри можно передвигаться без ступенек','Нет порогов и лестниц или есть лифт/подъёмник'],
+  ['toilet','Есть доступный туалет','Широкая кабина, поручни, открыт для посетителей'],
+  ['parking','Рядом парковка для людей с инвалидностью','Отмеченное место ближе 50 м от входа'],
+  ['tactile','Есть указатели для незрячих','Тактильная плитка, контрастные ступени или кнопка вызова со шрифтом Брайля'],
+  ['staff','Персонал готов помочь','Есть кнопка вызова у входа или сотрудники сами предлагают помощь'],
+];
+const ANS={}; let LL=null, map=null, pin=null, sb=null, session=null;
+
+$('qs').innerHTML=Q.map(([k,t,h])=>`<div class="q" role="group" aria-labelledby="q-${k}"><p id="q-${k}">${t}</p><small>${h}</small>
+  <div class="seg">${[['yes','Да'],['no','Нет'],['na','Нет такого']].map(([v,l])=>`<button type="button" data-k="${k}" data-v="${v}" aria-pressed="false">${l}</button>`).join('')}</div></div>`).join('');
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  ANS[b.dataset.k]=b.dataset.v;
+  b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  updScore();
+}));
+function calc(){let y=0,n=0;Q.forEach(([k])=>{if(ANS[k]==='yes')y++;else if(ANS[k]==='no')n++});return y+n?Math.round(y/(y+n)*100):null}
+function updScore(){const s=calc();$('live').textContent=s==null?'—':s+'%'}
+
+function setLL(lat,lon,src){
+  LL=[lat,lon];
+  $('locText').textContent=(src==='gps'?'По геопозиции: ':'Отмечено на карте: ')+lat.toFixed(5)+', '+lon.toFixed(5);
+  if(map){if(pin)pin.setLatLng(LL);else pin=L.marker(LL).addTo(map);map.setView(LL,Math.max(map.getZoom(),17))}
+}
+function useGps(){
+  if(!navigator.geolocation){$('locText').textContent='Геопозиция недоступна — отметьте место на карте';return}
+  $('locText').textContent='Определяем…';
+  navigator.geolocation.getCurrentPosition(p=>setLL(p.coords.latitude,p.coords.longitude,'gps'),
+    ()=>{$('locText').textContent='Не удалось. Разрешите геопозицию или нажмите на карте'},{enableHighAccuracy:true,timeout:12000});
+}
+$('photos').addEventListener('change',()=>{
+  const fs=[...$('photos').files].slice(0,3);
+  $('prev').innerHTML=fs.map(f=>`<img alt="" src="${URL.createObjectURL(f)}">`).join('');
+});
+
+async function token(){
+  if(!sb)return null;
+  const {data}=await sb.auth.getSession();session=data.session;return session?session.access_token:null;
+}
+async function submitAudit(){
+  $('err').textContent='';
+  const place=$('place').value.trim();
+  if(!place){$('err').textContent='Напишите название места';$('place').focus();return}
+  if(!LL){$('err').textContent='Отметьте место: нажмите «Я у входа» или точку на карте';return}
+  if(calc()==null){$('err').textContent='Ответьте хотя бы на один вопрос «да» или «нет»';return}
+  const tk=await token();
+  if(!tk){location.href='/login?next=/audit';return}
+  const fd=new FormData();
+  fd.append('place',place);fd.append('lat',LL[0]);fd.append('lon',LL[1]);
+  fd.append('answers',JSON.stringify(ANS));fd.append('comment',$('comment').value.trim());
+  [...$('photos').files].slice(0,3).forEach(f=>fd.append('photo',f));
+  $('sendBtn').disabled=true;$('sendBtn').textContent='Отправляем…';
+  try{
+    const r=await fetch('/api/audits',{method:'POST',body:fd,headers:{Authorization:'Bearer '+tk}});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||'Не получилось отправить');
+    showDone(d);
+  }catch(e){$('err').textContent=e.message}
+  finally{$('sendBtn').disabled=false;$('sendBtn').textContent='Отправить проверку'}
+}
+function showDone(d){
+  const a=d.audit,L2={good:'Доступно',partial:'Частично доступно',bad:'Недоступно'}[a.level];
+  $('form').hidden=true;$('bar').hidden=true;$('done').hidden=false;
+  $('done').innerHTML=`<p class="muted" style="margin:0">Проверка сохранена</p>
+    <h1 style="margin:6px 0 14px">${esc(a.place)}</h1>
+    <div class="big">${a.score}%</div><span class="lvl ${a.level}">${L2}</span>
+    <p>Спасибо! Теперь все в ICity видят, насколько это место доступно.<br>
+    У вас <b>${d.myAudits}</b> ${d.myAudits%10===1&&d.myAudits%100!==11?'проверка':(d.myAudits%10>=2&&d.myAudits%10<=4&&(d.myAudits%100<10||d.myAudits%100>=20))?'проверки':'проверок'} и <b>${String(d.myHours).replace('.',',')}</b> ч волонтёрства.</p>
+    <div class="row2"><button class="ghost" type="button" onclick="location.reload()">Проверить ещё место</button>
+      <a class="ghost" href="/map?at=${a.lat},${a.lon}&n=${encodeURIComponent(a.place)}">На карте ICity</a></div>
+    <p style="margin-top:14px"><a href="/volunteer">Мои часы и справка →</a></p>`;
+  scrollTo(0,0);
+}
+
+(async function start(){
+  const cfg=window.ICITY_AUTH||{};
+  if(cfg.url&&cfg.anonKey&&window.supabase){sb=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}})}
+  const tk=await token().catch(()=>null);
+  if(!tk){$('gate').hidden=false;return}
+  $('form').hidden=false;$('bar').hidden=false;
+  const sp=new URLSearchParams(location.search);
+  if(sp.get('n'))$('place').value=sp.get('n').slice(0,120);
+  let c=[43.2383,76.9455];try{const m=JSON.parse(localStorage.getItem('ic_mapPos')||'null');if(m&&Number.isFinite(m.lat))c=[m.lat,m.lng]}catch(e){}
+  if(window.L){
+    map=L.map('map').setView(c,13);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    map.on('click',e=>setLL(e.latlng.lat,e.latlng.lng,'map'));
+  }else $('map').hidden=true;
+  const la=Number(sp.get('lat')),lo=Number(sp.get('lon'));
+  if(Number.isFinite(la)&&Number.isFinite(lo)&&la&&lo)setLL(la,lo,'map');
+})();
+</script>
+</body>
+</html>

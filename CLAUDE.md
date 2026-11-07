@@ -160,6 +160,12 @@
 - Индекс доступной среды `/ranking` (`public/ranking.html`, `cityIndex` в `akimat.js`, открытый JSON `/api/city-index`): 22 города по жалобам жителей —
   45% доля исправленных, 25% скорость (медиана дней, 0 дн → полный балл, ≥60 → 0), 20% доля «в работе + исправлено», 10% доля без просрочки >30 дней;
   в рейтинг — от 3 жалоб, остальные — «Пока мало данных»; значок «акимат подключён». Ссылки: подвал главной (`.flinks`), шапка `/dashboard.html`.
+- Волонтёры «Проверено ICity» (`audits.js`, `public/audit.html` → `/audit`, `public/volunteer.html` → `/volunteer`): вход Supabase обязателен (токен из supabase-js `getSession`);
+  чек-лист из 8 пунктов (`ITEMS`: entrance, ramp, door, inside, toilet, parking, tactile, staff; да/нет/нет такого), до 3 фото; балл = да/(да+нет), ≥80 доступно, 50–79 частично;
+  город — ближайший центр из `BUS_CITIES` (до 40 км); 0,5 ч волонтёрства за проверку, 30 в сутки, одно место — раз в 30 дней от человека. Данные `data/audits.json` + KV `audits`.
+  API: GET `/api/audits?near=lat,lon&r=` | `?city=`, POST `/api/audits`, `/api/audits/leaderboard`, `/api/audits/me`, DELETE `/api/admin/audits/:id`.
+  В карточке места на карте — `loadAudit` (`#pcAudit`, тексты `AU_T` ru/kk/en): балл и пункты или ссылка «Проверить это место» (`/audit?lat=&lon=&n=`).
+  `/volunteer`: цифры, таблица лучших, «мой вклад», печатная справка о часах (`@media print`, `#cert`). `/login?next=/путь` — после входа возвращает туда (`ic_next`).
 - `public/sw.js` — офлайн-кэш; при каждом изменении фронтенда поднимать `CACHE` (`ic-vN`).
 - `data/` на бесплатном Render не сохраняется между деплоями (нет диска) — кэши пересобираются,
   жалобы и фото пропадают; для постоянного хранения нужен платный план с диском (см. `render.yaml`).

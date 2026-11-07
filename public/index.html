@@ -1010,6 +1010,12 @@ button:active:not(:disabled),.btn-primary:active,.btn-ghost:active,.pf-cat:activ
 @media (prefers-reduced-motion:reduce){#placeCard,.modal .dialog,.modal,.peek-route,#navBar,#navHud,.ac-list{animation:none!important}button:active{transform:none!important}}
 html[data-motion="off"] button:active{transform:none!important}
 
+.pc-audit-go{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.92rem;color:var(--blue,#1769c2);text-decoration:none;margin:4px 0 10px}
+.pc-audit-card{border:1px solid var(--line,#d5e1ec);border-radius:14px;padding:12px;margin:6px 0 12px}
+.pc-audit-card .pca-h{display:flex;align-items:baseline;gap:10px}.pc-audit-card .pca-h b{font-size:1.5rem;letter-spacing:-.5px}
+.pc-audit-card.good .pca-h b{color:#0a7350}.pc-audit-card.partial .pca-h b{color:#8a5300}.pc-audit-card.bad .pca-h b{color:#b42318}
+.pc-audit-card ul{list-style:none;margin:8px 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:.88rem}
+.pc-audit-card li.n{opacity:.75}.pc-audit-card small{opacity:.75;display:block}
 .pc-bar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:2px 0 12px}
 .pcb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:8px 4px;border-radius:16px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-weight:700;font-size:.8rem;text-decoration:none;cursor:pointer}
 .pcb .ic{width:22px;height:22px;color:var(--blue)}
@@ -1914,6 +1920,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <script>
 // ---- Значки интерфейса: свои линейные SVG вместо эмодзи (одинаково на любом телефоне) ----
 const ICONS={
+  check:'<path d="M20 6L9 17l-5-5"/>',
   close:'<path d="M6 6l12 12M18 6 6 18"/>',
   friends:'<circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c1-3.4 3.5-5.2 6.5-5.2s5.5 1.8 6.5 5.2"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.3 1.9 5 4.6"/>',
   b:'<rect x="4.5" y="3.5" width="15" height="14" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/>',
@@ -3956,6 +3963,7 @@ function showPlace(p){
     </div>
     ${p.loading?`<p class="pc-loading">${esc(t("pcLoading"))}</p>`:""}
     ${hasAccess||p.layer!==false?`<p class="pc-status ${cls}">${svgI("wc")} ${esc(t(key))}</p>`:""}
+    <div id="pcAudit" class="pc-audit"></div>
     ${facts.length?`<ul class="pc-facts">${facts.map(([ic,txt,c])=>`<li class="${c}">${svgI(PC_ICON[ic]||"map")}<span>${esc(txt)}</span></li>`).join("")}</ul>`:""}
     ${desc?`<p class="pc-desc">${esc(desc)}</p>`:""}
     <div class="pc-media" id="pcMedia" hidden></div>
@@ -3973,6 +3981,27 @@ function showPlace(p){
   placeMedia(p);
   placeEnrichContacts(p);
   loadReviews(p);
+  loadAudit(p);
+}
+/* ============ «Проверено ICity»: проверки волонтёров (audits.js) в карточке места ============ */
+const AU_T={ru:{t:"Проверено ICity",ok:"Доступно",part:"Частично доступно",bad:"Недоступно",by:"проверил(а)",go:"Проверить это место",again:"Проверить ещё раз",
+  entrance:"Вход без ступенек",ramp:"Удобный пандус",door:"Широкая дверь",inside:"Внутри без ступенек",toilet:"Доступный туалет",parking:"Парковка рядом",tactile:"Указатели для незрячих",staff:"Персонал поможет"},
+ kk:{t:"ICity тексерді",ok:"Қолжетімді",part:"Ішінара қолжетімді",bad:"Қолжетімсіз",by:"тексерген",go:"Осы жерді тексеру",again:"Қайта тексеру",
+  entrance:"Кіреберіс баспалдақсыз",ramp:"Ыңғайлы пандус",door:"Кең есік",inside:"Ішінде баспалдақ жоқ",toilet:"Қолжетімді дәретхана",parking:"Жақын тұрақ",tactile:"Көзі көрмейтіндерге белгі",staff:"Қызметкерлер көмектеседі"},
+ en:{t:"Checked by ICity",ok:"Accessible",part:"Partly accessible",bad:"Not accessible",by:"checked by",go:"Check this place",again:"Check again",
+  entrance:"Step-free entrance",ramp:"Good ramp",door:"Wide door",inside:"Step-free inside",toilet:"Accessible toilet",parking:"Parking nearby",tactile:"Tactile guidance",staff:"Staff will help"}};
+async function loadAudit(p){
+  const box=document.getElementById("pcAudit"); if(!box||!isFinite(p.lat)) return;
+  const T=AU_T[S.lang]||AU_T.ru, link=`/audit?lat=${(+p.lat).toFixed(6)}&lon=${(+p.lon).toFixed(6)}&n=${encodeURIComponent(p.name||"")}`;
+  let a=null;
+  try{ const r=await fetch(`/api/audits?near=${(+p.lat).toFixed(6)},${(+p.lon).toFixed(6)}&r=35`); const l=await r.json(); a=Array.isArray(l)&&l[0]; }catch(e){}
+  if(placeNow!==p) return;
+  if(!a){ box.innerHTML=`<a class="pc-audit-go" href="${link}">${svgI("check")} ${esc(T.go)}</a>`; return; }
+  const lv={good:T.ok,partial:T.part,bad:T.bad}[a.level]||"";
+  const items=Object.entries(a.answers||{}).filter(([,v])=>v!=="na").map(([k,v])=>`<li class="${v==="yes"?"y":"n"}">${v==="yes"?"✓":"✕"} ${esc(T[k]||k)}</li>`).join("");
+  box.innerHTML=`<div class="pc-audit-card ${a.level}"><div class="pca-h"><b>${a.score}%</b><span>${esc(T.t)} · ${esc(lv)}</span></div>
+    <ul>${items}</ul><small>${esc(T.by)} ${esc(a.by||"")} · ${new Date(a.createdAt).toLocaleDateString(S.lang==="en"?"en-GB":S.lang==="kk"?"kk-KZ":"ru-RU")}</small>
+    <a class="pc-audit-go" href="${link}">${esc(T.again)}</a></div>`;
 }
 // Контакты: телефон, WhatsApp, Instagram, Telegram, сайт (фото и отзывы — прямо в карточке, см. placeMedia)
 function contactsHtml(tg, name){
