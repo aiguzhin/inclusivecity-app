@@ -168,4 +168,36 @@ async function handle(req, res, pathname) {
   return send(res, 404, { error: 'not found' }), true;
 }
 
-module.exports = { init, handle, CITY_NAMES };
+
+// --- Индекс доступности городов (публичный, /ranking) ---
+// Считаем по жалобам жителей: доля исправленных, доля отработанных (в работе + исправлено),
+// скорость (медиана дней до исправления) и доля непросроченных. Меньше 3 жалоб — «мало данных».
+const INDEX_W = { fix: 0.45, response: 0.2, speed: 0.25, onTime: 0.1 };
+const MIN_REPORTS = 3;
+function cityIndex() {
+  const all = D.readReports().filter((r) => r.status !== 'rejected');
+  const connected = new Set(load().map((a) => a.city));
+  const rows = Object.keys(CITY_NAMES).map((id) => {
+    const list = all.filter((r) => inCity(id, r));
+    const st = stats(list);
+    const n = list.length;
+    let score = null;
+    if (n >= MIN_REPORTS) {
+      const fix = st.fixed / n, response = (st.fixed + st.inProgress) / n;
+      const speed = st.medianFixDays == null ? 0 : Math.max(0, 1 - st.medianFixDays / 60);
+      const onTime = 1 - st.overdue / n;
+      score = Math.round(100 * (INDEX_W.fix * fix + INDEX_W.response * response + INDEX_W.speed * speed + INDEX_W.onTime * onTime));
+    }
+    return { id, name: CITY_NAMES[id], reports: n, fixed: st.fixed, inProgress: st.inProgress, open: st.open, overdue: st.overdue,
+      medianFixDays: st.medianFixDays, fixRate: n ? Math.round((st.fixed / n) * 100) : 0, last30: st.last30, akimat: connected.has(id), score };
+  });
+  rows.sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || b.reports - a.reports || a.name.localeCompare(b.name, 'ru'));
+  let place = 0;
+  rows.forEach((r) => { r.place = r.score == null ? null : ++place; });
+  const tot = (k) => rows.reduce((s, r) => s + r[k], 0);
+  return { updatedAt: new Date().toISOString(), method: { weights: INDEX_W, minReports: MIN_REPORTS, overdueDays: 30, speedZeroAtDays: 60 },
+    totals: { reports: tot('reports'), fixed: tot('fixed'), inProgress: tot('inProgress'), overdue: tot('overdue'), cities: rows.length, ranked: place, akimats: connected.size },
+    cities: rows };
+}
+
+module.exports = { init, handle, cityIndex, CITY_NAMES };

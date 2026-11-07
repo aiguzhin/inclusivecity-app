@@ -340,6 +340,7 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status() });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
+  if (pathname === '/api/city-index' && req.method === 'GET') return sendJson(res, 200, akimat.cityIndex());
   if (pathname.startsWith('/api/akimat/') || pathname.startsWith('/api/admin/akimat')) { if (await akimat.handle(req, res, pathname)) return; }
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/friends')) { const done = await friends.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
@@ -861,6 +862,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(body);
     }
     if (pathname === '/admin' || pathname === '/admin.html') return serveFile(res, path.join(PUBLIC_DIR, 'admin.html'));
+    if (pathname === '/ranking' || pathname === '/ranking/') return serveFile(res, path.join(PUBLIC_DIR, 'ranking.html'));
     if (pathname === '/akimat' || pathname === '/akimat/') return serveFile(res, path.join(PUBLIC_DIR, 'akimat.html'));
 
     const bm = pathname.match(/^\/bus-([a-z]+)\.json$/);

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Индекс доступной среды городов Казахстана — ICity</title>
+<meta name="description" content="Какие города Казахстана быстрее исправляют барьеры для людей с инвалидностью, пожилых и родителей с колясками. Рейтинг по жалобам жителей в ICity.">
+<meta property="og:title" content="Индекс доступной среды городов Казахстана">
+<meta property="og:description" content="Рейтинг городов по тому, как быстро исправляют барьеры, о которых сообщают жители.">
+<meta property="og:url" content="https://inclusivecity.uk/ranking">
+<link rel="canonical" href="https://inclusivecity.uk/ranking">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+:root{--ink:#102a43;--soft:#51657a;--paper:#f4f7fa;--card:#fff;--blue:#1769c2;--blue-weak:#e8f2ff;
+--green:#0a7350;--green-weak:#e0f5ed;--amber:#8a5300;--amber-weak:#fff2d7;--red:#b42318;--red-weak:#fdeceb;--line:#d5e1ec;--track:#e6edf3}
+@media (prefers-color-scheme:dark){:root{--ink:#e8eef5;--soft:#a8b8c8;--paper:#0e1720;--card:#17222e;--blue:#5aa9f0;--blue-weak:#16334f;
+--green:#4ecfa0;--green-weak:#123a2e;--amber:#f0b545;--amber-weak:#3b2c0e;--red:#f08b82;--red-weak:#3d1a17;--line:#2a3b4d;--track:#22303e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px clamp(16px,4vw,32px);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:850;font-size:1.15rem;letter-spacing:-.5px;text-decoration:none;color:var(--ink)}.brand b{color:var(--blue)}
+header nav{display:flex;gap:16px;font-weight:700;font-size:14px}header nav a{text-decoration:none}
+main{max-width:1000px;margin:0 auto;padding:28px 16px 64px}
+.eyebrow{color:var(--blue);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0}
+h1{font-size:clamp(28px,4.4vw,42px);line-height:1.1;letter-spacing:-1.2px;margin:6px 0 10px}
+.lead{font-size:18px;color:var(--soft);max-width:680px;margin:0}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:24px 0 30px}
+.t{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.t .v{font-size:30px;font-weight:850;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}
+.t .l{font-size:13px;color:var(--soft);margin-top:4px}
+h2{font-size:22px;letter-spacing:-.5px;margin:34px 0 12px}
+.board{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:48px minmax(0,1.3fr) minmax(0,1.6fr) repeat(3,minmax(0,.8fr));gap:12px;align-items:center;padding:14px 16px;border-top:1px solid var(--line)}
+.row.head{border-top:0;font-size:12px;color:var(--soft);font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:10px 16px}
+.place{font-size:20px;font-weight:850;color:var(--soft);font-variant-numeric:tabular-nums}
+.row:nth-child(2) .place{color:var(--blue)}
+.city{font-weight:800}
+.badge{display:inline-block;font-size:11px;font-weight:750;padding:2px 8px;border-radius:99px;background:var(--green-weak);color:var(--green);margin-top:3px}
+.score{display:flex;align-items:center;gap:10px}
+.score b{font-size:20px;min-width:34px;font-variant-numeric:tabular-nums}
+.bar{flex:1;height:10px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--blue)}
+.num{font-variant-numeric:tabular-nums}.num small{display:block;font-size:12px;color:var(--soft)}
+.warn{color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:14px}
+.chip span{color:var(--soft)}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;color:var(--soft)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.box h3{margin:0 0 6px;font-size:17px}
+.box p{margin:0 0 12px;color:var(--soft);font-size:15px}
+.btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-weight:750;border-radius:10px;padding:10px 16px;border:0;font:inherit;font-weight:750;cursor:pointer}
+.btn.ghost{background:var(--blue-weak);color:var(--blue)}
+.method{font-size:15px;color:var(--soft)}.method li{margin:4px 0}
+a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+footer{color:var(--soft);font-size:13px;text-align:center;padding:24px 16px}
+@media (max-width:760px){
+  .row{grid-template-columns:36px minmax(0,1fr) auto;grid-template-areas:"p c s" "p m m";row-gap:6px}
+  .row.head{display:none}.row>.place{grid-area:p}.row>.c{grid-area:c}.row>.score{grid-area:s;min-width:120px}
+  .row>.num{display:none}.row>.mob{grid-area:m;display:block!important;font-size:13px;color:var(--soft)}
+  .cols{grid-template-columns:1fr}
+}
+.mob{display:none}
+</style>
+<script>(function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];if(ok.indexOf(h)<0)location.replace("https://inclusivecity.uk/ranking")})();</script>
+</head>
+<body>
+<header>
+  <a class="brand" href="/" translate="no">I<b>City</b></a>
+  <nav aria-label="Разделы"><a href="/map">Карта</a><a href="/dashboard.html">Статистика</a></nav>
+</header>
+<main>
+  <p class="eyebrow">Индекс доступной среды</p>
+  <h1>Какие города Казахстана быстрее убирают барьеры</h1>
+  <p class="lead">Жители отмечают в ICity высокие бордюры, крутые пандусы и сломанные лифты. Мы считаем, сколько из них города исправили и как быстро.</p>
+
+  <div class="totals" id="totals" aria-live="polite"></div>
+
+  <h2>Рейтинг городов</h2>
+  <div id="board"><div class="empty">Загружаем данные…</div></div>
+
+  <h2>Пока мало данных</h2>
+  <p class="method" style="margin-top:-4px">В рейтинг попадает город, о котором жители сообщили хотя бы о <span id="minRep">3</span> барьерах. Отметьте барьер в своём городе, и он появится в рейтинге.</p>
+  <div class="chips" id="few"></div>
+
+  <div class="cols">
+    <div class="box">
+      <h3>Вы живёте в Казахстане</h3>
+      <p>Видите барьер у остановки, поликлиники или ЦОНа? Отметьте его на карте. Это 30 секунд и одно фото.</p>
+      <a class="btn" href="/map?do=report">Сообщить о барьере</a>
+    </div>
+    <div class="box">
+      <h3>Вы работаете в акимате</h3>
+      <p>Подключите бесплатный кабинет: жалобы вашего города на одной карте, отметки «в работе» и «исправлено», отчёт в таблице.</p>
+      <a class="btn ghost" href="mailto:inclusivecityimpact@gmail.com?subject=%D0%9A%D0%B0%D0%B1%D0%B8%D0%BD%D0%B5%D1%82%20%D0%B0%D0%BA%D0%B8%D0%BC%D0%B0%D1%82%D0%B0%20ICity">Подключить кабинет</a>
+    </div>
+  </div>
+
+  <h2>Как считается индекс</h2>
+  <ul class="method">
+    <li><b>45%</b> — доля исправленных барьеров от всех жалоб жителей.</li>
+    <li><b>25%</b> — скорость: медиана дней от жалобы до исправления. 0 дней — полный балл, 60 дней и больше — ноль.</li>
+    <li><b>20%</b> — доля жалоб, которые взяты в работу или уже исправлены.</li>
+    <li><b>10%</b> — доля жалоб, которые не висят без ответа дольше 30 дней.</li>
+    <li>Отклонённые модератором жалобы не учитываются. Данные обновляются сразу, как только акимат или модератор меняет статус.</li>
+  </ul>
+  <p class="method">Данные открыты: <a href="/api/city-index">/api/city-index</a> (JSON). Ссылаясь на рейтинг, указывайте источник: ICity, inclusivecity.uk.</p>
+  <p style="margin-top:18px"><button class="btn ghost" id="shareBtn" type="button">Поделиться рейтингом</button></p>
+</main>
+<footer>ICity · inclusivecity.uk · <span id="upd"></span></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
+const days=d=>d==null?'—':plural(Math.round(d),'день','дня','дней');
+
+async function load(){
+  let d;
+  try{d=await (await fetch('/api/city-index')).json()}catch(e){$('board').innerHTML='<div class="empty">Не удалось загрузить данные. Обновите страницу.</div>';return}
+  const t=d.totals;
+  $('totals').innerHTML=[
+    [t.reports,'барьеров отметили жители'],[t.fixed,'уже исправлено'],[t.inProgress,'в работе сейчас'],
+    [t.overdue,'ждут ответа больше 30 дней'],[t.akimats,'акиматов подключено']
+  ].map(([v,l])=>`<div class="t"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('minRep').textContent=d.method.minReports;
+  $('upd').textContent='обновлено '+new Date(d.updatedAt).toLocaleString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+
+  const ranked=d.cities.filter(c=>c.score!=null), few=d.cities.filter(c=>c.score==null);
+  if(!ranked.length){
+    $('board').innerHTML='<div class="empty">Рейтинг заполнится, когда в городах наберётся хотя бы по '+d.method.minReports+' жалобы. Отметьте барьер в своём городе — и он появится здесь первым.</div>';
+  }else{
+    $('board').innerHTML=`<div class="board" role="table" aria-label="Рейтинг городов">
+      <div class="row head" role="row"><span role="columnheader">#</span><span role="columnheader">Город</span><span role="columnheader">Индекс</span>
+        <span role="columnheader">Исправлено</span><span role="columnheader">Срок</span><span role="columnheader">Просрочено</span></div>
+      ${ranked.map(c=>`<div class="row" role="row">
+        <span class="place" role="cell">${c.place}</span>
+        <span class="c" role="cell"><span class="city">${esc(c.name)}</span>${c.akimat?'<br><span class="badge">акимат подключён</span>':''}</span>
+        <span class="score" role="cell"><b>${c.score}</b><span class="bar" aria-hidden="true"><i style="width:${c.score}%"></i></span></span>
+        <span class="num" role="cell">${c.fixRate}%<small>${c.fixed} из ${c.reports}</small></span>
+        <span class="num" role="cell">${days(c.medianFixDays)}<small>медиана</small></span>
+        <span class="num ${c.overdue?'warn':''}" role="cell">${c.overdue}<small>&gt; 30 дней</small></span>
+        <span class="mob">Исправлено ${c.fixed} из ${c.reports} · срок ${days(c.medianFixDays)}${c.overdue?` · <span class="warn">просрочено ${c.overdue}</span>`:''}</span>
+      </div>`).join('')}</div>`;
+  }
+  $('few').innerHTML=few.map(c=>`<span class="chip">${esc(c.name)} <span>· ${plural(c.reports,'жалоба','жалобы','жалоб')}</span></span>`).join('');
+}
+$('shareBtn').addEventListener('click',async()=>{
+  const data={title:'Индекс доступной среды городов Казахстана',text:'Какие города быстрее убирают барьеры — рейтинг ICity',url:'https://inclusivecity.uk/ranking'};
+  try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(data.url);$('shareBtn').textContent='Ссылка скопирована'}}catch(e){}
+});
+load();
+</script>
+</body>
+</html>
