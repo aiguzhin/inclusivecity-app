@@ -299,7 +299,7 @@ html[data-motion="off"] .compass-needle{transition:none}
 .sheet-backdrop{display:none}
 .city-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:14px}
 /* Способ передвижения — сегменты, как в 2ГИС */
-.mode-tabs{display:flex;gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+.mode-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
 .mode-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
 .mode-tabs button[aria-checked="true"]{background:var(--card);color:var(--blue-ink);box-shadow:var(--shadow)}
 .trip-steps{list-style:none;margin:10px 0 0;padding:0}
@@ -1453,6 +1453,9 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <button type="button" role="radio" data-mode="walk" aria-checked="true" onclick="setMode('walk')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.8"/><path d="M10 21l2-6 2.5 2.5V21M8 12l3-4.5h2.5l2 3.5 2.5 1M11 7.5 10 13l2 2"/></svg><span data-i18n="modeWalk">Пешком</span></button>
       <button type="button" role="radio" data-mode="bus" aria-checked="false" onclick="setMode('bus')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="14" rx="2.5"/><path d="M4.5 10.5h15M8 14.5h.01M16 14.5h.01M7 17.5v2.5M17 17.5v2.5"/></svg><span data-i18n="modeBus">Автобус</span></button>
       <button type="button" role="radio" data-mode="taxi" aria-checked="false" onclick="setMode('taxi')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16.5V12l2-5h10l2 5v4.5z"/><path d="M5 12h14M7.5 16.5V19M16.5 16.5V19M8 14h.01M16 14h.01"/></svg><span data-i18n="modeTaxi">Такси</span></button>
+      <button type="button" role="radio" data-mode="car" aria-checked="false" onclick="setMode('car')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15.5V12l2.2-4.6A2 2 0 0 1 8 6.3h8a2 2 0 0 1 1.8 1.1L20 12v3.5z"/><path d="M4 12h16M6.5 15.5V18M17.5 15.5V18"/><circle cx="8" cy="13.8" r=".6"/><circle cx="16" cy="13.8" r=".6"/></svg><span data-i18n="modeCar">Машина</span></button>
+      <button type="button" role="radio" data-mode="bike" aria-checked="false" onclick="setMode('bike')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h5l3 7M10 9 8.5 6.5H7M14 6.5h2l-1 2.5"/></svg><span data-i18n="modeBike">Велосипед</span></button>
+      <button type="button" role="radio" data-mode="scooter" aria-checked="false" onclick="setMode('scooter')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8.2 18h7.6M15 5h2.5l1 13M15 5l-1 0"/></svg><span data-i18n="modeScooter">Самокат</span></button>
     </div>
     <div class="row" style="margin-top:12px">
       <button class="btn-primary grow" onclick="buildRoute()" data-i18n="build">Построить маршрут</button>
@@ -2042,7 +2045,7 @@ ru:{
  peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
  peekHelp:"Помощь", peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", statsShort:"Статистика", sheetResize:"Развернуть или свернуть панель",
  cityAuto:"Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
- modeLabel:"Способ передвижения", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
+ modeLabel:"Способ передвижения", modeCar:"Машина", modeBike:"Велосипед", modeScooter:"Самокат", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Ищем автобусы…", busNone:"Автобусов не нашли — даже с пересадками", busFewRoutes:"В открытых картах OpenStreetMap у этого города всего {n} маршр. — поездку с пересадками построить не из чего. Точные маршруты и время — в 2ГИС, Яндексе или Avtobys ниже.", busNoData:"В OpenStreetMap пока нет автобусных маршрутов этого города", busLoading:"Маршруты этого города ещё готовятся",
  busNoneHelp:"Рядом с началом и концом пути нет общего маршрута по данным OpenStreetMap. Попробуйте такси или точку поближе к остановке.",
  busOtherCity:"Автобусы — только по выбранному городу", busOtherCityHelp:"Обе точки должны быть в городе {city}. Смените город в настройках или вызовите такси.",
@@ -2132,7 +2135,7 @@ kk:{
  peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
  peekHelp:"Көмек", peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", statsShort:"Статистика", sheetResize:"Тақтаны жаю немесе жию",
  cityAuto:"Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
- modeLabel:"Жүру тәсілі", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
+ modeLabel:"Жүру тәсілі", modeCar:"Көлік", modeBike:"Велосипед", modeScooter:"Самокат", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
  busSearching:"Автобустар ізделуде…", busNone:"Ауысумен де автобус табылмады", busFewRoutes:"OpenStreetMap-те бұл қалада тек {n} бағыт бар — ауысумен жол құру мүмкін емес. Нақты бағыттар — төмендегі 2ГИС, Яндекс немесе Avtobys-та.", busNoData:"OpenStreetMap-те бұл қаланың автобус бағыттары әзірге жоқ", busLoading:"Бұл қаланың бағыттары әлі дайындалуда",
  busNoneHelp:"OpenStreetMap деректері бойынша жолдың басы мен соңына ортақ бағыт жоқ. Таксиді немесе аялдамаға жақын нүктені таңдаңыз.",
  busOtherCity:"Автобустар тек таңдалған қала бойынша", busOtherCityHelp:"Екі нүкте де {city} қаласында болуы керек. Қаланы баптауларда ауыстырыңыз немесе такси шақырыңыз.",
@@ -2223,7 +2226,7 @@ en:{
  peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
  peekHelp:"Help", peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", statsShort:"Statistics", sheetResize:"Expand or collapse the panel",
  cityAuto:"Detect from my location", cityFar:"No supported city near you",
- modeLabel:"How to travel", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
+ modeLabel:"How to travel", modeCar:"Car", modeBike:"Bike", modeScooter:"Scooter", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
  busSearching:"Looking for buses…", busNone:"No buses found, even with transfers", busFewRoutes:"OpenStreetMap has only {n} routes for this city, too few to build a trip with transfers. See exact routes in 2GIS, Yandex or Avtobys below.", busNoData:"OpenStreetMap has no bus routes for this city yet", busLoading:"Routes for this city are still being prepared",
  busNoneHelp:"OpenStreetMap has no shared route near both the start and the end. Try a taxi or a point closer to a stop.",
  busOtherCity:"Buses are shown for the selected city only", busOtherCityHelp:"Both points must be in {city}. Change the city in Settings or call a taxi.",
@@ -5890,6 +5893,7 @@ async function buildRoute(){
     modePeek=null;
     if(S.mode==="bus"){ await buildBusTrip(a,b); return; }
     if(S.mode==="taxi"){ await buildTaxiTrip(a,b); return; }
+    if(S.mode==="car"||S.mode==="bike"||S.mode==="scooter"){ await buildRideTrip(a,b,S.mode); return; }
 
     // Просим несколько вариантов, а не один: это и есть основа выбора «в обход барьеров».
     const url=`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}`
@@ -6514,6 +6518,70 @@ async function cityTaxiHtml(key, from){
   return h;
 }
 let taxiTrip=null;
+
+// ── Свой транспорт: машина (парковки для людей с инвалидностью у места назначения), велосипед, самокат ──
+const RIDE_T={
+ ru:{rdCarH:"На машине", rdBikeH:"На велосипеде", rdScH:"На самокате", rdPark:"Парковки для людей с инвалидностью рядом с местом назначения",
+  rdParkNone:"В OpenStreetMap рядом нет отмеченных мест для людей с инвалидностью. Отметьте их, если знаете.", rdParkLoad:"Ищем парковки рядом…",
+  rdParkM:"{m} м до места", rdParkN:"мест: {n}", rdOpen:"Открыть в навигаторе", rdYa:"Яндекс Навигатор", rdGo:"Google Карты", rd2g:"2ГИС",
+  rdBikeNote:"Маршрут по велодорожкам и тихим улицам OpenStreetMap. Время — при скорости около 15 км/ч.",
+  rdScNote:"Время — при скорости около 15 км/ч. Самокаты в аренду есть в приложениях Jet, Whoosh и Яндекс Самокаты. На тротуаре уступайте пешеходам и людям на колясках.",
+  rdCarNote:"Время без учёта пробок, по городу в среднем около 22 км/ч.", rdFail:"Не удалось построить маршрут. Проверьте адреса и интернет."},
+ kk:{rdCarH:"Көлікпен", rdBikeH:"Велосипедпен", rdScH:"Самокатпен", rdPark:"Межелі жердің жанындағы мүгедектігі бар адамдарға арналған тұрақтар",
+  rdParkNone:"OpenStreetMap-та жақын жерде белгіленген орын жоқ. Білсеңіз, белгілеңіз.", rdParkLoad:"Жақын тұрақтарды іздеп жатырмыз…",
+  rdParkM:"межеге дейін {m} м", rdParkN:"орын: {n}", rdOpen:"Навигаторда ашу", rdYa:"Яндекс Навигатор", rdGo:"Google Maps", rd2g:"2ГИС",
+  rdBikeNote:"OpenStreetMap веложолдары мен тыныш көшелер бойынша. Уақыт — шамамен 15 км/сағ жылдамдықпен.",
+  rdScNote:"Уақыт — шамамен 15 км/сағ. Жалға самокаттар Jet, Whoosh және Яндекс Самокаттар қосымшаларында бар. Тротуарда жаяу жүргіншілер мен арбадағы адамдарға жол беріңіз.",
+  rdCarNote:"Кептелісті есептемегенде, қала ішінде орта есеппен 22 км/сағ.", rdFail:"Бағыт құру мүмкін болмады. Мекенжайлар мен интернетті тексеріңіз."},
+ en:{rdCarH:"By car", rdBikeH:"By bike", rdScH:"By scooter", rdPark:"Disabled parking near your destination",
+  rdParkNone:"No disabled parking is mapped nearby in OpenStreetMap. Add it if you know a spot.", rdParkLoad:"Looking for parking nearby…",
+  rdParkM:"{m} m to the place", rdParkN:"spaces: {n}", rdOpen:"Open in a navigation app", rdYa:"Yandex Navigator", rdGo:"Google Maps", rd2g:"2GIS",
+  rdBikeNote:"Route along OpenStreetMap cycle paths and quiet streets. Time at about 15 km/h.",
+  rdScNote:"Time at about 15 km/h. Rental scooters are available in the Jet, Whoosh and Yandex Scooters apps. On pavements, give way to pedestrians and wheelchair users.",
+  rdCarNote:"Time without traffic, about 22 km/h on average in the city.", rdFail:"Couldn't build the route. Check the addresses and your connection."}};
+["ru","kk","en"].forEach(l=>Object.assign(I18N[l],RIDE_T[l]));
+async function buildRideTrip(a,b,kind){
+  const card=document.getElementById("routeCard"), car=kind==="car";
+  const prof=car?"routed-car":"routed-bike", color=car?"#b26a00":kind==="bike"?"#0a7350":"#7a3db8";
+  let d=null;
+  try{ d=await (await fetch(`https://routing.openstreetmap.de/${prof}/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&alternatives=true`)).json(); }catch(e){}
+  if(!d||d.code!=="Ok"||!d.routes||!d.routes.length){ showTrip(`<h2>${esc(t("rdFail"))}</h2>`); return; }
+  const rt=d.routes[0], pts=rt.geometry.coordinates.map(c=>[c[1],c[0]]), km=rt.distance/1000;
+  const mins=Math.max(1,Math.round(car ? Math.max(rt.duration/60, km/22*60) : km/15*60));
+  if(mapReady){
+    routeLayer.clearLayers();
+    d.routes.slice(1,3).forEach(x=>L.polyline(x.geometry.coordinates.map(c=>[c[1],c[0]]),{color,weight:5,opacity:.45,dashArray:"6 8"}).addTo(routeLayer));
+    L.polyline(pts,{color,weight:7,opacity:.95}).addTo(routeLayer);
+    tripMarkers(a,b); fitTrip(pts);
+  }
+  const head=t(car?"rdCarH":kind==="bike"?"rdBikeH":"rdScH"), ic=car?"car":"walk";
+  const nav=car?`<p class="small muted" style="margin:12px 0 6px">${esc(t("rdOpen"))}</p><div class="row" style="gap:8px;flex-wrap:wrap">
+      <a class="btn-ghost btn-sm" href="yandexnavi://build_route_on_map?lat_from=${a[0]}&lon_from=${a[1]}&lat_to=${b[0]}&lon_to=${b[1]}">${esc(t("rdYa"))}</a>
+      <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=${a[0]},${a[1]}&destination=${b[0]},${b[1]}&travelmode=driving">${esc(t("rdGo"))}</a>
+      <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="https://2gis.kz/directions/points/${a[1]}%2C${a[0]}%7C${b[1]}%2C${b[0]}">${esc(t("rd2g"))}</a></div>`:"";
+  const html=`<h2>${svgI(ic)} ${esc(head)} · ~${mins} ${esc(t("min"))} · ${km.toFixed(1)} ${esc(t("km"))}</h2>
+    <p class="small muted">${esc(t(car?"rdCarNote":kind==="bike"?"rdBikeNote":"rdScNote"))}</p>
+    ${car?`<div id="carVars"></div><h3 class="taxi-h">${svgI("wc")} ${esc(t("rdPark"))}</h3><div id="rdPark"><p class="small muted">${esc(t("rdParkLoad"))}</p></div>`:""}${nav}`;
+  showTrip(html,{title:`${head} · ~${mins} ${t("min")}`, sub:`${km.toFixed(1)} ${t("km")}`});
+  if(car){ taxiTrip={a,b}; carVariants(a,b,{pts,km,mins},null,false); rideParking(b); }
+}
+async function rideParking(b){
+  const box=()=>document.getElementById("rdPark");
+  const q=`[out:json][timeout:20];(nwr["amenity"="parking"]["capacity:disabled"](around:600,${b[0]},${b[1]});nwr["parking_space"="disabled"](around:600,${b[0]},${b[1]});nwr["amenity"="parking_space"]["access:disabled"](around:600,${b[0]},${b[1]}););out center tags 30;`;
+  let list=[];
+  try{ const d=await overpassQuery("data="+encodeURIComponent(q),15000);
+    list=d.elements.map(e=>{ const lat=e.lat||(e.center&&e.center.lat), lon=e.lon||(e.center&&e.center.lon); const tg=e.tags||{};
+      const n=parseInt(tg["capacity:disabled"],10); return {lat,lon,name:tg.name||"",n:isFinite(n)?n:(tg["capacity:disabled"]==="yes"||tg.parking_space==="disabled"?1:0),m:Math.round(haversine([lat,lon],b))}; })
+      .filter(x=>x.lat&&x.n>0).sort((x,y)=>x.m-y.m).slice(0,6);
+  }catch(e){}
+  const el=box(); if(!el) return;
+  if(!list.length){ el.innerHTML=`<p class="small muted">${esc(t("rdParkNone"))}</p>`; return; }
+  el.innerHTML=`<ul class="fr-contacts">${list.map((x,i)=>`<li><b>${svgI("wc")} ${esc(x.name||t("rdPark").split(" ")[0])}</b><span class="small muted">${esc(tf("rdParkM",{m:x.m}))} · ${esc(tf("rdParkN",{n:x.n}))}</span><button type="button" class="btn-ghost btn-sm" onclick="rideParkGo(${x.lat},${x.lon})">${esc(t("pcRouteS"))}</button></li>`).join("")}</ul>`;
+  if(mapReady) list.forEach(x=>L.circleMarker([x.lat,x.lon],{radius:7,color:"#fff",weight:2,fillColor:"#1769c2",fillOpacity:1}).bindTooltip("P ♿ "+(x.name||"")).addTo(routeLayer));
+}
+function rideParkGo(lat,lon){   // маршрут прямо до парковки
+  const d=document.getElementById("destination"), txt="P ♿ "+lat.toFixed(5)+", "+lon.toFixed(5);
+  d.value=txt; SELECTED["destination"]={text:txt, ll:[lat,lon]}; buildRoute(); }
 async function buildTaxiTrip(a,b){
   let pts=[a,b], km=haversine(a,b)*1.3/1000, mins=km/30*60;
   const [route, live] = await Promise.all([
@@ -6592,7 +6660,7 @@ async function carVariants(a,b,base,T,live){
     const [p1,p2]=T?taxiPrice(T,v.km,v.mins):[0,0];
     return `<button type="button" class="variant" aria-pressed="${i===0}" onclick="carPick(${i})"><b>${v.mins} ${esc(t("min"))} · ${v.km.toFixed(1)} ${esc(t("km"))}</b>`
       +`<span class="v-sub ok">${esc(v.key.map(k=>t(k)).join(" · "))}</span>${T?`<span class="v-delta">≈ ${fmt(p1)}–${fmt(p2)} ₸</span>`:""}</button>`; }).join("")
-    +`<p class="small muted" style="margin-top:6px">${esc(t(live?"carVarsLive":"carVarsNote"))}</p>`;
+    +(T||live?`<p class="small muted" style="margin-top:6px">${esc(t(live?"carVarsLive":"carVarsNote"))}</p>`:"");
 }
 function carPick(i){
   const v=carVars[i]; if(!v||!mapReady) return;
@@ -8110,7 +8178,7 @@ function globeToMap(cityKey){
   S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
   if(S.basemap==="satlab") S.basemap="sat";
   S.city=read("city","almaty"); if(!CITIES[S.city]) S.city="almaty";
-  S.mode=read("mode","walk"); if(!["walk","bus","taxi"].includes(S.mode)) S.mode="walk";
+  S.mode=read("mode","walk"); if(!["walk","bus","taxi","car","bike","scooter"].includes(S.mode)) S.mode="walk";
   markMode();
   document.getElementById("langSel").value=S.lang;
   const l2=document.getElementById("langSel2"); if(l2) l2.value=S.lang;
