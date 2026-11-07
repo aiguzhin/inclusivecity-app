@@ -465,6 +465,23 @@ html[data-ui="soft"] input,html[data-ui="soft"] select,html[data-ui="soft"] text
 }
 
 /* ===== Кнопка «три линии» на карте: слои, погода и подпись снимка — в одной панели, чтобы не загораживать карту ===== */
+.desk-rail{display:none}
+@media(min-width:861px){
+  .desk-rail{position:absolute;z-index:520;top:10px;left:68px;right:70px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
+  .desk-rail>*{pointer-events:auto;height:48px;display:inline-flex;align-items:center;gap:8px;padding:0 16px;border-radius:16px;border:0;
+    background:var(--card);color:var(--ink);box-shadow:var(--soft-sh,var(--shadow));font:inherit;font-weight:700;font-size:.95rem;text-decoration:none;cursor:pointer;white-space:nowrap}
+  .desk-rail>*:hover{background:var(--blue-weak,#e8f2ff);color:var(--blue,#1769c2)}
+  .desk-rail .ic{width:20px;height:20px}
+  body.nav-on .desk-rail,body.is3d .desk-rail{display:none}
+}
+.perm-list{list-style:none;margin:6px 0 14px;padding:0;display:grid;gap:10px}
+.perm-list li{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:14px;background:var(--bg-soft,rgba(23,105,194,.06))}
+.perm-list .pi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--blue-weak,#e8f2ff);color:var(--blue,#1769c2)}
+.perm-list .pi .ic{width:22px;height:22px}
+.perm-list b{display:block}.perm-list small{display:block;opacity:.75;font-size:.85rem;line-height:1.35}
+.perm-st{font-weight:800;font-size:.9rem;white-space:nowrap}.perm-st.ok{color:#0a7350}.perm-st.no{color:#b42318}
+.fr-contacts{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.fr-contacts li{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.fr-contacts li b{flex:1;min-width:120px}
 .map-menu-btn{position:absolute;z-index:520;top:10px;left:10px;width:48px;height:48px;min-height:48px;padding:0;border-radius:16px;
   background:var(--card);color:var(--ink);border:0;box-shadow:var(--soft-sh,var(--shadow));display:grid;place-items:center}
 .map-menu-btn .ic{width:22px;height:22px}
@@ -1465,6 +1482,14 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   <section class="stage">
     <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-badge" id="mmbBadge" hidden></span></button>
+    <!-- Кнопки разделов слева сверху на компьютере (как в 2ГИС); на телефоне — нижнее меню -->
+    <nav class="desk-rail" id="deskRail" data-i18n-aria="railL" aria-label="Разделы">
+      <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+      <button type="button" onclick="railPlaces()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
+      <button type="button" onclick="openMyReports()"><i data-ic="warn"></i><span data-i18n="mrTitle">Мои жалобы</span></button>
+      <button type="button" onclick="openHelp()"><i data-ic="user"></i><span data-i18n="railHelp">Помощь</span></button>
+      <a href="/audit"><i data-ic="check"></i><span data-i18n="railAudit">Проверить место</span></a>
+    </nav>
     <div class="map-menu" id="mapMenu" hidden role="dialog" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты">
       <div class="mpm-head"><b data-i18n="mmLayers">Слои и сведения карты</b><button type="button" class="mpm-x" onclick="toggleMapMenu(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
       <p class="mpm-h" data-i18n="mmLayersSub">Что показать на карте</p>
@@ -1633,6 +1658,15 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     </div>
     <p class="small muted" style="margin:6px 0 0" data-i18n="psHelp">Выберите подсказку или нажмите ⌖, если вы сейчас там.</p>
     <button class="btn-primary" style="width:100%;margin-top:14px" id="psSave" onclick="psSave()" data-i18n="psSave">Сохранить и показать на карте</button>
+  </div>
+</div>
+<div class="modal" id="permModal" role="dialog" aria-modal="true" aria-labelledby="permH">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="permH" data-i18n="permTitle">Чтобы ICity работал как навигатор</h2><button class="btn-ghost btn-sm" onclick="permLater()" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
+    <p class="fr-note" data-i18n="permLead">Разрешите доступ один раз — дальше ICity не будет спрашивать.</p>
+    <ul class="perm-list" id="permList"></ul>
+    <button type="button" class="btn" style="width:100%" id="permAllBtn" onclick="permAll()" data-i18n="permAll">Разрешить</button>
+    <button type="button" class="btn-ghost" style="width:100%;margin-top:8px" onclick="permLater()" data-i18n="permLater">Позже</button>
   </div>
 </div>
 <div class="modal" id="frModal" role="dialog" aria-modal="true" aria-labelledby="frH">
@@ -5201,12 +5235,114 @@ function frRender(){
   box.innerHTML=`
     <section class="fr-sec"><h3>${esc(t("frInvite"))}</h3><p class="fr-note">${esc(t("frInviteHint"))}</p>
       <div class="fr-link"><input type="text" readonly value="${esc(frLink())}" aria-label="${esc(t("frInvite"))}" onfocus="this.select()"></div>
-      <div class="fr-acts"><button type="button" class="btn btn-sm" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frCopy()">${esc(t("frCopy"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frNewCode()">${esc(t("frNewCode"))}</button></div></section>
+      <div class="fr-acts"><button type="button" class="btn btn-sm" onclick="frFromContacts()">${svgI("friends")} ${esc(t("frContacts"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frCopy()">${esc(t("frCopy"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frNewCode()">${esc(t("frNewCode"))}</button></div><ul class="fr-contacts" id="frContacts"></ul></section>
     <section class="fr-sec"><h3>${esc(t("frMyLoc"))}</h3><div class="seg fr-seg">${seg}</div>
       <p class="fr-note ${on?"fr-live":""}">${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till})):t("frNotSharing"))}</p></section>
     <section class="fr-sec"><h3>${esc(t("frList"))}${FR.list.length?" · "+FR.list.length:""}</h3>
       ${FR.list.length?`<label class="fr-tog"><input type="checkbox" ${frHidden()?"":"checked"} onchange="frSetHidden(!this.checked)"> ${esc(t("frOnMapT"))}</label>`:""}${FR.list.length?`<ul class="fr-list">${friends}</ul>`:`<p class="fr-note">${esc(t("frNone"))}</p>`}</section>`;
   Object.entries(FR.open).forEach(([id,what])=>{ if(what) frFill(id,what); });
+}
+
+// ── Доступы при первом запуске: геопозиция, уведомления, компас (iPhone), контакты — одним окном ──
+const PERM_T={
+ ru:{permTitle:"Чтобы ICity работал как навигатор", permLead:"Разрешите доступ один раз — дальше ICity не будет спрашивать.", permAll:"Разрешить", permLater:"Позже", permDone:"Готово",
+  permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
+  permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
+  permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место",
+  frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
+ kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
+  permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
+  permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
+  permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру",
+  frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
+ en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
+  permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
+  permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
+  permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place",
+  frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
+["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
+const PERM={geo:"?",not:"?",cmp:"?"};
+const DOE_P=()=>window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission==="function";
+async function permState(){
+  try{ if(navigator.permissions){ const g=await navigator.permissions.query({name:"geolocation"}); PERM.geo=g.state; } }catch(e){}
+  PERM.not=("Notification" in window && "serviceWorker" in navigator) ? Notification.permission : "na";
+  if(PERM.not==="default") PERM.not="prompt";
+  PERM.cmp=DOE_P() ? (read("cmpOk","")==="1"?"granted":"prompt") : "na";
+}
+function permRow(key,ic,title,sub,st){
+  const lab = st==="granted" ? `<span class="perm-st ok">${esc(t("permOk"))}</span>` : st==="denied" ? `<span class="perm-st no">${esc(t("permNo"))}</span>`
+    : st==="na" ? `<span class="perm-st">${esc(t("permNA"))}</span>` : st==="later" ? "" : `<button type="button" class="btn-ghost btn-sm" onclick="permOne('${key}')">${esc(t("permAsk"))}</button>`;
+  return `<li><span class="pi">${svgI(ic)}</span><span><b>${esc(t(title))}</b><small>${esc(t(sub))}</small></span>${lab}</li>`;
+}
+function permRender(){
+  const l=document.getElementById("permList"); if(!l) return;
+  l.innerHTML=permRow("geo","pin","permGeo","permGeoS",PERM.geo)
+    +(PERM.not!=="na"?permRow("not","chat","permNot","permNotS",PERM.not):"")
+    +(PERM.cmp!=="na"?permRow("cmp","nav","permCmp","permCmpS",PERM.cmp):"")
+    +permRow("cnt","friends","permCnt","permCntS","later");
+  const left=[PERM.geo,PERM.not,PERM.cmp].some(x=>x==="prompt"||x==="?");
+  const b=document.getElementById("permAllBtn"); if(b){ b.textContent=t(left?"permAll":"permDone"); b.onclick=left?permAll:permLater; }
+}
+function permAskGeo(){
+  return new Promise(res=>{
+    if(!navigator.geolocation){ PERM.geo="na"; return res(); }
+    autoLocate(false,(ok,err)=>{ PERM.geo= ok?"granted" : (err&&err.code===1?"denied":"prompt"); res(); });
+  });
+}
+function permAskNot(){
+  if(!("Notification" in window) || Notification.permission!=="default") return Promise.resolve();
+  return Promise.resolve(Notification.requestPermission()).then(p=>{ PERM.not=p==="default"?"prompt":p; if(p==="granted"){ store("push","on"); pushSync(); } }).catch(()=>{});
+}
+function permAskCmp(){
+  if(!DOE_P()) return Promise.resolve();
+  return DeviceOrientationEvent.requestPermission().then(st=>{ PERM.cmp=st; if(st==="granted"){ store("cmpOk","1"); try{ startCompass(); }catch(e){} } }).catch(()=>{ PERM.cmp="prompt"; });
+}
+// Одно нажатие: запросы, которым нужно нажатие пользователя (уведомления, компас), запускаются сразу в обработчике
+async function permAll(){
+  store("permsAsked","1");
+  const jobs=[];
+  if(PERM.not==="prompt") jobs.push(permAskNot());
+  if(PERM.cmp==="prompt") jobs.push(permAskCmp());
+  if(PERM.geo!=="granted" && PERM.geo!=="denied") jobs.push(permAskGeo()); else if(PERM.geo==="granted") autoLocate(false);
+  await Promise.all(jobs); permRender();
+  if(![PERM.geo,PERM.not,PERM.cmp].some(x=>x==="prompt")) setTimeout(()=>closeModal("permModal"),700);
+}
+async function permOne(k){ if(k==="geo") await permAskGeo(); else if(k==="not") await permAskNot(); else if(k==="cmp") await permAskCmp(); permRender(); }
+function permLater(){ store("permsAsked","1"); closeModal("permModal"); if(PERM.geo!=="granted") autoLocate(false); }
+async function permStart(){
+  if(geoPlatform()==="claude" || read("permsAsked","")==="1"){ autoLocate(false); return; }
+  await permState();
+  if(PERM.geo==="granted" && PERM.not!=="prompt" && PERM.cmp!=="prompt"){ store("permsAsked","1"); autoLocate(false); return; }
+  setTimeout(()=>{ permRender(); openModal("permModal"); }, 2600);   // после заставки
+}
+// Кнопки слева сверху на компьютере: «Мои места» открывают панель мест
+function railPlaces(){
+  if(!sheetMode()){ if(document.body.classList.contains("side-off")) toggleSide(false); openPlPanel(true);
+    const pl=document.getElementById("plPanel"); if(pl) setTimeout(()=>pl.scrollIntoView({block:"nearest",behavior:S.motion==="off"?"auto":"smooth"}),80); return; }
+  navPlacesTab();
+}
+// ── Пригласить друзей из контактов: выбор контактов (Android Chrome) или «Поделиться» (iPhone, компьютер) ──
+function frTel(raw){ let d=String(raw||"").replace(/\D/g,""); if(d.length===11&&d[0]==="8") d="7"+d.slice(1); if(d.length===10) d="7"+d; return d; }
+async function frFromContacts(){
+  const u=frLink(); if(!u) return;
+  const text=t("frInviteText")+" "+u, box=document.getElementById("frContacts");
+  if(navigator.contacts && typeof navigator.contacts.select==="function"){
+    let list=[];
+    try{ list=await navigator.contacts.select(["name","tel"],{multiple:true}); }catch(e){ return; }
+    list=list.filter(c=>c.tel&&c.tel.length);
+    if(!box) return;
+    if(!list.length){ box.innerHTML=`<li>${esc(t("frContactsNone"))}</li>`; return; }
+    const ios=/iPhone|iPad|Macintosh/.test(navigator.userAgent), enc=encodeURIComponent(text);
+    box.innerHTML=`<li><b>${esc(t("frContactsH"))}</b></li>`+list.map(c=>{ const tel=frTel(c.tel[0]), nm=(c.name&&c.name[0])||("+"+tel);
+      return `<li><b>${esc(nm)}</b><a class="btn-ghost btn-sm" href="sms:+${tel}${ios?"&":"?"}body=${enc}">${esc(t("frSms"))}</a><a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="https://wa.me/${tel}?text=${enc}">${esc(t("frWa"))}</a></li>`; }).join("");
+    return;
+  }
+  // нет выбора контактов (Safari, компьютер): системное «Поделиться» — там есть Сообщения, WhatsApp и список контактов
+  if(navigator.share){ try{ await navigator.share({title:"ICity",text:t("frInviteText"),url:u}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+  location.href="sms:?&body="+encodeURIComponent(text);
 }
 async function frShareLink(){ const u=frLink(); if(!u) return;
   if(navigator.share){ try{ await navigator.share({title:"ICity",text:t("frInviteText"),url:u}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
@@ -6944,13 +7080,15 @@ function showMe(zoom){
   userMarker=L.marker(userLatLng,{icon:divIcon("pin-me",18),alt:t("you")}).addTo(map).bindPopup(t("you"));
   map.setView(userLatLng,zoom);
 }
+// Кнопка ⌖: системный запрос доступа — прямо в нажатии. Не успели (таймаут, нет спутников) — пробуем ещё раз
+// по сети/Wi-Fi; инструкция — только если доступ запрещён или определить место так и не вышло.
 function locateUser(){
   if(!navigator.geolocation){ geoHelp({code:2}); return; }
-  navigator.geolocation.getCurrentPosition(p=>{
-    userLatLng=[p.coords.latitude,p.coords.longitude];
-    showMe(16);
-    toast(t("geoOk")); renderNearby();
-  }, err=>geoHelp(err), {enableHighAccuracy:true,timeout:10000});
+  const ok=p=>{ userLatLng=[p.coords.latitude,p.coords.longitude]; store("permsAsked","1"); showMe(16); toast(t("geoOk")); renderNearby(); };
+  navigator.geolocation.getCurrentPosition(ok, err=>{
+    if(err && err.code===1){ geoHelp(err); return; }
+    navigator.geolocation.getCurrentPosition(ok, e2=>geoHelp(e2), {enableHighAccuracy:false,timeout:15000,maximumAge:600000});
+  }, {enableHighAccuracy:true,timeout:12000,maximumAge:30000});
 }
 /* ============ Геопозиция не включается: понятная инструкция + место вручную ============ */
 function geoPlatform(){
@@ -7019,9 +7157,10 @@ function nearestCity(lat,lon){
 // При запуске карта открывается там, где человек находится, а не в Алматы:
 // город из списка выбирается сам, если до него не дальше 60 км.
 // manual=true — нажата кнопка в настройках: тогда сообщаем и об ошибках.
-function autoLocate(manual){
-  if(!navigator.geolocation){ if(manual) toast(t("geoOff")); return; }
+function autoLocate(manual,cb){
+  if(!navigator.geolocation){ if(manual) toast(t("geoOff")); if(cb) cb(false,{code:2}); return; }
   navigator.geolocation.getCurrentPosition(p=>{
+    if(cb) cb(true);
     userLatLng=[p.coords.latitude,p.coords.longitude];
     const [key,km]=nearestCity(userLatLng[0],userLatLng[1]);
     if(km<=60){
@@ -7034,7 +7173,7 @@ function autoLocate(manual){
     }
     if(manual) closeModal("settingsModal");
     renderNearby();
-  }, err=>{ if(manual){ closeModal("settingsModal"); geoHelp(err); } },
+  }, err=>{ if(cb) cb(false,err); if(manual){ closeModal("settingsModal"); geoHelp(err); } },
   {enableHighAccuracy:false,timeout:10000,maximumAge:300000});
 }
 
@@ -8010,7 +8149,7 @@ function globeToMap(cityKey){
   step("satyear", ()=>{ S.satYear=read("satYear","latest"); renderSatYears(); if(S.satYear!=="latest") setSatYear(S.satYear); });
   step("social", ()=>{ setTimeout(()=>checkMyReports(false),4000); if(read("volunteer","")==="1") setTimeout(hpVolPoll,8000);
     const mh=myHelp(); if(mh && Date.now()-mh.at<3*3600e3) setTimeout(async()=>{ try{ const r=await fetch(`/api/help/${mh.id}?token=${mh.token}`); const d=r.ok&&await r.json(); if(d&&d.volunteer&&!mh.notified) openHelp(); }catch(e){} },5000); });
-  step("geo", ()=>autoLocate(false));
+  step("geo", ()=>permStart());
   step("weather", ()=>{ loadWeather(); });
   step("compass", ()=>{ startCompass(); applyHeading(); });
   step("sheet", ()=>{ initSheetSwipe(); updatePeek(); });
