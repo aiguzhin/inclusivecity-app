@@ -7696,7 +7696,7 @@ function globeOpen(){ return document.body.classList.contains("globe-on"); }
 let globePre=false;
 function globePrefetch(){ if(globePre || GL3) return; globePre=true;
   const go=()=>{ loadScriptOnce(GLOBE_THREE).catch(()=>{}); const im=new Image(); im.crossOrigin="anonymous"; im.src=GLOBE_PL+"earth_atmos_2048.jpg"; };
-  (window.requestIdleCallback||setTimeout)(go, 300); }
+  if(window.requestIdleCallback) requestIdleCallback(go,{timeout:2000}); else setTimeout(go,300); }
 function loadScriptOnce(src){
   return new Promise((ok,fail)=>{
     if(window.THREE) return ok();
