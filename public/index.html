@@ -1050,8 +1050,8 @@ html[data-contrast="high"] .pcb.main{background:#ffd400;color:#000;border:2px so
 .nav-me svg{width:22px;height:22px;fill:#1769c2}
 
 /* Спутник чётче: немного контраста и насыщенности (дешёво для GPU), без размытого «эскиза» под готовыми плитками */
-.sat-crisp{filter:contrast(1.12) saturate(1.15) brightness(1.03)}
-html[data-contrast="high"] .sat-crisp{filter:contrast(1.25) saturate(1.1)}
+html:not(.lite) .sat-crisp{filter:contrast(1.12) saturate(1.15) brightness(1.03)}
+html[data-contrast="high"]:not(.lite) .sat-crisp{filter:contrast(1.25) saturate(1.1)}
 .leaflet-tile.sat-crisp,.sat-crisp .leaflet-tile{image-rendering:auto}
 .v3-btn.hold{touch-action:none;user-select:none;-webkit-user-select:none}
 #walkPad .v3-btn[aria-pressed="true"]{background:var(--blue);color:#fff}
@@ -1061,6 +1061,11 @@ html[data-contrast="high"] .sat-crisp{filter:contrast(1.25) saturate(1.1)}
 .icon-pick button.on{border-color:#1769c2}
 html[data-contrast="high"] .icon-pick button.on{border-color:#ffd400}
 .icon-note{margin:10px 2px 0;font-size:.85em;opacity:.75}
+/* Телефоны и слабые устройства: без дорогих теней и фильтров на значках — карта двигается плавно */
+html.lite .lm-mk .lm-ico{filter:none}
+html.lite .lm-mk .lm-lb{text-shadow:0 0 2px var(--lm-halo),0 0 3px var(--lm-halo)}
+html.lite .lm-mk:hover .lm-ico{transform:none}
+html.lite .leaflet-fade-anim .leaflet-tile{transition:none}
 /* Друзья */
 .fr-sec{margin:0 0 18px}.fr-sec h3{font-size:1rem;margin:0 0 6px}
 .fr-note{margin:4px 0 8px;color:var(--muted);font-size:.92em}.fr-note.fr-live,small.fr-live{color:var(--blue)}
@@ -1953,7 +1958,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <!-- Поворот карты: двумя пальцами (вращение) и по компасу -->
-<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js" integrity="sha256-Ta4E5oRGbcJDRqmfp6qbzK7uDvaQyR0yDOGP6Bi1Ng8=" crossorigin=""></script>
+<!-- leaflet-rotate убран: поворот карты выключен (MAP_ROTATE=false), а плагин замедлял каждое движение карты -->
 <script>
 // ---- Значки интерфейса: свои линейные SVG вместо эмодзи (одинаково на любом телефоне) ----
 const ICONS={
@@ -2434,19 +2439,23 @@ function setBasemap(key){
   // (см. updateImgInfo): глубже Leaflet растянет последнюю реальную плитку
   // вместо серой заглушки «Map data not yet available».
   if(def.imagery){
-    // detectRetina сам добавляет +1 к уровню плиток — предел сдвигаем на столько же
-    opts.maxNativeZoom = 19 - (L.Browser.retina ? 1 : 0);
-    opts.detectRetina = true;   // на Retina-экранах плитки на уровень детальнее — снимок не «мылит»
+    // detectRetina сам добавляет +1 к уровню плиток (в 4 раза больше картинок). На телефоне это главный тормоз:
+    // экран маленький, а плиток грузилось как для огромного. Поэтому чёткость Retina — только на компьютере.
+    // Retina-плитки отключены везде: они давали в 4 раза больше запросов, Esri не успевал отдавать — на карте были чёрные дыры
+    opts.maxNativeZoom = 19;
+    opts.detectRetina = false;
   }
   const tileUrl=def.url;
   const satLayer=(o)=>def.imagery && SatLayer ? new SatLayer(def.url, Object.assign({rel:waybackRel||null}, o)) : L.tileLayer(tileUrl, o);
   if(def.imagery){
     // Спутник быстрее: сразу под снимком — «эскиз» из плиток на 2 уровня крупнее (в 16 раз меньше запросов),
     // он появляется почти мгновенно, а чёткие плитки догружаются поверх. Плитки грузим и во время движения.
-    opts.updateWhenIdle=false; opts.keepBuffer=3;
-    if(sheetMode() && navigator.connection && /2g|3g/.test(navigator.connection.effectiveType||"")) opts.detectRetina=false;
-    basePreview=satLayer({tileSize:1024, zoomOffset:-2, maxNativeZoom:Math.max(3,(opts.maxNativeZoom||17)), minNativeZoom:2,
-      maxZoom:def.max, keepBuffer:1, updateWhenIdle:false, className:def.cls||""}).addTo(map);
+    // телефон: плитки догружаем, когда палец отпустил карту (иначе каждый кадр движения — новые запросы и лаги)
+    opts.updateWhenIdle=LITE; opts.updateWhenZooming=false; opts.keepBuffer=LITE?1:2;
+    // «эскиз» — обычные картинки (без проверок и холстов), браузер растягивает их сам: появляется почти сразу
+    const pv={tileSize:1024, zoomOffset:-2, maxNativeZoom:Math.max(3,(opts.maxNativeZoom||17)), minNativeZoom:2,
+      maxZoom:def.max, keepBuffer:1, updateWhenIdle:LITE, updateWhenZooming:false, className:def.cls||""};
+    basePreview=(waybackRel ? satLayer(pv) : L.tileLayer(def.url, pv)).addTo(map);
     basePreview.setZIndex(-1);
     // «эскиз» всегда лежит под чёткими плитками: где чёткой плитки нет, видно снимок, а не тёмные дыры и полосы
   }
@@ -2458,7 +2467,7 @@ function setBasemap(key){
   if(def.overlay){
     // Растровые подписи Esri — запасной вариант, пока не загрузились векторные
     baseOverlay=L.layerGroup([].concat(def.overlay).map((u,i)=>
-      L.tileLayer(u,{maxZoom:def.max, maxNativeZoom:19}).setZIndex(1+i))).addTo(map);
+      L.tileLayer(u,{maxZoom:def.max, maxNativeZoom:19, updateWhenIdle:true, updateWhenZooming:false, keepBuffer:1}).setZIndex(1+i))).addTo(map);
   }
   // На спутнике векторный слой не накладываем: на телефонах он иногда оставался прямоугольником поверх снимка.
   // Дороги и подписи там — растровые плитки Esri (baseOverlay), они всегда совпадают со снимком.
@@ -3470,6 +3479,9 @@ async function compassTap(){
 
 /* ============ Шторка на телефоне ============ */
 function sheetMode(){ return window.matchMedia("(max-width:860px)").matches; }
+// Облегчённый режим для телефонов и планшетов: меньше плиток, без тяжёлых фильтров и лишних анимаций
+const LITE = (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) || (navigator.hardwareConcurrency||8) <= 4 || ((navigator.deviceMemory||8) <= 3);
+if(LITE) document.documentElement.classList.add("lite");
 let sheetReturn=null;
 // full=true — сразу на весь экран (например, для ввода адреса: иначе поле
 // окажется под клавиатурой); по умолчанию — половина экрана, как в 2ГИС
@@ -4965,6 +4977,8 @@ function initPeekSwipe(){
 // есть ли для неё снимок. Если нет — берём ближайший более крупный уровень, где снимок есть, и растягиваем
 // нужный кусок, так что карта показана целиком. Для выбранного года (архив Wayback) tilemap ещё и говорит,
 // из какого выпуска архива плитка: выпуск хранит только изменившиеся места.
+// Проверяем наличие снимка только на крупных масштабах (в степи и пригородах снимков 17–19 уровня часто нет)
+const SAT_CHECK_Z=17;
 const ESRI_TILE="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const ESRI_MAP="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tilemap/";
 const tmCache=new Map();
@@ -4985,6 +4999,8 @@ function tileAvail(rel,z,x,y){
 }
 const SatLayer = (typeof L!=="undefined") ? L.TileLayer.extend({
   createTile(coords, done){
+    // Быстрый путь: до 16-го уровня снимки Esri есть везде — обычная картинка, без запроса tilemap и без холста
+    if(!this.options.rel && this._getZoomForUrl()<SAT_CHECK_Z) return L.TileLayer.prototype.createTile.call(this, coords, done);
     const size=this.getTileSize(), c=document.createElement("canvas"); c.width=size.x; c.height=size.y;
     const g=c.getContext("2d"), z0=this._getZoomForUrl(), rel=this.options.rel||null;
     // картинка не пришла (сбой сети, лимит) — не оставляем пустой квадрат, а берём уровень крупнее
@@ -5776,13 +5792,13 @@ function lmDraw(){
   if(!LM.layer){
     map.createPane("lm", map._rotatePane || undefined); const pn=map.getPane("lm"); pn.style.zIndex=390;
     LM.layer=L.layerGroup([], {pane:"lm"}).addTo(map);
-    map.on("moveend zoomend", lmDraw);
+    let lmRaf=0; map.on("moveend zoomend", ()=>{ if(!lmRaf) lmRaf=requestAnimationFrame(()=>{ lmRaf=0; lmDraw(); }); });
   }
   if(!lmOn() || !LM.items || (typeof globeOpen==="function" && globeOpen())){ lmClear(); return; }
   const z=Math.round(map.getZoom()), minW=lmMinW(z), b=map.getBounds().pad(0.15), placed=[], keep=new Set();
   const big=S.font==="xlarge"?1.35:S.font==="large"?1.15:1;
   for(const it of LM.items){
-    if(it.w<minW || placed.length>=90) continue;
+    if(it.w<minW || placed.length>=(LITE?40:90)) continue;
     if(!b.contains(it.ll)) continue;
     const p=map.latLngToContainerPoint(it.ll), half=Math.min(80, 8+lmName(it).length*3.4)*big;
     if(placed.some(q=>Math.abs(q.x-p.x)<(half+q.h) && Math.abs(q.y-p.y)<40*big)) continue;

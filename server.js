@@ -312,16 +312,26 @@ function serveFile(res, filePath) {
     }
     // текст сжимаем: страница и маршруты автобусов становятся в 4–6 раз легче
     const ae = (res.req && res.req.headers['accept-encoding']) || '';
-    if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\bgzip\b/.test(ae)) {
-      const gz = zlib.gzipSync(data);
-      res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': 'gzip', 'Vary': 'Accept-Encoding', 'Content-Length': gz.length });
-      res.end(gz);
+    if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\b(br|gzip)\b/.test(ae)) {
+      // brotli ещё на ~25% легче gzip; сжатое запоминаем, чтобы не тратить процессор на каждый запрос
+      const enc = /\bbr\b/.test(ae) ? 'br' : 'gzip';
+      const key = enc + '|' + filePath + '|' + require('crypto').createHash('md5').update(data).digest('hex');
+      let z = ZCACHE.get(key);
+      if (!z) {
+        z = enc === 'br' ? zlib.brotliCompressSync(data, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length } }) : zlib.gzipSync(data, { level: 9 });
+        if (ZCACHE.size > 300) ZCACHE.delete(ZCACHE.keys().next().value);
+        ZCACHE.set(key, z);
+      }
+      res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': enc, 'Vary': 'Accept-Encoding', 'Content-Length': z.length });
+      res.end(z);
       return;
     }
     res.writeHead(200, { 'Content-Type': type, 'Content-Length': data.length });
     res.end(data);
   });
 }
+
+const ZCACHE = new Map();   // сжатые копии файлов (brotli/gzip)
 
 // защита от выхода за пределы разрешённой директории через ".."
 function safeJoin(baseDir, requestedPath) {
