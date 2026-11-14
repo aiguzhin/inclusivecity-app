@@ -215,3 +215,7 @@
 - Скорость (11.11.2026): leaflet-rotate убран (поворот выключен, плагин тормозил каждое движение); спутник без Retina-плиток (`detectRetina:false`,
   на компьютере было ~240 запросов плиток на экран, Esri не успевал — чёрные дыры; стало ~60), плитки не догружаются во время зума, подписи Esri — после остановки;
   на телефонах (`html.lite`) у значков достопримечательностей нет теней/фильтров и не больше 40 штук; сервер отдаёт страницы в brotli с кэшем сжатия (`ZCACHE`).
+- Общий Caddy (с 14.11.2026, схема «edge»): контейнер `cosplaygram-caddy-1` берёт `/opt/edge/Caddyfile` (импортирует `base.caddy` = Caddyfile Cosplaygram
+  и `/etc/caddy/sites/*.caddy` = `/opt/edge/sites`). ICity — файл `/opt/edge/sites/inclusivecity.caddy` (`reverse_proxy 172.17.0.1:3010`), рядом `bilim-arena.caddy`.
+  Старые `deploy/Caddyfile.icity` и прежний override больше не используются. Если https пропал («tlsv1 alert internal error») —
+  `ssh -t ubuntu@212.116.235.159 "sudo /usr/local/bin/icity-update; sudo bash /opt/icity/tools/vps/caddy-fix.sh"` (понимает обе схемы, при ошибке откатывает).
