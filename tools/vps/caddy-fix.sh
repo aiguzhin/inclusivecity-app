@@ -14,6 +14,39 @@ cd "$CG" || exit 1
 echo "-- было:"; ls -la docker-compose.override.yml deploy/Caddyfile.icity 2>&1
 docker compose ps caddy 2>&1 | tail -2
 OVR=docker-compose.override.yml
+# Новая общая схема (с 14.11.2026): Caddy берёт /opt/edge/Caddyfile, а сайты — отдельными файлами из /opt/edge/sites.
+# Тогда ICity — просто свой файл в sites, Cosplaygram и остальные сайты не трогаем.
+if [ -d /opt/edge/sites ] && grep -q "/opt/edge/sites" "$OVR" 2>/dev/null; then
+  C=$(docker compose ps -q caddy); [ -n "$C" ] || { echo "Caddy не запущен"; exit 1; }
+  echo "-- общий Caddy (edge):"; cat /opt/edge/Caddyfile; echo "-- сайты:"; ls -la /opt/edge/sites
+  if ! grep -qE "import[[:space:]]+(/etc/caddy/)?sites" /opt/edge/Caddyfile; then echo "edge/Caddyfile не подключает sites — напишите Claude"; exit 1; fi
+  SITE=/opt/edge/sites/inclusivecity.caddy
+  if grep -rlq "inclusivecity.uk" /opt/edge/sites 2>/dev/null && [ ! -f "$SITE" ]; then echo "ICity уже есть в другом файле sites — напишите Claude"; exit 1; fi
+  OLD=$(mktemp); [ -f "$SITE" ] && cp -a "$SITE" "$OLD"
+  cat > "$SITE" <<CAD
+# ICity (inclusivecity.uk) — сервис icity на хосте, порт $PORT на адресе docker0
+inclusivecity.uk, www.inclusivecity.uk {
+	encode gzip
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy $BIND:$PORT
+}
+CAD
+  chmod 644 "$SITE"
+  if ! OUT=$(docker exec "$C" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1); then
+    echo "$OUT" | tail -5; echo "проверка не прошла — возвращаю как было"
+    if [ -s "$OLD" ]; then cp -a "$OLD" "$SITE"; else rm -f "$SITE"; fi; exit 1
+  fi
+  docker exec "$C" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1 | tail -2
+  if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then ufw allow from 172.16.0.0/12 to any port "$PORT" proto tcp >/dev/null; fi
+  for i in $(seq 1 12); do
+    if curl -fsk --max-time 10 --resolve inclusivecity.uk:443:127.0.0.1 https://inclusivecity.uk/api/health >/dev/null; then echo "OK: https://inclusivecity.uk отвечает"; exit 0; fi
+    sleep 10
+  done
+  echo "https пока не отвечает, журнал Caddy:"; docker logs --tail 40 "$C" 2>&1 | grep -i "inclusivecity\|error\|acme" | tail -15
+  exit 2
+fi
 if [ -f "$OVR" ] && ! grep -q "Caddyfile.icity" "$OVR"; then echo "есть чужой $OVR — не трогаю"; exit 1; fi
 BAK=$(mktemp -d); cp -a "$OVR" deploy/Caddyfile.icity "$BAK"/ 2>/dev/null
 cat > deploy/Caddyfile.icity <<CAD
