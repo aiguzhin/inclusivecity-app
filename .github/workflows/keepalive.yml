@@ -1,5 +1,6 @@
-# Проверка, что сайт жив (сервер ps.kz). Если сайт не ответил — шаг падает,
-# и GitHub присылает владельцу письмо о проваленном запуске.
+# Проверка, что ВСЕ сайты общего сервера ps.kz живы: ICity, Cosplaygram, Bilim Arena (у них один Caddy —
+# поломка одного часто роняет остальные). Если какой-то не ответил — шаг падает, и GitHub присылает письмо,
+# в журнале запуска видно, какой именно сайт лежит.
 name: keepalive
 
 on:
@@ -10,14 +11,18 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: Ping /api/health
+      - name: Ping all sites
         run: |
-          for i in 1 2 3; do
-            if curl -fsS --max-time 30 https://inclusivecity.uk/api/health; then
-              echo; echo "site is up"; exit 0
-            fi
-            sleep 20
+          down=""
+          for url in https://inclusivecity.uk/api/health https://cosplaygram.kz/ https://bilimarena.com/; do
+            ok=0
+            for i in 1 2 3; do
+              code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "$url" || echo 000)
+              if [ "$code" -ge 200 ] && [ "$code" -lt 500 ]; then ok=1; break; fi
+              sleep 15
+            done
+            if [ $ok = 1 ]; then echo "UP   $url ($code)"; else echo "DOWN $url ($code)"; down="$down $url"; fi
           done
-          echo "site is down"; exit 1
+          if [ -n "$down" ]; then echo "::error::Не отвечают:$down"; exit 1; fi

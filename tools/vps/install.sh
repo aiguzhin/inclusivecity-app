@@ -153,7 +153,11 @@ elif ss -ltn '( sport = :80 or sport = :443 )' | grep -q LISTEN; then
   ss -ltnp '( sport = :80 or sport = :443 )'; die "Порт 80/443 занят неизвестной программой — напишите Claude, что показано выше"
 fi
 echo "Найден: $WEB"
-if [ "$WEB" = docker-caddy ]; then
+if [ "$WEB" = docker-caddy ] && [ -d /opt/edge/sites ]; then
+  # Новая общая схема (с 14.11.2026): каждый сайт — свой файл в /opt/edge/sites; ICity добавляет только свой
+  bash "$APP/tools/vps/caddy-fix.sh" || die "Не удалось подключить ICity к общему Caddy — напишите Claude, что показано выше"
+  ok "Caddy (общий, /opt/edge/sites): ICity подключён"
+elif [ "$WEB" = docker-caddy ]; then
   # Caddyfile Cosplaygram лежит в git и перезаписывается его автообновлением,
   # поэтому свои файлы — неотслеживаемые: Caddyfile.icity (импортирует их файл) и override для compose
   OVR="$CG/docker-compose.override.yml"

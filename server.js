@@ -347,7 +347,7 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/place-info' && req.method === 'GET') return await placeinfo.handleInfo(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/place-photo' && req.method === 'GET') return await placeinfo.handlePhoto(req, res, new URL(req.url, 'http://x'), sendJson);
   if (pathname === '/api/health' && req.method === 'GET') {
-    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status() });
+    return sendJson(res, 200, { ok: true, storage: KV ? 'cloudflare-kv' : 'disk', push: push.ready(), supabase: lastSbPing, tts: tts.status(), selfheal: selfheal.status() });
   }
   if (pathname.startsWith('/api/push/')) { const done = await push.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/audits') || pathname.startsWith('/api/admin/audits')) { if (await audits.handle(req, res, pathname)) return; }
@@ -571,6 +571,7 @@ const profile = require('./profile');
 const rating = require('./rating');
 const barriers = require('./barriers');
 const landmarks = require('./landmarks');
+const selfheal = require('./selfheal');
 const tts = require('./tts');
 const friends = require('./friends');
 const busbuild = require('./tools/busbuild');
@@ -911,6 +912,7 @@ server.listen(PORT, process.env.HOST || undefined, () => {
   rating.init({ sendJson, kvPut, kvGet });
   barriers.init({ sendJson, kvPut, kvGet });
   landmarks.init({ sendJson, kvPut, kvGet });
+  selfheal.start();
   // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.
   // Будим себя только на основном сервисе: копия (старый «inclusivecity-app») иначе тоже не спит

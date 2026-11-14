@@ -219,3 +219,7 @@
   и `/etc/caddy/sites/*.caddy` = `/opt/edge/sites`). ICity — файл `/opt/edge/sites/inclusivecity.caddy` (`reverse_proxy 172.17.0.1:3010`), рядом `bilim-arena.caddy`.
   Старые `deploy/Caddyfile.icity` и прежний override больше не используются. Если https пропал («tlsv1 alert internal error») —
   `ssh -t ubuntu@212.116.235.159 "sudo /usr/local/bin/icity-update; sudo bash /opt/icity/tools/vps/caddy-fix.sh"` (понимает обе схемы, при ошибке откатывает).
+  Самолечение (`selfheal.js`, только на этом сервере, от root): раз в 5 мин проверяет https://inclusivecity.uk через 127.0.0.1:443; 2 провала подряд →
+  `caddy-fix.sh` (не чаще раза в 30 мин), журнал `data/selfheal.log`, состояние — `selfheal` в `/api/health`. `install.sh` при наличии `/opt/edge/sites` тоже идёт через `caddy-fix.sh`.
+  Правило для ВСЕХ проектов сервера (ICity, Cosplaygram, Bilim Arena): общий Caddy не переписывать целиком, свой сайт — только свой файл в `/opt/edge/sites`,
+  после правки — `caddy validate` и проверка всех трёх доменов. `keepalive.yml` проверяет все три сайта.
