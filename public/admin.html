@@ -9,24 +9,24 @@
   header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,40px)}
   .brand{font-size:19px;font-weight:850;letter-spacing:-.5px}.brand b{color:var(--blue)}
   main{max-width:960px;margin:0 auto;padding:24px 16px 60px}
-  .gate{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px}
+  .gate{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:24px}
   .gate h1{font-size:19px;margin:0 0 12px}
   input,button{font:inherit}
-  input{width:100%;border:1px solid #b9c9d8;border-radius:9px;padding:10px;margin-bottom:12px}
-  button{border:0;border-radius:9px;padding:10px 14px;font-weight:750;cursor:pointer;background:var(--blue);color:#fff}
+  input{width:100%;border:1px solid #b9c9d8;border-radius:6px;padding:10px;margin-bottom:12px}
+  button{border:0;border-radius:6px;padding:10px 14px;font-weight:750;cursor:pointer;background:var(--blue);color:#fff}
   button.ghost{background:var(--blue-weak);color:#1357a1}
   button.danger{background:var(--red-weak);color:var(--red)}
   button:disabled{opacity:.5;cursor:not-allowed}
   .tabs{display:flex;gap:8px;margin:18px 0}
-  .tab{padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:#fff;color:#385168;font-size:13px;font-weight:700;cursor:pointer}
+  .tab{padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#385168;font-size:13px;font-weight:700;cursor:pointer}
   .tab.active{background:var(--blue-weak);border-color:#7ab1ed;color:#1256a2}
-  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;display:flex;gap:14px}
-  .card img{width:96px;height:96px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#eef2f5}
-  .card .noimg{width:96px;height:96px;border-radius:10px;background:#eef2f5;display:flex;align-items:center;justify-content:center;color:#8ea1b3;font-size:11px;text-align:center;flex-shrink:0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;display:flex;gap:14px}
+  .card img{width:96px;height:96px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#eef2f5}
+  .card .noimg{width:96px;height:96px;border-radius:8px;background:#eef2f5;display:flex;align-items:center;justify-content:center;color:#8ea1b3;font-size:11px;text-align:center;flex-shrink:0}
   .card .body{flex:1;min-width:0}
   .card h3{margin:0 0 4px;font-size:15px}
   .muted{color:#5b6d7e;font-size:13px}
-  .status-pill{display:inline-block;font-size:11px;font-weight:750;padding:3px 8px;border-radius:99px;margin-left:8px}
+  .status-pill{display:inline-block;font-size:11px;font-weight:750;padding:3px 8px;border-radius:8px;margin-left:8px}
   .status-pill.pending{background:var(--amber-weak);color:#7b5700}
   .status-pill.approved{background:var(--green-weak);color:#06664a}
   .status-pill.rejected{background:var(--red-weak);color:var(--red)}
@@ -151,7 +151,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <div class="card" style="display:block">
         <h3>Новый кабинет</h3>
         <p class="muted">Акимат увидит жалобы только своего города и сможет отмечать «В работе» и «Исправлено». Ссылку покажем один раз — сразу отправьте её акимату.</p>
-        <select id="akCity" style="width:100%;border:1px solid #b9c9d8;border-radius:9px;padding:10px;margin-bottom:12px;font:inherit">
+        <select id="akCity" style="width:100%;border:1px solid #b9c9d8;border-radius:6px;padding:10px;margin-bottom:12px;font:inherit">
           ${d.cities.map(c=>`<option value="${c.id}">${text(c.name)} — жалоб: ${c.reports}</option>`).join('')}
         </select>
         <input id="akOrg" placeholder="Организация, например: ГУ «Отдел ЖКХ, ПТ и АД г. Темиртау»">
@@ -173,7 +173,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     if(!r.ok){alert(d.error||'Ошибка');return}
     const link=location.origin+d.link;
     await renderAkimat();
-    document.getElementById('akOut').innerHTML=`<div style="margin-top:12px;padding:12px;border-radius:10px;background:var(--green-weak)">
+    document.getElementById('akOut').innerHTML=`<div style="margin-top:12px;padding:12px;border-radius:8px;background:var(--green-weak)">
       <b>Ссылка для: ${text(d.org)}</b><br><input readonly value="${text(link)}" onclick="this.select()" style="margin:8px 0">
       <button onclick="navigator.clipboard.writeText('${link}');this.textContent='Скопировано'">Скопировать</button>
       <div class="muted" style="margin-top:6px">Больше эта ссылка показана не будет. Потеряли — закройте доступ и создайте новую.</div></div>`;

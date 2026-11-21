@@ -20,16 +20,16 @@ header a.v{font-weight:700;font-size:14px;color:var(--blue);text-decoration:none
 main{max-width:640px;margin:0 auto;padding:18px 16px 120px}
 h1{font-size:26px;letter-spacing:-.6px;line-height:1.15;margin:0 0 6px}
 .lead{color:var(--soft);margin:0 0 18px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
 .box h2{font-size:17px;margin:0 0 10px}
 label.f{display:block;font-weight:700;font-size:14px;margin:0 0 6px}
-input[type=text],textarea{width:100%;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:10px;padding:12px;font:inherit}
-button{font:inherit;border:0;border-radius:12px;padding:12px 16px;font-weight:750;cursor:pointer;min-height:48px}
+input[type=text],textarea{width:100%;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:8px;padding:12px;font:inherit}
+button{font:inherit;border:0;border-radius:8px;padding:12px 16px;font-weight:750;cursor:pointer;min-height:48px}
 .primary{background:var(--blue);color:#fff;width:100%}
 .ghost{background:var(--blue-weak);color:var(--blue)}
 button:disabled{opacity:.55;cursor:not-allowed}
 :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-#map{height:240px;border-radius:12px;margin-top:10px;border:1px solid var(--line)}
+#map{height:240px;border-radius:8px;margin-top:10px;border:1px solid var(--line)}
 .loc{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
 .loc .muted{flex:1;min-width:150px}
 .muted{color:var(--soft);font-size:14px}
@@ -40,17 +40,17 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .seg button[aria-pressed=true][data-v=yes]{background:var(--green);color:#fff}
 .seg button[aria-pressed=true][data-v=no]{background:var(--red);color:#fff}
 .seg button[aria-pressed=true][data-v=na]{background:var(--soft);color:#fff}
-.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.photos img{width:84px;height:84px;object-fit:cover;border-radius:10px}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.photos img{width:84px;height:84px;object-fit:cover;border-radius:8px}
 .sticky{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));z-index:1000}
 .sticky .in{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center}
 .sticky .sc{font-size:13px;color:var(--soft);min-width:90px}.sticky .sc b{display:block;font-size:20px;color:var(--ink)}
 .err{color:var(--red);font-size:14px;margin:8px 0 0}
 .result{text-align:center;padding:26px 18px}
 .big{font-size:56px;font-weight:850;letter-spacing:-2px;line-height:1}
-.lvl{display:inline-block;margin:10px 0;padding:6px 14px;border-radius:99px;font-weight:800}
+.lvl{display:inline-block;margin:10px 0;padding:6px 14px;border-radius:8px;font-weight:800}
 .lvl.good{background:var(--green-weak);color:var(--green)}.lvl.partial{background:var(--amber-weak);color:var(--amber)}.lvl.bad{background:var(--red-weak);color:var(--red)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
-.row2 a,.row2 button{display:flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;font-weight:750;min-height:48px}
+.row2 a,.row2 button{display:flex;align-items:center;justify-content:center;text-decoration:none;border-radius:8px;font-weight:750;min-height:48px}
 .gate{text-align:center}
 </style>
 <script>(function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];if(ok.indexOf(h)<0)location.replace("https://inclusivecity.uk/audit")})();</script>
@@ -61,7 +61,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <section id="gate" class="box gate" hidden>
     <h1>Проверьте место за 3 минуты</h1>
     <p class="lead">Чтобы проверки засчитывались вам как волонтёрские часы, войдите в аккаунт ICity. Это бесплатно.</p>
-    <a class="primary" style="display:flex;align-items:center;justify-content:center;border-radius:12px;min-height:48px;text-decoration:none;font-weight:750" href="/login?next=/audit">Войти или зарегистрироваться</a>
+    <a class="primary" style="display:flex;align-items:center;justify-content:center;border-radius:8px;min-height:48px;text-decoration:none;font-weight:750" href="/login?next=/audit">Войти или зарегистрироваться</a>
     <p class="muted" style="margin-top:12px"><a href="/volunteer">Как это работает</a></p>
   </section>
 

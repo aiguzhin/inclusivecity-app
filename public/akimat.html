@@ -19,51 +19,51 @@ header{background:var(--card);border-bottom:1px solid var(--line);padding:12px c
 .who{font-size:13px;color:var(--soft);text-align:right}.who strong{display:block;color:var(--ink);font-size:14px}
 main{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
 button,input,textarea{font:inherit;color:inherit}
-button{border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;min-height:40px}
+button{border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;min-height:40px}
 button.ghost{background:var(--blue-weak);color:var(--blue)}
 button.ok{background:var(--green);color:#fff}
 button.link{background:none;color:var(--blue);padding:0;min-height:0;text-decoration:underline}
 button:disabled{opacity:.55;cursor:not-allowed}
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-.gate{max-width:440px;margin:70px auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate{max-width:440px;margin:70px auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px}
 .gate h1{font-size:21px;margin:0 0 8px}
-input[type=text],input[type=password],textarea{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px}
+input[type=text],input[type=password],textarea{width:100%;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px}
 .err{color:var(--red);font-size:13px;margin:8px 0}
 .muted{color:var(--soft);font-size:13px}
 h1.title{font-size:clamp(22px,3vw,28px);letter-spacing:-.6px;margin:4px 0 2px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
 .kpi .v{font-size:28px;font-weight:850;letter-spacing:-1px;line-height:1.1;font-variant-numeric:tabular-nums}
 .kpi .l{font-size:13px;color:var(--soft);margin-top:4px}
 .kpi.warn .v{color:var(--red)}.kpi.good .v{color:var(--green)}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
-#map{height:520px;border-radius:14px;border:1px solid var(--line);position:sticky;top:12px}
+#map{height:520px;border-radius:10px;border:1px solid var(--line);position:sticky;top:12px}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 .tab{background:var(--card);color:var(--soft);border:1px solid var(--line);font-size:13px;padding:7px 12px;min-height:36px}
 .tab[aria-pressed=true]{background:var(--blue-weak);border-color:var(--blue);color:var(--blue)}
 .spacer{flex:1}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:12px}
 .card.sel{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-weak)}
 .ph{width:92px;flex-shrink:0;display:flex;flex-direction:column;gap:6px}
-.ph img{width:92px;height:92px;object-fit:cover;border-radius:10px;background:var(--gray-weak);display:block}
-.ph .no{width:92px;height:92px;border-radius:10px;background:var(--gray-weak);display:flex;align-items:center;justify-content:center;color:var(--soft);font-size:11px;text-align:center}
+.ph img{width:92px;height:92px;object-fit:cover;border-radius:8px;background:var(--gray-weak);display:block}
+.ph .no{width:92px;height:92px;border-radius:8px;background:var(--gray-weak);display:flex;align-items:center;justify-content:center;color:var(--soft);font-size:11px;text-align:center}
 .ph small{font-size:11px;color:var(--soft);text-align:center}
 .body{flex:1;min-width:0}
 .body h3{margin:0 0 4px;font-size:15px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.pill{font-size:11px;font-weight:750;padding:2px 8px;border-radius:99px}
+.pill{font-size:11px;font-weight:750;padding:2px 8px;border-radius:8px}
 .pill.new{background:var(--amber-weak);color:var(--amber)}.pill.work{background:var(--blue-weak);color:var(--blue)}
 .pill.done{background:var(--green-weak);color:var(--green)}.pill.late{background:var(--red-weak);color:var(--red)}
 .meta{font-size:13px;color:var(--soft);margin-top:4px}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--soft)}
-dialog{border:0;border-radius:16px;padding:0;width:min(460px,calc(100% - 24px));background:var(--card);color:var(--ink)}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center;color:var(--soft)}
+dialog{border:0;border-radius:10px;padding:0;width:min(460px,calc(100% - 24px));background:var(--card);color:var(--ink)}
 dialog::backdrop{background:#071d3199}
 .dlg{padding:20px}.dlg h2{margin:0 0 4px;font-size:19px}
 .dlg label{display:block;font-weight:700;font-size:13px;margin:14px 0 6px}
 .dlg .row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:10px;display:none;z-index:2000}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:8px;display:none;z-index:2000}
 .toast.show{display:block}
-.help{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px;font-size:13px;color:var(--soft)}
+.help{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:16px;font-size:13px;color:var(--soft)}
 @media (max-width:860px){.grid{grid-template-columns:1fr}#map{height:320px;position:static}}
 @media print{header button,.bar,.acts,#map{display:none!important}.card{break-inside:avoid}}
 </style>
