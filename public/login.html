@@ -187,6 +187,15 @@ a,button,input,select,label,summary,[role="button"]{touch-action:manipulation}
 .ab-auto input{width:22px;height:22px;min-height:0;accent-color:var(--ok)}
 .nudge{border:2px solid var(--ok);border-radius:10px;padding:14px;margin:0 0 12px;display:grid;gap:8px}
 .nudge b{font-size:16px}.nudge p{margin:0;color:var(--soft);font-size:14px}
+
+/* Кнопки — те же правила, что на карте: отклик на нажатие, ясное «отключено», без движения при «меньше движения» */
+.submit,.ghost,.prov,.tabs button,.ab-opts button,.tbtn,.pw button{transition:background-color .14s ease,border-color .14s ease,color .14s ease,opacity .14s ease,transform .14s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent}
+.submit:not([disabled]):active,.ghost:active,.prov:not([disabled]):active,.tabs button:active,.ab-opts button:active,.tbtn:active{transform:scale(.97)}
+@media (hover:none){.submit:hover{filter:none}.ghost:hover{border-color:var(--line)}}
+button[disabled]:not(.submit){opacity:.45;cursor:not-allowed}
+@keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+main>*,.card{animation:cardIn .28s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.submit:active,.ghost:active,.prov:active{transform:none}}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];

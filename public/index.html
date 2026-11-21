@@ -1158,7 +1158,15 @@ html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
   html[data-ui="soft"]:not([data-zoombtns="on"]) .map-stack{bottom:calc(var(--peek-h) + 26px)}
   /* быстрые места рядом — круглыми значками под поиском */
   html[data-ui="soft"] .peek-more{display:none!important}
-  html[data-ui="soft"] .sheet-peek.mini:not(.finding) .peek-quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:-2px}
+  html[data-ui="soft"] .sheet-peek:not(.finding) .peek-quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:-2px}
+  html[data-ui="soft"] .sheet-peek:not(.mini):not(.finding) .peek-quick{grid-template-columns:repeat(4,minmax(0,1fr))}
+  html[data-ui="soft"] .sheet-peek:not(.mini) .peek-quick button:last-child{display:none}   /* «Ещё» уже раскрыто */
+  html[data-ui="soft"] .peek-quick .pq-sos span{background:#fde8e8;color:#b42318}
+  html[data-ui="soft"][data-theme="dark"] .peek-quick .pq-sos span{background:#3a1717;color:#ff9b94}
+  html[data-ui="soft"] .peek-chips{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-ui="soft"] .peek-chip.pc-dup{display:none}   /* туалет и SOS — в круглых кнопках выше */
+  html[data-ui="soft"] .peek-chips .peek-chip{flex-direction:row;justify-content:flex-start;gap:10px;min-height:52px;padding:8px 14px;font-size:.9rem;background:var(--card)!important;color:var(--ink)!important}
+  html[data-ui="soft"] .peek-chips .peek-chip .ic{color:var(--blue)!important}
   html[data-ui="soft"] .peek-quick button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:0;padding:2px 0;border:0;background:none;color:var(--ink);font:inherit;filter:none}
   html[data-ui="soft"] .peek-quick span{width:44px;height:44px;border-radius:50%;background:var(--card);box-shadow:var(--soft-sh);display:grid;place-items:center;color:var(--blue)}
   html[data-ui="soft"] .peek-quick .ic{width:21px;height:21px}
@@ -1265,8 +1273,8 @@ html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
 html[data-motion="off"] .frp,html[data-motion="off"] .frp *,html[data-motion="off"] .fr-pin{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.frp,.frp *,.fr-pin{animation:none!important;transition:none!important}}
 /* «Слои» раскрываются от своей кнопки */
-@keyframes mmIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
-.map-menu:not([hidden]){animation:mmIn .2s cubic-bezier(.2,.9,.3,1);transform-origin:left top}
+@keyframes mapMenuIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.map-menu:not([hidden]){animation:mapMenuIn .2s cubic-bezier(.2,.9,.3,1);transform-origin:left top}
 @media (min-width:861px){ html[data-ui="soft"] .map-menu:not([hidden]){transform-origin:left bottom} }
 html[data-motion="off"] .map-menu{animation:none}
 @media (prefers-reduced-motion:reduce){.map-menu{animation:none!important}}
@@ -1283,6 +1291,75 @@ html[data-motion="off"] .map-menu{animation:none}
 }
 @media (max-width:860px){
   html[data-ui="soft"] header.top .brand{display:none}   /* на карте логотип не нужен — место карте */
+}
+
+/* ===================== Единая система кнопок и движения (21.11.2026) =====================
+   Один язык для всех кнопок: основная (синяя), вторичная (светлая с обводкой), опасная (красная),
+   иконка. Понятные состояния: наведение (только где есть мышь), нажатие, фокус с клавиатуры, отключена. */
+:root{--press:scale(.97);--t-fast:.14s;--t-med:.22s;--ease-out:cubic-bezier(.2,.8,.2,1)}
+button,.btn,.btn-primary,.btn-ghost,.btn-dark,a.btn-ghost,.sos,.chip{
+  transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease,transform var(--t-fast) var(--ease-out);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:hover{filter:none}
+@media (hover:hover){
+  button:not([class]):not(:disabled):hover,.btn:not(:disabled):hover,.btn-sm:not(.btn-ghost):not(.btn-primary):not(:disabled):hover{background-color:color-mix(in srgb,var(--blue-weak) 82%,var(--blue) 18%)}
+  .btn-primary:not(:disabled):hover,button.btn-primary:not(:disabled):hover{background-color:color-mix(in srgb,var(--blue) 86%,#000 14%)}
+  .btn-ghost:not(:disabled):hover,a.btn-ghost:hover,.chip:not(:disabled):hover{background-color:var(--paper);border-color:color-mix(in srgb,var(--line) 50%,var(--ink) 50%)}
+  .btn-dark:not(:disabled):hover{background-color:color-mix(in srgb,var(--ink) 85%,var(--blue) 15%)}
+  .sos:not(:disabled):hover{background-color:color-mix(in srgb,var(--red) 88%,#000 12%)}
+  .frp-ib:hover,.mini-menu>button:hover,.mini-menu>a:hover,.vrail>button:hover,.vrail>a:hover,.frp-row:hover,.peek-quick button:hover,.frp-act:hover,.frp-textbtn:hover,.peek-nav button:hover,.mode-tabs button:not([aria-checked="true"]):hover{background-color:var(--paper)}
+  .peek-quick button:hover,.frp-act:hover,.frp-textbtn:hover{background-color:transparent}
+  .peek-quick button:hover span,.frp-act:not(:disabled):hover .ic{box-shadow:0 0 0 2px var(--blue-weak),var(--soft-sh)}
+  .peek-nav button:hover{background:none;color:#fff}
+}
+button:not(:disabled):active,.btn:active,a.btn-ghost:active,.chip:active{transform:var(--press)}
+/* фокус с клавиатуры — одинаковое заметное кольцо, мышь и палец его не вызывают */
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--focus,#1769c2);outline-offset:2px}
+.map-btn:focus-visible,.map-menu-btn:focus-visible{outline-offset:3px}
+button:disabled,button[aria-disabled="true"],.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;box-shadow:none}
+button[aria-busy="true"]{cursor:progress;opacity:.75}
+/* палец: всё, что нажимается, — не меньше 44 px */
+@media (pointer:coarse){
+  .btn-sm,.chip,.frp-ib,.mpm-x,.frp-textbtn,.pc-bar button,.pc-bar a{min-height:44px}
+  .btn-sm{padding:8px 12px;font-size:.88rem}
+  .mini-menu>button,.mini-menu>a{min-height:48px}
+}
+/* ---------- меню «три линии»: разделы с подписями, не выше экрана ---------- */
+.mini-menu{max-height:calc(100dvh - 70px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain}
+.mm-h{margin:8px 10px 2px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.mini-menu>button,.mini-menu>a{transition:background-color var(--t-fast) ease}
+/* ---------- окна: на телефоне — снизу, под палец; закрываются плавно ---------- */
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetDown{from{transform:none}to{transform:translateY(100%)}}
+@keyframes dlgOut{from{opacity:1;transform:none}to{opacity:0;transform:scale(.97)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+.modal.closing{display:flex;animation:fadeOut .16s ease forwards}
+.modal.closing .dialog{animation:dlgOut .16s ease forwards}
+@media (max-width:640px){
+  .modal{align-items:flex-end;padding:0}
+  .modal .dialog{width:100%;max-width:none;max-height:88dvh;border-radius:14px 14px 0 0;border-bottom:0;
+    padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+  .modal .dialog::before{content:"";display:block;width:40px;height:5px;border-radius:99px;background:var(--line);margin:-6px auto 10px}
+  .modal.open .dialog{animation:sheetUp .3s cubic-bezier(.2,.9,.3,1)}
+  .modal.closing .dialog{animation:sheetDown .2s ease-in forwards}
+  .dialog-head h2{font-size:1.1rem}
+}
+/* ---------- появление нового содержимого: коротко и один раз ---------- */
+@keyframes contentIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#routeCard>*,#peekRes>*,#nearbyList>*,#listRoute>*,.pr-card,.set-sec[open]>.set-body{animation:contentIn .24s var(--ease-out) both}
+/* ---------- меньше движения: всё мгновенно ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  button:active,.btn:active,.chip:active{transform:none!important}
+}
+html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="off"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+/* ---------- телефон: читаемость и отступы ---------- */
+@media (max-width:860px){
+  .side{font-size:1rem;line-height:1.45}
+  .side .row{gap:8px}
+  .side input,.side select{font-size:16px}   /* iPhone не увеличивает страницу при вводе */
+  .dialog input,.dialog select,.dialog textarea,#pq{font-size:16px}
 }
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
@@ -1548,18 +1625,17 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <span class="mm-who"><b id="mmName" data-i18n="mmSignin">Вход и регистрация</b><small id="mmSub" data-i18n="mmGuestSub">Сохраняй маршруты и жалобы</small></span>
   </a>
   <a class="mm-signup" id="mmSignup" href="/login#signup" role="menuitem"><i data-ic="user"></i> <span data-i18n="acctSignupNew">Регистрация — новый аккаунт</span></a>
-  <div class="mm-sep" role="separator"></div>
-  <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="walk"></i><span data-i18n="eyebrow">Маршрут и доступность</span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>openProfileSettings())"><i data-ic="wc"></i><span><span data-i18n="profileLabel">Профиль</span>: <b id="mmProf"></b></span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
-  <button type="button" role="menuitem" onclick="serikOpen()"><i data-ic="chat"></i><span data-i18n="skOpenBtn">Серік — ИИ-помощник</span></button>
-  <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>navFriendsTab())"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+  <p class="mm-h" data-i18n="mmGrpCity">Город</p>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openSheet())"><i data-ic="routeI"></i><span data-i18n="mmRouteAB">Маршрут из точки в точку</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openMyReports())"><i data-ic="flag"></i><span data-i18n="mrTitle">Мои жалобы</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openHelp())"><i data-ic="user"></i><span data-i18n="hpMenu">Помощь волонтёров</span></button>
-  <button type="button" role="menuitem" onclick="mmDo(()=>openMyReports())"><i data-ic="warn"></i><span data-i18n="mrTitle">Мои жалобы</span></button>
   <button type="button" role="menuitem" onclick="mmDo(()=>openRating())"><i data-ic="star"></i><span data-i18n="rtTitle">Рейтинг районов</span></button>
   <a role="menuitem" href="/dashboard.html"><i data-ic="chart"></i><span data-i18n="statsShort">Статистика</span></a>
+  <p class="mm-h" data-i18n="mmGrpEase">Удобство</p>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openProfileSettings())"><i data-ic="wc"></i><span><span data-i18n="profileLabel">Профиль</span>: <b id="mmProf"></b></span></button>
+  <button type="button" role="menuitem" id="mmHints" aria-pressed="false" onclick="mmDo(()=>setHints(S.hints==='on'?'off':'on'))"><i data-ic="speaker"></i><span data-i18n="setHints">Голосовые подсказки</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>toggleView())"><i data-ic="list"></i><span data-i18n="viewList">Текстовый режим</span></button>
+  <button type="button" role="menuitem" onclick="mmDo(()=>openModal('settingsModal'))"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
   <a role="menuitem" href="/about"><i data-ic="info"></i><span data-i18n="aboutShort">О проекте</span></a>
   <div class="mm-sep" role="separator"></div>
   <div class="mm-lang" role="group" aria-label="Тіл / Язык / Language">
@@ -1753,8 +1829,8 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <div class="peek-quick" role="group" data-i18n-aria="pfCatsT" aria-label="Рядом с вами">
         <button type="button" onclick="nearestToilet()"><span><i data-ic="wc"></i></span><b data-i18n="peekToilet">Туалет</b></button>
         <button type="button" onclick="pfCategory('pharmacy')"><span><i data-ic="pill"></i></span><b data-i18n="c_pharmacy">Аптеки</b></button>
-        <button type="button" onclick="pfCategory('food')"><span><i data-ic="food"></i></span><b data-i18n="c_food">Поесть</b></button>
         <button type="button" onclick="pfCategory('bus')"><span><i data-ic="bus"></i></span><b data-i18n="c_bus">Остановки</b></button>
+        <button type="button" class="pq-sos" onclick="openModal('sosModal')"><span><i data-ic="sos"></i></span><b data-i18n="peekSos">SOS</b></button>
         <button type="button" onclick="peekExpand(true)"><span><i data-ic="menu"></i></span><b data-i18n="railMore">Ещё</b></button>
       </div>
       <div class="peek-find" id="peekFind" hidden>
@@ -1773,9 +1849,9 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <div class="peek-places" id="peekPlaces"></div>
       <div class="peek-chips">
         <button type="button" class="peek-chip" onclick="openHelp()"><i data-ic="user"></i><span data-i18n="peekHelp">Помощь</span></button>
-        <button type="button" class="peek-chip" onclick="nearestToilet()"><i data-ic="wc"></i><span data-i18n="peekToilet">Туалет</span></button>
+        <button type="button" class="peek-chip pc-dup" onclick="nearestToilet()"><i data-ic="wc"></i><span data-i18n="peekToilet">Туалет</span></button>
         <button type="button" class="peek-chip" onclick="openReport()"><i data-ic="warn"></i><span data-i18n="peekBarrier">Барьер</span></button>
-        <button type="button" class="peek-chip" onclick="openModal('sosModal')"><i data-ic="sos"></i><span data-i18n="peekSos">SOS</span></button>
+        <button type="button" class="peek-chip pc-dup" onclick="openModal('sosModal')"><i data-ic="sos"></i><span data-i18n="peekSos">SOS</span></button>
         <button type="button" class="peek-chip" onclick="openSheet()" aria-controls="sidePanel"><i data-ic="menu"></i><span data-i18n="peekMore">Ещё</span></button>
       </div>
       <nav class="peek-nav" aria-label="Разделы">
@@ -5445,19 +5521,19 @@ const PERM_T={
   permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
   permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
   permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
-  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", mmGrpCity:"Город", mmGrpEase:"Удобство", mmRouteAB:"Маршрут из точки в точку", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
   frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
  kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
   permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
   permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
   permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
-  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", mmGrpCity:"Қала", mmGrpEase:"Ыңғайлылық", mmRouteAB:"Нүктеден нүктеге бағыт", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
   frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
  en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
   permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
   permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
   permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
-  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", mmGrpCity:"City", mmGrpEase:"Comfort", mmRouteAB:"Route from A to B", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
   frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
 const PERM={geo:"?",not:"?",cmp:"?"};
@@ -7739,14 +7815,17 @@ async function copyComplaint(){
 let lastFocus=null;
 function openModal(id){
   lastFocus=document.activeElement;
-  const m=document.getElementById(id); m.classList.add("open");
+  const m=document.getElementById(id); m.classList.remove("closing"); m.classList.add("open");
   if(id==="settingsModal"){ m.querySelectorAll("details.set-sec").forEach(d=>d.open=false); updateSetVals(); }
   if(id==="sosModal") renderSosMine();
   const f=m.querySelector("button,select,input,textarea"); if(f) f.focus();
   const hd=m.querySelector("h2,h3"); announce(t("hOpened")+": "+(hd?hd.innerText:""));
 }
 function closeModal(id){
-  document.getElementById(id).classList.remove("open");
+  const m=document.getElementById(id); if(!m) return;
+  const instant=S.motion==="off" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(m.classList.contains("open") && !instant){ m.classList.add("closing"); setTimeout(()=>m.classList.remove("closing"),200); }
+  m.classList.remove("open");
   if(lastFocus) lastFocus.focus();
 }
 document.addEventListener("keydown",e=>{

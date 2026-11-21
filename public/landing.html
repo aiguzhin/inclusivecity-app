@@ -90,7 +90,7 @@ p{margin:0 0 14px;color:var(--soft);max-width:62ch}
 .kz .big{fill:var(--fg)}
 .kz .kz-land{fill:rgba(63,224,168,.07);stroke:rgba(63,224,168,.55);stroke-width:1.2;stroke-linejoin:round}
 .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px}
-.btn{display:inline-block;font:500 15px/1 var(--f-body);padding:15px 24px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);text-decoration:none;transition:background .2s,border-color .2s}
+.btn{display:inline-block;font:500 15px/1 var(--f-body);padding:15px 24px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);text-decoration:none;transition:background .2s,border-color .2s,transform .14s cubic-bezier(.2,.8,.2,1)}
 .btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .btn:hover{border-color:var(--fg)}
 .btn.primary:hover{filter:brightness(1.12)}
@@ -178,6 +178,12 @@ html[data-font="xlarge"] .panel,html[data-font="xlarge"] .top-actions{zoom:1.3}
   .top-actions>.lang-sw{display:none}.vgrp .lang-m{display:flex}
   #signupTop,#acctTop{padding:10px 14px}
 }
+
+/* Кнопки: отклик на нажатие и наведение только там, где есть мышь */
+.btn,.lang-sw button,.vbtn{-webkit-tap-highlight-color:transparent}
+.btn:active,.lang-sw button:active{transform:scale(.97)}
+@media (hover:none){.btn:hover{border-color:var(--line)}.btn.primary:hover{filter:none;border-color:var(--brand)}}
+@media (prefers-reduced-motion:reduce){.btn:active,.lang-sw button:active{transform:none}}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
