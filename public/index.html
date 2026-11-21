@@ -1067,41 +1067,19 @@ html.lite .lm-mk .lm-lb{text-shadow:0 0 2px var(--lm-halo),0 0 3px var(--lm-halo
 html.lite .lm-mk:hover .lm-ico{transform:none}
 html.lite .leaflet-fade-anim .leaflet-tile{transition:none}
 /* Друзья */
-.fr-sec{margin:0 0 18px}.fr-sec h3{font-size:1rem;margin:0 0 6px}
 .fr-note{margin:4px 0 8px;color:var(--muted);font-size:.92em}.fr-note.fr-live,small.fr-live{color:var(--blue)}
-.fr-link input{width:100%;font-size:.9em}
-.fr-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.fr-acts .ic{width:16px;height:16px}
-.fr-center{justify-content:center}.fr-wide{display:flex;justify-content:center;margin-top:10px}
-.fr-seg{display:flex;flex-wrap:wrap}
-.fr-list{list-style:none;margin:0;padding:0}.fr-item{padding:12px 0;border-bottom:1px solid var(--line)}
-.fr-row{display:flex;align-items:center;gap:10px}.fr-who{display:flex;flex-direction:column;min-width:0}.fr-who small{color:var(--muted)}
-.fr-ava{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;flex:none;overflow:hidden}
-.fr-ava img,.fr-pin-ava img{width:100%;height:100%;object-fit:cover}.fr-ava-big{width:72px;height:72px;font-size:1.6em;margin:0 auto 8px}
-.fr-del{margin-left:auto}.fr-inv{text-align:center;padding:8px 0}
+.fr-pin-ava img{width:100%;height:100%;object-fit:cover}
 .fr-sub{list-style:none;margin:8px 0 0;padding:0}.fr-sub button{font:inherit;display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;padding:8px 4px;border-radius:8px;color:inherit;cursor:pointer}
 .fr-sub button:hover{background:var(--blue-weak)}.fr-sub span{display:flex;flex-direction:column}.fr-sub small{color:var(--muted)}.fr-sub .ic{width:16px;height:16px;flex:none;margin-top:2px}
 .fr-pin-wrap{background:none;border:0}.fr-pin{position:relative;width:44px;height:44px}
 .fr-pin-ava{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;overflow:hidden}
 .fr-pin b{position:absolute;top:46px;left:50%;transform:translateX(-50%);white-space:nowrap;font:600 12px "Golos Text",sans-serif;background:var(--card);color:var(--ink);padding:1px 7px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.fr-pop{display:flex;flex-direction:column;gap:6px;min-width:160px}.fr-pop small{color:#555}
 /* Панель действий у значков «Откуда»/«Куда» */
 .fpin{cursor:pointer}
 .fp-menu{display:flex;flex-direction:column;gap:6px;min-width:210px}.fp-menu small{color:#6b7280}.fp-menu b{font-size:1.02em;margin-bottom:2px}
 .fp-menu button{justify-content:flex-start;display:flex;align-items:center;gap:6px;width:100%}.fp-menu .ic{width:16px;height:16px}.fp-menu .fp-del{color:#c0392b}
 .fr-pin b small{display:block;font-weight:500;font-size:10px;color:var(--muted);text-align:center}
 .fr-pin.fr-old .fr-pin-ava{filter:grayscale(.7);opacity:.75}
-.fr-tog{display:flex;align-items:center;gap:8px;margin:4px 0 6px;font-size:.95em;cursor:pointer}.fr-tog input{width:20px;height:20px;min-height:0}
-.fr-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--peek-h,190px) + 12px);z-index:1500;width:min(560px,calc(100% - 24px));background:var(--card);color:var(--ink);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:10px 10px 8px}
-.fr-bar[hidden]{display:none}
-.fr-bar-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}.fr-bar-row::-webkit-scrollbar{display:none}
-.fr-chip{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:inherit;cursor:pointer;min-height:0;font:inherit}
-.fr-chip span{display:flex;flex-direction:column;text-align:left;line-height:1.15}.fr-chip small{color:var(--muted);font-size:.78em}
-.fr-chip.fr-off{opacity:.6}
-.fr-chip-ava{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;overflow:hidden;flex:none}.fr-chip-ava img{width:100%;height:100%;object-fit:cover}
-.fr-bar-acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:8px}
-.fr-bar-acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border:0;border-radius:8px;background:var(--blue-weak);color:var(--blue);font:inherit;font-weight:600;cursor:pointer}
-.fr-bar-acts .ic{width:18px;height:18px}
-@media(min-width:861px){ .fr-bar{left:auto;right:16px;transform:none;top:76px;bottom:auto} }
 /* Скрыть левую панель на компьютере */
 .side-toggle{display:none}
 @media (min-width:861px){
@@ -1185,6 +1163,124 @@ html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
   html[data-ui="soft"] .peek-quick span{width:44px;height:44px;border-radius:50%;background:var(--card);box-shadow:var(--soft-sh);display:grid;place-items:center;color:var(--blue)}
   html[data-ui="soft"] .peek-quick .ic{width:21px;height:21px}
   html[data-ui="soft"] .peek-quick b{font-size:.7rem;font-weight:600;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+}
+
+/* ===== Панель «Друзья» ===== */
+.frp{position:fixed;z-index:1300;background:var(--card);color:var(--ink);display:flex;flex-direction:column;box-shadow:0 -6px 24px rgba(18,23,34,.14)}
+.frp[hidden]{display:none}
+.frp-grip{display:none}
+.frp-head{display:flex;align-items:center;gap:4px;padding:6px 8px 6px 16px;min-height:56px;border-bottom:1px solid var(--line)}
+.frp-head h2{flex:1;min-width:0;margin:0;font-size:1.12rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;outline:none}
+#frpBack:not([hidden])+h2{margin-left:-4px}
+.frp-ib{width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:none;color:var(--ink);display:grid;place-items:center}
+.frp-ib:hover{background:var(--paper);filter:none}
+.frp-ib svg,.frp-ib .ic{width:22px;height:22px}
+.frp-ib[hidden]{display:none}
+.frp-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.frp-ava{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:800;overflow:visible}
+.frp-ava img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.frp-ava.xl{width:84px;height:84px;font-size:2rem}
+.frp-ava.lg{width:56px;height:56px;font-size:1.4rem}
+.frp-ava.lg.live::after,.frp-ava.lg.stale::after{width:14px;height:14px}
+.frp-card{display:flex;align-items:center;gap:14px;padding:2px 0 14px}
+.frp-card p{margin:0;color:var(--ink-soft);font-size:.9rem;line-height:1.4}
+.frp-ava.live::after,.frp-ava.stale::after{content:"";position:absolute;right:0;bottom:0;width:12px;height:12px;border-radius:50%;background:#1f9d55;border:2px solid var(--card)}
+.frp-ava.xl.live::after,.frp-ava.xl.stale::after{width:18px;height:18px;right:2px;bottom:2px}
+.frp-ava.stale::after{background:#9aa3af}
+.frp-me{display:flex;align-items:center;gap:12px;padding:6px 0 10px}
+.frp-who{flex:1;min-width:0;display:flex;flex-direction:column;text-align:left;line-height:1.25}
+.frp-who b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frp-who small{color:var(--ink-soft);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frp-switch{flex:none;position:relative;width:52px;height:32px;min-height:32px;padding:0;border:0;border-radius:99px;background:var(--line)}
+.frp-switch span{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .28s cubic-bezier(.34,1.4,.64,1)}
+.frp-switch[aria-checked="true"]{background:#1f9d55}
+.frp-switch[aria-checked="true"] span{transform:translateX(20px)}
+.frp-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:3px;margin-bottom:10px;border-radius:10px;background:var(--paper)}
+.frp-seg button{min-height:36px;padding:4px 6px;border:0;border-radius:8px;background:none;color:var(--ink-soft);font-size:.8rem;font-weight:600}
+.frp-seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--soft-sh)}
+.frp-list{list-style:none;margin:0 -16px;padding:0;border-top:1px solid var(--line)}
+.frp-list li{border-bottom:1px solid var(--line)}
+.frp-row{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:8px 12px 8px 16px;border:0;border-radius:0;background:none;color:var(--ink);font-weight:400}
+.frp-row:hover{background:var(--paper);filter:none}
+.frp-chev{flex:none;width:20px;height:20px;color:var(--ink-soft)}
+.frp-skel{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.frp-skel span{width:44px;height:44px;border-radius:50%;background:var(--paper)}
+.frp-skel i{flex:1;height:14px;border-radius:6px;background:var(--paper)}
+.frp-tog{display:flex;align-items:center;gap:10px;min-height:44px;margin-top:6px;font-size:.88rem;color:var(--ink-soft)}
+.frp-tog input{width:20px;height:20px;accent-color:var(--blue)}
+.frp-foot{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));margin:12px -16px calc(-16px - env(safe-area-inset-bottom,0px));padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
+.frp-wide{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.frp-wide .ic{width:18px;height:18px}
+.frp-empty{text-align:center;padding:18px 8px 6px}
+.frp-empty h3{margin:10px 0 6px;font-size:1.05rem}
+.frp-empty p{margin:0 0 14px;color:var(--ink-soft);font-size:.9rem;line-height:1.45}
+.frp-emico{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--blue-weak);color:var(--blue)}
+.frp-emico .ic{width:28px;height:28px}
+.frp-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:6px 0 14px}
+.frp-hero h3{margin:4px 0 0;font-size:1.05rem}
+.frp-hero p{margin:0;color:var(--ink-soft);font-size:.88rem;line-height:1.4}
+.frp-acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.frp-act{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;padding:4px 0;border:0;background:none;color:var(--ink);font-size:.76rem;font-weight:600;filter:none}
+.frp-act .ic{box-sizing:content-box;width:22px;height:22px;padding:11px;border-radius:50%;background:var(--blue-weak);color:var(--blue)}
+.frp-act.primary .ic{background:var(--blue);color:#fff}
+.frp-act.on .ic{background:var(--blue);color:#fff}
+.frp-act:disabled{opacity:.4}
+.frp-act span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frp-body .fr-more{margin-top:10px}
+.frp-textbtn{display:block;margin:14px auto 0;min-height:40px;padding:6px 12px;border:0;background:none;color:var(--blue);font-weight:600;font-size:.88rem}
+.frp-textbtn.danger{color:var(--red,#c0362c)}
+.frp-lead{margin:0 0 12px;color:var(--ink-soft);font-size:.9rem;line-height:1.45}
+.frp-link{display:flex;gap:6px;margin-bottom:10px}
+.frp-link input{flex:1;min-width:0;font-size:.85rem}
+.frp-btns{display:grid;gap:8px}
+.frp-btns .btn,.frp-btns .btn-ghost{display:flex;align-items:center;justify-content:center;gap:8px}
+.frp-btns .ic{width:18px;height:18px}
+/* телефон: шторка; положение задаёт JS (translateY), высоту — тоже */
+@media (max-width:860px){
+  .frp{left:0;right:0;bottom:0;height:0;overflow:hidden;border-radius:14px 14px 0 0;touch-action:pan-y}
+  .frp-grip{display:flex;justify-content:center;padding:8px 0 2px;touch-action:none;cursor:grab}
+  .frp-grip span{width:40px;height:5px;border-radius:99px;background:var(--line)}
+  .frp-head{touch-action:none;min-height:50px;padding-top:0}
+  body.frp-on .sheet-peek{display:none}
+}
+/* компьютер: колонка поверх левой панели, рядом с лентой разделов */
+@media (min-width:861px){
+  .frp{top:0;bottom:0;left:0;width:420px;max-width:calc(100vw - 76px);border-right:1px solid var(--line);box-shadow:4px 0 18px rgba(18,23,34,.08);opacity:0;transform:translateX(-14px);transition:opacity .18s ease,transform .22s cubic-bezier(.2,.9,.3,1)}
+  html[data-ui="soft"] .frp{left:76px}
+  .frp.in{opacity:1;transform:none}
+}
+/* появление строк и карточки — коротко и только при смене экрана */
+@keyframes frpIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.frp-body.frp-enter>*,.frp-body.frp-enter .frp-list li{animation:frpIn .26s cubic-bezier(.2,.9,.3,1) both}
+.frp-body.frp-enter .frp-list li{animation-delay:calc(min(var(--i,0),8) * 28ms)}
+/* значок друга на карте «выпрыгивает» один раз, когда появляется */
+@keyframes frPop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+.fr-pin.fr-new{animation:frPop .42s cubic-bezier(.34,1.4,.64,1) both}
+/* отклик на нажатие: кнопка слегка проседает и возвращается */
+.vrail>button,.vrail>a,.peek-quick button span,.frp-row,.frp-act .ic,.map-menu-btn,.map-btn,.peek-nav button{transition:transform .14s ease,background-color .15s ease}
+.vrail>button:active,.vrail>a:active,.peek-quick button:active span,.frp-act:active .ic,.map-menu-btn:active,.map-btn:active,.peek-nav button:active{transform:scale(.93)}
+.frp-row:active{background:var(--paper)}
+html[data-motion="off"] .frp,html[data-motion="off"] .frp *,html[data-motion="off"] .fr-pin{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){.frp,.frp *,.fr-pin{animation:none!important;transition:none!important}}
+/* «Слои» раскрываются от своей кнопки */
+@keyframes mmIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.map-menu:not([hidden]){animation:mmIn .2s cubic-bezier(.2,.9,.3,1);transform-origin:left top}
+@media (min-width:861px){ html[data-ui="soft"] .map-menu:not([hidden]){transform-origin:left bottom} }
+html[data-motion="off"] .map-menu{animation:none}
+@media (prefers-reduced-motion:reduce){.map-menu{animation:none!important}}
+/* ===== Порядок на экране: лишнее убрано туда, где его ищут ===== */
+@media (min-width:861px){
+  html[data-ui="soft"] .vrail>button,html[data-ui="soft"] .vrail>a{min-height:52px;flex-shrink:0}
+  @media (max-height:820px){ html[data-ui="soft"] .vrail{gap:0;padding-block:6px} html[data-ui="soft"] .vrail>button,html[data-ui="soft"] .vrail>a{min-height:46px;padding-block:4px} html[data-ui="soft"] .vrail>.vr-brand{min-height:40px;margin-bottom:2px} }
+  html[data-ui="soft"] .vrail>.vr-sos{color:#c0362c}
+  html[data-ui="soft"] .side #hint{display:none}
+  html[data-ui="soft"] #routeCard:has(h2[data-i18n="noRoute"]){display:none}
+  html[data-ui="soft"] .side .card:has(#nearbyList:empty){display:none}
+  html[data-ui="soft"] .side>.btn-dark,html[data-ui="soft"] .side>.sos{display:none}   /* барьер и SOS — в ленте слева */
+  html[data-ui="soft"] .side>.btn-ghost,html[data-ui="soft"] .side>a>.btn-ghost{min-height:40px;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+}
+@media (max-width:860px){
+  html[data-ui="soft"] header.top .brand{display:none}   /* на карте логотип не нужен — место карте */
 }
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
@@ -1401,19 +1497,21 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
 <!-- Компьютер: вертикальная лента разделов слева (идея из 2ГИС/Google Карт, своё оформление) -->
 <nav class="vrail" id="vRail" data-i18n-aria="railL" aria-label="Разделы">
-  <a class="vr-brand" href="/" translate="no" aria-label="ICity — главная"><img src="/icons/soft.svg" alt="" width="40" height="40"></a>
-  <button type="button" class="vr-on" onclick="railRoute()"><i data-ic="routeI"></i><span data-i18n="railRoute">Маршрут</span></button>
-  <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
-  <button type="button" onclick="railPlaces()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
-  <button type="button" onclick="openMyReports()"><i data-ic="warn"></i><span data-i18n="railReports">Жалобы</span></button>
-  <button type="button" onclick="openHelp()"><i data-ic="user"></i><span data-i18n="railHelp">Помощь</span></button>
-  <a href="/audit"><i data-ic="check"></i><span data-i18n="railAudit2">Проверить</span></a>
+  <a class="vr-brand" href="/" translate="no" data-tip="tipHome" aria-label="ICity"><img src="/icons/soft.svg" alt="" width="40" height="40"></a>
+  <button type="button" class="vr-on" data-tip="tipRoute" onclick="railRoute()"><i data-ic="routeI"></i><span data-i18n="railRoute">Маршрут</span></button>
+  <button type="button" data-tip="tipBarrier" onclick="openReport()"><i data-ic="warn"></i><span data-i18n="railBarrier">Барьер</span></button>
+  <button type="button" data-tip="tipFriends" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+  <button type="button" data-tip="tipPlaces" onclick="railPlaces()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
+  <button type="button" data-tip="tipReports" onclick="openMyReports()"><i data-ic="flag"></i><span data-i18n="railReports">Жалобы</span></button>
+  <button type="button" data-tip="tipHelp" onclick="openHelp()"><i data-ic="user"></i><span data-i18n="railHelp">Помощь</span></button>
+  <a href="/audit" data-tip="tipAudit"><i data-ic="check"></i><span data-i18n="railAudit2">Проверить</span></a>
   <span class="vr-gap"></span>
-  <button type="button" onclick="serikToggle()"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
-  <button type="button" onclick="toggleView()"><i data-ic="list"></i><span data-i18n="railText">Текст</span></button>
-  <button type="button" onclick="railLang()" data-i18n-aria="railLang" aria-label="Язык"><i data-ic="globe"></i><span id="vrLang">RU</span></button>
-  <button type="button" onclick="openModal('settingsModal')"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
-  <a href="/login" id="vrAcct" class="vr-acct"><span class="vr-ava" id="vrAva"><i data-ic="user"></i></span><span id="vrAcctT" data-i18n="acctLogin">Войти</span></a>
+  <button type="button" class="vr-sos" data-tip="tipSos" onclick="openModal('sosModal')"><i data-ic="sos"></i><span data-i18n="railSos">SOS</span></button>
+  <button type="button" data-tip="tipSerik" onclick="serikToggle()"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
+  <button type="button" data-tip="tipList" onclick="toggleView()"><i data-ic="list"></i><span data-i18n="railText">Список</span></button>
+  <button type="button" data-tip="tipLang" onclick="railLang()"><i data-ic="globe"></i><span id="vrLang">RU</span></button>
+  <button type="button" data-tip="tipSettings" onclick="openModal('settingsModal')"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
+  <a href="/login" id="vrAcct" class="vr-acct" data-tip="tipAcct"><span class="vr-ava" id="vrAva"><i data-ic="user"></i></span><span id="vrAcctT" data-i18n="acctLogin">Войти</span></a>
 </nav>
 
 <header class="top">
@@ -1564,7 +1662,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
   <section class="stage">
     <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-t" data-i18n="railLayers">Слои</span><span class="mmb-badge" id="mmbBadge" hidden></span></button>
+    <button type="button" class="map-menu-btn" id="mapMenuBtn" data-tip="tipLayers" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-t" data-i18n="railLayers">Слои</span><span class="mmb-badge" id="mmbBadge" hidden></span></button>
     <!-- Кнопки разделов слева сверху на компьютере (как в 2ГИС); на телефоне — нижнее меню -->
     <nav class="desk-rail" id="deskRail" data-i18n-aria="railL" aria-label="Разделы">
       <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
@@ -1759,12 +1857,17 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <button type="button" class="btn-ghost" style="width:100%;margin-top:8px" onclick="permLater()" data-i18n="permLater">Позже</button>
   </div>
 </div>
-<div class="modal" id="frModal" role="dialog" aria-modal="true" aria-labelledby="frH">
-  <div class="dialog">
-    <div class="dialog-head"><h2 id="frH" data-i18n="frTitle">Друзья</h2><button class="btn-ghost btn-sm" onclick="closeModal('frModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
-    <div id="frBody"></div>
-  </div>
-</div>
+<!-- Друзья: панель (на телефоне — шторка с пружиной, на компьютере — колонка слева) -->
+<section class="frp" id="frPanel" role="dialog" aria-modal="false" aria-labelledby="frpH" hidden>
+  <div class="frp-grip" aria-hidden="true"><span></span></div>
+  <header class="frp-head">
+    <button type="button" class="frp-ib" id="frpBack" hidden onclick="frpGo('list')" data-i18n-aria="frpBack" aria-label="Назад к списку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2 id="frpH" data-i18n="frTitle">Друзья</h2>
+    <button type="button" class="frp-ib" id="frpFit" hidden onclick="frFit()" data-i18n-aria="frpAllMap" aria-label="Все на карте"><i data-ic="friends"></i></button>
+    <button type="button" class="frp-ib" onclick="frpClose()" data-i18n-aria="close" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  </header>
+  <div class="frp-body" id="frpBody"></div>
+</section>
 <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="hpH">
   <div class="dialog">
     <div class="dialog-head">
@@ -2129,7 +2232,7 @@ ru:{
  vBest:"подходит вам",
  vSlope:"уклон до", vClean:"Барьеров для вашего профиля не найдено",
  menuBtn:"Панель управления", panelTitle:"Маршрут и доступность", close:"Закрыть",
- peekIdle:"Куда едем?", peekIdleSub:"Маршрут, слои и жалобы",
+ peekIdle:"Куда едем?", peekIdleSub:"Адрес, место или организация",
  peekHelp:"Помощь", peekHere:"Я здесь", peekBarrier:"Барьер", peekSos:"SOS", peekMore:"Ещё", statsShort:"Статистика", sheetResize:"Развернуть или свернуть панель",
  cityAuto:"Определить по геопозиции", cityFar:"Рядом с вами нет городов из списка",
  modeLabel:"Способ передвижения", modeCar:"Машина", modeBike:"Велосипед", modeScooter:"Самокат", modeWalk:"Пешком", modeBus:"Автобус", modeTaxi:"Такси",
@@ -2219,7 +2322,7 @@ kk:{
  vBest:"сізге қолайлы",
  vSlope:"еңіс", vClean:"Профиліңізге кедергі табылмады",
  menuBtn:"Басқару тақтасы", panelTitle:"Бағыт және қолжетімділік", close:"Жабу",
- peekIdle:"Қайда барамыз?", peekIdleSub:"Бағыт, қабаттар және шағымдар",
+ peekIdle:"Қайда барамыз?", peekIdleSub:"Мекенжай, орын немесе ұйым",
  peekHelp:"Көмек", peekHere:"Мен осындамын", peekBarrier:"Кедергі", peekSos:"SOS", peekMore:"Тағы", statsShort:"Статистика", sheetResize:"Тақтаны жаю немесе жию",
  cityAuto:"Геолокация бойынша анықтау", cityFar:"Жаныңызда тізімдегі қала жоқ",
  modeLabel:"Жүру тәсілі", modeCar:"Көлік", modeBike:"Велосипед", modeScooter:"Самокат", modeWalk:"Жаяу", modeBus:"Автобус", modeTaxi:"Такси",
@@ -2310,7 +2413,7 @@ en:{
  vBest:"suits you",
  vSlope:"slope up to", vClean:"No barriers for your profile",
  menuBtn:"Control panel", panelTitle:"Routes and accessibility", close:"Close",
- peekIdle:"Where to?", peekIdleSub:"Route, layers and reports",
+ peekIdle:"Where to?", peekIdleSub:"Address, place or business",
  peekHelp:"Help", peekHere:"I am here", peekBarrier:"Barrier", peekSos:"SOS", peekMore:"More", statsShort:"Statistics", sheetResize:"Expand or collapse the panel",
  cityAuto:"Detect from my location", cityFar:"No supported city near you",
  modeLabel:"How to travel", modeCar:"Car", modeBike:"Bike", modeScooter:"Scooter", modeWalk:"Walk", modeBus:"Bus", modeTaxi:"Taxi",
@@ -5308,43 +5411,15 @@ function frAva(f,cls){ return f.avatar?`<span class="${cls}"><img src="${esc(f.a
 function frAgo(at){ const m=Math.round((Date.now()-at)/60e3); return m<1?t("frAgoNow"):tf("frAgoMin",{n:m}); }
 function frProfName(k){ const p=PROFILES[k]; return p?(p[S.lang]||p.ru):""; }
 function frLink(){ return FR.me&&FR.me.code ? location.origin+"/map?friend="+FR.me.code : ""; }
-function openFriends(){ openModal("frModal"); frRender(); frLoad(true); }
+function openFriends(view,id){ frpOpen(view||"list",id); frLoad(true); }
 async function frLoad(render){
   try{
     const d=await frApi(""); FR.me=d.me; FR.list=d.friends||[];
     frDraw(); frWatchSync(); frSyncMe(); frPollSync();
   }catch(e){ if(e.auth){ FR.me=null; FR.list=[]; frDraw(); } else if(render) toast(t("frErr")); }
-  if(render || document.getElementById("frModal").classList.contains("open")) frRender();
+  if(render || frpIsOpen()) frRender();
 }
-function frRender(){
-  const box=document.getElementById("frBody"); if(!box) return;
-  if(!sbSession()){ box.innerHTML=`<p class="fr-note">${esc(t("frLogin"))}</p><a class="btn fr-wide" href="/login">${esc(t("frLoginBtn"))}</a>`; return; }
-  if(!FR.me){ box.innerHTML=`<p class="fr-note">…</p>`; return; }
-  const sh=FR.me.share, on=frSharing();
-  const till=sh>0?new Date(sh).toLocaleString(S.lang==="kk"?"kk-KZ":S.lang==="en"?"en-GB":"ru-RU",{hour:"2-digit",minute:"2-digit",day:new Date(sh).toDateString()===new Date().toDateString()?undefined:"numeric",month:new Date(sh).toDateString()===new Date().toDateString()?undefined:"short"}):"";
-  const cur=!on?"off":sh===-1?"always":(sh-Date.now()<=3600e3+60e3?"1h":"day");
-  const seg=[["off","frOff"],["1h","fr1h"],["day","frDay"],["always","frAlways"]].map(([v,k])=>`<button type="button" aria-pressed="${cur===v}" onclick="frSetShare('${v}')">${esc(t(k))}</button>`).join("");
-  const friends=FR.list.map(f=>{
-    const prof=frProfName(f.profile), st=f.loc?tf("frOnMap",{t:frAgo(f.loc.at)}):t("frHidden"), op=FR.open[f.id]||"";
-    return `<li class="fr-item">
-      <div class="fr-row">${frAva(f,"fr-ava")}<div class="fr-who"><b>${esc(f.name)}</b><small class="${f.loc?"fr-live":""}">${esc(st)}${prof?" · "+esc(prof):""}</small></div></div>
-      <div class="fr-acts">
-        ${f.loc?`<button type="button" class="btn-ghost btn-sm" onclick="frShow('${f.id}')">${svgI("pin")} ${esc(t("frShow"))}</button><button type="button" class="btn btn-sm" onclick="frRoute('${f.id}')">${svgI("walk")} ${esc(t("frRoute"))}</button>`:""}
-        <button type="button" class="btn-ghost btn-sm" aria-expanded="${op==="places"}" onclick="frToggle('${f.id}','places')">${svgI("star")} ${esc(t("frPlaces"))}${f.places&&f.places.length?" · "+f.places.length:""}</button>
-        <button type="button" class="btn-ghost btn-sm" aria-expanded="${op==="reviews"}" onclick="frToggle('${f.id}','reviews')">${svgI("chat")} ${esc(t("frReviews"))}</button>
-        <button type="button" class="btn-ghost btn-sm fr-del" onclick="frRemove('${f.id}')" aria-label="${esc(t("frRemove"))}">✕</button>
-      </div>
-      <div class="fr-more" id="frMore_${f.id}" ${op?"":"hidden"}></div></li>`; }).join("");
-  box.innerHTML=`
-    <section class="fr-sec"><h3>${esc(t("frInvite"))}</h3><p class="fr-note">${esc(t("frInviteHint"))}</p>
-      <div class="fr-link"><input type="text" readonly value="${esc(frLink())}" aria-label="${esc(t("frInvite"))}" onfocus="this.select()"></div>
-      <div class="fr-acts"><button type="button" class="btn btn-sm" onclick="frFromContacts()">${svgI("friends")} ${esc(t("frContacts"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frCopy()">${esc(t("frCopy"))}</button><button type="button" class="btn-ghost btn-sm" onclick="frNewCode()">${esc(t("frNewCode"))}</button></div><ul class="fr-contacts" id="frContacts"></ul></section>
-    <section class="fr-sec"><h3>${esc(t("frMyLoc"))}</h3><div class="seg fr-seg">${seg}</div>
-      <p class="fr-note ${on?"fr-live":""}">${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till})):t("frNotSharing"))}</p></section>
-    <section class="fr-sec"><h3>${esc(t("frList"))}${FR.list.length?" · "+FR.list.length:""}</h3>
-      ${FR.list.length?`<label class="fr-tog"><input type="checkbox" ${frHidden()?"":"checked"} onchange="frSetHidden(!this.checked)"> ${esc(t("frOnMapT"))}</label>`:""}${FR.list.length?`<ul class="fr-list">${friends}</ul>`:`<p class="fr-note">${esc(t("frNone"))}</p>`}</section>`;
-  Object.entries(FR.open).forEach(([id,what])=>{ if(what) frFill(id,what); });
-}
+function frRender(){ frpRender(); }
 
 // ── Доступы при первом запуске: геопозиция, уведомления, компас (iPhone), контакты — одним окном ──
 const PERM_T={
@@ -5352,19 +5427,19 @@ const PERM_T={
   permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
   permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
   permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
-  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Текст", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
   frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
  kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
   permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
   permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
   permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
-  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Мәтін", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
   frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
  en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
   permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
   permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
   permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
-  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"Text", railLayers:"Layers", railLang:"Language", railMore:"More",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
   frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
 const PERM={geo:"?",not:"?",cmp:"?"};
@@ -5450,7 +5525,7 @@ async function frFromContacts(){
 async function frShareLink(){ const u=frLink(); if(!u) return;
   if(navigator.share){ try{ await navigator.share({title:"ICity",text:t("frInviteText"),url:u}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
   frCopy(); }
-async function frCopy(){ const u=frLink(); try{ await navigator.clipboard.writeText(u); toast(t("frCopied")); }catch(e){ const i=document.querySelector("#frBody .fr-link input"); if(i){ i.focus(); i.select(); } } }
+async function frCopy(){ const u=frLink(); try{ await navigator.clipboard.writeText(u); toast(t("frCopied")); }catch(e){ const i=document.querySelector("#frpBody .frp-link input"); if(i){ i.focus(); i.select(); } } }
 async function frNewCode(){ if(!confirm(t("frNewCodeQ"))) return; try{ const d=await frApi("/code",{}); FR.me.code=d.code; frRender(); }catch(e){ toast(t("frErr")); } }
 async function frSetShare(v){
   const until=v==="off"?0:v==="always"?-1:v==="1h"?Date.now()+3600e3:new Date(new Date().setHours(23,59,0,0)).getTime();
@@ -5500,10 +5575,10 @@ function frDraw(){
   const keep=new Set(), hide=frHidden();
   (FR.list||[]).forEach(f=>{ if(!f.loc || hide) return; keep.add(f.id);
     const ll=[f.loc.lat,f.loc.lng], old=Date.now()-f.loc.at>5*60e3; let m=FR.marks.get(f.id);
-    const html=`<div class="fr-pin${old?" fr-old":""}">${frAva(f,"fr-pin-ava")}<b>${esc(f.name)}<small>${esc(frAgo(f.loc.at))}</small></b></div>`;
+    const html=`<div class="fr-pin${old?" fr-old":""}${m?"":" fr-new"}">${frAva(f,"fr-pin-ava")}<b>${esc(f.name)}<small>${esc(frAgo(f.loc.at))}</small></b></div>`;
     const icon=L.divIcon({className:"fr-pin-wrap",html,iconSize:[44,44],iconAnchor:[22,22]});
     if(!m){ m=L.marker(ll,{icon,title:f.name,riseOnHover:true,zIndexOffset:500});
-      m.on("click",()=>frPopup(f.id)); FR.layer.addLayer(m); FR.marks.set(f.id,m); }
+      m.on("click",()=>frFocus(f.id)); FR.layer.addLayer(m); FR.marks.set(f.id,m); }
     else { frGlide(m,ll); m.setIcon(icon); }
     // круг точности, как в 2ГИС: чем шире — тем приблизительнее место
     let r=FR.rings.get(f.id); const acc=Math.max(5,Math.min(f.loc.acc||0,300));
@@ -5512,55 +5587,42 @@ function frDraw(){
   });
   FR.marks.forEach((m,id)=>{ if(!keep.has(id)){ FR.layer.removeLayer(m); FR.marks.delete(id); } });
   FR.rings.forEach((r,id)=>{ if(!keep.has(id)){ FR.layer.removeLayer(r); FR.rings.delete(id); } });
-  frBarRender();
+  if(frpIsOpen() && FRP.view==="list") frpRender();
 }
 // плавно передвигаем значок друга к новой точке, а не прыжком
 function frGlide(m,to){ const from=m.getLatLng(), t0=performance.now(), d=900;
   if(S.motion==="off" || map.distance(from,to)>3000){ m.setLatLng(to); return; }
   const step=n=>{ const k=Math.min(1,(n-t0)/d), e=k*(2-k); m.setLatLng([from.lat+(to[0]-from.lat)*e, from.lng+(to[1]-from.lng)*e]); if(k<1) requestAnimationFrame(step); };
   requestAnimationFrame(step); }
-// Нижнее меню «Друзья» как в 2ГИС: сразу показывает друзей на карте и полоску с ними
+// «Друзья» в меню: панель со списком, друзья сразу на карте (как в 2ГИС)
 async function navFriendsTab(){
-  if(!sbSession()){ openFriends(); return; }
   if(frHidden()) store("frHide","0");
-  FR.barOn=true; await frLoad(false);
-  const on=FR.list.filter(f=>f.loc);
-  if(!FR.list.length){ openFriends(); return; }
-  frBarRender(); if(on.length) frFit(); else toast(t("frNoneOnMap"));
+  frpOpen("list"); await frLoad(true);
+  if(FR.list.some(f=>f.loc)) frFit();
 }
-function frFit(){ const pts=FR.list.filter(f=>f.loc).map(f=>[f.loc.lat,f.loc.lng]); if(!pts.length||!mapReady) return;
+// показать всех друзей (и себя) так, чтобы их не закрывала панель
+function frFit(){ const pts=FR.list.filter(f=>f.loc).map(f=>[f.loc.lat,f.loc.lng]); if(!pts.length||!mapReady){ if(FR.list.length) toast(t("frNoneOnMap")); return; }
   if(userLatLng) pts.push(userLatLng);
-  if(pts.length===1) map.setView(pts[0],16,{animate:S.motion!=="off"});
-  else { const bar=document.getElementById("frBar"), mob=innerWidth<=860, bh=bar&&!bar.hidden&&mob?bar.offsetHeight:0, mapR=map.getContainer().getBoundingClientRect();
-    const below=mob&&bar&&!bar.hidden?Math.max(0,mapR.bottom-bar.getBoundingClientRect().top):0;
-    map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[60,90],paddingBottomRight:[60,60+Math.max(bh*0,below)],maxZoom:16,animate:S.motion!=="off"}); } }
-function frSetHidden(h){ store("frHide",h?"1":"0"); if(h) FR.barOn=false; frDraw(); frPollSync(); frRender(); toast(t(h?"frHiddenT":"frShownT")); }
-function frBarRender(){
-  let bar=document.getElementById("frBar");
-  if(!FR.barOn || frHidden() || !FR.me){ if(bar) bar.hidden=true; return; }
-  if(!bar){ bar=document.createElement("div"); bar.id="frBar"; bar.className="fr-bar"; bar.setAttribute("role","region"); bar.setAttribute("aria-label",t("frTitle")); document.body.appendChild(bar); }
-  const chips=FR.list.map(f=>`<button type="button" class="fr-chip${f.loc?"":" fr-off"}" onclick="frChip('${f.id}')">${frAva(f,"fr-chip-ava")}<span><b>${esc(f.name)}</b><small>${esc(f.loc?frAgo(f.loc.at):t("frHidden"))}</small></span></button>`).join("");
-  bar.innerHTML=`<div class="fr-bar-row">${chips}</div><div class="fr-bar-acts">
-    <button type="button" onclick="frFit()" aria-label="${esc(t("frAll"))}">${svgI("friends")}<span>${esc(t("frAll"))}</span></button>
-    <button type="button" onclick="openFriends()">${svgI("list")}<span>${esc(t("frListBtn"))}</span></button>
-    <button type="button" onclick="frSetHidden(true)">${svgI("close")}<span>${esc(t("frHide"))}</span></button></div>`;
-  bar.hidden=false;
-}
-function frChip(id){ const f=FR.list.find(x=>x.id===id); if(!f) return; if(!f.loc){ openFriends(); return; }
-  map.setView([f.loc.lat,f.loc.lng],17,{animate:S.motion!=="off"}); setTimeout(()=>frPopup(id),350); }
-function frPopup(id){ const f=FR.list.find(x=>x.id===id); const m=FR.marks.get(id); if(!f||!m) return;
-  const prof=frProfName(f.profile);
-  m.bindPopup(`<div class="fr-pop"><b>${esc(f.name)}</b><small>${esc(tf("frOnMap",{t:frAgo(f.loc.at)}))}${prof?"<br>"+esc(tf("frProfile",{p:prof})):""}</small><button type="button" class="btn btn-sm" onclick="frRoute('${f.id}')">${esc(t("frRoute"))}</button></div>`,{closeButton:true}).openPopup(); }
-function frShow(id){ const f=FR.list.find(x=>x.id===id); if(!f||!f.loc) return; if(frHidden()) frSetHidden(false); FR.barOn=true; closeModal("frModal"); map.setView([f.loc.lat,f.loc.lng],17); setTimeout(()=>frPopup(id),400); }
+  const pad=frpMapPad(), anim=S.motion!=="off";
+  if(pts.length===1){ map.setView(pts[0],16,{animate:anim}); frpNudge(pts[0]); return; }
+  map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[100+pad.left,90],paddingBottomRight:[80,100+pad.bottom],maxZoom:16,animate:anim}); }
+function frSetHidden(h){ store("frHide",h?"1":"0"); frDraw(); frPollSync(); frRender(); toast(t(h?"frHiddenT":"frShownT")); }
+// нажали на друга (в списке или на карте): карточка друга + карта к нему
+function frFocus(id){ const f=FR.list.find(x=>x.id===id); if(!f) return;
+  if(frHidden()) frSetHidden(false);
+  frpOpen("friend",id);
+  if(f.loc && mapReady){ map.setView([f.loc.lat,f.loc.lng],17,{animate:S.motion!=="off"}); frpNudge([f.loc.lat,f.loc.lng]); } }
+const frShow=frFocus;
 function frRoute(id){
   const f=FR.list.find(x=>x.id===id); if(!f||!f.loc) return;
-  closeModal("frModal"); map.closePopup();
+  frpClose(); map.closePopup();
   setFieldPlace("destination", f.name, [f.loc.lat,f.loc.lng]);
   const prof=frProfName(f.profile); if(prof && f.profile!=="none") toast(tf("frProfile",{p:prof}));
   if(!fieldCoords("start") && !userLatLng && !document.getElementById("start").value.trim()){ toast(t("plNeedStart")); openSheet && openSheet(); document.getElementById("start").focus(); return; }
   buildRoute();
 }
-function frToggle(id,what){ FR.open[id]=FR.open[id]===what?"":what; frRender(); }
+function frToggle(id,what){ FR.open[id]=FR.open[id]===what?"":what; frRender();
+  if(FR.open[id] && frpIsOpen() && frpMobile() && FRP.h<frpSnaps().half) frpSnapTo("half",0); }
 async function frFill(id,what){
   const box=document.getElementById("frMore_"+id); if(!box) return; const f=FR.list.find(x=>x.id===id); if(!f) return;
   const goBtn=(la,lo,name)=>`onclick="frGo(${+la},${+lo},'${esc(String(name).replace(/\\/g,"").replace(/'/g,"’"))}')"`;
@@ -5573,25 +5635,177 @@ async function frFill(id,what){
     box.innerHTML=arr.length?`<ul class="fr-sub">${arr.slice(0,30).map(r=>`<li><button type="button" ${goBtn(r.lat,r.lng,r.placeName||"")}>${svgI("chat")}<span><b>${esc(r.placeName||"")}</b><small>${r.stars?"★".repeat(Math.min(5,r.stars))+" ":""}${esc(String(r.text||"").slice(0,140))}</small></span></button></li>`).join("")}</ul>`:`<p class="fr-note">${esc(t("frNoReviews"))}</p>`;
   }catch(e){ box.innerHTML=`<p class="fr-note">${esc(t("frErr"))}</p>`; }
 }
-function frGo(la,lo,name){ if(!isFinite(la)||!isFinite(lo)) return; closeModal("frModal"); map.setView([la,lo],17); showPlace({lat:la,lon:lo,name,tags:{},layer:false}); }
+function frGo(la,lo,name){ if(!isFinite(la)||!isFinite(lo)) return; frpClose(); map.setView([la,lo],17); showPlace({lat:la,lon:lo,name,tags:{},layer:false}); }
 async function frRemove(id){ const f=FR.list.find(x=>x.id===id); if(!f || !confirm(tf("frRemoveQ",{n:f.name}))) return;
-  try{ await frApi("/remove",{id}); FR.list=FR.list.filter(x=>x.id!==id); frDraw(); frRender(); }catch(e){ toast(t("frErr")); } }
+  try{ await frApi("/remove",{id}); FR.list=FR.list.filter(x=>x.id!==id); FRP.view="list"; frDraw(); frRender(); }catch(e){ toast(t("frErr")); } }
 // Приглашение по ссылке /map?friend=КОД
 async function frInvite(code){
   if(!/^[A-Za-z0-9]{6,12}$/.test(code)) return;
-  if(!sbSession()){ store("frPending",code); openModal("frModal"); frRender(); return; }
+  if(!sbSession()){ store("frPending",code); frpOpen("list"); return; }
   try{ localStorage.removeItem("ic_frPending"); }catch(e){}
   let d; try{ d=await frApi("/invite?code="+encodeURIComponent(code)); }catch(e){ toast(e.status===404?t("frBadLink"):t("frErr")); return; }
   if(d.self){ toast(t("frSelf")); openFriends(); return; }
   if(d.already){ toast(t("frAlready")); openFriends(); return; }
-  openModal("frModal");
-  document.getElementById("frBody").innerHTML=`<div class="fr-inv">${frAva(d,"fr-ava fr-ava-big")}<p><b>${esc(tf("frWants",{n:d.name}))}</b></p>
-    <div class="fr-acts fr-center"><button type="button" class="btn" id="frAcc">${esc(t("frAccept"))}</button><button type="button" class="btn-ghost" onclick="closeModal('frModal')">${esc(t("frDecline"))}</button></div></div>`;
-  document.getElementById("frAcc").onclick=async()=>{ try{ await frApi("/accept",{code}); toast(tf("frAdded",{n:d.name})); frLoad(true); }catch(e){ toast(e.status===404?t("frBadLink"):t("frErr")); } };
+  FRP.inv={code, name:d.name, avatar:d.avatar}; frpOpen("accept");
 }
+async function frAccept(){ const inv=FRP.inv; if(!inv) return;
+  try{ await frApi("/accept",{code:inv.code}); toast(tf("frAdded",{n:inv.name})); FRP.inv=null; FRP.view="list"; frLoad(true); }
+  catch(e){ toast(e.status===404?t("frBadLink"):t("frErr")); } }
 function frBoot(){
   const pend=read("frPending",""); if(pend && sbSession()){ frInvite(pend); return; }
   if(sbSession()) setTimeout(()=>frLoad(false),2500);
+}
+
+/* ===== Панель «Друзья» =====
+   Телефон: шторка снизу с тремя положениями (низко / половина / почти весь экран). Тянется пальцем,
+   отпускается с учётом скорости броска и доезжает пружиной; за верхним краем — «резинка».
+   Компьютер: колонка рядом с лентой разделов. */
+const FRP={view:"list", id:null, inv:null, h:0, stop:null};
+const frpEl=()=>document.getElementById("frPanel");
+const frpMobile=()=>innerWidth<=860;
+function frpIsOpen(){ const p=frpEl(); return !!p && !p.hidden; }
+function frpSnaps(){ const H=innerHeight; return {peek:Math.min(300,Math.round(H*.36)), half:Math.round(H*.58), full:H-Math.round(Math.max(48,H*.07))}; }
+function frpMapPad(){ const p=frpEl(); if(!frpIsOpen()) return {left:0,bottom:0};
+  // на компьютере панель лежит поверх левой колонки, карту она закрывает, только когда колонка скрыта
+  return frpMobile()?{left:0,bottom:FRP.h||frpSnaps().half}:{left:document.body.classList.contains("side-off")?p.offsetWidth:0,bottom:0}; }
+// сдвинуть карту, чтобы точка была над шторкой, а не под ней
+function frpNudge(ll){ if(!mapReady||!frpMobile()||!frpIsOpen()) return;
+  const dy=Math.round(Math.min(FRP.h, frpSnaps().half)/2); map.panBy([0,dy],{animate:S.motion!=="off"}); }
+// Пружина (масса 1): k — жёсткость, затухание чуть меньше критического — лёгкий «доезд» без болтанки
+function frpSpring(from,to,v0,onFrame,onDone){
+  if(S.motion==="off" || matchMedia("(prefers-reduced-motion: reduce)").matches){ onFrame(to); if(onDone) onDone(); return ()=>{}; }
+  const k=420, c=2*Math.sqrt(k)*.86; let x=from, v=v0||0, last=performance.now(), raf=0, dead=false;
+  const step=now=>{ if(dead) return; const dt=Math.min(.034,(now-last)/1000); last=now;
+    for(let i=0;i<4;i++){ const h=dt/4, a=-k*(x-to)-c*v; v+=a*h; x+=v*h; }
+    if(Math.abs(v)<6 && Math.abs(x-to)<.6){ onFrame(to); if(onDone) onDone(); return; }
+    onFrame(x); raf=requestAnimationFrame(step); };
+  raf=requestAnimationFrame(step); return ()=>{ dead=true; cancelAnimationFrame(raf); };
+}
+// высота шторки = видимая часть: кнопка внизу и прокрутка списка всегда в видимой области
+function frpSetH(h){ const p=frpEl(); FRP.h=h; p.style.height=Math.max(0,Math.round(h))+"px"; }
+function frpSettle(h){ const st=document.querySelector(".stage"); if(st) st.style.setProperty("--peek-h", Math.min(h,frpSnaps().half)+"px"); }
+function frpSnapTo(name,v0){ const s=frpSnaps(), to=typeof name==="number"?name:s[name];
+  if(FRP.stop) FRP.stop(); FRP.stop=frpSpring(FRP.h,to,v0,frpSetH,()=>{ FRP.stop=null; frpSettle(to); }); }
+function frpOpen(view,id){
+  const p=frpEl(); if(!p) return; const was=frpIsOpen();
+  if(view) { FRP.view=view; if(id!==undefined) FRP.id=id; }
+  closeMiniMenu && closeMiniMenu(false);
+  p.hidden=false; document.body.classList.add("frp-on"); frpRender(); railActive("tipFriends");
+  if(frpMobile()){
+    const target=FRP.view==="friend"?"peek":"half";
+    if(!was){ frpSetH(0); requestAnimationFrame(()=>frpSnapTo(target,0)); } else if(FRP.view==="friend" && FRP.h>frpSnaps().half) frpSnapTo("peek",0);
+  } else { p.style.transform=""; p.style.height=""; requestAnimationFrame(()=>p.classList.add("in")); }
+  if(!was) setTimeout(()=>{ const h=document.getElementById("frpH"); if(h){ h.tabIndex=-1; h.focus({preventScroll:true}); } },60);
+}
+function frpClose(){ const p=frpEl(); if(!frpIsOpen()) return;
+  const done=()=>{ p.hidden=true; p.classList.remove("in"); document.body.classList.remove("frp-on"); syncPeekHeight(); railActive("tipRoute"); };
+  if(frpMobile()){ if(FRP.stop) FRP.stop(); FRP.stop=frpSpring(FRP.h,0,0,frpSetH,()=>{ FRP.stop=null; done(); }); }
+  else { p.classList.remove("in"); setTimeout(done, S.motion==="off"?0:180); }
+}
+function frpGo(view,id){ FRP.view=view; if(id!==undefined) FRP.id=id; frpRender();
+  if(frpMobile() && view!=="friend" && FRP.h<frpSnaps().half) frpSnapTo("half",0); const b=document.getElementById("frpBody"); if(b) b.scrollTop=0; }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && frpIsOpen() && !document.querySelector(".modal.open")){ if(FRP.view!=="list") frpGo("list"); else frpClose(); } });
+window.addEventListener("resize",()=>{ if(!frpIsOpen()) return; const p=frpEl();
+  if(frpMobile()){ p.classList.remove("in"); p.style.transform=""; frpSetH(Math.min(Math.max(FRP.h,frpSnaps().peek),frpSnaps().full)); } else { p.style.transform=""; p.style.height=""; p.classList.add("in"); } });
+
+// Перетаскивание шторки: за ручку и шапку всегда, за список — когда он прокручен до верха и тянут вниз
+(function frpDrag(){
+  let st=null;
+  const begin=(y,fromBody)=>{ if(!frpMobile()) return; if(FRP.stop){ FRP.stop(); FRP.stop=null; } st={y0:y,h0:FRP.h,fromBody,claimed:!fromBody,pts:[[performance.now(),y]]}; };
+  const move=(y,e)=>{ if(!st) return; const dy=y-st.y0;
+    if(!st.claimed){ const body=document.getElementById("frpBody");
+      if(Math.abs(dy)<6) return;
+      if(dy>0 && body.scrollTop<=0) st.claimed=true; else { st=null; return; } }
+    if(e && e.cancelable) e.preventDefault();
+    const s=frpSnaps(); let h=st.h0-dy;
+    if(h>s.full) h=s.full+(h-s.full)*.28;             // резинка сверху
+    if(h<0) h=0;
+    frpSetH(h); st.pts.push([performance.now(),y]); if(st.pts.length>6) st.pts.shift(); };
+  const end=()=>{ if(!st) return; const was=st; st=null; if(!was.claimed) return;
+    const a=was.pts[0], b=was.pts[was.pts.length-1], dt=Math.max(16,b[0]-a[0]);
+    const v=-(b[1]-a[1])/dt*1000;                       // скорость роста высоты, px/с
+    const s=frpSnaps(), proj=FRP.h+v*.18;               // куда «доедет» по инерции
+    if(proj<s.peek*.55 || (v<-1400 && FRP.h<s.half)){ frpClose(); return; }
+    const to=[s.peek,s.half,s.full].reduce((m,x)=>Math.abs(x-proj)<Math.abs(m-proj)?x:m, s.half);
+    frpSnapTo(to, v); };
+  document.addEventListener("pointerdown",e=>{ const p=frpEl(); if(!p||p.hidden||e.pointerType==="mouse"&&!frpMobile()) return;
+    const t=e.target; if(!t.closest(".frp-grip,.frp-head") || t.closest("button")) return;
+    begin(e.clientY,false); try{ t.setPointerCapture(e.pointerId); }catch(_){} });
+  document.addEventListener("pointermove",e=>{ if(st && !st.fromBody) move(e.clientY,e); });
+  document.addEventListener("pointerup",()=>{ if(st && !st.fromBody) end(); });
+  document.addEventListener("pointercancel",()=>{ if(st && !st.fromBody) end(); });
+  document.addEventListener("touchstart",e=>{ if(e.target.closest && e.target.closest("#frpBody") && frpIsOpen()) begin(e.touches[0].clientY,true); },{passive:true});
+  document.addEventListener("touchmove",e=>{ if(st && st.fromBody) move(e.touches[0].clientY,e); },{passive:false});
+  document.addEventListener("touchend",()=>{ if(st && st.fromBody) end(); });
+})();
+
+function frpDist(f){ if(!f.loc||!userLatLng||!mapReady) return "";
+  const d=map.distance(userLatLng,[f.loc.lat,f.loc.lng]), loc=S.lang==="kk"?"kk-KZ":S.lang==="en"?"en-GB":"ru-RU";
+  return d<1000?tf("frpM",{d:Math.max(10,Math.round(d/10)*10)}):tf("frpKm",{d:(d/1000).toLocaleString(loc,{maximumFractionDigits:d<10e3?1:0})}); }
+function frpMe(){ const s=sbSession(); const u=(s&&s.v.user)||{}, m=u.user_metadata||{};
+  return {name:m.ic_name||m.full_name||m.name||(u.email||"").split("@")[0]||t("frpMe"), avatar:m.ic_avatar===""?"":(m.ic_avatar||m.avatar_url||m.picture||"")}; }
+function frpSorted(){ return FR.list.slice().sort((a,b)=>{
+  if(!!a.loc!==!!b.loc) return a.loc?-1:1;
+  if(a.loc&&b.loc&&userLatLng&&mapReady) return map.distance(userLatLng,[a.loc.lat,a.loc.lng])-map.distance(userLatLng,[b.loc.lat,b.loc.lng]);
+  return String(a.name).localeCompare(String(b.name)); }); }
+function frpSub(f){ if(!f.loc) return t("frpNoLoc"); const d=frpDist(f); return (d?d+" · ":"")+frAgo(f.loc.at); }
+function frpLiveCls(f){ return f.loc?(Date.now()-f.loc.at<5*60e3?" live":" stale"):""; }
+
+function frpRender(){
+  const box=document.getElementById("frpBody"); if(!box) return;
+  const prevView=box.dataset.view, keep=box.scrollTop, v=FRP.view;
+  document.getElementById("frpBack").hidden=(v==="list");
+  document.getElementById("frpFit").hidden=!(v==="list" && FR.list.some(f=>f.loc));
+  const H=document.getElementById("frpH");
+  let html="";
+  if(!sbSession()){
+    H.textContent=t("frTitle");
+    html=`<div class="frp-empty"><span class="frp-emico">${svgI("friends")}</span><h3>${esc(t("frpEmptyT"))}</h3><p>${esc(t("frLogin"))}</p>
+      <a class="btn frp-wide" href="/login?next=/map%3Fdo%3Dfriends">${esc(t("frLoginBtn"))}</a></div>`;
+  } else if(v==="accept" && FRP.inv){
+    H.textContent=t("frTitle");
+    html=`<div class="frp-hero">${frAva(FRP.inv,"frp-ava xl")}<h3>${esc(tf("frWants",{n:FRP.inv.name}))}</h3></div>
+      <div class="frp-btns"><button type="button" class="btn" onclick="frAccept()">${esc(t("frAccept"))}</button><button type="button" class="btn-ghost" onclick="FRP.inv=null;frpGo('list')">${esc(t("frDecline"))}</button></div>`;
+  } else if(!FR.me){
+    H.textContent=t("frTitle");
+    html=`<ul class="frp-list" aria-busy="true">${[0,1,2].map(()=>`<li class="frp-skel"><span></span><i></i></li>`).join("")}</ul>`;
+  } else if(v==="invite"){
+    H.textContent=t("frpAdd");
+    html=`<p class="frp-lead">${esc(t("frInviteHint"))}</p>
+      <div class="frp-link"><input type="text" readonly value="${esc(frLink())}" aria-label="${esc(t("frInvite"))}" onfocus="this.select()"><button type="button" class="btn-ghost" onclick="frCopy()">${esc(t("frCopy"))}</button></div>
+      <div class="frp-btns"><button type="button" class="btn" onclick="frFromContacts()">${svgI("friends")} ${esc(t("frContacts"))}</button><button type="button" class="btn-ghost" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button></div>
+      <ul class="fr-contacts" id="frContacts"></ul>
+      <button type="button" class="frp-textbtn" onclick="frNewCode()">${esc(t("frNewCode"))}</button>`;
+  } else if(v==="friend" && FR.list.find(x=>x.id===FRP.id)){
+    const f=FR.list.find(x=>x.id===FRP.id), prof=frProfName(f.profile), op=FR.open[f.id]||"";
+    H.textContent=f.name;
+    const act=(ic,label,on,dis,extra)=>`<button type="button" class="frp-act${extra||""}" ${dis?"disabled":""} onclick="${on}">${svgI(ic)}<span>${esc(label)}</span></button>`;
+    html=`<div class="frp-card">${frAva(f,"frp-ava lg"+frpLiveCls(f))}<p>${esc(frpSub(f))}${prof&&f.profile!=="none"?"<br>"+esc(tf("frProfile",{p:prof})):""}</p></div>
+      <div class="frp-acts">
+        ${act("walk",t("frRoute"),`frRoute('${f.id}')`,!f.loc," primary")}
+        ${act("pin",t("frpOnMap"),`frFocus('${f.id}')`,!f.loc)}
+        ${act("star",t("frPlaces")+(f.places&&f.places.length?" · "+f.places.length:""),`frToggle('${f.id}','places')`,false,op==="places"?" on":"")}
+        ${act("chat",t("frReviews"),`frToggle('${f.id}','reviews')`,false,op==="reviews"?" on":"")}
+      </div>
+      <div class="fr-more" id="frMore_${f.id}" ${op?"":"hidden"}></div>
+      <button type="button" class="frp-textbtn danger" onclick="frRemove('${f.id}')">${esc(t("frpRemove"))}</button>`;
+  } else {
+    FRP.view="list"; H.textContent=t("frTitle");
+    const me=frpMe(), on=frSharing(), sh=FR.me.share;
+    const cur=!on?"off":sh===-1?"always":(sh-Date.now()<=3600e3+60e3?"1h":"day");
+    const till=sh>0?new Date(sh).toLocaleTimeString(S.lang==="kk"?"kk-KZ":S.lang==="en"?"en-GB":"ru-RU",{hour:"2-digit",minute:"2-digit"}):"";
+    const seg=[["1h","fr1h"],["day","frDay"],["always","frAlways"]].map(([k,l])=>`<button type="button" aria-pressed="${cur===k}" onclick="frSetShare('${k}')">${esc(t(l))}</button>`).join("");
+    const rows=frpSorted().map((f,i)=>`<li style="--i:${i}"><button type="button" class="frp-row" onclick="frFocus('${f.id}')">${frAva(f,"frp-ava"+frpLiveCls(f))}<span class="frp-who"><b>${esc(f.name)}</b><small>${esc(frpSub(f))}</small></span><svg class="frp-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></li>`).join("");
+    html=`<div class="frp-me">${frAva(me,"frp-ava")}<span class="frp-who"><b>${esc(t("frpVisible"))}</b><small>${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till})):t("frNotSharing"))}</small></span>
+        <button type="button" class="frp-switch" role="switch" aria-checked="${on}" aria-label="${esc(t("frpVisible"))}" onclick="frSetShare('${on?"off":"day"}')"><span></span></button></div>
+      ${on?`<div class="frp-seg" role="group" aria-label="${esc(t("frMyLoc"))}">${seg}</div>`:""}
+      ${FR.list.length?`<ul class="frp-list">${rows}</ul>`:`<div class="frp-empty"><span class="frp-emico">${svgI("friends")}</span><h3>${esc(t("frpEmptyT"))}</h3><p>${esc(t("frpWhy"))}</p></div>`}
+      ${FR.list.length?`<label class="frp-tog"><input type="checkbox" ${frHidden()?"":"checked"} onchange="frSetHidden(!this.checked)"> ${esc(t("frOnMapT"))}</label>`:""}
+      <div class="frp-foot"><button type="button" class="btn frp-wide" onclick="frpGo('invite')">${svgI("plus")} ${esc(t("frpAdd"))}</button></div>`;
+  }
+  box.innerHTML=html;
+  if(prevView===FRP.view) box.scrollTop=keep; else { box.dataset.view=FRP.view; box.classList.remove("frp-enter"); void box.offsetWidth; box.classList.add("frp-enter"); }
+  if(FRP.view==="friend") Object.entries(FR.open).forEach(([id,what])=>{ if(what&&id===FRP.id) frFill(id,what); });
 }
 let plSyncT=0;
 function cloudSavePlaces(){ clearTimeout(plSyncT); plSyncT=setTimeout(async()=>{
@@ -7554,11 +7768,15 @@ function toggleSide(force){
 }
 // Лента разделов слева на компьютере
 function railRoute(){
+  if(frpIsOpen()) frpClose();
   if(document.body.classList.contains("side-off")) toggleSide(false);
   const d=document.getElementById("destination"); if(d){ try{ d.focus(); d.select(); }catch(e){} }
 }
+// какой раздел ленты сейчас открыт (подсветка и aria-current)
+function railActive(tip){ document.querySelectorAll("#vRail [data-tip]").forEach(el=>{ const on=el.dataset.tip===tip; el.classList.toggle("vr-on",on); if(on) el.setAttribute("aria-current","page"); else el.removeAttribute("aria-current"); }); }
 function railLang(){ const L=["ru","kk","en"]; setLang(L[(L.indexOf(S.lang)+1)%L.length]); }
-function railSync(){ const e=document.getElementById("vrLang"); if(e) e.textContent=({ru:"RU",kk:"ҚАЗ",en:"EN"})[S.lang]||"RU"; }
+function railSync(){ const e=document.getElementById("vrLang"); if(e) e.textContent=({ru:"RU",kk:"ҚАЗ",en:"EN"})[S.lang]||"RU";
+  document.querySelectorAll("[data-tip]").forEach(el=>{ el.title=t(el.dataset.tip); }); }
 { const _sl=setLang; setLang=function(v){ _sl(v); railSync(); }; }
 document.addEventListener("DOMContentLoaded", railSync); setTimeout(railSync,0);
 function mmDo(fn){ closeMiniMenu(false); fn(); }
