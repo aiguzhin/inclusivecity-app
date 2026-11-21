@@ -996,7 +996,7 @@ body:not(.soft-ui) .peek-route{margin-top:8px}
 .rv-stars-big button{width:48px;height:48px;padding:4px;border:0;background:none;cursor:pointer;color:var(--line);transition:transform .15s cubic-bezier(.2,1.6,.4,1)}
 .rv-stars-big button svg{width:100%;height:100%;fill:currentColor;stroke:#c9ced6;stroke-width:.8}
 .rv-stars-big button.on{color:#f5a623}.rv-stars-big button.on svg{stroke:#e08e00}
-.rv-stars-big button:active{transform:scale(.88)}
+.rv-stars-big button:active{scale:.88}
 .rv-star-label{text-align:center;margin:0;font-weight:700;color:var(--ink-soft);min-height:1.4em}
 .rv-tiles{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
 .rv-tile,.rv-add{flex:none;width:88px;height:88px;border-radius:10px;scroll-snap-align:start;position:relative}
@@ -1021,11 +1021,11 @@ body:not(.soft-ui) .peek-route{margin-top:8px}
 .peek-route:not([hidden]),#navBar:not([hidden]){animation:icUp .4s var(--spring)}
 #navHud:not([hidden]){animation:icPop .35s var(--spring)}
 .ac-list:not([hidden]){animation:icFade .16s var(--ease-out)}
-button,.btn-primary,.btn-ghost,.btn-dark,.pf-cat,.pr-card,.pl-chip{transition:transform .16s var(--spring),background-color .2s,border-color .2s,box-shadow .2s}
-button:active:not(:disabled),.btn-primary:active,.btn-ghost:active,.pf-cat:active,.pr-card:active,.pl-chip:active{transform:scale(.96)}
+button,.btn-primary,.btn-ghost,.btn-dark,.pf-cat,.pr-card,.pl-chip{transition:transform .16s var(--spring),scale .16s var(--spring),background-color .2s,border-color .2s,box-shadow .2s}
+button:active:not(:disabled),.btn-primary:active,.btn-ghost:active,.pf-cat:active,.pr-card:active,.pl-chip:active{scale:.96}
 .sheet-peek{transition:max-height .45s var(--spring),transform .45s var(--spring),padding .2s}
-@media (prefers-reduced-motion:reduce){#placeCard,.modal .dialog,.modal,.peek-route,#navBar,#navHud,.ac-list{animation:none!important}button:active{transform:none!important}}
-html[data-motion="off"] button:active{transform:none!important}
+@media (prefers-reduced-motion:reduce){#placeCard,.modal .dialog,.modal,.peek-route,#navBar,#navHud,.ac-list{animation:none!important}button:active{scale:none!important}}
+html[data-motion="off"] button:active{scale:none!important}
 
 .pc-audit-go{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.92rem;color:var(--blue,#1769c2);text-decoration:none;margin:4px 0 10px}
 .pc-audit-card{border:1px solid var(--line,#d5e1ec);border-radius:10px;padding:12px;margin:6px 0 12px}
@@ -1267,8 +1267,8 @@ html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
 @keyframes frPop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
 .fr-pin.fr-new{animation:frPop .42s cubic-bezier(.34,1.4,.64,1) both}
 /* отклик на нажатие: кнопка слегка проседает и возвращается */
-.vrail>button,.vrail>a,.peek-quick button span,.frp-row,.frp-act .ic,.map-menu-btn,.map-btn,.peek-nav button{transition:transform .14s ease,background-color .15s ease}
-.vrail>button:active,.vrail>a:active,.peek-quick button:active span,.frp-act:active .ic,.map-menu-btn:active,.map-btn:active,.peek-nav button:active{transform:scale(.93)}
+.vrail>button,.vrail>a,.peek-quick button span,.frp-row,.frp-act .ic,.map-menu-btn,.map-btn,.peek-nav button{transition:transform .14s ease,scale .14s ease,background-color .15s ease}
+.vrail>button:active,.vrail>a:active,.peek-quick button:active span,.frp-act:active .ic,.map-menu-btn:active,.map-btn:active,.peek-nav button:active{scale:.93}
 .frp-row:active{background:var(--paper)}
 html[data-motion="off"] .frp,html[data-motion="off"] .frp *,html[data-motion="off"] .fr-pin{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.frp,.frp *,.fr-pin{animation:none!important;transition:none!important}}
@@ -1298,7 +1298,7 @@ html[data-motion="off"] .map-menu{animation:none}
    иконка. Понятные состояния: наведение (только где есть мышь), нажатие, фокус с клавиатуры, отключена. */
 :root{--press:scale(.97);--t-fast:.14s;--t-med:.22s;--ease-out:cubic-bezier(.2,.8,.2,1)}
 button,.btn,.btn-primary,.btn-ghost,.btn-dark,a.btn-ghost,.sos,.chip{
-  transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease,transform var(--t-fast) var(--ease-out);
+  transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease,transform var(--t-fast) var(--ease-out),scale var(--t-fast) var(--ease-out);
   -webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:hover{filter:none}
 @media (hover:hover){
@@ -1312,7 +1312,7 @@ button:hover{filter:none}
   .peek-quick button:hover span,.frp-act:not(:disabled):hover .ic{box-shadow:0 0 0 2px var(--blue-weak),var(--soft-sh)}
   .peek-nav button:hover{background:none;color:#fff}
 }
-button:not(:disabled):active,.btn:active,a.btn-ghost:active,.chip:active{transform:var(--press)}
+button:not(:disabled):active,.btn:active,a.btn-ghost:active,.chip:active{scale:.97}
 /* фокус с клавиатуры — одинаковое заметное кольцо, мышь и палец его не вызывают */
 button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
   outline:3px solid var(--focus,#1769c2);outline-offset:2px}
@@ -1351,7 +1351,7 @@ button[aria-busy="true"]{cursor:progress;opacity:.75}
 /* ---------- меньше движения: всё мгновенно ---------- */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-  button:active,.btn:active,.chip:active{transform:none!important}
+  button:active,.btn:active,.chip:active{scale:none!important}
 }
 html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="off"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 /* ---------- телефон: читаемость и отступы ---------- */
@@ -1586,7 +1586,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   <a href="/audit" data-tip="tipAudit"><i data-ic="check"></i><span data-i18n="railAudit2">Проверить</span></a>
   <span class="vr-gap"></span>
   <button type="button" class="vr-sos" data-tip="tipSos" onclick="openModal('sosModal')"><i data-ic="sos"></i><span data-i18n="railSos">SOS</span></button>
-  <button type="button" data-tip="tipSerik" onclick="serikToggle()"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
+  <button type="button" data-tip="tipSerik" data-serik-open onclick="serikToggle(this)"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
   <button type="button" data-tip="tipList" onclick="toggleView()"><i data-ic="list"></i><span data-i18n="railText">Список</span></button>
   <button type="button" data-tip="tipLang" onclick="railLang()"><i data-ic="globe"></i><span id="vrLang">RU</span></button>
   <button type="button" data-tip="tipSettings" onclick="openModal('settingsModal')"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
@@ -1739,7 +1739,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   </aside>
 
   <section class="stage">
-    <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" class="map-menu-btn" id="mapMenuBtn" data-tip="tipLayers" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-t" data-i18n="railLayers">Слои</span><span class="mmb-badge" id="mmbBadge" hidden></span></button>
     <!-- Кнопки разделов слева сверху на компьютере (как в 2ГИС); на телефоне — нижнее меню -->
     <nav class="desk-rail" id="deskRail" data-i18n-aria="railL" aria-label="Разделы">
@@ -2398,7 +2398,7 @@ ru:{
  geoOk:"Геопозиция определена", pickDest:"Нажмите на карту, чтобы выбрать точку назначения",
  pickBarrier:"Нажмите на карту, чтобы отметить барьер", needPoint:"Сначала выберите точку барьера на карте",
  sending:"Отправляем…", sent:"Спасибо! Отчёт отправлен на модерацию.", sendFail:"Не удалось отправить отчёт: ",
- copied:"Скопировано", voiceNo:"Голосовой ввод не поддерживается в этом браузере", listening:"Говорите…",
+ copied:"Скопировано", voiceNo:"Голосовой ввод не поддерживается в этом браузере", voiceErr:"Не расслышали — попробуйте ещё раз", voiceDenied:"Нет доступа к микрофону — разрешите его в браузере", listening:"Говорите…",
  voiceFallback:"Казахский голос не установлен в системе — читаем русским голосом",
  voiceMissing:"Голос для этого языка не найден в системе",
  offline:"Нет сети. Показываем сохранённые данные.", mapFail:"Карта недоступна — работаем в текстовом режиме.",
@@ -2488,7 +2488,7 @@ kk:{
  geoOk:"Орналасқан жеріңіз анықталды", pickDest:"Межелі нүктені таңдау үшін картаны басыңыз",
  pickBarrier:"Кедергіні белгілеу үшін картаны басыңыз", needPoint:"Алдымен картадан кедергі нүктесін таңдаңыз",
  sending:"Жіберілуде…", sent:"Рақмет! Хабарлама модерацияға жіберілді.", sendFail:"Хабарламаны жіберу мүмкін болмады: ",
- copied:"Көшірілді", voiceNo:"Бұл браузерде дауыспен енгізу қолдау таппайды", listening:"Сөйлеңіз…",
+ copied:"Көшірілді", voiceNo:"Бұл браузерде дауыспен енгізу қолдау таппайды", voiceErr:"Естілмеді — қайталап көріңіз", voiceDenied:"Микрофонға рұқсат жоқ — браузерде рұқсат етіңіз", listening:"Сөйлеңіз…",
  voiceFallback:"Жүйеде қазақша дауыс жоқ — орысша дауыспен оқылады",
  voiceMissing:"Бұл тілге арналған дауыс жүйеден табылмады",
  offline:"Интернет жоқ. Сақталған деректер көрсетілуде.", mapFail:"Карта қолжетімсіз — мәтіндік режимде жұмыс істеп жатырмыз.",
@@ -2579,7 +2579,7 @@ en:{
  geoOk:"Location found", pickDest:"Tap the map to choose a destination",
  pickBarrier:"Tap the map to mark a barrier", needPoint:"Pick the barrier location on the map first",
  sending:"Sending…", sent:"Thank you! Your report was sent for moderation.", sendFail:"Could not send the report: ",
- copied:"Copied", voiceNo:"Voice input is not supported in this browser", listening:"Speak now…",
+ copied:"Copied", voiceNo:"Voice input is not supported in this browser", voiceErr:"Didn't catch that — try again", voiceDenied:"No microphone access — allow it in the browser", listening:"Speak now…",
  voiceFallback:"No Kazakh voice is installed on this device — using the Russian voice",
  voiceMissing:"No voice for this language was found on this device",
  offline:"You are offline. Showing saved data.", mapFail:"The map is unavailable — switching to text mode.",
@@ -4988,7 +4988,9 @@ async function sendReview(){
     toast(t("rvSent")); rvDraft=null; loadReviews(p); try{ PM_CACHE.delete(pmKey(p)); placeMedia(p); }catch(e){}
   }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
 }
-async function flagReview(id,btn){ try{ await fetch(`/api/reviews/${encodeURIComponent(id)}/flag`,{method:"POST"}); btn.textContent=t("rvFlagged"); btn.disabled=true; }catch(e){} }
+async function flagReview(id,btn){ if(btn.dataset.done) return; await withBusy(btn, async()=>{
+  try{ const r=await fetch(`/api/reviews/${encodeURIComponent(id)}/flag`,{method:"POST"}); if(!r.ok) throw new Error(r.status); btn.dataset.done="1"; btn.textContent=t("rvFlagged"); }
+  catch(e){ toast(t("sendFail")); } }); if(btn.dataset.done) btn.disabled=true; }
 // Фото с телефона весят по 5–10 МБ — уменьшаем до 1600 px, чтобы отзыв уходил быстро и на мобильном интернете
 async function shrinkImage(file){
   try{ let bmp; try{ bmp=await createImageBitmap(file); }catch(e){ bmp=await new Promise((ok,no)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>ok(im); im.onerror=no; im.src=u; }); }
@@ -5069,9 +5071,9 @@ function hpTakeForm(id){
   const b=document.getElementById("hpBody");
   b.innerHTML=`<label class="field" for="hvName">${esc(t("hpVName"))}</label><input type="text" id="hvName" maxlength="40" value="${esc(read("myName",""))}">
     <label class="field" for="hvPhone">${esc(t("hpVPhone"))}</label><input type="tel" id="hvPhone" maxlength="20" value="${esc(read("myPhone",""))}">
-    <button type="button" class="btn-primary" style="width:100%;margin-top:10px" onclick="hpTake('${id}')">${esc(t("hpTake"))}</button>`;
+    <button type="button" class="btn-primary" style="width:100%;margin-top:10px" onclick="hpTake('${id}',this)">${esc(t("hpTake"))}</button>`;
 }
-async function hpTake(id){
+async function hpTake(id,btn){ return withBusy(btn, async()=>{
   const name=document.getElementById("hvName").value.trim(), phone=document.getElementById("hvPhone").value.trim();
   if(name) store("myName",name); if(phone) store("myPhone",phone);
   try{ const r=await fetch(`/api/help/${id}/accept`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone})}); const d=await r.json(); if(!r.ok) throw new Error(d.error||r.status);
@@ -5080,7 +5082,7 @@ async function hpTake(id){
       ${d.contact?`<a class="taxi-order" href="tel:${esc(kzPhone(d.contact).tel)}"><span class="logo inva" aria-hidden="true">${svgI("phone")}</span><span><b>${esc(t("hpCall"))}</b><span class="sub">${esc(kzPhone(d.contact).label)}</span></span></a>`:""}</div>
       <button type="button" class="btn-primary" style="width:100%" onclick="closeModal('helpModal');setFieldPlace('destination','${esc(t("hpOwn"))}',[${d.lat},${d.lng}]);buildRoute()">${svgI("walk")} ${esc(t("hpGo"))}</button>`;
   }catch(e){ toast(t("rvFail")+e.message); }
-}
+  }); }
 
 /* ============ Мои жалобы: статус и уведомления ============ */
 const myReports=()=>{ try{ return JSON.parse(read("myReports","[]"))||[]; }catch(e){ return []; } };
@@ -5621,7 +5623,12 @@ async function frShareLink(){ const u=frLink(); if(!u) return;
   frCopy(); }
 async function frCopy(){ const u=frLink(); try{ await navigator.clipboard.writeText(u); toast(t("frCopied")); }catch(e){ const i=document.querySelector("#frpBody .frp-link input"); if(i){ i.focus(); i.select(); } } }
 async function frNewCode(){ if(!confirm(t("frNewCodeQ"))) return; try{ const d=await frApi("/code",{}); FR.me.code=d.code; frRender(); }catch(e){ toast(t("frErr")); } }
+let frShareBusy=false;
 async function frSetShare(v){
+  if(frShareBusy) return; frShareBusy=true;   // быстрые нажатия на переключатель не шлют запросы наперегонки
+  try{ await frSetShareNow(v); } finally{ frShareBusy=false; }
+}
+async function frSetShareNow(v){
   const until=v==="off"?0:v==="always"?-1:v==="1h"?Date.now()+3600e3:new Date(new Date().setHours(23,59,0,0)).getTime();
   try{ const d=await frApi("/share",{until}); FR.me.share=d.share; frRender(); frWatchSync(); }catch(e){ toast(t("frErr")); }
 }
@@ -5742,9 +5749,9 @@ async function frInvite(code){
   if(d.already){ toast(t("frAlready")); openFriends(); return; }
   FRP.inv={code, name:d.name, avatar:d.avatar}; frpOpen("accept");
 }
-async function frAccept(){ const inv=FRP.inv; if(!inv) return;
+async function frAccept(){ const inv=FRP.inv; if(!inv || inv.busy) return; inv.busy=true;
   try{ await frApi("/accept",{code:inv.code}); toast(tf("frAdded",{n:inv.name})); FRP.inv=null; FRP.view="list"; frLoad(true); }
-  catch(e){ toast(e.status===404?t("frBadLink"):t("frErr")); } }
+  catch(e){ toast(e.status===404?t("frBadLink"):t("frErr")); } finally{ inv.busy=false; } }
 function frBoot(){
   const pend=read("frPending",""); if(pend && sbSession()){ frInvite(pend); return; }
   if(sbSession()) setTimeout(()=>frLoad(false),2500);
@@ -7556,16 +7563,26 @@ function speak(text){
   if(S.voice!=="on") return;
   ttsSay(text,0.98);
 }
+// Кнопка, запускающая запрос, на время запроса отключается: повторные нажатия не отправляют его дважды
+async function withBusy(btn, job){
+  if(btn && (btn.disabled || btn.getAttribute("aria-busy")==="true")) return;
+  if(btn){ btn.disabled=true; btn.setAttribute("aria-busy","true"); }
+  try{ return await job(); }
+  finally{ if(btn && btn.isConnected){ btn.disabled=false; btn.removeAttribute("aria-busy"); } }
+}
+let voiceRec=null;
 function voiceInput(fieldId){
   const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){ toast(t("voiceNo")); return; }
-  const rec=new SR();
+  if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec=null; return; }   // повторное нажатие — остановить
+  const rec=new SR(); voiceRec=rec;
   rec.lang = BCP[S.lang] || "ru-RU";
   rec.interimResults=false; rec.maxAlternatives=1;
   rec.onresult=e=>{ document.getElementById(fieldId).value=e.results[0][0].transcript; };
-  rec.onerror=()=>toast(t("geoFail"));
+  rec.onerror=e=>toast(t(e&&(e.error==="not-allowed"||e.error==="service-not-allowed")?"voiceDenied":"voiceErr"));
+  rec.onend=()=>{ if(voiceRec===rec) voiceRec=null; };
   toast(t("listening"));
-  rec.start();
+  try{ rec.start(); }catch(e){ voiceRec=null; toast(t("voiceErr")); }
 }
 
 /* ============ Геолокация ============ */
@@ -7691,15 +7708,15 @@ async function showReports(){
          ${rep.photo?`<img src="${esc(rep.photo)}" alt="">`:""}
          <p>${esc(rep.comment)}</p>
          <div class="facts">${badge}${rep.season==="winter"?'<span class="fact">'+svgI("snow")+'</span>':""}</div>
-         <button class="btn-sm" style="margin-top:8px" onclick="verifyReport('${esc(rep.id)}')">${esc(t("verify"))}</button>
+         <button class="btn-sm" style="margin-top:8px" onclick="verifyReport('${esc(rep.id)}',this)">${esc(t("verify"))}</button>
          <small class="muted">${new Date(rep.createdAt).toLocaleDateString(locale())}</small>`);
     });
   }catch(e){}
 }
-async function verifyReport(id){
-  try{ await fetch(`/api/reports/${id}/verify`,{method:"POST"}); toast(t("thanks")); showReports(); }
+async function verifyReport(id,btn){ return withBusy(btn, async()=>{
+  try{ const r=await fetch(`/api/reports/${id}/verify`,{method:"POST"}); if(!r.ok) throw new Error(r.status); toast(t("thanks")); showReports(); }
   catch(e){ toast(t("sendFail")); }
-}
+}); }
 function openReport(){
   // точка по умолчанию — где вы сейчас (если GPS уже известен); иначе просим выбрать на карте
   if(!reportLatLng && userLatLng){ reportLatLng=L.latLng(userLatLng[0],userLatLng[1]); const rp=document.getElementById("reportPlace"); if(rp) rp.value=t("myLocation"); }
@@ -7863,10 +7880,13 @@ function toggleMiniMenu(ev){
   m.hidden=false; document.getElementById("sheetBtn").setAttribute("aria-expanded","true");
   const f=m.querySelector("a,button"); if(f) f.focus();
 }
-// Кнопка ‹ у края карты: срабатывает уже по отпусканию (на тачпадах и во встроенных браузерах «click» иногда теряется)
-document.addEventListener("DOMContentLoaded",()=>{ const b=document.getElementById("sideToggle"); if(!b) return; let last=0;
-  const go=e=>{ e.preventDefault(); e.stopPropagation(); if(Date.now()-last<400) return; last=Date.now(); toggleSide(); };
-  b.addEventListener("pointerup",go); b.addEventListener("click",go);
+// Кнопка ‹ у края карты: скрывает и возвращает левую панель.
+// Один обработчик «click» — он приходит и от мыши, и от касания, и от Enter/Пробела. Раньше были ещё
+// «pointerup» и окно в 400 мс против двойного срабатывания: второе нажатие подряд терялось, а при долгом
+// нажатии кнопка срабатывала дважды и панель оставалась как была.
+document.addEventListener("DOMContentLoaded",()=>{ const b=document.getElementById("sideToggle"); if(!b) return;
+  b.addEventListener("click",e=>{ e.preventDefault(); e.stopPropagation(); toggleSide(); });
+  // нажатие на кнопку не должно двигать или приближать карту под ней
   ["pointerdown","mousedown","dblclick","wheel","touchstart"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true})); });
 function toggleSide(force){
   const off=typeof force==="boolean"?force:!document.body.classList.contains("side-off");
@@ -7884,7 +7904,9 @@ function railRoute(){
 function railActive(tip){ document.querySelectorAll("#vRail [data-tip]").forEach(el=>{ const on=el.dataset.tip===tip; el.classList.toggle("vr-on",on); if(on) el.setAttribute("aria-current","page"); else el.removeAttribute("aria-current"); }); }
 function railLang(){ const L=["ru","kk","en"]; setLang(L[(L.indexOf(S.lang)+1)%L.length]); }
 function railSync(){ const e=document.getElementById("vrLang"); if(e) e.textContent=({ru:"RU",kk:"ҚАЗ",en:"EN"})[S.lang]||"RU";
-  document.querySelectorAll("[data-tip]").forEach(el=>{ el.title=t(el.dataset.tip); }); }
+  document.querySelectorAll("[data-tip]").forEach(el=>{ el.title=t(el.dataset.tip); });
+  // подпись кнопки ‹ зависит от состояния панели, а не только от языка
+  const sb=document.getElementById("sideToggle"); if(sb) sb.setAttribute("aria-label",t(document.body.classList.contains("side-off")?"sideShow":"sideHide")); }
 { const _sl=setLang; setLang=function(v){ _sl(v); railSync(); }; }
 document.addEventListener("DOMContentLoaded", railSync); setTimeout(railSync,0);
 function mmDo(fn){ closeMiniMenu(false); fn(); }
@@ -8086,7 +8108,11 @@ function serikClose(focusBtn){
   p.hidden=true; document.getElementById("serikBtn").setAttribute("aria-expanded","false");
   stopSpeak(); if(focusBtn) document.getElementById("serikBtn").focus();
 }
-function serikToggle(){ document.getElementById("serik").hidden ? serikOpen() : serikClose(true); }
+// кнопка, которой открыли Серіка, получает фокус обратно при закрытии (в шапке или в ленте слева)
+let skTrigger=null;
+function serikToggle(btn){ const p=document.getElementById("serik");
+  if(p.hidden){ skTrigger=btn||document.getElementById("serikBtn"); serikOpen(); }
+  else { serikClose(false); const f=skTrigger&&skTrigger.offsetParent?skTrigger:document.getElementById("serikBtn"); if(f&&f.offsetParent) f.focus(); } }
 function serikAsk(q){ document.getElementById("skInput").value=q; serikSend(); }
 function skRouteSummary(){
   try{ if(!lastSteps || !lastSteps.length) return ""; return lastSteps.slice(0,6).map((s,i)=>stepText(s,i)).join("; ").slice(0,300); }catch(e){ return ""; }
@@ -8171,7 +8197,7 @@ function serikMic(){
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !document.getElementById("serik").hidden){ serikClose(true); } });
 document.addEventListener("click",e=>{
   const p=document.getElementById("serik");
-  if(!p.hidden && e.target instanceof Element && !e.target.closest("#serik,#serikBtn,#miniMenu") && !e.target.closest(".modal")) serikClose(false);
+  if(!p.hidden && e.target instanceof Element && !e.target.closest("#serik,#serikBtn,#miniMenu,[data-serik-open]") && !e.target.closest(".modal")) serikClose(false);
 });
 
 Object.assign(I18N.ru,{ pmReviews:"отзывов: {n}", pmPhoto:"Фото {n}: {name}", pmReviewsH:"Отзывы", pmMore:"Ещё отзывы", pmFromGoogle:"Фото и отзывы: Google", pmFromCommons:"Фото: Wikimedia Commons, Panoramax",
