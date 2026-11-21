@@ -1126,6 +1126,66 @@ html[data-contrast="high"]{--lm-a:#000;--lm-b:#555;--lm-txt:#000;--lm-halo:#fff}
   text-shadow:0 0 2px var(--lm-halo),0 0 2px var(--lm-halo),0 0 3px var(--lm-halo),0 0 4px var(--lm-halo)}
 html[data-font="large"] .lm-mk .lm-lb{font-size:14px}
 html[data-font="xlarge"] .lm-mk .lm-lb{font-size:16px;max-width:180px}
+
+/* ===== Расположение кнопок (21.11.2026): идеи 2ГИС/Google Карт, своё оформление; только стиль «Мягкий» ===== */
+.vrail,.mmb-t{display:none}
+.peek-quick{display:none}
+@media (min-width:861px){
+  html[data-ui="soft"] body{padding-left:76px}
+  html[data-ui="soft"] header.top{display:none}
+  html[data-ui="soft"] .app{min-height:100vh}
+  html[data-ui="soft"] .side{max-height:100vh;border-right:1px solid var(--line)}
+  html[data-ui="soft"] .desk-rail{display:none!important}
+  html[data-ui="soft"] .vrail{position:fixed;z-index:700;left:0;top:0;bottom:0;width:76px;display:flex;flex-direction:column;align-items:stretch;gap:2px;
+    padding:10px 6px;background:var(--card);border-right:1px solid var(--line);overflow-y:auto;scrollbar-width:none}
+  html[data-ui="soft"] .vrail>button,html[data-ui="soft"] .vrail>a{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;padding:7px 2px;
+    border:0;border-radius:8px;background:none;color:var(--ink-soft);font:inherit;font-size:.7rem;font-weight:600;line-height:1.15;text-align:center;text-decoration:none;cursor:pointer}
+  html[data-ui="soft"] .vrail>button:hover,html[data-ui="soft"] .vrail>a:hover{background:var(--paper);color:var(--ink);filter:none}
+  html[data-ui="soft"] .vrail .ic{width:22px;height:22px}
+  html[data-ui="soft"] .vrail>.vr-on{color:var(--blue)}
+  html[data-ui="soft"] .vrail>.vr-on .ic{background:var(--blue-weak);border-radius:8px;width:40px;height:28px;padding:3px 9px;box-sizing:border-box}
+  html[data-ui="soft"] .vrail>.vr-brand{min-height:44px;margin-bottom:6px;font-family:Unbounded,"Golos Text",sans-serif;font-weight:800;font-size:1.2rem;color:var(--ink);justify-content:center;flex-direction:row;gap:0}
+  html[data-ui="soft"] .vrail>.vr-brand img{width:40px;height:40px;border-radius:10px;display:block}
+  html[data-ui="soft"] .vr-gap{flex:1;min-height:8px}
+  html[data-ui="soft"] .vr-ava{width:30px;height:30px;border-radius:50%;background:var(--blue-weak);color:var(--blue);display:grid;place-items:center;overflow:hidden;font-weight:800;font-size:.85rem}
+  html[data-ui="soft"] .vr-ava img{width:100%;height:100%;object-fit:cover}
+  html[data-ui="soft"] .vr-ava .ic{width:18px;height:18px}
+  /* шапка панели — компактнее, сразу к делу */
+  html[data-ui="soft"] .side .eyebrow{display:none}
+  html[data-ui="soft"] .side h1.title{font-size:1.15rem;line-height:1.25;margin:2px 0 12px}
+  html[data-ui="soft"] .side label.field{font-size:.8rem;color:var(--ink-soft);font-weight:600;margin-top:8px}
+  /* способы передвижения — одной строкой, значок над подписью */
+  html[data-ui="soft"] .mode-tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:3px}
+  html[data-ui="soft"] .mode-tabs button{flex-direction:column;gap:2px;min-height:54px;padding:4px 0;font-size:.72rem;font-weight:600}
+  html[data-ui="soft"] .mode-tabs .ic{width:20px;height:20px}
+  /* слои — плитка внизу слева, как переключатель вида карты */
+  html[data-ui="soft"] .map-menu-btn{top:auto;bottom:24px;left:14px;width:64px;height:64px;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.7rem;font-weight:600}
+  html[data-ui="soft"] .mmb-t{display:block}
+  html[data-ui="soft"] .map-menu{top:auto;bottom:98px;left:44px;max-height:calc(100% - 120px)}
+  html[data-ui="soft"] .side-toggle{top:50%}
+}
+@media (max-width:860px){
+  /* шапка плавает над картой: на экране больше карты */
+  html[data-ui="soft"] header.top{position:absolute;top:0;left:0;right:0;background:transparent;pointer-events:none;padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 0}
+  html[data-ui="soft"] header.top>*{pointer-events:auto}
+  html[data-ui="soft"] header.top .brand{flex:0 1 auto;background:var(--card);box-shadow:var(--soft-sh);border-radius:10px;padding:8px 12px;min-height:42px;display:flex;align-items:center}
+  html[data-ui="soft"] header.top .hamburger{width:44px;height:44px;min-height:44px}
+  html[data-ui="soft"] header.top .serik-btn{margin-left:auto}
+  html[data-ui="soft"] .app{height:100dvh}
+  html[data-ui="soft"] .map-menu-btn{top:calc(env(safe-area-inset-top,0px) + 62px)}
+  html[data-ui="soft"] .map-menu{top:calc(env(safe-area-inset-top,0px) + 118px);max-height:calc(100% - 140px - var(--peek-h,130px))}
+  html[data-ui="soft"] .wx{top:calc(env(safe-area-inset-top,0px) + 62px)}
+  html[data-ui="soft"] .search-here{top:calc(env(safe-area-inset-top,0px) + 66px)}
+  /* «Я здесь» — у края шторки, под большим пальцем */
+  html[data-ui="soft"]:not([data-zoombtns="on"]) .map-stack{bottom:calc(var(--peek-h) + 26px)}
+  /* быстрые места рядом — круглыми значками под поиском */
+  html[data-ui="soft"] .peek-more{display:none!important}
+  html[data-ui="soft"] .sheet-peek.mini:not(.finding) .peek-quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:-2px}
+  html[data-ui="soft"] .peek-quick button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:0;padding:2px 0;border:0;background:none;color:var(--ink);font:inherit;filter:none}
+  html[data-ui="soft"] .peek-quick span{width:44px;height:44px;border-radius:50%;background:var(--card);box-shadow:var(--soft-sh);display:grid;place-items:center;color:var(--blue)}
+  html[data-ui="soft"] .peek-quick .ic{width:21px;height:21px}
+  html[data-ui="soft"] .peek-quick b{font-size:.7rem;font-weight:600;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1341,6 +1401,23 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
 <a class="skip" href="#main" data-i18n="skip">Перейти к содержимому</a>
 
+<!-- Компьютер: вертикальная лента разделов слева (идея из 2ГИС/Google Карт, своё оформление) -->
+<nav class="vrail" id="vRail" data-i18n-aria="railL" aria-label="Разделы">
+  <a class="vr-brand" href="/" translate="no" aria-label="ICity — главная"><img src="/icons/soft.svg" alt="" width="40" height="40"></a>
+  <button type="button" class="vr-on" onclick="railRoute()"><i data-ic="routeI"></i><span data-i18n="railRoute">Маршрут</span></button>
+  <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
+  <button type="button" onclick="railPlaces()"><i data-ic="star"></i><span data-i18n="navPlaces">Мои места</span></button>
+  <button type="button" onclick="openMyReports()"><i data-ic="warn"></i><span data-i18n="railReports">Жалобы</span></button>
+  <button type="button" onclick="openHelp()"><i data-ic="user"></i><span data-i18n="railHelp">Помощь</span></button>
+  <a href="/audit"><i data-ic="check"></i><span data-i18n="railAudit2">Проверить</span></a>
+  <span class="vr-gap"></span>
+  <button type="button" onclick="serikToggle()"><i data-ic="chat"></i><span data-i18n="skName">Серік</span></button>
+  <button type="button" onclick="toggleView()"><i data-ic="list"></i><span data-i18n="railText">Текст</span></button>
+  <button type="button" onclick="railLang()" data-i18n-aria="railLang" aria-label="Язык"><i data-ic="globe"></i><span id="vrLang">RU</span></button>
+  <button type="button" onclick="openModal('settingsModal')"><i data-ic="gear"></i><span data-i18n="settingsBtn">Настройки</span></button>
+  <a href="/login" id="vrAcct" class="vr-acct"><span class="vr-ava" id="vrAva"><i data-ic="user"></i></span><span id="vrAcctT" data-i18n="acctLogin">Войти</span></a>
+</nav>
+
 <header class="top">
   <button type="button" class="hamburger" id="sheetBtn" onclick="toggleMiniMenu(event)"
           aria-expanded="false" aria-controls="miniMenu" aria-haspopup="menu" data-i18n-aria="menuBtn" aria-label="Панель управления">
@@ -1489,7 +1566,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 
   <section class="stage">
     <button type="button" class="side-toggle" id="sideToggle" aria-controls="sidePanel" aria-expanded="true" data-i18n-aria="sideHide" aria-label="Скрыть панель"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-badge" id="mmbBadge" hidden></span></button>
+    <button type="button" class="map-menu-btn" id="mapMenuBtn" onclick="toggleMapMenu()" aria-expanded="false" aria-controls="mapMenu" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты"><i data-ic="layers"></i><span class="mmb-t" data-i18n="railLayers">Слои</span><span class="mmb-badge" id="mmbBadge" hidden></span></button>
     <!-- Кнопки разделов слева сверху на компьютере (как в 2ГИС); на телефоне — нижнее меню -->
     <nav class="desk-rail" id="deskRail" data-i18n-aria="railL" aria-label="Разделы">
       <button type="button" onclick="navFriendsTab()"><i data-ic="friends"></i><span data-i18n="frTitle">Друзья</span></button>
@@ -1575,6 +1652,13 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
           <span class="peek-sub" id="peekSub" data-i18n="peekIdleSub">Маршрут, слои и жалобы</span>
         </span>
       </button>
+      <div class="peek-quick" role="group" data-i18n-aria="pfCatsT" aria-label="Рядом с вами">
+        <button type="button" onclick="nearestToilet()"><span><i data-ic="wc"></i></span><b data-i18n="peekToilet">Туалет</b></button>
+        <button type="button" onclick="pfCategory('pharmacy')"><span><i data-ic="pill"></i></span><b data-i18n="c_pharmacy">Аптеки</b></button>
+        <button type="button" onclick="pfCategory('food')"><span><i data-ic="food"></i></span><b data-i18n="c_food">Поесть</b></button>
+        <button type="button" onclick="pfCategory('bus')"><span><i data-ic="bus"></i></span><b data-i18n="c_bus">Остановки</b></button>
+        <button type="button" onclick="peekExpand(true)"><span><i data-ic="menu"></i></span><b data-i18n="railMore">Ещё</b></button>
+      </div>
       <div class="peek-find" id="peekFind" hidden>
         <div class="pf-row">
           <div class="ac-wrap">
@@ -5270,19 +5354,19 @@ const PERM_T={
   permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
   permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
   permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
-  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Текст", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
   frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
  kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
   permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
   permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
   permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
-  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Мәтін", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
   frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
  en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
   permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
   permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
   permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
-  railL:"Sections", railHelp:"Help", railAudit:"Check a place",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"Text", railLayers:"Layers", railLang:"Language", railMore:"More",
   frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
 const PERM={geo:"?",not:"?",cmp:"?"};
@@ -7470,6 +7554,15 @@ function toggleSide(force){
   const b=document.getElementById("sideToggle"); if(b){ b.setAttribute("aria-expanded",String(!off)); b.setAttribute("aria-label",t(off?"sideShow":"sideHide")); }
   if(map) setTimeout(()=>{ map.invalidateSize(); try{ lmDraw(); }catch(e){} },60);
 }
+// Лента разделов слева на компьютере
+function railRoute(){
+  if(document.body.classList.contains("side-off")) toggleSide(false);
+  const d=document.getElementById("destination"); if(d){ try{ d.focus(); d.select(); }catch(e){} }
+}
+function railLang(){ const L=["ru","kk","en"]; setLang(L[(L.indexOf(S.lang)+1)%L.length]); }
+function railSync(){ const e=document.getElementById("vrLang"); if(e) e.textContent=({ru:"RU",kk:"ҚАЗ",en:"EN"})[S.lang]||"RU"; }
+{ const _sl=setLang; setLang=function(v){ _sl(v); railSync(); }; }
+document.addEventListener("DOMContentLoaded", railSync); setTimeout(railSync,0);
 function mmDo(fn){ closeMiniMenu(false); fn(); }
 document.addEventListener("click",e=>{ if(miniMenuOpen() && !e.target.closest("#miniMenu,#sheetBtn")) closeMiniMenu(false); });
 document.addEventListener("keydown",e=>{
@@ -8275,6 +8368,9 @@ function globeToMap(cityKey){
     const ph=u.phone?("+"+String(u.phone).replace(/^\+/,"")):"";
     const name=meta.ic_name||meta.full_name||meta.name||(u.email||"").split("@")[0]||ph;
     const b=document.getElementById("acctBtn"); if(b){ b.setAttribute("data-i18n","acctProfile"); b.textContent=t("acctProfile"); b.href="/account"; }
+    { const ra=document.getElementById("vrAcct"), rt=document.getElementById("vrAcctT"); if(ra){ ra.href="/account"; rt.setAttribute("data-i18n","acctProfile"); rt.textContent=t("acctProfile");
+      const pc=meta.ic_avatar===""?"":(meta.ic_avatar||meta.avatar_url||meta.picture||""), av=document.getElementById("vrAva");
+      if(pc){ av.innerHTML=""; const im=new Image(); im.alt=""; im.referrerPolicy="no-referrer"; im.src=pc; av.appendChild(im); } else av.textContent=(name||"?").trim().replace(/^\+/,"").charAt(0).toUpperCase(); } }
     ["signupBtn","mmSignup"].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=true; });
     const a=document.getElementById("mmAcct"); a.href="/account";
     const n=document.getElementById("mmName"); n.removeAttribute("data-i18n"); n.textContent=name;
