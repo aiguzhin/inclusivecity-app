@@ -399,6 +399,7 @@ async function handleApi(req, res, pathname) {
   if (pathname.startsWith('/api/avatar')) { const done = await profile.handle(req, res, pathname); if (done !== null) return; }
   if (pathname.startsWith('/api/friends')) { const done = await friends.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/tts') return await tts.handle(req, res, new URL(req.url, 'http://x'), sendJson, tooMany);
+  if (pathname === '/api/kz/children') { const done = await kz.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/landmarks') { const done = await landmarks.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/barriers') { const done = await barriers.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
   if (pathname === '/api/rating') { const done = await rating.handle(req, res, pathname, new URL(req.url, 'http://x')); if (done !== null) return; }
@@ -614,6 +615,7 @@ const profile = require('./profile');
 const rating = require('./rating');
 const barriers = require('./barriers');
 const landmarks = require('./landmarks');
+const kz = require('./kz');
 const selfheal = require('./selfheal');
 const tts = require('./tts');
 const friends = require('./friends');
@@ -955,6 +957,7 @@ server.listen(PORT, process.env.HOST || undefined, () => {
   rating.init({ sendJson, kvPut, kvGet });
   barriers.init({ sendJson, kvPut, kvGet });
   landmarks.init({ sendJson, kvPut, kvGet });
+  kz.init({ sendJson, kvPut, kvGet });
   selfheal.start();
   // Не даём бесплатному Render заснуть: раз в 10 минут сервер сам заходит на свой публичный адрес
   // (запрос идёт снаружи через прокси Render и считается посещением). GitHub-проверка — раз в час, как запасная.

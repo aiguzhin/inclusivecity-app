@@ -56,7 +56,7 @@ async function handle(req, res, pathname, url) {
   const city = String(url.searchParams.get('city') || '');
   const bb = String(url.searchParams.get('bb') || '');
   const n = bb.split(',').map(Number);
-  if (!/^[a-z_-]{2,30}$/.test(city) || n.length !== 4 || n.some((x) => !isFinite(x))
+  if (!/^[a-z][a-z0-9_-]{1,30}$/.test(city) || n.length !== 4 || n.some((x) => !isFinite(x))
     || n[0] < 40 || n[2] > 56 || n[1] < 46 || n[3] > 88 || n[2] - n[0] > 0.6 || n[3] - n[1] > 0.9 || n[2] <= n[0] || n[3] <= n[1]) {
     return H.sendJson(res, 400, { error: 'bad request' });
   }

@@ -493,7 +493,7 @@ html[data-ui="soft"] input,html[data-ui="soft"] select,html[data-ui="soft"] text
 .mpm-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:1.02rem}
 .mpm-x{min-width:40px;min-height:40px;padding:0;border-radius:8px;background:var(--paper);color:var(--ink)}
 .mpm-h{margin:12px 0 6px;font-size:.78rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
-.map-menu .layerbar{position:static;display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0;background:none!important;border:0!important;box-shadow:none!important}
+.map-menu .layerbar{position:static;display:block;flex-wrap:wrap;gap:8px;overflow:visible;padding:0;background:none!important;border:0!important;box-shadow:none!important}
 .map-menu .layerbar .chip{background:var(--paper);box-shadow:none;border:1px solid var(--line);min-height:44px;font-size:.88rem}
 .map-menu .layerbar .chip[aria-pressed="true"]{background:var(--blue-weak);border-color:var(--blue)}
 .map-menu .wx{position:static;align-items:stretch}
@@ -1361,6 +1361,49 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
   .side input,.side select{font-size:16px}   /* iPhone не увеличивает страницу при вводе */
   .dialog input,.dialog select,.dialog textarea,#pq{font-size:16px}
 }
+
+/* ===== Выбор территории ===== */
+.place-pill{display:none}
+.place-btn{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:36px;margin:0 0 6px;padding:4px 10px 4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-weight:600;font-size:.88rem}
+.place-btn .ic{width:16px;height:16px;color:var(--blue);flex:none}
+.place-btn span:not(.pb-ch){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.place-btn .pb-ch{color:var(--blue);font-weight:700;margin-left:4px;flex:none}
+@media (max-width:860px){
+  .place-btn{display:none}
+  html[data-ui="soft"] .place-pill{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:calc(100vw - 190px);min-height:44px;padding:6px 10px 6px 10px;border:0;border-radius:10px;
+    background:var(--card);color:var(--ink);box-shadow:var(--soft-sh);font-weight:700;font-size:.92rem}
+  html[data-ui="soft"] .place-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html[data-ui="soft"] .place-pill .ic{width:18px;height:18px;color:var(--blue);flex:none}
+  html[data-ui="soft"] .place-pill svg{width:16px;height:16px;flex:none;color:var(--ink-soft)}
+}
+.terr-dlg{display:flex;flex-direction:column;max-height:min(88dvh,760px)}
+.terr-lead{margin:4px 0 10px}
+.terr-search input{width:100%;font-size:16px}
+.terr-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin:10px 0 4px;font-size:.88rem;color:var(--ink-soft)}
+.terr-crumbs button{min-height:36px;padding:4px 8px;border:0;border-radius:8px;background:none;color:var(--blue);font-weight:600;font-size:.88rem}
+.terr-crumbs button[aria-current="page"]{color:var(--ink)}
+.terr-status{min-height:0;font-size:.88rem;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.terr-status:not(:empty){padding:8px 0}
+.terr-spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--blue);animation:glSpin .8s linear infinite;flex:none}
+.terr-list{list-style:none;margin:0 -20px;padding:0;overflow-y:auto;flex:1;min-height:120px;border-top:1px solid var(--line)}
+.terr-h{margin:0;padding:12px 20px 4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.terr-row{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 14px 8px 20px;border:0;border-radius:0;background:none;color:var(--ink);text-align:left;font-weight:500}
+.terr-n{flex:1;min-width:0}
+.terr-sub{font-size:.8rem;color:var(--ink-soft);text-align:right;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.terr-chev{width:18px;height:18px;flex:none;color:var(--ink-soft)}
+@media (hover:hover){ .terr-row:hover{background:var(--paper)} }
+.terr-filter{padding:8px 20px}
+.terr-filter input{width:100%;font-size:16px}
+.terr-src{margin:10px 0 0}
+@media (max-width:640px){ .terr-list{margin:0 -16px} .terr-h,.terr-filter{padding-left:16px;padding-right:16px} .terr-row{padding-left:16px} }
+/* ===== Слои: группы, счётчик, сброс; кружки с числом ===== */
+.lay-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 0 6px;font-size:.86rem;font-weight:600}
+.lay-head[hidden]{display:none}
+.lay-grp{margin:8px 0 4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.lay-row{display:flex;flex-wrap:wrap;gap:6px}
+.lay-cl{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:700 13px/1 "Golos Text",sans-serif;
+  border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);animation:clIn .2s ease-out}
+@keyframes clIn{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1599,6 +1642,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <span class="bars" aria-hidden="true"></span>
   </button>
   <div class="brand" translate="no">I<b>City</b></div>
+  <button type="button" class="place-pill" id="placePill" onclick="openTerr()" aria-haspopup="dialog" aria-controls="terrModal"><i data-ic="pin"></i><span id="placePillT">Выберите место</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <button type="button" class="serik-btn" id="serikBtn" onclick="serikToggle()" aria-haspopup="dialog" aria-expanded="false" aria-controls="serik" data-i18n-aria="skOpenBtn" aria-label="Серік — ИИ-помощник">
     <span class="sk-dot" aria-hidden="true"><i data-ic="chat"></i></span><span data-i18n="skName">Серік</span>
   </button>
@@ -1674,6 +1718,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       </div>
     </section>
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
+    <button type="button" class="place-btn" id="placeBtn" onclick="openTerr()" aria-haspopup="dialog" aria-controls="terrModal"><i data-ic="pin"></i><span id="placeBtnT"></span><span class="pb-ch" data-i18n="terrChange">Сменить</span></button>
     <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
 
 
@@ -1751,7 +1796,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     </nav>
     <div class="map-menu" id="mapMenu" hidden role="dialog" data-i18n-aria="mmLayers" aria-label="Слои и сведения карты">
       <div class="mpm-head"><b data-i18n="mmLayers">Слои и сведения карты</b><button type="button" class="mpm-x" onclick="toggleMapMenu(false)" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
-      <p class="mpm-h" data-i18n="mmLayersSub">Что показать на карте</p>
+      <p class="mpm-h" data-i18n="mmLayersSub" hidden>Что показать на карте</p>
       <div id="mpmLayers"></div>
       <p class="mpm-h" data-i18n="mmInfo">Погода</p>
       <div id="mpmInfo"></div>
@@ -1935,6 +1980,23 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <button type="button" class="btn-ghost" style="width:100%;margin-top:8px" onclick="permLater()" data-i18n="permLater">Позже</button>
   </div>
 </div>
+<!-- Выбор территории: область → район → населённый пункт, или поиск по названию -->
+<div class="modal" id="terrModal" role="dialog" aria-modal="true" aria-labelledby="terrH" onclick="if(event.target===this)closeModal('terrModal')">
+  <div class="dialog terr-dlg">
+    <div class="dialog-head"><h2 id="terrH" data-i18n="terrTitle">Где вы будете?</h2>
+      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('terrModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
+    <p class="small muted terr-lead" id="terrLead" data-i18n="terrLead">Выберите область, район и населённый пункт или найдите его по названию.</p>
+    <div class="terr-search">
+      <label class="sr" for="terrQ" data-i18n="terrSearch">Поиск города, посёлка или села</label>
+      <input type="search" id="terrQ" autocomplete="off" enterkeyhint="search" data-i18n-ph="terrSearchPh" placeholder="Город, посёлок или село" oninput="terrSearchInput(this.value)">
+    </div>
+    <nav class="terr-crumbs" id="terrCrumbs" aria-label="Уровни"></nav>
+    <div class="terr-status" id="terrStatus" role="status" aria-live="polite"></div>
+    <ul class="terr-list" id="terrList"></ul>
+    <p class="terr-src small muted" data-i18n="terrSrc">Границы и названия — © участники OpenStreetMap (ODbL). Сведения о доступности есть не везде: если их нет, сообщите о барьере или проверьте место.</p>
+  </div>
+</div>
+
 <!-- Друзья: панель (на телефоне — шторка с пружиной, на компьютере — колонка слева) -->
 <section class="frp" id="frPanel" role="dialog" aria-modal="false" aria-labelledby="frpH" hidden>
   <div class="frp-grip" aria-hidden="true"><span></span></div>
@@ -1998,6 +2060,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
         <summary><span data-i18n="myCity">Мой город</span><b class="set-val" id="svCity"></b></summary>
         <div class="set-body">
           <select id="citySel" onchange="setCity(this.value)" data-i18n-aria="cityLabel" aria-label="Город"></select>
+          <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="closeModal('settingsModal');openTerr()"><i data-ic="map"></i> <span data-i18n="terrPickAny">Область, район, посёлок или село</span></button>
           <button type="button" class="btn-ghost btn-sm" style="margin-top:8px" onclick="autoLocate(true)"><i data-ic="pin"></i> <span data-i18n="cityAuto">Определить по геопозиции</span></button>
         </div>
       </details>
@@ -3400,8 +3463,9 @@ document.addEventListener("click", e=>{
 async function loadWeather(force){
   if(!document.getElementById("wxPill")) return;
   if(!force && lastWeather && Date.now()-weatherAt < 15*60*1000){ renderWeather(); return; }
+  if(S.firstRun){ lastWeather=null; renderWeather(); return; }
   const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 10000);
-  const [la,lo]=city().c;
+  const [la,lo]=city().c, wxCity=S.city;
   try{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
       + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m"
@@ -3409,6 +3473,7 @@ async function loadWeather(force){
     const r=await fetch(url,{signal:ctl.signal});
     if(!r.ok) throw new Error("http "+r.status);
     const j=await r.json();
+    if(wxCity!==S.city) return;   // пока ждали, выбрали другое место — его погода уже запрошена
     const c=j.current||{};
     lastWeather={ temp:Number(c.temperature_2m), feels:Number(c.apparent_temperature),
                   prec:Number(c.precipitation||0), code:Number(c.weather_code||0),
@@ -3523,7 +3588,7 @@ const CITIES = {
 // не запрашиваем такие плитки, а растягиваем последнюю доступную.
 const CITY_DLAT = 0.13, CITY_DLON = 0.24;
 function city(){ return CITIES[S.city] || CITIES.almaty; }
-function cityName(){ const c=city(); return c[S.lang] || c.ru; }
+function cityName(){ if(S.firstRun) return t("terrKz"); const c=city(); return c[S.lang] || c.ru; }
 // Nominatim ждёт viewbox в порядке «запад,север,восток,юг»
 function cityViewbox(){
   const [la,lo]=city().c;
@@ -3910,7 +3975,7 @@ function buildCitySelect(){
   sel.value=S.city;
 }
 function applyCityTexts(){
-  const n=cityName();
+  const n=cityName(); try{ terrSyncLabels(); }catch(e){}
   const h=document.getElementById("pageTitle");
   if(h) h.textContent = S.lang==="en" ? `Get around ${n} with confidence`
                       : S.lang==="kk" ? `${n}: еркін жүріңіз`
@@ -3919,12 +3984,199 @@ function applyCityTexts(){
   if(m) m.setAttribute("aria-label", `${t("mapLabel")}: ${n}`);
   document.title = `ICity — ${t("docTitle")}: ${n}`;
 }
+/* ============ Территории Казахстана: область → район → населённый пункт ============
+   20 верхних единиц встроены (крошечный список). Районы и сёла сервер берёт из OpenStreetMap только для
+   выбранной территории (/api/kz/children) и кэширует; клиент держит в памяти не больше 30 последних списков.
+   Выбранный посёлок или село становится «местом» как город (CITIES[key], small:true): поиск, слои, барьеры
+   и маршруты работают в его окрестности; данных об автобусах и достопримечательностях для сёл может не быть. */
+const KZ_REGIONS=[
+  {id:3087155, n:"Астана", nk:"Астана", ne:"Astana", ll:[51.128,71.43], city:"astana"},
+  {id:2465058, n:"Алматы", nk:"Алматы", ne:"Almaty", ll:[43.238,76.946], city:"almaty"},
+  {id:3389772, n:"Шымкент", nk:"Шымкент", ne:"Shymkent", ll:[42.317,69.59], city:"shymkent"},
+  {id:14243026, n:"Абайская область", nk:"Абай облысы", ne:"Abai Region", ll:[48.622,80.09]},
+  {id:215743, n:"Акмолинская область", nk:"Ақмола облысы", ne:"Akmola Region", ll:[51.862,69.807]},
+  {id:215683, n:"Актюбинская область", nk:"Ақтөбе облысы", ne:"Aktobe Region", ll:[48.247,58.944]},
+  {id:215718, n:"Алматинская область", nk:"Алматы облысы", ne:"Almaty Region", ll:[44.474,77.265]},
+  {id:214834, n:"Атырауская область", nk:"Атырау облысы", ne:"Atyrau Region", ll:[47.489,51.761]},
+  {id:215699, n:"Восточно-Казахстанская область", nk:"Шығыс Қазақстан облысы", ne:"East Kazakhstan Region", ll:[48.939,84.214]},
+  {id:215722, n:"Жамбылская область", nk:"Жамбыл облысы", ne:"Jambyl Region", ll:[44.164,72.446]},
+  {id:14312169, n:"Жетысуская область", nk:"Жетісу облысы", ne:"Jetisu Region", ll:[45.521,79.38]},
+  {id:215441, n:"Западно-Казахстанская область", nk:"Батыс Қазақстан облысы", ne:"West Kazakhstan Region", ll:[49.862,50.537]},
+  {id:215776, n:"Карагандинская область", nk:"Қарағанды облысы", ne:"Karaganda Region", ll:[48.655,72.551]},
+  {id:1288730, n:"Костанайская область", nk:"Қостанай облысы", ne:"Kostanay Region", ll:[51.444,64.043]},
+  {id:215727, n:"Кызылординская область", nk:"Қызылорда облысы", ne:"Kyzylorda Region", ll:[45.075,63.545]},
+  {id:215686, n:"Мангистауская область", nk:"Маңғыстау облысы", ne:"Mangystau Region", ll:[43.883,53.276]},
+  {id:215772, n:"Павлодарская область", nk:"Павлодар облысы", ne:"Pavlodar Region", ll:[52.236,76.376]},
+  {id:215760, n:"Северо-Казахстанская область", nk:"Солтүстік Қазақстан облысы", ne:"North Kazakhstan Region", ll:[53.825,69.999]},
+  {id:215739, n:"Туркестанская область", nk:"Түркістан облысы", ne:"Turkistan Region", ll:[43.285,68.472]},
+  {id:14312737, n:"Улытауская область", nk:"Ұлытау облысы", ne:"Ulytau Region", ll:[47.969,67.536]}
+];
+const KZ_OVERVIEW={c:[48.2,67.2], z:5};
+const TERR={path:[], list:null, ctl:null, poll:0, seq:0, cache:new Map(), qT:0, qctl:null, filter:""};
+const terrN=o=>(S.lang==="kk"&&o.nk)||(S.lang==="en"&&o.ne)||o.n;
+// «Актобе Г.А.» (городская администрация) → «Актобе»
+const terrClean=n=>String(n||"").replace(/\s*(Г\.\s?А\.|Қ\.\s?Ә\.|городская администрация|қалалық әкімдігі)\s*$/i,"").trim();
+function terrRecent(){ try{ const a=JSON.parse(read("terrRecent","[]")); return Array.isArray(a)?a.filter(x=>x&&x.key&&Array.isArray(x.ll)):[]; }catch(e){ return []; } }
+function terrRegister(pl){   // посёлок/село как «место» приложения
+  if(!pl || !pl.key || CITIES[pl.key] && !CITIES[pl.key].small) return;
+  CITIES[pl.key]={ru:pl.n, kk:pl.nk||pl.n, en:pl.ne||pl.n, c:pl.ll, z:pl.p==="city"?13:pl.p==="town"?14:15, sz:18, small:true, kind:pl.p||"village", area:pl.area||""};
+}
+function terrRestore(){ terrRecent().forEach(terrRegister); }
+function terrRemember(pl){
+  const list=[pl].concat(terrRecent().filter(x=>x.key!==pl.key)).slice(0,8);
+  store("terrRecent", JSON.stringify(list));
+}
+function terrSyncLabels(){
+  const n=S.firstRun?t("terrChoose"):cityName();
+  const a=document.getElementById("placePillT"), b=document.getElementById("placeBtnT");
+  if(a) a.textContent=n; if(b) b.textContent=S.firstRun?t("terrChoose"):cityName()+(city().area?" · "+city().area:"");
+  const pp=document.getElementById("placePill"); if(pp) pp.setAttribute("aria-label", t("terrChange")+": "+n);
+}
+function openTerr(){
+  openModal("terrModal");
+  const q=document.getElementById("terrQ"); if(q){ q.value=""; }
+  TERR.filter=""; if(!TERR.path.length) TERR.list=null;
+  terrRender();
+  setTimeout(()=>{ if(q && !sheetMode()) q.focus(); },60);
+}
+function terrStatus(html){ const el=document.getElementById("terrStatus"); if(el) el.innerHTML=html||""; }
+function terrStop(){ clearTimeout(TERR.poll); TERR.poll=0; if(TERR.ctl){ try{ TERR.ctl.abort(); }catch(e){} TERR.ctl=null; } }
+function terrGo(level){ terrStop(); TERR.path=TERR.path.slice(0,level); TERR.list=null; TERR.filter=""; terrRender(); const l=document.getElementById("terrList"); if(l) l.scrollTop=0; }
+function terrOpen(kind, item){
+  terrStop(); TERR.path.push({kind, id:item.id, n:item.n, nk:item.nk, ne:item.ne, ll:item.ll}); TERR.list=null; TERR.filter="";
+  terrRender(); terrLoad();
+}
+// Список района/области: из памяти, иначе с сервера; 202 — сервер ещё спрашивает OSM, повторяем через 5 с
+async function terrLoad(){
+  const top=TERR.path[TERR.path.length-1]; if(!top) return;
+  const key=top.kind+":"+top.id, seq=++TERR.seq;
+  const hit=TERR.cache.get(key);
+  if(hit){ TERR.list=hit; terrRender(); return; }
+  terrStatus(`<span class="terr-spin" aria-hidden="true"></span>${esc(t("terrLoading"))}`);
+  const ctl=new AbortController(); TERR.ctl=ctl;
+  try{
+    const r=await fetch(`/api/kz/children?id=${top.id}&kind=${top.kind}`,{signal:ctl.signal});
+    if(seq!==TERR.seq) return;
+    if(r.status===202){ terrStatus(`<span class="terr-spin" aria-hidden="true"></span>${esc(t("terrPending"))}`); TERR.poll=setTimeout(()=>{ if(seq===TERR.seq) terrLoad(); },5000); return; }
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json(); if(seq!==TERR.seq) return;
+    TERR.list=d.items||[];
+    TERR.cache.delete(key); if(TERR.cache.size>=30) TERR.cache.delete(TERR.cache.keys().next().value); TERR.cache.set(key,TERR.list);
+    terrRender();
+  }catch(e){
+    if(seq!==TERR.seq || e.name==="AbortError") return;
+    terrStatus(`${esc(t("terrErr"))} <button type="button" class="btn-ghost btn-sm" onclick="terrLoad()">${esc(t("terrRetry"))}</button>`);
+  }
+}
+function terrRow(label, sub, onclick, chev){
+  return `<li><button type="button" class="terr-row" onclick="${onclick}"><span class="terr-n">${esc(label)}</span>${sub?`<span class="terr-sub">${esc(sub)}</span>`:""}${chev?`<svg class="terr-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}</button></li>`;
+}
+const terrH=txt=>`<li class="terr-h" role="presentation">${esc(txt)}</li>`;
+function terrRender(){
+  const cr=document.getElementById("terrCrumbs"), ul=document.getElementById("terrList"); if(!cr||!ul) return;
+  if(TERR.q) return;   // показываем результаты поиска
+  cr.innerHTML=[`<button type="button" onclick="terrGo(0)" ${TERR.path.length?"":'aria-current="page"'}>${esc(t("terrKz"))}</button>`]
+    .concat(TERR.path.map((p,i)=>`<span aria-hidden="true">›</span><button type="button" onclick="terrGo(${i+1})" ${i===TERR.path.length-1?'aria-current="page"':""}>${esc(terrClean(terrN(p)))}</button>`)).join("");
+  TERR.view=[];
+  let html="";
+  const add=(it,fn)=>{ TERR.view.push(it); return fn(TERR.view.length-1); };
+  if(!TERR.path.length){
+    terrStatus("");
+    const rec=terrRecent().slice(0,4);
+    if(rec.length){ html+=terrH(t("terrRecent")); rec.forEach(x=>{ html+=add({pick:x},i=>terrRow(terrN(x), x.area||"", `terrPickAt(${i})`)); }); }
+    html+=terrH(t("terrRepCities"));
+    KZ_REGIONS.filter(r=>r.city).forEach(r=>{ html+=add({city:r.city},i=>terrRow(terrN(r),"",`terrPickAt(${i})`)); });
+    html+=terrH(t("terrRegions"));
+    KZ_REGIONS.filter(r=>!r.city).slice().sort((a,b)=>terrN(a).localeCompare(terrN(b),locale())).forEach(r=>{ html+=add({open:"region",item:r},i=>terrRow(terrN(r),"",`terrPickAt(${i})`,true)); });
+  } else if(TERR.list){
+    const top=TERR.path[TERR.path.length-1], f=TERR.filter.trim().toLowerCase();
+    terrStatus(TERR.list.length?"":esc(t("terrEmpty")));
+    const match=x=>!f || [x.n,x.nk,x.ne].some(v=>v&&v.toLowerCase().includes(f));
+    if(TERR.list.length>20) html+=`<li class="terr-filter" role="presentation"><label class="sr" for="terrF">${esc(t("terrFilter"))}</label><input type="search" id="terrF" placeholder="${esc(t("terrFilter"))}" value="${esc(TERR.filter)}" oninput="TERR.filter=this.value;terrRender();const e=document.getElementById('terrF');e.focus();e.setSelectionRange(e.value.length,e.value.length)"></li>`;
+    if(top.kind==="region"){
+      const cities=TERR.list.filter(x=>x.t==="city"&&match(x)), dist=TERR.list.filter(x=>x.t!=="city"&&match(x));
+      if(cities.length){ html+=terrH(t("terrCities")); cities.forEach(x=>{ html+=add({pick:{key:"p"+x.id, n:terrClean(x.n), nk:terrClean(x.nk), ne:terrClean(x.ne), ll:x.ll, p:"city", area:terrN(top)}},i=>terrRow(terrClean(terrN(x)),"",`terrPickAt(${i})`)); }); }
+      if(dist.length){ html+=terrH(t("terrDistricts")); dist.forEach(x=>{ html+=add({open:"district",item:x},i=>terrRow(terrN(x),"",`terrPickAt(${i})`,true)); }); }
+    } else {
+      const reg=TERR.path[0];
+      TERR.list.filter(match).slice(0,400).forEach(x=>{ html+=add({pick:{key:"p"+x.id, n:x.n, nk:x.nk, ne:x.ne, ll:x.ll, p:x.p, area:[terrN(top),reg&&terrN(reg)].filter(Boolean).join(", ")}},i=>terrRow(terrN(x), t("pt_"+x.p)||"", `terrPickAt(${i})`)); });
+    }
+    if(!html) terrStatus(esc(t("terrEmpty")));
+  }
+  ul.innerHTML=html;
+}
+function terrPickAt(i){
+  const v=TERR.view&&TERR.view[i]; if(!v) return;
+  if(v.open) return terrOpen(v.open, v.item);
+  if(v.city) return terrChoose({key:v.city});
+  if(v.pick) return terrChoose(v.pick);
+}
+// Поиск по названию — Nominatim (OSM), только населённые пункты Казахстана; старый запрос отменяется новым
+function terrSearchInput(v){
+  clearTimeout(TERR.qT); if(TERR.qctl){ try{ TERR.qctl.abort(); }catch(e){} TERR.qctl=null; }
+  v=String(v||"").trim();
+  if(v.length<2){ TERR.q=null; terrRender(); return; }
+  TERR.q=v; terrStatus(`<span class="terr-spin" aria-hidden="true"></span>${esc(t("terrLoading"))}`);
+  TERR.qT=setTimeout(async()=>{
+    const ctl=new AbortController(); TERR.qctl=ctl;
+    try{
+      const u=`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kz&addressdetails=1&limit=12&featureType=settlement&accept-language=${S.lang==="kk"?"kk,ru":S.lang==="en"?"en":"ru"}&q=${encodeURIComponent(v)}`;
+      const r=await fetch(u,{signal:ctl.signal}); if(!r.ok) throw new Error(r.status);
+      const d=await r.json(); if(TERR.q!==v) return;
+      const ok=["city","town","village","hamlet","isolated_dwelling","suburb"];
+      const items=(d||[]).filter(x=>ok.includes(x.addresstype)||x.category==="place");
+      document.getElementById("terrCrumbs").innerHTML="";
+      TERR.view=[];
+      let html="";
+      items.forEach(x=>{
+        const a=x.address||{}, area=[a.county||a.district, a.state].filter(Boolean).join(", ");
+        const p=["city","town","village","hamlet"].includes(x.addresstype)?x.addresstype:"village";
+        TERR.view.push({pick:{key:"p"+x.osm_id, n:x.name||x.display_name.split(",")[0], ll:[+(+x.lat).toFixed(5),+(+x.lon).toFixed(5)], p, area}});
+        html+=terrRow(x.name||x.display_name.split(",")[0], [t("pt_"+p),area].filter(Boolean).join(" · "), `terrPickAt(${TERR.view.length-1})`);
+      });
+      document.getElementById("terrList").innerHTML=html;
+      terrStatus(items.length?"":esc(t("terrEmpty")));
+    }catch(e){ if(e.name==="AbortError"||TERR.q!==v) return; terrStatus(esc(t("terrErr"))); }
+  },350);
+}
+// Выбор: крупный город из списка приложения (там есть автобусы и готовые данные) или посёлок/село
+function terrChoose(pl){
+  terrStop(); clearTimeout(TERR.qT); TERR.q=null;
+  let key=pl.key;
+  if(pl.ll && !CITIES[key]){
+    // город, для которого у нас уже есть всё (автобусы, достопримечательности), — берём его
+    for(const [k,c] of Object.entries(CITIES)){ if(c.small) continue;
+      const km=Math.hypot(c.c[0]-pl.ll[0],(c.c[1]-pl.ll[1])*Math.cos(pl.ll[0]*Math.PI/180))*111;
+      if(km<12 && (pl.p==="city"||pl.p==="town")){ key=k; break; } }
+  }
+  if(!CITIES[key]){ terrRegister(pl); }
+  if(CITIES[key].small) terrRemember(Object.assign({},pl,{key}));
+  closeModal("terrModal");
+  const was=S.firstRun; S.firstRun=false;
+  if(key===S.city && !was){ if(mapReady) map.setView(city().c, city().z, {animate:S.motion!=="off"}); return; }
+  if(was) S.city="";   // первое открытие: город ещё не был выбран — setCity загрузит всё для нового места
+  setCity(key);
+  if(was) try{ showReports(); }catch(e){}
+  if(CITIES[key].small) setTimeout(()=>toast(tf("terrFewData",{n:cityName()})),400);
+}
+// Геопозиция далеко от крупных городов — находим ближайший посёлок/село сами
+async function terrFromPoint(ll){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=1&accept-language=ru&lat=${ll[0]}&lon=${ll[1]}`);
+    const x=await r.json(); const a=(x&&x.address)||{};
+    if(a.country_code!=="kz") return false;
+    const n=a.village||a.town||a.city||a.hamlet||a.suburb; if(!n) return false;
+    const p=a.city?"city":a.town?"town":a.hamlet?"hamlet":"village";
+    terrChoose({key:"p"+(x.osm_id||Math.round(ll[0]*1e4)+""+Math.round(ll[1]*1e4)), n, ll:[+ll[0].toFixed(5),+ll[1].toFixed(5)], p, area:[a.county,a.state].filter(Boolean).join(", ")});
+    return true;
+  }catch(e){ return false; }
+}
 function setCity(key){
   if(!CITIES[key]) key="almaty";
   const changed = key!==S.city;
   S.city=key; store("city",key);
   const sel=document.getElementById("citySel"); if(sel) sel.value=key;
-  applyCityTexts(); updateSetVals(); try{ offlineStatus(); }catch(e){}
+  applyCityTexts(); updateSetVals(); try{ offlineStatus(); }catch(e){} terrSyncLabels();
   if(!changed) return;
   try{ if(lmOn()) lmLoad(); else lmClear(); }catch(e){}
   // Всё, что было привязано к прежнему городу, сбрасываем, чтобы не вести
@@ -3939,12 +4191,12 @@ function setCity(key){
   LAYERS.forEach(def=>{ const s2=layerState[def.key]; if(s2 && s2.on){ s2.on=false; if(s2.group) s2.group.clearLayers(); } });
   buildLayerBar();
   imageryWarned=null;
-  if(mapReady) map.setView(city().c, city().z);
+  if(mapReady) map.setView(city().c, city().z, {animate:false});
   setBasemap(S.basemap);   // у нового города свой предел детальности снимков
   loadWeather(true);
   renderNearby(); updatePeek();
   const rc=document.getElementById("routeCard");
-  if(rc) rc.innerHTML = `<h2>${esc(t("noRoute"))}</h2><p class="small muted">${esc(t("noRouteHelp"))}</p>`;
+  if(rc) rc.innerHTML = `<h2 data-i18n="noRoute">${esc(t("noRoute"))}</h2><p class="small muted">${esc(t("noRouteHelp"))}</p>`;
   toast(cityName());
 }
 
@@ -3956,10 +4208,10 @@ function initMap(){
   if(!L.Marker.__icAria){ L.Marker.__icAria=1; L.Marker.addInitHook(function(){ this.on("add",()=>{ const el=this.getElement&&this.getElement(); if(el && this.options.alt && !el.getAttribute("aria-label")) el.setAttribute("aria-label", this.options.alt); }); }); }
   // Поворот карты выключен: на телефоне два пальца постоянно чуть поворачивали карту, и слои снимка и дорог расходились.
   // Север всегда вверху (как в 2ГИС по умолчанию); в навигации поворачивается стрелка «я», а не карта.
-  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z, rotate:MAP_ROTATE, touchRotate:MAP_ROTATE, rotateControl:false, shiftKeyRotate:MAP_ROTATE, bearing:0}).setView(okPos?[pos.lat,pos.lng]:city().c, okPos?pos.z:city().z);
+  map=L.map("map",{zoomControl:false, minZoom:GLOBE_OPEN_Z, rotate:MAP_ROTATE, touchRotate:MAP_ROTATE, rotateControl:false, shiftKeyRotate:MAP_ROTATE, bearing:0}).setView(S.firstRun?KZ_OVERVIEW.c:okPos?[pos.lat,pos.lng]:city().c, S.firstRun?KZ_OVERVIEW.z:okPos?pos.z:city().z);
   // запоминаем, где человек оставил карту, — при следующем входе откроется там же
   let posT=0; map.on("moveend",()=>{ clearTimeout(posT); posT=setTimeout(()=>{ if(map.getZoom()<=GLOBE_OPEN_Z) return;
-    const c=map.getCenter(); store("mapPos",JSON.stringify({city:S.city,lat:+c.lat.toFixed(5),lng:+c.lng.toFixed(5),z:map.getZoom()})); },400); });
+    if(S.firstRun) return; const c=map.getCenter(); store("mapPos",JSON.stringify({city:S.city,lat:+c.lat.toFixed(5),lng:+c.lng.toFixed(5),z:map.getZoom()})); },400); });
   L.control.zoom({position:"bottomright"}).addTo(map);
   // на телефоне подпись источников свёрнута в строку — раскрываем по нажатию
   map.attributionControl.getContainer().addEventListener("click", e=>{
@@ -3975,11 +4227,12 @@ function initMap(){
   // поворот двумя пальцами: компас сразу показывает, где север; если в это время включён режим «куда смотрю» — выключаем его
   map.on("rotate",()=>applyHeading());
   map.getContainer().addEventListener("touchstart",e=>{ if(e.touches.length===2 && compassMode==="follow"){ compassMode="north"; bearSmooth=null; } },{passive:true});
+  map.on("zoomend",()=>{ try{ activeLayers().forEach(d=>{ const st=layerState[d.key]; if(st&&st.items&&st.items.length>30) drawLayer(d,st); }); }catch(e){} });   // кружки с числом пересчитываются под масштаб
   map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D();
     const wp=document.getElementById("wbPanel"); if(wp && !wp.hidden){ clearTimeout(wbTimer); wbTimer=setTimeout(refreshWayback,700); } });
   mapReady=true;
   if(read("sideOff","0")==="1" && innerWidth>860) toggleSide(true);
-  try{ if(lmOn()) lmLoad(); }catch(e){}
+  try{ if(lmOn() && !S.firstRun) lmLoad(); }catch(e){}
 }
 const divIcon=(cls,size)=>L.divIcon({className:"",html:`<div class="${cls}"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
 function dotIcon(color){ return L.divIcon({className:"",html:`<div class="pin-poi" style="background:${color}"></div>`,iconSize:[16,16],iconAnchor:[8,8]}); }
@@ -4015,16 +4268,36 @@ function setPickMode(m){ pickMode=m; setView("map"); toast(t("pickDest")); }
 function setReportPick(){ closeModal("reportModal"); pickMode="report"; setView("map"); toast(t("pickBarrier")); }
 
 /* ============ Панель слоёв ============ */
+// Слои по смыслу: доступность, препятствия, город. Сверху — сколько включено и «Сбросить».
+const LAYER_GROUPS=[["layGrpAccess",["ramp","elevator","toilet","parking","tactile","sound"]],["layGrpBarrier",["barrier"]],["layGrpCity",["place","sight","metro"]]];
 function buildLayerBar(){
   const bar=document.getElementById("layerbar"); bar.innerHTML="";
-  LAYERS.forEach(L0=>{
-    const b=document.createElement("button");
-    b.className="chip"; b.type="button"; b.id="chip-"+L0.key;
-    b.setAttribute("aria-pressed", String(!!(layerState[L0.key] && layerState[L0.key].on)));
-    b.innerHTML=`<span class="sw" style="background:${L0.color}"></span>${esc(L0[S.lang]||L0.ru)}`;
-    b.onclick=()=>toggleLayer(L0.key);
-    bar.appendChild(b);
+  const head=document.createElement("div"); head.className="lay-head"; head.id="layHead"; bar.appendChild(head);
+  LAYER_GROUPS.forEach(([title,keys])=>{
+    const defs=keys.map(k=>LAYERS.find(d=>d.key===k)).filter(Boolean);
+    if(!defs.length) return;
+    const h=document.createElement("p"); h.className="lay-grp"; h.textContent=t(title); bar.appendChild(h);
+    const row=document.createElement("div"); row.className="lay-row"; row.setAttribute("role","group"); row.setAttribute("aria-label",t(title)); bar.appendChild(row);
+    defs.forEach(L0=>{
+      const b=document.createElement("button");
+      b.className="chip"; b.type="button"; b.id="chip-"+L0.key;
+      b.setAttribute("aria-pressed", String(!!(layerState[L0.key] && layerState[L0.key].on)));
+      b.innerHTML=`<span class="sw" style="background:${L0.color}"></span>${esc(L0[S.lang]||L0.ru)}`;
+      b.onclick=()=>toggleLayer(L0.key);
+      row.appendChild(b);
+    });
   });
+  layerHeadSync();
+}
+function layerHeadSync(){
+  const h=document.getElementById("layHead"); if(!h) return;
+  const n=activeLayers().length;
+  h.innerHTML=n?`<span>${esc(tf("layOn",{n}))}</span><button type="button" class="btn-ghost btn-sm" onclick="layersReset()">${esc(t("layReset"))}</button>`:"";
+  h.hidden=!n;
+}
+function layersReset(){
+  activeLayers().forEach(d=>{ const st=layerState[d.key]; st.on=false; if(mapReady&&st.group) map.removeLayer(st.group); const c=document.getElementById("chip-"+d.key); if(c) c.setAttribute("aria-pressed","false"); });
+  saveLayers(); renderNearby(); updateSearchHere();
 }
 function chipBusy(key, busy){
   const c=document.getElementById("chip-"+key);
@@ -4054,6 +4327,23 @@ function drawLayer(def, st){
     const ex=((KB.city===S.city && KB.data && KB.data.extra)||[]).map(x=>({lat:x.lat, lon:x.lon, tags:{name:x.title, description:(x.note||"")+(x.date?` (${x.date})`:""), website:x.url||""}}));
     items=items.concat(ex);
   }
+  // при отдалении близкие точки собираем в кружок с числом — карта не превращается в рябь из значков
+  const z=map.getZoom();
+  if(items.length>30 && z<16){
+    const cell=z<14?72:56, bins=new Map();
+    items.forEach(it=>{ const pt=map.project([it.lat,it.lon],z), k=Math.floor(pt.x/cell)+":"+Math.floor(pt.y/cell);
+      const b=bins.get(k); if(b) b.push(it); else bins.set(k,[it]); });
+    const single=[];
+    bins.forEach(list=>{
+      if(list.length<3){ single.push(...list); return; }
+      const la=list.reduce((s,x)=>s+x.lat,0)/list.length, lo=list.reduce((s,x)=>s+x.lon,0)/list.length;
+      const sz=list.length<10?30:list.length<50?36:42;
+      L.marker([la,lo],{icon:L.divIcon({className:"",html:`<div class="lay-cl" style="--c:${def.color}">${list.length}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]}),
+        alt:`${layerLabel(def)}: ${list.length}`, keyboard:true})
+       .addTo(st.group).on("click",()=>map.fitBounds(L.latLngBounds(list.map(x=>[x.lat,x.lon])),{padding:[40,40],maxZoom:17,animate:S.motion!=="off"}));
+    });
+    items=single;
+  }
   items.forEach(it=>{
     const nm=poiName(it.tags, layerLabel(def));
     // на телефоне сотни HTML-значков тормозят карту — рисуем точки на одном холсте;
@@ -4068,7 +4358,7 @@ function drawLayer(def, st){
 
 async function loadLayer(key, {force}={}){
   const def=LAYERS.find(x=>x.key===key);
-  const st=layerState[key];
+  const st=layerState[key], layerCity=S.city;
   const bb=viewBbox();
   const cacheKey=key+"|"+bb;
   if(!force){
@@ -4079,6 +4369,7 @@ async function loadLayer(key, {force}={}){
   try{
     const q=`[out:json][timeout:20];(${def.q(bb)});out center tags 250;`;
     const d=await overpassQuery(q);
+    if(layerCity!==S.city) return {ok:false, stale:true};   // место сменили, пока ждали ответа
     st.items=(d.elements||[]).map(e=>({
       lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}, osm:e.type&&e.id?e.type+'/'+e.id:null
     })).filter(x=>x.lat&&x.lon);
@@ -4114,6 +4405,7 @@ async function toggleLayer(key){
   if(chip) chip.classList.add("loading");
   const res=await loadLayer(key);
   if(chip) chip.classList.remove("loading");
+  if(res.stale) return;
   if(!res.ok){
     if(chip) chip.setAttribute("aria-pressed","false");
     toast(t("layerFail"));
@@ -4128,7 +4420,7 @@ async function toggleLayer(key){
 
 // Кнопка «искать в этой области» — как в 2ГИС: данные не тянутся при каждом
 // сдвиге карты, пользователь сам решает, когда обновить видимую область.
-function saveLayers(){ store("layers", JSON.stringify(activeLayers().map(d=>d.key))); try{ updateMapMenuBadge(); }catch(e){} }
+function saveLayers(){ store("layers", JSON.stringify(activeLayers().map(d=>d.key))); try{ updateMapMenuBadge(); layerHeadSync(); }catch(e){} }
 // Включённые слои (пандусы, лифты…) — снова включаем при следующем входе
 function restoreLayers(){
   let ks=[]; try{ ks=JSON.parse(read("layers","[]"))||[]; }catch(e){}
@@ -5523,19 +5815,19 @@ const PERM_T={
   permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
   permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
   permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
-  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", mmGrpCity:"Город", mmGrpEase:"Удобство", mmRouteAB:"Маршрут из точки в точку", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", terrTitle:"Где вы будете?", terrLead:"Выберите область, район и населённый пункт или найдите его по названию.", terrSearch:"Поиск города, посёлка или села", terrSearchPh:"Город, посёлок или село", terrSrc:"Границы и названия — © участники OpenStreetMap (ODbL). Сведения о доступности есть не везде: если их нет, сообщите о барьере или проверьте место.", terrKz:"Казахстан", terrRepCities:"Города республиканского значения", terrRegions:"Области", terrCities:"Города", terrDistricts:"Районы", terrPlaces:"Населённые пункты", terrRecent:"Недавние", terrLoading:"Загружаем список…", terrPending:"Готовим список этой территории — при первом открытии это до минуты. Пока можно найти место по названию.", terrEmpty:"Ничего не нашли. Проверьте название или выберите по списку.", terrErr:"Не удалось загрузить — проверьте интернет и попробуйте ещё раз.", terrRetry:"Повторить", terrChange:"Сменить", terrPickAny:"Область, район, посёлок или село", terrChoose:"Выберите место", terrFilter:"Фильтр по названию", terrPick:"Выбрать", terrFewData:"{n}: данных о доступности пока мало. Знаете барьер или удобное место — отметьте его.", terrNoBus:"Для этого населённого пункта нет данных об автобусных маршрутах. Попробуйте пешком или такси.", pt_city:"город", pt_town:"посёлок", pt_village:"село", pt_hamlet:"аул", pt_district:"район", layReset:"Сбросить", layOn:"Включено: {n}", layGrpAccess:"Доступность", layGrpBarrier:"Препятствия", layGrpCity:"Город",mmGrpCity:"Город", mmGrpEase:"Удобство", mmRouteAB:"Маршрут из точки в точку", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
   frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
  kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
   permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
   permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
   permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
-  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", mmGrpCity:"Қала", mmGrpEase:"Ыңғайлылық", mmRouteAB:"Нүктеден нүктеге бағыт", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", terrTitle:"Қай жерде боласыз?", terrLead:"Облысты, ауданды және елді мекенді таңдаңыз немесе атауы бойынша іздеңіз.", terrSearch:"Қала, кент немесе ауылды іздеу", terrSearchPh:"Қала, кент немесе ауыл", terrSrc:"Шекаралар мен атаулар — © OpenStreetMap қатысушылары (ODbL). Қолжетімділік туралы деректер барлық жерде жоқ: болмаса, кедергі туралы хабарлаңыз немесе орынды тексеріңіз.", terrKz:"Қазақстан", terrRepCities:"Республикалық маңызы бар қалалар", terrRegions:"Облыстар", terrCities:"Қалалар", terrDistricts:"Аудандар", terrPlaces:"Елді мекендер", terrRecent:"Соңғылар", terrLoading:"Тізім жүктелуде…", terrPending:"Бұл аумақтың тізімі дайындалуда — алғаш ашқанда бір минутқа дейін. Әзірге атауы бойынша іздеуге болады.", terrEmpty:"Ештеңе табылмады. Атауын тексеріңіз немесе тізімнен таңдаңыз.", terrErr:"Жүктеу мүмкін болмады — интернетті тексеріп, қайталаңыз.", terrRetry:"Қайталау", terrChange:"Өзгерту", terrPickAny:"Облыс, аудан, кент немесе ауыл", terrChoose:"Орынды таңдаңыз", terrFilter:"Атауы бойынша сүзу", terrPick:"Таңдау", terrFewData:"{n}: қолжетімділік деректері әзірге аз. Кедергіні не ыңғайлы орынды білсеңіз — белгілеңіз.", terrNoBus:"Бұл елді мекен үшін автобус бағыттары туралы деректер жоқ. Жаяу немесе таксиді көріңіз.", pt_city:"қала", pt_town:"кент", pt_village:"ауыл", pt_hamlet:"ауыл", pt_district:"аудан", layReset:"Тазалау", layOn:"Қосулы: {n}", layGrpAccess:"Қолжетімділік", layGrpBarrier:"Кедергілер", layGrpCity:"Қала",mmGrpCity:"Қала", mmGrpEase:"Ыңғайлылық", mmRouteAB:"Нүктеден нүктеге бағыт", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
   frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
  en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
   permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
   permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
   permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
-  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", mmGrpCity:"City", mmGrpEase:"Comfort", mmRouteAB:"Route from A to B", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", terrTitle:"Where will you be?", terrLead:"Choose a region, district and settlement, or search by name.", terrSearch:"Search a city, town or village", terrSearchPh:"City, town or village", terrSrc:"Boundaries and names — © OpenStreetMap contributors (ODbL). Accessibility data is not available everywhere: if it is missing, report a barrier or check the place.", terrKz:"Kazakhstan", terrRepCities:"Cities of national significance", terrRegions:"Regions", terrCities:"Cities", terrDistricts:"Districts", terrPlaces:"Settlements", terrRecent:"Recent", terrLoading:"Loading the list…", terrPending:"Preparing this area's list — up to a minute the first time. Meanwhile you can search by name.", terrEmpty:"Nothing found. Check the name or pick from the list.", terrErr:"Could not load — check your connection and try again.", terrRetry:"Retry", terrChange:"Change", terrPickAny:"Region, district, town or village", terrChoose:"Choose a place", terrFilter:"Filter by name", terrPick:"Choose", terrFewData:"{n}: little accessibility data yet. Know a barrier or an accessible place? Mark it.", terrNoBus:"There is no bus route data for this settlement. Try walking or a taxi.", pt_city:"city", pt_town:"town", pt_village:"village", pt_hamlet:"hamlet", pt_district:"district", layReset:"Reset", layOn:"On: {n}", layGrpAccess:"Accessibility", layGrpBarrier:"Obstacles", layGrpCity:"City",mmGrpCity:"City", mmGrpEase:"Comfort", mmRouteAB:"Route from A to B", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
   frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
 const PERM={geo:"?",not:"?",cmp:"?"};
@@ -5586,11 +5878,12 @@ async function permAll(){
 }
 async function permOne(k){ if(k==="geo") await permAskGeo(); else if(k==="not") await permAskNot(); else if(k==="cmp") await permAskCmp(); permRender(); }
 function permLater(){ store("permsAsked","1"); closeModal("permModal"); if(PERM.geo!=="granted") autoLocate(false); }
+// Разрешения спрашиваем только когда человек сам запускает функцию (⌖, навигация, уведомления).
+// На старте — тихо: если геопозиция уже разрешена раньше, просто показываем «я» на карте.
 async function permStart(){
-  if(geoPlatform()==="claude" || read("permsAsked","")==="1"){ autoLocate(false); return; }
+  if(geoPlatform()==="claude") return;
   await permState();
-  if(PERM.geo==="granted" && PERM.not!=="prompt" && PERM.cmp!=="prompt"){ store("permsAsked","1"); autoLocate(false); return; }
-  setTimeout(()=>{ permRender(); openModal("permModal"); }, 2600);   // после заставки
+  if(PERM.geo==="granted") autoLocate(false);
 }
 // Кнопки слева сверху на компьютере: «Мои места» открывают панель мест
 function railPlaces(){
@@ -6123,8 +6416,9 @@ async function loadKnownBarriers(){
   const now=Date.now();
   if(KB.city!==S.city){ KB.city=S.city; KB.data=null; KB.at=0; }
   const jobs=[];
+  const kbCity=S.city;
   if(!KB.data || now-KB.at>6*3600e3) jobs.push(fetch(`/api/barriers?city=${encodeURIComponent(S.city)}&bb=${cityBB()}`)
-    .then(r=>r.ok?r.json():null).then(d=>{ if(d && !d.pending){ KB.data=d; KB.at=now; } else if(d && d.extra && !KB.data){ KB.data={kerbs:[],gates:[],nowc:[],extra:d.extra,partial:true}; } }).catch(()=>{}));
+    .then(r=>r.ok?r.json():null).then(d=>{ if(kbCity!==S.city || KB.city!==kbCity) return; if(d && !d.pending){ KB.data=d; KB.at=now; } else if(d && d.extra && !KB.data){ KB.data={kerbs:[],gates:[],nowc:[],extra:d.extra,partial:true}; } }).catch(()=>{}));
   if(!KB.reports || now-KB.repAt>10*60e3) jobs.push(fetch("/api/reports").then(r=>r.ok?r.json():null)
     .then(j=>{ if(j){ KB.reports=(j.reports||j||[]).filter(x=>x&&x.lat&&(x.lng||x.lon)); KB.repAt=now; } }).catch(()=>{}));
   await Promise.all(jobs);
@@ -6441,6 +6735,13 @@ function fastDist(a,b){
 let busRetry={};
 async function buildBusTrip(a,b){
   const card=document.getElementById("routeCard");
+  if(city().small){
+    if(mapReady){ routeLayer.clearLayers(); tripMarkers(a,b); fitTrip([a,b]); }
+    showTrip(`<h2>${esc(t("terrNoBus"))}</h2>
+      <div class="row" style="margin-top:10px"><button class="btn-ghost" onclick="setMode('walk')">${svgI("walk")} ${esc(t("modeWalk"))}</button>
+      <button class="btn-ghost" onclick="setMode('taxi')">${svgI("car")} ${esc(t("modeTaxi"))}</button></div>`);
+    return;
+  }
   // Транспорт показываем только внутри выбранного города — чтобы не предлагать
   // актюбинский маршрут человеку, который выбрал Астану.
   if(!inCity(a) || !inCity(b)){
@@ -7660,7 +7961,7 @@ function geoManual(){ closeModal("geoModal"); if(typeof closeSheet==="function")
 // Ближайший город из списка и расстояние до его центра, км
 function nearestCity(lat,lon){
   let best=null, bestKm=Infinity;
-  Object.entries(CITIES).forEach(([k,d])=>{
+  Object.entries(CITIES).forEach(([k,d])=>{ if(d.small) return;
     const R=Math.PI/180, a=Math.sin((d.c[0]-lat)*R/2)**2+Math.cos(lat*R)*Math.cos(d.c[0]*R)*Math.sin((d.c[1]-lon)*R/2)**2;
     const km=12742*Math.asin(Math.min(1,Math.sqrt(a)));   // без Leaflet: работает, даже если карта ещё не загрузилась
     if(km<bestKm){ bestKm=km; best=k; }
@@ -7679,10 +7980,9 @@ function autoLocate(manual,cb){
     if(km<=60){
       if(key!==S.city) setCity(key);
       showMe(15);
-    } else if(manual){
-      toast(t("cityFar"));
-    } else if(mapReady){
-      map.setView(userLatLng,13);
+    } else {
+      // далеко от крупных городов — выбираем ближайший посёлок или село
+      terrFromPoint(userLatLng).then(ok=>{ if(ok){ showMe(15); } else if(manual) toast(t("cityFar")); else if(mapReady) map.setView(userLatLng,13); });
     }
     if(manual) closeModal("settingsModal");
     renderNearby();
@@ -7692,7 +7992,7 @@ function autoLocate(manual,cb){
 
 /* ============ Отчёты ============ */
 async function showReports(){
-  if(!mapReady) return;
+  if(!mapReady || S.firstRun) return;   // жалобы — после выбора места
   reportLayer.clearLayers();
   try{
     const r=await fetch("/api/reports");
@@ -7816,10 +8116,10 @@ function openComplaint(){
   const p = lastComplaintPoint || userLatLng || city().c;
   const link=`https://www.openstreetmap.org/?mlat=${p[0]}&mlon=${p[1]}#map=19/${p[0]}/${p[1]}`;
   const body = S.lang==="en"
-   ? `To the Akimat of Almaty\n\nI report an accessibility barrier in the public space.\n\nLocation: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${new Date().toLocaleDateString()}`
+   ? `To the Akimat of ${cityName()}\n\nI report an accessibility barrier in the public space.\n\nLocation: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${new Date().toLocaleDateString()}`
    : S.lang==="kk"
-   ? `${cityName()} қаласының әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
-   : `В акимат г. ${cityName()}\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
+   ? `${cityName()} ${({town:"кентінің",village:"ауылының",hamlet:"ауылының"})[city().kind]||"қаласының"} әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
+   : `В акимат ${({town:"п. ",village:"с. ",hamlet:"с. "})[city().kind]||"г. "}${cityName()}\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
   document.getElementById("cmpText").value=body;
   openModal("complaintModal");
 }
@@ -8328,7 +8628,7 @@ document.addEventListener("keydown",e=>{
 // раз в месяц выгружаются GitHub Actions в /places/<город>.json; если у места в OSM нет номера — ищем его там.
 const PLACES_DB={};
 function placesDb(key){ if(!PLACES_DB[key]) PLACES_DB[key]=fetch(`/places/${key}.json`).then(r=>r.ok?r.json():null).catch(()=>null); return PLACES_DB[key]; }
-function nearestCityKey(lat,lon){ let best=S.city, bd=1e18; for(const [k,c] of Object.entries(CITIES)){ const d=(c.c[0]-lat)**2+((c.c[1]-lon)*Math.cos(lat*Math.PI/180))**2; if(d<bd){ bd=d; best=k; } } return best; }
+function nearestCityKey(lat,lon){ let best=S.city, bd=1e18; for(const [k,c] of Object.entries(CITIES)){ if(c.small) continue; const d=(c.c[0]-lat)**2+((c.c[1]-lon)*Math.cos(lat*Math.PI/180))**2; if(d<bd){ bd=d; best=k; } } return best; }
 function normName(s){
   return String(s||"").toLowerCase().replace(/ё/g,"е")
     .replace(/["«»“”'`.,:;!?()\[\]\-–—&+№#]/g," ")
@@ -8647,7 +8947,11 @@ function globeToMap(cityKey){
   skLoad();
   S.basemap=read("basemap", S.theme==="dark" ? "dark" : "osm");
   if(S.basemap==="satlab") S.basemap="sat";
-  S.city=read("city","almaty"); if(!CITIES[S.city]) S.city="almaty";
+  terrRestore();
+  { const stored=read("city","");
+    // первое открытие без ссылки на место: не открываем всегда Алматы — показываем Казахстан и просим выбрать место
+    S.firstRun=!stored && !/[?&](city|at|ll|to|from|lat|friend)=/.test(location.search);
+    S.city=CITIES[stored]?stored:"almaty"; }
   S.mode=read("mode","walk"); if(!["walk","bus","taxi","car","bike","scooter"].includes(S.mode)) S.mode="walk";
   markMode();
   document.getElementById("langSel").value=S.lang;
@@ -8671,8 +8975,12 @@ function globeToMap(cityKey){
   step("layers", ()=>restoreLayers());
   step("autocomplete", ()=>{ attachAutocomplete("start"); attachAutocomplete("destination"); });
   step("city", ()=>{
-    buildCitySelect(); applyCityTexts();
-    if(S.city!=="almaty"){
+    buildCitySelect(); applyCityTexts(); terrSyncLabels();
+    if(S.firstRun){   // первое открытие: после заставки предлагаем выбрать место
+      const ask=()=>{ if(document.getElementById("icIntro")) return setTimeout(ask,400); if(S.firstRun && !document.querySelector(".modal.open")) openTerr(); };
+      setTimeout(ask,600);
+    }
+    if(S.city!=="almaty" || S.firstRun){
       const a=document.getElementById("start"), b=document.getElementById("destination");
       if(a) a.value=""; if(b) b.value="";
     }
