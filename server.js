@@ -289,49 +289,92 @@ const EXT_TYPES = {
   '.xml': 'application/xml; charset=utf-8',
 };
 
-function serveFile(res, filePath) {
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      sendJson(res, 404, { error: 'not found' });
-      return;
-    }
-    const ext = path.extname(filePath).toLowerCase();
-    const type = EXT_TYPES[ext] || 'application/octet-stream';
-    // видео и звук — с частями (Range): иначе Safari не играет ролик и не даёт перематывать
-    if (/^(video|audio)\//.test(type)) {
-      const total = data.length, rg = /bytes=(\d*)-(\d*)/.exec((res.req && res.req.headers.range) || '');
-      if (rg) {
-        let a = rg[1] === '' ? Math.max(0, total - Number(rg[2])) : Number(rg[1]);
-        let b = rg[1] !== '' && rg[2] !== '' ? Math.min(Number(rg[2]), total - 1) : total - 1;
-        if (!(a <= b && a < total)) { res.writeHead(416, { 'Content-Range': 'bytes */' + total }); return res.end(); }
-        res.writeHead(206, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Range': 'bytes ' + a + '-' + b + '/' + total, 'Content-Length': b - a + 1, 'Cache-Control': 'public, max-age=86400' });
-        return res.end(data.subarray(a, b + 1));
-      }
-      res.writeHead(200, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Length': total, 'Cache-Control': 'public, max-age=86400' });
-      return res.end(data);
-    }
-    // текст сжимаем: страница и маршруты автобусов становятся в 4–6 раз легче
-    const ae = (res.req && res.req.headers['accept-encoding']) || '';
-    if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\b(br|gzip)\b/.test(ae)) {
-      // brotli ещё на ~25% легче gzip; сжатое запоминаем, чтобы не тратить процессор на каждый запрос
-      const enc = /\bbr\b/.test(ae) ? 'br' : 'gzip';
-      const key = enc + '|' + filePath + '|' + require('crypto').createHash('md5').update(data).digest('hex');
-      let z = ZCACHE.get(key);
-      if (!z) {
-        z = enc === 'br' ? zlib.brotliCompressSync(data, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length } }) : zlib.gzipSync(data, { level: 9 });
-        if (ZCACHE.size > 300) ZCACHE.delete(ZCACHE.keys().next().value);
-        ZCACHE.set(key, z);
-      }
-      res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': enc, 'Vary': 'Accept-Encoding', 'Content-Length': z.length });
-      res.end(z);
-      return;
-    }
-    res.writeHead(200, { 'Content-Type': type, 'Content-Length': data.length });
-    res.end(data);
+// Статика. Файл читаем с диска только когда он изменился (размер/время), сжатую копию готовим
+// один раз и без блокировки сервера; браузер получает ETag и при повторном заходе — короткий 304.
+const FILE_CACHE = new Map();          // путь → { size, mtime, etag, data, z: { br, gzip } }
+const FILE_CACHE_MAX = 250, FILE_CACHE_BYTES = 2 * 1024 * 1024;   // большие файлы (видео) не держим в памяти
+function cacheControlFor(filePath, type) {
+  const base = path.basename(filePath);
+  if (/^(video|audio)\//.test(type)) return 'public, max-age=86400';
+  if (/^image\/|^font\//.test(type) && base !== 'icon.svg') return 'public, max-age=604800';
+  // страницы, скрипты, стили и данные меняются при каждом обновлении сайта — браузер сверяется по ETag
+  return 'no-cache';
+}
+function compressAsync(enc, data) {
+  return new Promise((resolve, reject) => {
+    const done = (err, out) => (err ? reject(err) : resolve(out));
+    if (enc === 'br') zlib.brotliCompress(data, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length } }, done);
+    else zlib.gzip(data, { level: 9 }, done);
   });
 }
-
-const ZCACHE = new Map();   // сжатые копии файлов (brotli/gzip)
+function serveMedia(res, filePath, st, type) {
+  // видео и звук — частями (Range) прямо с диска, без чтения всего файла в память;
+  // иначе Safari не играет ролик и не даёт перематывать
+  const total = st.size, cc = cacheControlFor(filePath, type);
+  const rg = /bytes=(\d*)-(\d*)/.exec((res.req && res.req.headers.range) || '');
+  let a = 0, b = total - 1, code = 200;
+  const head = { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Cache-Control': cc };
+  if (rg) {
+    a = rg[1] === '' ? Math.max(0, total - Number(rg[2])) : Number(rg[1]);
+    b = rg[1] !== '' && rg[2] !== '' ? Math.min(Number(rg[2]), total - 1) : total - 1;
+    if (!(a <= b && a < total)) { res.writeHead(416, { 'Content-Range': 'bytes */' + total }); return res.end(); }
+    code = 206; head['Content-Range'] = 'bytes ' + a + '-' + b + '/' + total;
+  }
+  head['Content-Length'] = b - a + 1;
+  res.writeHead(code, head);
+  if (res.req && res.req.method === 'HEAD') return res.end();
+  const stream = fs.createReadStream(filePath, { start: a, end: b });
+  stream.on('error', () => res.destroy());
+  res.on('close', () => stream.destroy());   // зритель закрыл вкладку — не дочитываем файл зря
+  stream.pipe(res);
+}
+function serveFile(res, filePath) {
+  fs.stat(filePath, (err, st) => {
+    if (err || !st.isFile()) { sendJson(res, 404, { error: 'not found' }); return; }
+    const ext = path.extname(filePath).toLowerCase();
+    const type = EXT_TYPES[ext] || 'application/octet-stream';
+    if (/^(video|audio)\//.test(type)) return serveMedia(res, filePath, st, type);
+    const etag = 'W/"' + st.size.toString(36) + '-' + Math.floor(st.mtimeMs).toString(36) + '"';
+    const cc = cacheControlFor(filePath, type);
+    const inm = res.req && res.req.headers['if-none-match'];
+    if (inm && inm.split(/\s*,\s*/).includes(etag)) {
+      res.writeHead(304, { ETag: etag, 'Cache-Control': cc, Vary: 'Accept-Encoding' });
+      return res.end();
+    }
+    const send = (entry) => {
+      const data = entry.data;
+      const ae = (res.req && res.req.headers['accept-encoding']) || '';
+      const head = { 'Content-Type': type, ETag: etag, 'Cache-Control': cc };
+      // текст сжимаем: страница и маршруты автобусов становятся в 4–6 раз легче (brotli ещё на ~25% легче gzip)
+      if (data.length > 1024 && /text|json|javascript|svg/.test(type) && /\b(br|gzip)\b/.test(ae)) {
+        const enc = /\bbr\b/.test(ae) ? 'br' : 'gzip';
+        const ready = entry.z && entry.z[enc];
+        const finish = (z) => {
+          Object.assign(head, { 'Content-Encoding': enc, Vary: 'Accept-Encoding', 'Content-Length': z.length });
+          res.writeHead(200, head); res.end(z);
+        };
+        if (ready) return finish(ready);
+        const job = (entry.zp = entry.zp || {})[enc] || (entry.zp[enc] = compressAsync(enc, data));
+        return job.then((z) => { (entry.z = entry.z || {})[enc] = z; finish(z); })
+          .catch(() => { head['Content-Length'] = data.length; res.writeHead(200, head); res.end(data); });
+      }
+      head['Content-Length'] = data.length;
+      res.writeHead(200, head); res.end(data);
+    };
+    const hit = FILE_CACHE.get(filePath);
+    if (hit && hit.size === st.size && hit.mtime === st.mtimeMs) return send(hit);
+    fs.readFile(filePath, (e2, data) => {
+      if (e2) { sendJson(res, 404, { error: 'not found' }); return; }
+      const entry = { size: st.size, mtime: st.mtimeMs, data, z: null };
+      if (data.length <= FILE_CACHE_BYTES) {
+        FILE_CACHE.delete(filePath);
+        if (FILE_CACHE.size >= FILE_CACHE_MAX) FILE_CACHE.delete(FILE_CACHE.keys().next().value);
+        FILE_CACHE.set(filePath, entry);
+      }
+      send(entry);
+    });
+  });
+}
 
 // защита от выхода за пределы разрешённой директории через ".."
 function safeJoin(baseDir, requestedPath) {

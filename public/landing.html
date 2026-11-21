@@ -14,7 +14,7 @@
 <script src="/appicon.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 <script>
 (function(){var d=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
 d.setAttribute("data-theme",g("ic_theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"));
@@ -468,7 +468,19 @@ const canvas=document.getElementById('scene');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}
 catch(e){document.body.classList.add('fallback');return;}
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+// Чёткость: до 2x, но если кадры не успевают (слабый телефон) — понижаем шаг за шагом до 1x
+let pixelRatio=Math.min(devicePixelRatio||1,2), slowFrames=0, frameCount=0, lastFrame=0;
+renderer.setPixelRatio(pixelRatio);
+function adaptQuality(now){
+  if(lastFrame){ const dt=now-lastFrame; if(dt<200){ frameCount++; if(dt>24) slowFrames++; } }
+  lastFrame=now;
+  if(frameCount>=90){
+    if(slowFrames>frameCount*.4 && pixelRatio>1){ pixelRatio=Math.max(1,pixelRatio-.25); renderer.setPixelRatio(pixelRatio); window.dispatchEvent(new Event('resize')); }
+    frameCount=0; slowFrames=0;
+  }
+}
+// Телефон может «отобрать» WebGL (мало памяти) — тогда показываем статичный фон вместо чёрного экрана
+canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); document.body.classList.add('fallback'); },false);
 renderer.setClearColor(0x070b12,1);
 
 const scene=new THREE.Scene();
@@ -683,6 +695,7 @@ let t0=performance.now(),riseP=0;
 const introFrom=new THREE.Vector3(-30,300,320),introLook=new THREE.Vector3(0,0,0);
 const easeIO=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function frame(now){
+  adaptQuality(now);
   const time=(now-t0)/1000;
   p+=reduce?(target-p):(target-p)*0.035;
   riseP+=reduce?(rise-riseP):(rise-riseP)*0.05;

@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Golos+Text:wght@400;500;600;700&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Golos+Text:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Golos+Text:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 :root{
@@ -1972,11 +1972,11 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <details class="set-sec" name="settings">
         <summary><span data-i18n="setIcon">Иконка приложения</span><b class="set-val" id="svIcon"></b></summary>
         <div class="set-body"><div class="icon-pick" id="segIcon">
-          <button onclick="setAppIcon('soft')" data-v="soft"><img src="/icons/soft-192.png" alt=""><span data-i18n="icSoft">Мягкая</span></button>
-          <button onclick="setAppIcon('soft-dark')" data-v="soft-dark"><img src="/icons/soft-dark-192.png" alt=""><span data-i18n="icSoftDark">Мягкая тёмная</span></button>
-          <button onclick="setAppIcon('yellow')" data-v="yellow"><img src="/icons/yellow-192.png" alt=""><span data-i18n="icYellow">Жёлтая</span></button>
-          <button onclick="setAppIcon('yellow-blue')" data-v="yellow-blue"><img src="/icons/yellow-blue-192.png" alt=""><span data-i18n="icYellowBlue">Жёлтая с синим</span></button>
-          <button onclick="setAppIcon('classic')" data-v="classic"><img src="/icon.svg" alt=""><span data-i18n="icClassic">Прежняя</span></button>
+          <button onclick="setAppIcon('soft')" data-v="soft"><img src="/icons/soft-192.png" alt="" loading="lazy" decoding="async" width="48" height="48"><span data-i18n="icSoft">Мягкая</span></button>
+          <button onclick="setAppIcon('soft-dark')" data-v="soft-dark"><img src="/icons/soft-dark-192.png" alt="" loading="lazy" decoding="async" width="48" height="48"><span data-i18n="icSoftDark">Мягкая тёмная</span></button>
+          <button onclick="setAppIcon('yellow')" data-v="yellow"><img src="/icons/yellow-192.png" alt="" loading="lazy" decoding="async" width="48" height="48"><span data-i18n="icYellow">Жёлтая</span></button>
+          <button onclick="setAppIcon('yellow-blue')" data-v="yellow-blue"><img src="/icons/yellow-blue-192.png" alt="" loading="lazy" decoding="async" width="48" height="48"><span data-i18n="icYellowBlue">Жёлтая с синим</span></button>
+          <button onclick="setAppIcon('classic')" data-v="classic"><img src="/icon.svg" alt="" loading="lazy" decoding="async" width="48" height="48"><span data-i18n="icClassic">Прежняя</span></button>
         </div><p class="icon-note" data-i18n="icNote">Меняет значок во вкладке и на экране «Домой». На уже установленном приложении значок обновится после переустановки ярлыка.</p></div>
       </details>
       <details class="set-sec" name="settings">
@@ -2143,6 +2143,22 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
 <div class="sr-only" id="srLive" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script>
+/* Запрос без ответа не должен висеть вечно: на медленной сети кнопки и «Ищем…» иначе зависают.
+   Если у запроса нет своего сигнала отмены — даём 25 с на ответ (отправке данных — 60 с). */
+(function(){
+  if(!window.fetch || !window.AbortController) return;
+  var nativeFetch=window.fetch.bind(window);
+  window.fetch=function(input,init){
+    init=init||{};
+    if(init.signal) return nativeFetch(input,init);
+    var method=String(init.method||(input&&input.method)||"GET").toUpperCase();
+    var ctl=new AbortController(), timer=setTimeout(function(){ ctl.abort(); }, method==="GET"?25000:60000);
+    var opts={}; for(var k in init) opts[k]=init[k]; opts.signal=ctl.signal;
+    return nativeFetch(input,opts).then(function(r){ clearTimeout(timer); return r; },function(e){ clearTimeout(timer); throw e; });
+  };
+})();
+</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <!-- Поворот карты: двумя пальцами (вращение) и по компасу -->
 <!-- leaflet-rotate убран: поворот карты выключен (MAP_ROTATE=false), а плагин замедлял каждое движение карты -->
@@ -6185,7 +6201,18 @@ async function valhallaRoutes(a,b,polys){
   try{ return (await ask(polys)) || (polys.length ? await ask(null) : null) || []; }catch(e){ return []; }
 }
 
-async function buildRoute(){
+// Построение маршрута: одновременно идёт только одно. Повторное нажатие с теми же точками ничего не делает,
+// с новыми — пересчёт сразу после текущего (иначе старый ответ мог нарисоваться поверх нового).
+let routeRun=null, routeAgain=false, routeSig="";
+function routeSignature(){ const v=id=>{ const e=document.getElementById(id); return e?e.value.trim():""; };
+  return JSON.stringify([v("start"),v("destination"),fieldCoords("start"),fieldCoords("destination"),S.mode,S.profile]); }
+function buildRoute(){
+  const sig=routeSignature();
+  if(routeRun){ if(sig!==routeSig) routeAgain=true; return routeRun; }
+  routeRun=(async()=>{ try{ do{ routeAgain=false; routeSig=routeSignature(); await buildRouteNow(); }while(routeAgain); } finally{ routeRun=null; } })();
+  return routeRun;
+}
+async function buildRouteNow(){
   if(mapReady) routeLayer.clearLayers();
   stopSpeak();
   const card=document.getElementById("routeCard");

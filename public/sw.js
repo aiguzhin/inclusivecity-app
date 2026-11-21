@@ -5,23 +5,20 @@
  * не трогаем вообще — иначе при сбое сети приложение получит в ответ
  * HTML оболочки вместо честной ошибки и маршрут «сломается» молча.
  */
-const CACHE = "ic-v121";
+const CACHE = "ic-v122";
 // Тайлы и скачанный город живут в своих кэшах — не стираются при обновлении сайта
 const TILES = "ic-tiles", OFFLINE = "ic-offline", KEEP = [TILES, OFFLINE], TILE_MAX = 4000;
+// Только то, что нужно для запуска без сети. Каждая страница — один раз под тем адресом, по которому её открывают
+// (раньше «/» и «/landing.html», «/map» и «/index.html» качались дважды, плюс ненужный уже leaflet-rotate)
 const SHELL = [
   "/",
-  "/landing.html",
   "/map",
-  "/index.html",
-  "/login.html",
-  "/dashboard.html",
+  "/login",
   "/manifest.json",
-  "/icon.svg",
   "/appicon.js",
   "/icons/soft.svg",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ];
 // Страница на самый крайний случай: нет сети и ещё ни разу не открывали сайт на этом устройстве
 const OFFLINE_PAGE = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -83,7 +80,8 @@ self.addEventListener("fetch", e => {
   if (req.mode === "navigate") {
     e.respondWith((async () => {
       const cached = () => caches.match(req, { ignoreSearch: true })
-        .then(hit => hit || (url.pathname === "/" ? caches.match("/") : /^\/(map|index\.html)?\/?$/.test(url.pathname) ? caches.match("/map").then(h => h || caches.match("/index.html")) : null));
+        .then(hit => hit || (url.pathname === "/" ? caches.match("/") : /^\/(map|index\.html)?\/?$/.test(url.pathname) ? caches.match("/map").then(h => h || caches.match("/index.html"))
+          : url.pathname === "/account" ? caches.match("/login") : null));
       const net = fetch(req).then(res => {
         if (!res || res.status >= 500) throw new Error("server " + (res && res.status));
         return putInCache(req, res);
