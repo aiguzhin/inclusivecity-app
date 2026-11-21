@@ -4040,7 +4040,7 @@ function openTerr(){
   setTimeout(()=>{ if(q && !sheetMode()) q.focus(); },60);
 }
 function terrStatus(html){ const el=document.getElementById("terrStatus"); if(el) el.innerHTML=html||""; }
-function terrStop(){ clearTimeout(TERR.poll); TERR.poll=0; if(TERR.ctl){ try{ TERR.ctl.abort(); }catch(e){} TERR.ctl=null; } }
+function terrStop(){ clearTimeout(TERR.poll); TERR.poll=0; TERR.direct=null; if(TERR.ctl){ try{ TERR.ctl.abort(); }catch(e){} TERR.ctl=null; } }
 function terrGo(level){ terrStop(); TERR.path=TERR.path.slice(0,level); TERR.list=null; TERR.filter=""; terrRender(); const l=document.getElementById("terrList"); if(l) l.scrollTop=0; }
 function terrOpen(kind, item){
   terrStop(); TERR.path.push({kind, id:item.id, n:item.n, nk:item.nk, ne:item.ne, ll:item.ll}); TERR.list=null; TERR.filter="";
@@ -4057,16 +4057,41 @@ async function terrLoad(){
   try{
     const r=await fetch(`/api/kz/children?id=${top.id}&kind=${top.kind}`,{signal:ctl.signal});
     if(seq!==TERR.seq) return;
-    if(r.status===202){ terrStatus(`<span class="terr-spin" aria-hidden="true"></span>${esc(t("terrPending"))}`); TERR.poll=setTimeout(()=>{ if(seq===TERR.seq) terrLoad(); },5000); return; }
+    if(r.status===202){
+      terrStatus(`<span class="terr-spin" aria-hidden="true"></span>${esc(t("terrPending"))}`);
+      // сервер ещё спрашивает OSM — параллельно спрашиваем сами (одну эту территорию), кто первый — того и показываем
+      if(!TERR.direct || TERR.direct.key!==key){ const job={key}; TERR.direct=job;
+        terrDirect(top).then(items=>{ if(TERR.direct!==job || seq!==TERR.seq || !items) return; terrStop(); terrPut(key,items); terrRender(); }).catch(()=>{}); }
+      TERR.poll=setTimeout(()=>{ if(seq===TERR.seq) terrLoad(); },5000); return; }
     if(!r.ok) throw new Error(r.status);
     const d=await r.json(); if(seq!==TERR.seq) return;
-    TERR.list=d.items||[];
-    TERR.cache.delete(key); if(TERR.cache.size>=30) TERR.cache.delete(TERR.cache.keys().next().value); TERR.cache.set(key,TERR.list);
-    terrRender();
+    terrPut(key, d.items||[]); terrRender();
   }catch(e){
     if(seq!==TERR.seq || e.name==="AbortError") return;
     terrStatus(`${esc(t("terrErr"))} <button type="button" class="btn-ghost btn-sm" onclick="terrLoad()">${esc(t("terrRetry"))}</button>`);
   }
+}
+function terrPut(key, items){
+  TERR.list=items; TERR.direct=null;
+  TERR.cache.delete(key); if(TERR.cache.size>=30) TERR.cache.delete(TERR.cache.keys().next().value); TERR.cache.set(key,items);
+}
+// Тот же запрос, что делает сервер (kz.js), — напрямую к Overpass, только для выбранной территории
+async function terrDirect(top){
+  const area=`rel(${top.id});map_to_area->.a;`;
+  const q=top.kind==="region"
+    ? `[out:json][timeout:60];${area}rel(area.a)["boundary"="administrative"]["admin_level"="6"]["name"];out tags center;`
+    : `[out:json][timeout:60];${area}node(area.a)["place"~"^(city|town|village|hamlet)$"]["name"];out;`;
+  const d=await overpassQuery("data="+encodeURIComponent(q), 45000);
+  const rank={city:0,town:1,village:2,hamlet:3}, items=[];
+  (d.elements||[]).forEach(e=>{ const g=e.tags||{}, la=e.lat!=null?e.lat:e.center&&e.center.lat, lo=e.lon!=null?e.lon:e.center&&e.center.lon;
+    if(la==null||lo==null) return;
+    const it={id:e.id, n:g["name:ru"]||g.name, nk:g["name:kk"]||"", ne:g["name:en"]||"", ll:[+la.toFixed(5),+lo.toFixed(5)]};
+    if(top.kind==="district"){ it.p=g.place; if(/^\d+$/.test(g.population||"")) it.pop=+g.population; }
+    else it.t=/Г\.А\.|Қ\.Ә\.|город|қаласы/i.test(it.n+" "+it.nk)?"city":"district";
+    items.push(it); });
+  if(top.kind==="district") items.sort((a,b)=>(rank[a.p]-rank[b.p])||((b.pop||0)-(a.pop||0))||a.n.localeCompare(b.n,"ru"));
+  else items.sort((a,b)=>(a.t===b.t?0:a.t==="city"?-1:1)||a.n.localeCompare(b.n,"ru"));
+  return items;
 }
 function terrRow(label, sub, onclick, chev){
   return `<li><button type="button" class="terr-row" onclick="${onclick}"><span class="terr-n">${esc(label)}</span>${sub?`<span class="terr-sub">${esc(sub)}</span>`:""}${chev?`<svg class="terr-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}</button></li>`;

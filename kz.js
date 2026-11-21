@@ -25,7 +25,7 @@ function query(id, kind) {
   return `[out:json][timeout:90];${area}node(area.a)["place"~"^(city|town|village|hamlet)$"]["name"];out;`;
 }
 async function fetchOne(url, body) {
-  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 100e3);
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 50e3);
   try {
     const r = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(body), headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'ICity/1.0 (inclusivecity.uk)' }, signal: ctl.signal });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -41,10 +41,11 @@ function shorten(s) { return String(s || '').slice(0, 80); }
 async function compute(key, id, kind) {
   const q = query(id, kind);
   let d = null, err = null;
+  // все зеркала сразу, берём первый ответ: одно из них часто перегружено и молчит минутами
   for (let round = 0; round < 2 && !d; round++) {
-    try { d = await Promise.any(MIRRORS.slice(0, 2).map((u) => fetchOne(u, q))); }
-    catch (e) { try { d = await fetchOne(MIRRORS[2], q); } catch (e2) { err = e2; } }
-    if (!d && round === 0) await new Promise((r) => setTimeout(r, 10e3));
+    try { d = await Promise.any(MIRRORS.map((u) => fetchOne(u, q))); }
+    catch (e) { err = e.errors ? e.errors[0] : e; }
+    if (!d && round === 0) await new Promise((r) => setTimeout(r, 8e3));
   }
   if (!d) throw err || new Error('overpass unavailable');
   const items = [];
