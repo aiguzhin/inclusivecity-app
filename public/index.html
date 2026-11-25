@@ -1334,7 +1334,7 @@ button[aria-busy="true"]{cursor:progress;opacity:.75}
 @keyframes sheetDown{from{transform:none}to{transform:translateY(100%)}}
 @keyframes dlgOut{from{opacity:1;transform:none}to{opacity:0;transform:scale(.97)}}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
-.modal.closing{display:flex;animation:fadeOut .16s ease forwards}
+.modal.closing{display:flex;pointer-events:none;animation:fadeOut .16s ease forwards}
 .modal.closing .dialog{animation:dlgOut .16s ease forwards}
 @media (max-width:640px){
   .modal{align-items:flex-end;padding:0}
@@ -1432,6 +1432,63 @@ html[data-motion="off"] .loc-btn.busy .loc-arrow{animation:none}
 .me-beam{display:none;position:absolute;left:50%;top:50%;width:64px;height:56px;transform-origin:50% 100%;transform:translate(-50%,-100%);pointer-events:none;
   background:radial-gradient(ellipse at 50% 100%,rgba(23,105,194,.55),rgba(23,105,194,0) 72%);clip-path:polygon(50% 100%,0 0,100% 0)}
 body.loc-head .me-beam{display:block}
+
+/* ===== Точка в форме и обязательные поля ===== */
+.req{color:var(--red,#c0362c);font-weight:700}
+.pt-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper)}
+.pt-box p{margin:0}
+.pt-empty{font-size:.9rem}
+.pt-note{font-size:.8rem;color:var(--ink-soft);margin-top:4px!important}
+.pt-addr{font-weight:700}
+.pt-ll{font-size:.82rem;color:var(--ink-soft);margin-top:2px!important;font-variant-numeric:tabular-nums}
+.pt-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pt-acts .btn-sm{display:inline-flex;align-items:center;gap:6px}
+.pt-acts .ic{width:16px;height:16px}
+.form-need{min-height:0;margin:8px 0 0;font-size:.85rem;color:var(--ink-soft)}
+.form-need:empty{display:none}
+.send-what{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--paper);font-size:.85rem}
+.send-what b{display:block;margin-bottom:4px}
+.send-what p{margin:2px 0 0;color:var(--ink-soft)}
+a.btn-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:44px}
+a.is-disabled{opacity:.45;pointer-events:none}
+.pt-pulse{animation:ptPulse 1.2s ease-out 2}
+@keyframes ptPulse{0%{box-shadow:0 0 0 0 rgba(192,54,44,.6)}100%{box-shadow:0 0 0 16px rgba(192,54,44,0)}}
+
+.route-src{margin:10px 0 0;font-size:.8rem;line-height:1.4;color:var(--ink-soft)}
+.steps-sum{margin:0 0 8px}
+#stepsBody .steps{margin:0;padding-left:22px;line-height:1.45}
+#stepsBody .steps li{padding:6px 0;border-bottom:1px solid var(--line)}
+
+.pr-head .pr-btns{display:flex;gap:6px;flex:none}
+.pr-head>span:first-child{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.pr-where{color:var(--ink-soft);font-weight:500;font-size:.85em}
+
+/* ===== Мои места: список, который открывает места ===== */
+.pl-list li{display:flex;align-items:center;gap:6px}
+.pl-go{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 8px;border:0;border-radius:8px;background:none;color:var(--ink);text-align:left;font-weight:500}
+.pl-go span{display:flex;flex-direction:column;min-width:0}
+.pl-go b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-go small{color:var(--ink-soft);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover){ .pl-go:hover{background:var(--paper)} }
+.pl-del{flex:none;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:none;color:var(--ink-soft)}
+/* ===== Плашка «ваше место видят друзья» ===== */
+.share-chip{position:absolute;z-index:520;left:50%;transform:translateX(-50%);top:12px;display:flex;align-items:center;gap:2px;max-width:calc(100% - 24px);
+  background:var(--card);border-radius:10px;box-shadow:var(--soft-sh);padding:2px}
+.share-chip[hidden]{display:none}
+.share-chip button{min-height:40px;border:0;background:none;color:var(--ink);font-size:.84rem;font-weight:600;padding:6px 10px;border-radius:8px}
+.share-chip .sc-main{display:flex;align-items:center;gap:8px;min-width:0}
+.share-chip .sc-main span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share-chip .sc-off{color:var(--red,#c0362c);flex:none}
+.sc-dot{width:10px;height:10px;border-radius:50%;background:#1f9d55;flex:none;box-shadow:0 0 0 3px rgba(31,157,85,.2)}
+@media (max-width:860px){ html[data-ui="soft"] .share-chip{top:calc(env(safe-area-inset-top,0px) + 118px)} }
+
+/* ===== Первый запуск: одна активная задача — выбор места ===== */
+.first-gate{display:none}
+body.first-run .first-gate{display:block;margin:12px 0 8px;padding:14px;border-radius:10px;background:var(--paper);border:1px solid var(--line)}
+body.first-run .first-gate p{margin:0 0 10px;line-height:1.45}
+body.first-run .first-gate .btn-primary{width:100%}
+body.first-run #sidePanel #pageTitle ~ *:not(.first-gate):not(.modal){display:none!important}
+.map-menu{overscroll-behavior:contain;scrollbar-gutter:stable}
 </style>
 <script>/* © ICity — inclusivecity.uk. Копия на чужом адресе показывает ссылку на оригинал */
 (function(){var h=location.hostname,ok=["inclusivecity.uk","www.inclusivecity.uk","inclusivecity.onrender.com","localhost","127.0.0.1",""];
@@ -1748,6 +1805,11 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <p class="eyebrow" data-i18n="eyebrow">Маршрут и доступность</p>
     <button type="button" class="place-btn" id="placeBtn" onclick="openTerr()" aria-haspopup="dialog" aria-controls="terrModal"><i data-ic="pin"></i><span id="placeBtnT"></span><span class="pb-ch" data-i18n="terrChange">Сменить</span></button>
     <h1 class="title" id="pageTitle">Алматы: передвигайтесь увереннее</h1>
+    <!-- Первый запуск: пока место не выбрано, форма маршрута не показывается — один активный экран, а не два -->
+    <div class="first-gate" id="firstGate">
+      <p data-i18n="fgText">Сначала выберите город или посёлок — маршруты, слои и жалобы строятся для выбранного места.</p>
+      <button type="button" class="btn-primary" onclick="openTerr()" data-i18n="terrChoose">Выбрать место</button>
+    </div>
 
 
     <!-- Профиль передвижения живёт в настройках аккаунта; здесь — только напоминание, по какому профилю строим -->
@@ -1890,7 +1952,7 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <div class="peek-hello" aria-live="polite"><span id="peekWhere"></span><b id="peekHi"></b></div>
       <div class="peek-route" id="peekRoute" hidden>
         <button type="button" class="pr-go" onclick="navStart()"><i data-ic="nav"></i> <span data-i18n="navGo">Поехали</span></button>
-        <button type="button" class="pr-steps" onclick="openSheet()" data-i18n="navSteps">Шаги</button>
+        <button type="button" class="pr-steps" onclick="openSteps()" data-i18n="navSteps" aria-haspopup="dialog" aria-controls="stepsModal">Шаги</button>
         <button type="button" class="pr-x" onclick="clearRouteAll()" data-i18n-aria="navClear" aria-label="Сбросить маршрут">✕</button>
       </div>
       <button type="button" class="peek-search" id="peekSearch" onclick="openPeekSearch()"
@@ -2215,14 +2277,12 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
     <label class="field" for="photo"><span data-i18n="repPhoto">Фото</span></label>
     <input id="photo" type="file" accept="image/*" hidden onchange="repTiles()">
     <div class="rv-tiles" id="repTiles"></div>
-    <label class="field" for="comment"><span data-i18n="repComment">Комментарий</span></label>
-    <input type="text" id="comment" required data-i18n-ph="repCommentPh" placeholder="Например: съезд перекрыт автомобилем">
-    <label class="field" for="reportPlace"><span data-i18n="repPlace">Метка на карте</span></label>
-    <input type="text" id="reportPlace" readonly value="" data-i18n-ph="repNoPoint" placeholder="Точка не выбрана — нажмите «Выбрать точку»">
-    <div class="row" style="margin-top:14px">
-      <button type="button" class="btn-ghost" onclick="setReportPick()" data-i18n="repPick">Выбрать точку</button>
-      <button type="submit" class="btn-primary grow" id="submitReport" data-i18n="repSend">Отправить</button>
-    </div>
+    <label class="field" for="comment"><span data-i18n="repComment">Комментарий</span> <span class="req" aria-hidden="true">*</span></label>
+    <input type="text" id="comment" required aria-required="true" data-i18n-ph="repCommentPh" placeholder="Например: съезд перекрыт автомобилем" oninput="formCheck('report')">
+    <p class="field" id="reportPtL"><span data-i18n="repPlace">Метка на карте</span> <span class="req" aria-hidden="true">*</span></p>
+    <div class="pt-box" id="reportPt" role="group" aria-labelledby="reportPtL"></div>
+    <p class="form-need" id="reportNeed" aria-live="polite"></p>
+    <button type="submit" class="btn-primary" style="width:100%;margin-top:10px" id="submitReport" data-i18n="repSend">Отправить</button>
   </form>
 </div>
 
@@ -2261,6 +2321,31 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
   </div>
 </div>
 
+<!-- Шаги маршрута -->
+<div class="modal" id="stepsModal" role="dialog" aria-modal="true" aria-labelledby="stepsH" onclick="if(event.target===this)closeModal('stepsModal')">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="stepsH" data-i18n="stepsTitle">Шаги маршрута</h2>
+      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('stepsModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
+    <div id="stepsBody"></div>
+  </div>
+</div>
+
+<!-- Поделиться поездкой: сначала видно, что именно уйдёт -->
+<div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shH" onclick="if(event.target===this)closeModal('shareModal')">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="shH" data-i18n="shTrip">Поделиться поездкой</h2>
+      <button type="button" class="btn-ghost btn-sm" onclick="closeModal('shareModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button></div>
+    <div class="send-what" id="shWhat"></div>
+    <label class="frp-tog"><input type="checkbox" id="shHere" onchange="shBuild()"> <span data-i18n="shAddHere">Добавить ссылку на моё текущее место</span></label>
+    <label class="field" for="shText" data-i18n="shPreview">Текст сообщения</label>
+    <textarea id="shText" rows="4" readonly></textarea>
+    <div class="row" style="margin-top:12px">
+      <button type="button" class="btn-primary grow" onclick="shSend()" data-i18n="shSend">Поделиться…</button>
+      <button type="button" class="btn-ghost" onclick="closeModal('shareModal')" data-i18n="plCancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
 <!-- Обращение в акимат -->
 <div class="modal" id="complaintModal" role="dialog" aria-modal="true" aria-labelledby="cmpTitle">
   <div class="dialog">
@@ -2269,11 +2354,14 @@ document.body.appendChild(d);setTimeout(function(){location.replace("https://inc
       <button class="btn-ghost btn-sm" onclick="closeModal('complaintModal')" data-i18n-aria="close" aria-label="Закрыть">✕</button>
     </div>
     <p class="small muted" data-i18n="cmpHelp">Готовый текст со ссылкой на координаты. Скопируйте и отправьте через портал eOtinish.</p>
+    <p class="field" id="complaintPtL"><span data-i18n="cmpPoint">Место барьера</span> <span class="req" aria-hidden="true">*</span></p>
+    <div class="pt-box" id="complaintPt" role="group" aria-labelledby="complaintPtL"></div>
     <label class="field" for="cmpText"><span data-i18n="cmpText">Текст обращения</span></label>
-    <textarea id="cmpText" rows="10"></textarea>
+    <textarea id="cmpText" rows="9" data-i18n-ph="cmpNoText" placeholder="Текст появится, когда вы выберете точку"></textarea>
+    <p class="form-need" id="complaintNeed" aria-live="polite"></p>
     <div class="row" style="margin-top:12px">
-      <button class="btn-primary grow" onclick="copyComplaint()" data-i18n="cmpCopy">Скопировать</button>
-      <a class="grow" href="https://eotinish.kz" target="_blank" rel="noopener"><button class="btn-ghost" style="width:100%" data-i18n="cmpOpen">Открыть eOtinish</button></a>
+      <button type="button" class="btn-primary grow" id="cmpCopyBtn" onclick="copyComplaint()" data-i18n="cmpCopy">Скопировать</button>
+      <a class="btn-ghost grow btn-link" id="cmpOpenBtn" href="https://eotinish.kz" target="_blank" rel="noopener" data-i18n="cmpOpen">Открыть eOtinish</a>
     </div>
   </div>
 </div>
@@ -2435,7 +2523,7 @@ ru:{
  inDriveCopied:"Адрес скопирован — вставьте его в inDrive", taxiWc:"В Яндекс Go есть бесплатная опция «Буду с инвалидным креслом» — включите её при заказе.",
  rwIce:"Сегодня гололёд: строим маршрут с уклоном не больше {n}%, обходим скользкие спуски", rwSnow:"За время пути пойдёт снег — тротуары могут быть не расчищены", rwRain:"Во время пути вероятен дождь — возьмите дождевик", rwRainIn:"Через ~{n} мин начнётся дождь — лучше выйти сейчас", rwHeat:"Жара: возьмите воду, держитесь тени", rwCold:"Сильный мороз: держите телефон и руки в тепле, батарея садится быстрее", rwFreeze:"Дождь при около нуля — к вечеру возможна наледь", navStart:"Начать навигацию", navStop:"Завершить", navRepeat:"Повторить", navGeo:"Для навигации нужна геопозиция — разрешите доступ", navIn:"Через {d}", navNow:"Сейчас", navBegin:"Маршрут построен. {s}", navGoAlong:"идите прямо {d}", navGoStraight:"идите прямо {d}", navThen:"затем", navNow:"сейчас", spSummary:"Маршрут {d}, примерно {m} минут, поворотов: {t}.", spBarriers:"По пути есть препятствия: {n}.", spClear:"Препятствий по пути нет.", spHint:"Нажмите «Поехали» — подскажу каждый поворот голосом.", navArrived:"Вы прибыли.", navOff:"Вы отклонились от маршрута. Перестраиваю.", navStairs:"Впереди лестница", navStairsRamp:"Впереди лестница, рядом есть пандус", navTunnel:"Впереди подземный переход", navLeft:"осталось {d} · ~{m} мин", navNoRoute:"Сначала постройте пеший маршрут", navNoSteps:"Для этого маршрута нет пошаговых подсказок", offTitle:"Карта без интернета", offDl:"Скачать город", offUpd:"Обновить", offDel:"Удалить", offNone:"Не скачано", offReady:"Скачано {d} · {n} объектов", offWork:"Скачиваем… {p}%", offDone:"Город скачан — карта будет работать без интернета", offFail:"Не всё удалось скачать — попробуйте позже", offUsing:"Нет интернета — показываем скачанные данные", offNoRoute:"Без интернета маршрут не построить — откройте сохранённый в «Мои места» или подключитесь", offDeleted:"Офлайн-данные города удалены", rtTitle:"Рейтинг районов", rtLoad:"Считаем доступность районов по открытым данным… В первый раз это может занять до минуты — потом откроется сразу.", rtFail:"Не удалось посчитать — нужен интернет. Попробуйте позже.", rtFew:"Для этого города в OpenStreetMap мало данных о районах, поэтому списка нет. Но теплокарту удобства по кварталам показать можно: зелёное — удобнее, красное — больше барьеров.", rtHow:"Оценка 0–100: чем больше пандусов, лифтов, доступных туалетов, тактильной плитки и звуковых светофоров на км² и чем меньше лестниц без пандуса и жалоб — тем выше. Сравнение внутри города.", rtPos:"удобств", rtNeg:"барьеров", rtMap:"Показать на карте", rtHide:"Скрыть с карты", rtSrc:"Данные: OpenStreetMap и жалобы жителей ICity · обновлено {d}", rtShare:"Поделиться", rtShareTxt:"Доступность районов — {city} (ICity):", rtBad:"хуже", rtGood:"лучше", rtCell:"Удобств: {p} · барьеров: {n}", rvTitle:"Отзывы о доступности", rvNone:"Пока нет отзывов — будьте первым, это поможет другим", rvAdd:"Оставить отзыв", rvSend:"Отправить отзыв", rvSent:"Спасибо! Отзыв опубликован", rvFail:"Не удалось отправить: ", rvStars:"Общая оценка", rvText:"Что важно знать (необязательно)", rvPhoto:"Фото входа или пандуса (необязательно)", rvName:"Ваше имя (необязательно)", rvAll:"Все отзывы ({n})", rvFlag:"Пожаловаться", rvFlagged:"Спасибо, проверим", rvYes:"Есть", rvNo:"Нет", rvCount:"{n} {w}", rvW1:"отзыв", rvW2:"отзыва", rvW5:"отзывов", ck_ramp:"Пандус", ck_door:"Широкая дверь", ck_step:"Вход без ступеней", ck_toilet:"Доступный туалет", ck_elevator:"Лифт", ck_parking:"Парковка для инвалидов", ck_staff:"Персонал помогает", ck_tactile:"Тактильная плитка", hpMenu:"Помощь волонтёров", hpTitle:"Попросить помощи у волонтёра", hpHelp:"Не экстренно: проводить, помочь с лестницей, сесть в транспорт. Волонтёры рядом увидят просьбу.", hpAsk:"Нужна помощь", hpKindQ:"Чем помочь?", hp_escort:"Проводить", hp_stairs:"Лестница / бордюр", hp_transport:"Сесть в транспорт", hp_shop:"Магазин / аптека", hp_lost:"Я заблудился", hp_other:"Другое", hpText:"Пару слов (необязательно)", hpContact:"Телефон для связи", hpYourName:"Как к вам обращаться", hpSend:"Отправить просьбу", hpWait:"Ищем волонтёра рядом… Просьба видна 3 часа.", hpGot:"Откликнулся волонтёр: {name}", hpCall:"Позвонить", hpCancel:"Отменить просьбу", hpDone:"Помощь получена — закрыть", hpClosed:"Просьба закрыта", hpNeedGeo:"Нужна геопозиция, чтобы волонтёр нашёл вас", hpVol:"Я волонтёр — показать просьбы рядом", hpNoReq:"Сейчас рядом никто не просит помощи. Спасибо, что готовы помочь!", hpTake:"Откликнуться", hpVName:"Ваше имя", hpVPhone:"Ваш телефон", hpTaken:"Вы откликнулись. Свяжитесь с человеком:", hpGo:"Маршрут к нему", hpAgo:"{n} мин назад", hpFar:"~{d} от вас", hpPrivacy:"Точное место и телефон увидит только откликнувшийся волонтёр.", hpOwn:"Ваша просьба", hpNewReq:"Новая просьба о помощи рядом", mrTitle:"Мои жалобы", mrNone:"Вы ещё не отправляли жалоб с этого устройства", mrSt_pending:"На проверке", mrSt_approved:"На карте", mrSt_in_progress:"В работе", mrSt_fixed:"Исправлено", mrSt_rejected:"Отклонена", mrSt_gone:"Нет данных", mrChanged:"Жалоба «{t}»: {s}", mrNotify:"Сообщать, когда жалобу исправят", mrNotifyOn:"Уведомления включены", peekToilet:"Туалет", wcSearch:"Ищем ближайший доступный туалет…", wcFound:"Ближайший доступный туалет — {d}", wcNone:"Рядом доступных туалетов на карте нет. Попробуйте торговый центр или вокзал.", shTrip:"Поделиться поездкой", shShort:"Поделиться", shText:"Я еду: {to}. Буду примерно в {t} ({m} мин). Я сейчас здесь: {here}", shCopied:"Текст поездки скопирован — отправьте близким", setUi:"Стиль оформления", uiSoft:"Мягкий", uiClassic:"Классический", repUnchecked:"Ещё не проверено", repRerouted:"Спасибо! Барьер на карте, маршрут перестроен", busKb:"У пеших участков известные барьеры: {n} — пешком ведём в обход", carVarsTitle:"Варианты пути", carFast:"Быстрее всего", carShort:"Короче", carNoDirt:"Без грунтовых дорог", carNoHw:"Без скоростных трасс", carAlt:"Другой путь", carVarsNote:"Цена — оценка по тарифу для каждого пути", carVarsLive:"Точная цена Яндекс Go — для пути, который выберет водитель; у вариантов — оценка по тарифу", kbSearching:"На пути известные барьеры — ищем обход…", kbAvoided:"Обошли известных барьеров: {n}", kbOnWay:"известных барьеров на пути: {n}", kbK_kerb:"высокий бордюр", kbK_gate:"турникет или узкий проход", kbK_nowc:"участок не для колясок", kbK_report:"барьер от жителей", kbK_news:"переход без лифта или пандуса", kbK_steps:"лестница", kbS_osm:"Данные OpenStreetMap", kbS_report:"Жалоба жителя в ICity", kbS_news:"По данным СМИ", kbMore:"Источник", setIcon:"Иконка приложения", icSoft:"Мягкая", icSoftDark:"Мягкая тёмная", icYellow:"Жёлтая", icYellowBlue:"Жёлтая с синим", icClassic:"Прежняя", icNote:"Меняет значок во вкладке и на экране «Домой». На уже установленном приложении значок обновится после переустановки ярлыка.", navPlaces:"Мои места", navMap:"Карта", navProfile:"Профиль", hiMorning:"Доброе утро", hiDay:"Добрый день", hiEvening:"Добрый вечер", hiNight:"Доброй ночи", hiSlip:"скользко", ppSetHome:"Указать дом", ppSetWork:"Указать работу", ppAddr:"ввести адрес", ppTap:"маршрут в один тап", mmLayers:"Слои и сведения карты", mmLayersSub:"Что показать на карте", mmInfo:"Погода", peekMoreBtn:"⌃ Дом, работа и быстрые кнопки", satYearT:"Год спутниковых снимков", satYearHelp:"Обычно показываем самые свежие снимки. Можно посмотреть, как место выглядело раньше.", satLatest:"Самые новые", psAddr:"Адрес", psPh:"Улица и дом, например: Абая 10", psHere:"Я сейчас здесь", psHelp:"Выберите подсказку или нажмите ⌖, если вы сейчас там.", psSave:"Сохранить и показать на карте", psSetHome:"Где ваш дом?", psSetWork:"Где ваша работа?", psSaved:"Сохранено — значок на карте", psNotFound:"Адрес не найден — выберите подсказку из списка", pfPh:"Адрес, место или организация", pfCatsT:"Рядом с вами", pfRoute:"Построить маршрут из точки в точку", pfNear:"{c} рядом · {n}", pfNone:"Рядом ничего не нашли — попробуйте сдвинуть карту", pfLoading:"Ищем рядом…", pfClear:"Скрыть", pfFail:"Не удалось найти — проверьте интернет", c_pharmacy:"Аптеки", c_food:"Поесть", c_shop:"Продукты", c_atm:"Банкоматы", c_health:"Больницы", c_bus:"Остановки", c_mall:"ТЦ", c_park:"Парки", wcYes:"♿ доступно", wcLim:"♿ частично", wcNo:"♿ недоступно", wcUnk:"♿ нет данных", compassNorth:"Север вверху", compassFollow:"Карта повёрнута туда, куда вы смотрите. Нажмите компас ещё раз — север вверху", plNeedStart:"Укажите, откуда едем, или включите геопозицию", plTitle:"Мои места", plHome:"Дом", plWork:"Работа", plPlace:"Место", plRoute:"Маршрут", plAdd:"Сохранить", plEdit:"Изменить", plSaveTitle:"Сохранить в «Мои места»", plSaveHelp:"Сохраним то, что сейчас в поле «Куда».", plSaveRouteHelp:"Сохраним «Откуда → Куда» и способ передвижения.", plName:"Название", plSaveBtn:"Сохранить", plCancel:"Отмена", plSaved:"Сохранено в «Мои места»", plDel:"Удалить", plNeedDest:"Сначала укажите, куда едем", plNotFound:"Не нашли это место — выберите подсказку или точку на карте", plSetHome:"Укажите дом: впишите адрес в «Куда» и нажмите «Сохранить»", plSetWork:"Укажите работу: впишите адрес в «Куда» и нажмите «Сохранить»", plEmpty:"Пока ничего не сохранено",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go по телефону", taxiYaPhoneSub:"Если нет приложения — диспетчер {city}", taxiOsmSub:"Служба такси · {city}", invaH:"Инватакси — {city}", invaWho:"Бесплатно для людей с инвалидностью и детей с инвалидностью по заключению ВКК (форма 026/у). С 20.09.2026 — единый перечень из 18 медицинских показаний. Заказ обычно за сутки.", invaHow:"Как подключиться: заявление в отдел занятости и соцпрограмм акимата или через Портал социальных услуг.", invaYa:"В Астане и Алматы инватакси можно заказать и в приложении Яндекс Go — если вы подключены к пилоту.", invaAtyrau:"В Атырау тестируют приложение InvoTaxi для вызова инватакси (с октября 2026).", invaOld:"Номер из старого справочника — мог измениться. Уточните в акимате.", invaNone:"Своей службы инватакси в открытых источниках не нашли. Обратитесь в отдел занятости и соцпрограмм акимата.", invaSrc:"Источник: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Службы такси — из OpenStreetMap",
- peekWarns:"на пути", peekClear:"Препятствий не найдено",
+ peekWarns:"на пути", peekClear:"В OpenStreetMap препятствия не отмечены",
  compass:"Компас", facing:"Вы смотрите на", 
  compassNone:"На этом устройстве нет компаса. Карта всегда повёрнута на север.",
  compassDenied:"Доступ к компасу не разрешён. Карта всегда повёрнута на север.",
@@ -2481,9 +2569,9 @@ ru:{
  routeFail:"Не удалось построить маршрут", routeFailHelp:"Проверьте название места или подключение к интернету.",
  km:"км", m:"м", min:"мин", steps:"Шаги маршрута", speak:"Озвучить маршрут", stopSpeak:"Остановить",
  warnStairs:"На маршруте найдены ступени: ", warnTunnel:"Подземных и надземных переходов: ", warnSlope:"Максимальный уклон ≈ ",
- noRamp:"без пандуса", okNoStairs:"Ступеней по данным OSM не найдено", noElev:"Данные о высотах недоступны",
+ noRamp:"без пандуса", okNoStairs:"В данных OpenStreetMap ступени не отмечены; сведения могут быть неполными", noElev:"Данные о высотах недоступны",
  slopeHard:"крутой подъём, тяжело на механической коляске", slopeOk:"уклон приемлемый",
- layerEmpty:"В видимой области объектов не найдено — сдвиньте или отдалите карту",
+ layerEmpty:"В видимой области в OpenStreetMap ничего не отмечено — данные могут быть неполными. Сдвиньте карту или сообщите о месте.",
  layerFail:"Серверы OpenStreetMap сейчас перегружены. Нажмите кнопку слоя ещё раз через несколько секунд.",
  zoomIn:"Приблизьте карту, чтобы загрузить объекты", searchHere:"Искать в этой области",
  found:"Найдено объектов: ", verify:"Подтвердить", verified:"Подтверждений: ", thanks:"Спасибо!",
@@ -2525,7 +2613,7 @@ kk:{
  inDriveCopied:"Мекенжай көшірілді — оны inDrive-қа қойыңыз", taxiWc:"Яндекс Go-да тегін «Мүгедектер арбасымен боламын» опциясы бар — тапсырыс бергенде қосыңыз.",
  rwIce:"Бүгін көктайғақ: еңісі {n}%-дан аспайтын бағыт таңдаймыз, тайғақ түсулерді айналып өтеміз", rwSnow:"Жол бойы қар жауады — тротуарлар тазаланбауы мүмкін", rwRain:"Жол бойы жаңбыр жаууы мүмкін — жаңбырлық алыңыз", rwRainIn:"~{n} минуттан кейін жаңбыр басталады — қазір шыққан дұрыс", rwHeat:"Ыстық: су алыңыз, көлеңкемен жүріңіз", rwCold:"Қатты аяз: телефон мен қолды жылы ұстаңыз, батарея тез отырады", rwFreeze:"Нөлге жақын жаңбыр — кешке қарай мұз қатуы мүмкін", navStart:"Навигацияны бастау", navStop:"Аяқтау", navRepeat:"Қайталау", navGeo:"Навигацияға геолокация керек — рұқсат беріңіз", navIn:"{d} кейін", navNow:"Қазір", navBegin:"Жүрдік. {s}", navGoAlong:"{n} бойымен жүріңіз, {d}", navGoStraight:"тіке жүріңіз, {d}", navThen:"содан кейін", navNow:"қазір", spSummary:"Бағыт {d}, шамамен {m} минут, бұрылыс саны: {t}.", spBarriers:"Жолда кедергілер бар: {n}.", spClear:"Жолда кедергі жоқ.", spHint:"«Жүрдік» батырмасын басыңыз — әр бұрылысты дауыспен айтамын.", navArrived:"Сіз межелі жердесіз.", navOff:"Бағыттан ауытқыдыңыз. Қайта құрамын.", navStairs:"Алда баспалдақ", navStairsRamp:"Алда баспалдақ, жанында пандус бар", navTunnel:"Алда жерасты өткелі", navLeft:"{d} қалды · ~{m} мин", navNoRoute:"Алдымен жаяу бағыт құрыңыз", navNoSteps:"Бұл бағыт үшін қадамдық нұсқаулар жоқ", offTitle:"Интернетсіз карта", offDl:"Қаланы жүктеу", offUpd:"Жаңарту", offDel:"Жою", offNone:"Жүктелмеген", offReady:"Жүктелді {d} · {n} нысан", offWork:"Жүктеп жатырмыз… {p}%", offDone:"Қала жүктелді — карта интернетсіз жұмыс істейді", offFail:"Бәрін жүктеу мүмкін болмады — кейінірек қайталаңыз", offUsing:"Интернет жоқ — жүктелген деректерді көрсетеміз", offNoRoute:"Интернетсіз бағыт құру мүмкін емес — «Менің орындарымдағы» сақталғанын ашыңыз немесе қосылыңыз", offDeleted:"Қаланың офлайн деректері жойылды", rtTitle:"Аудандар рейтингі", rtLoad:"Аудандардың қолжетімділігін ашық деректер бойынша есептеп жатырмыз… Алғаш рет бір минутқа дейін созылуы мүмкін — кейін бірден ашылады.", rtFail:"Есептеу мүмкін болмады — интернет керек. Кейінірек қайталаңыз.", rtFew:"Бұл қала үшін OpenStreetMap-та аудандар туралы дерек аз, сондықтан тізім жоқ. Бірақ кварталдар бойынша ыңғайлылық жылу картасын көрсетуге болады: жасыл — ыңғайлырақ, қызыл — кедергі көбірек.", rtHow:"0–100 баға: км²-ге шаққанда пандус, лифт, қолжетімді дәретхана, тактильді плитка мен дыбыстық бағдаршам көп, ал пандуссыз баспалдақ пен шағым аз болса — жоғары. Қала ішінде салыстырылады.", rtPos:"ыңғайлылық", rtNeg:"кедергі", rtMap:"Картада көрсету", rtHide:"Картадан жасыру", rtSrc:"Деректер: OpenStreetMap және ICity тұрғындарының шағымдары · жаңартылды {d}", rtShare:"Бөлісу", rtShareTxt:"Аудандардың қолжетімділігі — {city} (ICity):", rtBad:"нашар", rtGood:"жақсы", rtCell:"Ыңғайлылық: {p} · кедергі: {n}", rvTitle:"Қолжетімділік туралы пікірлер", rvNone:"Әзірге пікір жоқ — бірінші болыңыз, бұл басқаларға көмектеседі", rvAdd:"Пікір қалдыру", rvSend:"Пікірді жіберу", rvSent:"Рақмет! Пікір жарияланды", rvFail:"Жіберу мүмкін болмады: ", rvStars:"Жалпы баға", rvText:"Не білу маңызды (міндетті емес)", rvPhoto:"Кіреберіс немесе пандус фотосы (міндетті емес)", rvName:"Атыңыз (міндетті емес)", rvAll:"Барлық пікір ({n})", rvFlag:"Шағымдану", rvFlagged:"Рақмет, тексереміз", rvYes:"Бар", rvNo:"Жоқ", rvCount:"{n} {w}", rvW1:"пікір", rvW2:"пікір", rvW5:"пікір", ck_ramp:"Пандус", ck_door:"Кең есік", ck_step:"Баспалдақсыз кіреберіс", ck_toilet:"Қолжетімді дәретхана", ck_elevator:"Лифт", ck_parking:"Мүгедектер тұрағы", ck_staff:"Қызметкерлер көмектеседі", ck_tactile:"Тактильді плитка", hpMenu:"Еріктілер көмегі", hpTitle:"Еріктіден көмек сұрау", hpHelp:"Шұғыл емес: шығарып салу, баспалдақта көмектесу, көлікке отырғызу. Жақын еріктілер өтінішті көреді.", hpAsk:"Көмек керек", hpKindQ:"Немен көмектесу керек?", hp_escort:"Шығарып салу", hp_stairs:"Баспалдақ / бордюр", hp_transport:"Көлікке отыру", hp_shop:"Дүкен / дәріхана", hp_lost:"Адасып қалдым", hp_other:"Басқа", hpText:"Бірер сөз (міндетті емес)", hpContact:"Байланыс телефоны", hpYourName:"Сізге қалай жүгінеміз", hpSend:"Өтініш жіберу", hpWait:"Жақын ерікті іздеп жатырмыз… Өтініш 3 сағат көрінеді.", hpGot:"Ерікті жауап берді: {name}", hpCall:"Қоңырау шалу", hpCancel:"Өтінішті тоқтату", hpDone:"Көмек алдым — жабу", hpClosed:"Өтініш жабылды", hpNeedGeo:"Ерікті сізді табуы үшін геолокация керек", hpVol:"Мен еріктімін — жақын өтініштерді көрсету", hpNoReq:"Қазір жақын жерде ешкім көмек сұрамайды. Көмектесуге дайын болғаныңызға рақмет!", hpTake:"Жауап беру", hpVName:"Атыңыз", hpVPhone:"Телефоныңыз", hpTaken:"Сіз жауап бердіңіз. Адаммен хабарласыңыз:", hpGo:"Оған дейінгі бағыт", hpAgo:"{n} мин бұрын", hpFar:"сізден ~{d}", hpPrivacy:"Нақты орын мен телефонды тек жауап берген ерікті көреді.", hpOwn:"Сіздің өтінішіңіз", hpNewReq:"Жақын жерде жаңа көмек өтініші", mrTitle:"Менің шағымдарым", mrNone:"Бұл құрылғыдан әлі шағым жіберілмеген", mrSt_pending:"Тексерілуде", mrSt_approved:"Картада", mrSt_in_progress:"Жұмыста", mrSt_fixed:"Түзетілді", mrSt_rejected:"Қабылданбады", mrSt_gone:"Дерек жоқ", mrChanged:"«{t}» шағымы: {s}", mrNotify:"Шағым түзетілгенде хабарлау", mrNotifyOn:"Хабарламалар қосылды", peekToilet:"Дәретхана", wcSearch:"Ең жақын қолжетімді дәретхананы іздеп жатырмыз…", wcFound:"Ең жақын қолжетімді дәретхана — {d}", wcNone:"Жақын жерде картада қолжетімді дәретхана жоқ. Сауда орталығын немесе вокзалды байқап көріңіз.", shTrip:"Сапармен бөлісу", shShort:"Бөлісу", shText:"Мен барамын: {to}. Шамамен {t}-де боламын ({m} мин). Қазір осындамын: {here}", shCopied:"Сапар мәтіні көшірілді — жақындарыңызға жіберіңіз", setUi:"Безендіру стилі", uiSoft:"Жұмсақ", uiClassic:"Классикалық", repUnchecked:"Әлі тексерілмеген", repRerouted:"Рахмет! Кедергі картада, бағыт қайта құрылды", busKb:"Жаяу бөліктерде белгілі кедергілер: {n} — айналып өтеміз", carVarsTitle:"Жол нұсқалары", carFast:"Ең жылдам", carShort:"Қысқарақ", carNoDirt:"Топырақ жолсыз", carNoHw:"Жүрдек трассасыз", carAlt:"Басқа жол", carVarsNote:"Баға — әр жол үшін тариф бойынша бағалау", carVarsLive:"Yandex Go нақты бағасы — жүргізуші таңдайтын жол үшін; нұсқаларда — тариф бойынша бағалау", kbSearching:"Жолда белгілі кедергілер бар — айналма жол іздеп жатырмыз…", kbAvoided:"Айналып өткен кедергілер: {n}", kbOnWay:"жолдағы белгілі кедергілер: {n}", kbK_kerb:"биік бордюр", kbK_gate:"турникет немесе тар өткел", kbK_nowc:"арбаға жарамсыз бөлік", kbK_report:"тұрғындар белгілеген кедергі", kbK_news:"лифтсіз не пандуссыз өткел", kbK_steps:"баспалдақ", kbS_osm:"OpenStreetMap деректері", kbS_report:"ICity-дегі тұрғын шағымы", kbS_news:"БАҚ деректері бойынша", kbMore:"Дереккөз", setIcon:"Қолданба белгішесі", icSoft:"Жұмсақ", icSoftDark:"Жұмсақ қараңғы", icYellow:"Сары", icYellowBlue:"Сары, көкпен", icClassic:"Бұрынғы", icNote:"Қойындыдағы және «Басты экрандағы» белгішені өзгертеді. Орнатылған қолданбада белгіше таңбаша қайта қосылғаннан кейін жаңарады.", navPlaces:"Орындарым", navMap:"Карта", navProfile:"Профиль", hiMorning:"Қайырлы таң", hiDay:"Қайырлы күн", hiEvening:"Қайырлы кеш", hiNight:"Қайырлы түн", hiSlip:"тайғақ", ppSetHome:"Үйді көрсету", ppSetWork:"Жұмысты көрсету", ppAddr:"мекенжайды енгізу", ppTap:"бір басумен бағыт", mmLayers:"Карта қабаттары мен мәліметтері", mmLayersSub:"Картада не көрсету", mmInfo:"Ауа райы", peekMoreBtn:"⌃ Үй, жұмыс және жылдам батырмалар", satYearT:"Спутник суреттерінің жылы", satYearHelp:"Әдетте ең жаңа суреттерді көрсетеміз. Жердің бұрын қалай көрінгенін қарауға болады.", satLatest:"Ең жаңасы", psAddr:"Мекенжай", psPh:"Көше және үй, мысалы: Абай 10", psHere:"Мен қазір осындамын", psHelp:"Кеңесті таңдаңыз немесе қазір сондасыз болсаңыз ⌖ басыңыз.", psSave:"Сақтап, картада көрсету", psSetHome:"Үйіңіз қайда?", psSetWork:"Жұмысыңыз қайда?", psSaved:"Сақталды — белгі картада", psNotFound:"Мекенжай табылмады — тізімнен кеңесті таңдаңыз", pfPh:"Мекенжай, орын немесе ұйым", pfCatsT:"Жаныңызда", pfRoute:"Нүктеден нүктеге бағыт құру", pfNear:"Жақын маңдағы {c} · {n}", pfNone:"Жақын жерде ештеңе табылмады — картаны жылжытып көріңіз", pfLoading:"Жақын маңнан іздеп жатырмыз…", pfClear:"Жасыру", pfFail:"Табу мүмкін болмады — интернетті тексеріңіз", c_pharmacy:"Дәріханалар", c_food:"Тамақтану", c_shop:"Азық-түлік", c_atm:"Банкоматтар", c_health:"Ауруханалар", c_bus:"Аялдамалар", c_mall:"СО", c_park:"Саябақтар", wcYes:"♿ қолжетімді", wcLim:"♿ ішінара", wcNo:"♿ қолжетімсіз", wcUnk:"♿ дерек жоқ", compassNorth:"Солтүстік жоғарыда", compassFollow:"Карта сіз қараған жаққа бұрылды. Компасты тағы басыңыз — солтүстік жоғарыда", plNeedStart:"Қайдан шығатыныңызды көрсетіңіз немесе геолокацияны қосыңыз", plTitle:"Менің орындарым", plHome:"Үй", plWork:"Жұмыс", plPlace:"Орын", plRoute:"Бағыт", plAdd:"Сақтау", plEdit:"Өзгерту", plSaveTitle:"«Менің орындарыма» сақтау", plSaveHelp:"«Қайда» өрісіндегіні сақтаймыз.", plSaveRouteHelp:"«Қайдан → Қайда» және жүру тәсілін сақтаймыз.", plName:"Атауы", plSaveBtn:"Сақтау", plCancel:"Бас тарту", plSaved:"«Менің орындарыма» сақталды", plDel:"Жою", plNeedDest:"Алдымен қайда баратыныңызды көрсетіңіз", plNotFound:"Бұл орын табылмады — кеңесті немесе картадағы нүктені таңдаңыз", plSetHome:"Үйді көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plSetWork:"Жұмысты көрсетіңіз: мекенжайды «Қайда» өрісіне жазып, «Сақтау» басыңыз", plEmpty:"Әзірге ештеңе сақталмаған",
  taxiCityH:"Такси — {city}", taxiYaPhone:"Яндекс Go телефон арқылы", taxiYaPhoneSub:"Қосымша болмаса — {city} диспетчері", taxiOsmSub:"Такси қызметі · {city}", invaH:"Инватакси — {city}", invaWho:"Мүгедектігі бар адамдар мен балаларға ДКК қорытындысы (026/у нысаны) бойынша тегін. 20.09.2026 бастап — 18 медициналық көрсеткіштің бірыңғай тізбесі. Әдетте бір күн бұрын тапсырыс беріледі.", invaHow:"Қалай қосылуға болады: әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне өтініш немесе Әлеуметтік қызметтер порталы арқылы.", invaYa:"Астана мен Алматыда инватаксиді Яндекс Go қосымшасынан да шақыруға болады — егер пилотқа қосылған болсаңыз.", invaAtyrau:"Атырауда инватакси шақыруға арналған InvoTaxi қосымшасы сынақтан өтуде (2026 жылдың қазанынан).", invaOld:"Нөмір ескі анықтамалықтан — өзгеруі мүмкін. Әкімдіктен нақтылаңыз.", invaNone:"Ашық дереккөздерден жеке инватакси қызметі табылмады. Әкімдіктің жұмыспен қамту және әлеуметтік бағдарламалар бөліміне хабарласыңыз.", invaSrc:"Дереккөз: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Такси қызметтері — OpenStreetMap деректерінен",
- peekWarns:"жолда", peekClear:"Кедергі табылмады",
+ peekWarns:"жолда", peekClear:"OpenStreetMap-та кедергілер белгіленбеген",
  compass:"Компас", facing:"Сіз қарап тұрған бағыт:",
  compassNone:"Бұл құрылғыда компас жоқ. Карта әрқашан солтүстікке бағытталған.",
  compassDenied:"Компасқа рұқсат берілмеді. Карта әрқашан солтүстікке бағытталған.",
@@ -2571,9 +2659,9 @@ kk:{
  routeFail:"Бағыт құру мүмкін болмады", routeFailHelp:"Мекенжай атауын немесе интернет байланысын тексеріңіз.",
  km:"км", m:"м", min:"мин", steps:"Бағыт қадамдары", speak:"Бағытты дауыстап оқу", stopSpeak:"Тоқтату",
  warnStairs:"Бағытта баспалдақ кездеседі: ", warnTunnel:"Жерасты және жерүсті өткелдері: ", warnSlope:"Ең үлкен еңіс ≈ ",
- noRamp:"пандуссыз", okNoStairs:"OSM деректері бойынша баспалдақ кездеспейді", noElev:"Биіктік деректері қолжетімсіз",
+ noRamp:"пандуссыз", okNoStairs:"OpenStreetMap деректерінде баспалдақ белгіленбеген; мәліметтер толық болмауы мүмкін", noElev:"Биіктік деректері қолжетімсіз",
  slopeHard:"тік көтерілу, механикалық арбамен қиын", slopeOk:"еңіс қолайлы",
- layerEmpty:"Көрініп тұрған аймақта нысан табылмады — картаны жылжытыңыз немесе кішірейтіңіз",
+ layerEmpty:"Көрініп тұрған аймақта OpenStreetMap-та ештеңе белгіленбеген — деректер толық болмауы мүмкін. Картаны жылжытыңыз немесе орын туралы хабарлаңыз.",
  layerFail:"OpenStreetMap серверлері қазір бос емес. Бірнеше секундтан кейін қабат түймесін қайта басыңыз.",
  zoomIn:"Нысандарды жүктеу үшін картаны жақындатыңыз", searchHere:"Осы аймақтан іздеу",
  found:"Табылған нысандар: ", verify:"Растау", verified:"Растау саны: ", thanks:"Рақмет!",
@@ -2616,7 +2704,7 @@ en:{
  inDriveCopied:"Address copied — paste it into inDrive", taxiWc:"Yandex Go has a free «I have a wheelchair» option — turn it on when ordering.",
  rwIce:"Icy today: we keep slopes under {n}% and avoid slippery descents", rwSnow:"Snow is expected during the trip — pavements may not be cleared", rwRain:"Rain is likely during the trip — take a raincoat", rwRainIn:"Rain starts in ~{n} min — better leave now", rwHeat:"Heat: take water and keep to the shade", rwCold:"Severe frost: keep your phone and hands warm, the battery drains faster", rwFreeze:"Rain around zero — ice may form by evening", navStart:"Start navigation", navStop:"Finish", navRepeat:"Repeat", navGeo:"Navigation needs your location — please allow access", navIn:"In {d}", navNow:"Now", navBegin:"Let’s go. {s}", navGoAlong:"head along {n} for {d}", navGoStraight:"go straight for {d}", navThen:"then", navNow:"now", spSummary:"The route is {d}, about {m} minutes, {t} turns.", spBarriers:"There are {n} obstacles on the way.", spClear:"No obstacles on the way.", spHint:"Tap Go and I’ll call out every turn.", navArrived:"You have arrived.", navOff:"You are off the route. Rerouting.", navStairs:"Stairs ahead", navStairsRamp:"Stairs ahead, there is a ramp nearby", navTunnel:"Underpass ahead", navLeft:"{d} left · ~{m} min", navNoRoute:"Build a walking route first", navNoSteps:"This route has no turn-by-turn steps", offTitle:"Offline map", offDl:"Download city", offUpd:"Update", offDel:"Delete", offNone:"Not downloaded", offReady:"Downloaded {d} · {n} objects", offWork:"Downloading… {p}%", offDone:"City downloaded — the map will work offline", offFail:"Some data could not be downloaded — try later", offUsing:"No internet — showing downloaded data", offNoRoute:"Routes need the internet — open a saved one in My places or reconnect", offDeleted:"Offline data for the city deleted", rtTitle:"District rating", rtLoad:"Scoring district accessibility from open data… The first time can take up to a minute — after that it opens instantly.", rtFail:"Could not compute — internet needed. Try later.", rtFew:"OpenStreetMap has little district data for this city, so there is no list. But a heat map by block is available: green is easier, red has more barriers.", rtHow:"Score 0–100: more ramps, elevators, accessible toilets, tactile paving and audible signals per km², and fewer steps without ramps and complaints, means a higher score. Compared within the city.", rtPos:"amenities", rtNeg:"barriers", rtMap:"Show on map", rtHide:"Hide from map", rtSrc:"Data: OpenStreetMap and ICity residents' reports · updated {d}", rtShare:"Share", rtShareTxt:"District accessibility — {city} (ICity):", rtBad:"worse", rtGood:"better", rtCell:"Amenities: {p} · barriers: {n}", rvTitle:"Accessibility reviews", rvNone:"No reviews yet — be the first, it helps others", rvAdd:"Write a review", rvSend:"Send review", rvSent:"Thank you! Review published", rvFail:"Could not send: ", rvStars:"Overall rating", rvText:"What's important to know (optional)", rvPhoto:"Photo of the entrance or ramp (optional)", rvName:"Your name (optional)", rvAll:"All reviews ({n})", rvFlag:"Report", rvFlagged:"Thanks, we will check", rvYes:"Yes", rvNo:"No", rvCount:"{n} {w}", rvW1:"review", rvW2:"reviews", rvW5:"reviews", ck_ramp:"Ramp", ck_door:"Wide door", ck_step:"Step-free entrance", ck_toilet:"Accessible toilet", ck_elevator:"Elevator", ck_parking:"Disabled parking", ck_staff:"Staff help", ck_tactile:"Tactile paving", hpMenu:"Volunteer help", hpTitle:"Ask a volunteer for help", hpHelp:"Not an emergency: walk with you, help with stairs, get on transport. Volunteers nearby will see your request.", hpAsk:"I need help", hpKindQ:"What do you need?", hp_escort:"Walk with me", hp_stairs:"Stairs / kerb", hp_transport:"Get on transport", hp_shop:"Shop / pharmacy", hp_lost:"I am lost", hp_other:"Other", hpText:"A few words (optional)", hpContact:"Phone to contact you", hpYourName:"Your name", hpSend:"Send request", hpWait:"Looking for a volunteer nearby… The request is visible for 3 hours.", hpGot:"A volunteer responded: {name}", hpCall:"Call", hpCancel:"Cancel request", hpDone:"I got help — close", hpClosed:"Request closed", hpNeedGeo:"Location is needed so a volunteer can find you", hpVol:"I'm a volunteer — show requests nearby", hpNoReq:"Nobody nearby needs help right now. Thanks for being ready!", hpTake:"Respond", hpVName:"Your name", hpVPhone:"Your phone", hpTaken:"You responded. Contact the person:", hpGo:"Route to them", hpAgo:"{n} min ago", hpFar:"~{d} from you", hpPrivacy:"Only the volunteer who responds sees the exact place and phone.", hpOwn:"Your request", hpNewReq:"New help request nearby", mrTitle:"My reports", mrNone:"You haven't sent reports from this device yet", mrSt_pending:"Under review", mrSt_approved:"On the map", mrSt_in_progress:"In progress", mrSt_fixed:"Fixed", mrSt_rejected:"Rejected", mrSt_gone:"No data", mrChanged:"Report «{t}»: {s}", mrNotify:"Notify me when it's fixed", mrNotifyOn:"Notifications on", peekToilet:"Toilet", wcSearch:"Looking for the nearest accessible toilet…", wcFound:"Nearest accessible toilet — {d}", wcNone:"No accessible toilets on the map nearby. Try a shopping centre or a station.", shTrip:"Share trip", shShort:"Share", shText:"I'm heading to {to}. I'll be there around {t} ({m} min). I'm here now: {here}", shCopied:"Trip text copied — send it to your family", setUi:"Look", uiSoft:"Soft", uiClassic:"Classic", repUnchecked:"Not checked yet", repRerouted:"Thank you! The barrier is on the map and the route was rebuilt", busKb:"Known barriers near walking parts: {n} — we route around them", carVarsTitle:"Route options", carFast:"Fastest", carShort:"Shorter", carNoDirt:"No dirt roads", carNoHw:"No highways", carAlt:"Another way", carVarsNote:"Price is a tariff estimate for each route", carVarsLive:"The exact Yandex Go price is for the route the driver takes; options show a tariff estimate", kbSearching:"Known barriers on the way — looking for a detour…", kbAvoided:"Known barriers avoided: {n}", kbOnWay:"known barriers on the way: {n}", kbK_kerb:"high curb", kbK_gate:"turnstile or narrow gate", kbK_nowc:"not wheelchair accessible", kbK_report:"barrier reported by residents", kbK_news:"crossing without a lift or ramp", kbK_steps:"stairs", kbS_osm:"OpenStreetMap data", kbS_report:"Resident report in ICity", kbS_news:"According to the media", kbMore:"Source", setIcon:"App icon", icSoft:"Soft", icSoftDark:"Soft dark", icYellow:"Yellow", icYellowBlue:"Yellow & blue", icClassic:"Original", icNote:"Changes the icon in the browser tab and on the Home Screen. An already installed app picks it up after you re-add the shortcut.", navPlaces:"Places", navMap:"Map", navProfile:"Profile", hiMorning:"Good morning", hiDay:"Good afternoon", hiEvening:"Good evening", hiNight:"Good night", hiSlip:"slippery", ppSetHome:"Set home", ppSetWork:"Set work", ppAddr:"enter the address", ppTap:"one-tap route", mmLayers:"Map layers and info", mmLayersSub:"What to show on the map", mmInfo:"Weather", peekMoreBtn:"⌃ Home, work and quick buttons", satYearT:"Satellite imagery year", satYearHelp:"We normally show the newest imagery. You can see how a place looked before.", satLatest:"Newest", psAddr:"Address", psPh:"Street and number, e.g. Abai 10", psHere:"I am there now", psHelp:"Pick a suggestion or tap ⌖ if you are there now.", psSave:"Save and show on the map", psSetHome:"Where is your home?", psSetWork:"Where is your work?", psSaved:"Saved — the icon is on the map", psNotFound:"Address not found — pick a suggestion from the list", pfPh:"Address, place or business", pfCatsT:"Near you", pfRoute:"Plan a route from A to B", pfNear:"{c} nearby · {n}", pfNone:"Nothing found nearby — try moving the map", pfLoading:"Searching nearby…", pfClear:"Hide", pfFail:"Search failed — check your internet", c_pharmacy:"Pharmacies", c_food:"Eat", c_shop:"Groceries", c_atm:"ATMs", c_health:"Hospitals", c_bus:"Bus stops", c_mall:"Malls", c_park:"Parks", wcYes:"♿ accessible", wcLim:"♿ partly", wcNo:"♿ not accessible", wcUnk:"♿ no data", compassNorth:"North up", compassFollow:"The map now turns with you. Tap the compass again for north up", plNeedStart:"Enter where you start or turn on location", plTitle:"My places", plHome:"Home", plWork:"Work", plPlace:"Place", plRoute:"Route", plAdd:"Save", plEdit:"Edit", plSaveTitle:"Save to My places", plSaveHelp:"We will save what is in the «To» field.", plSaveRouteHelp:"We will save «From → To» and the travel mode.", plName:"Name", plSaveBtn:"Save", plCancel:"Cancel", plSaved:"Saved to My places", plDel:"Delete", plNeedDest:"First enter where you are going", plNotFound:"Place not found — pick a suggestion or a point on the map", plSetHome:"Set home: type the address in «To» and tap «Save»", plSetWork:"Set work: type the address in «To» and tap «Save»", plEmpty:"Nothing saved yet",
  taxiCityH:"Taxi — {city}", taxiYaPhone:"Yandex Go by phone", taxiYaPhoneSub:"No app? Call the {city} dispatcher", taxiOsmSub:"Taxi service · {city}", invaH:"Invataxi — {city}", invaWho:"Free for people and children with disabilities with a medical commission (VKK) certificate, form 026/u. Since 20.09.2026 a single list of 18 medical indications applies. Usually booked a day ahead.", invaHow:"How to sign up: apply to the akimat employment and social programmes department or via the Social Services Portal.", invaYa:"In Astana and Almaty invataxi can also be ordered in the Yandex Go app if you are enrolled in the pilot.", invaAtyrau:"Atyrau is testing the InvoTaxi app for ordering invataxi (since October 2026).", invaOld:"Number from an old directory — it may have changed. Check with the akimat.", invaNone:"We found no invataxi service in open sources. Contact the akimat employment and social programmes department.", invaSrc:"Source: {src}", invaWa:"WhatsApp", taxiOsmSrc:"Taxi services from OpenStreetMap",
- peekWarns:"on the way", peekClear:"No obstacles found",
+ peekWarns:"on the way", peekClear:"No obstacles marked in OpenStreetMap",
  compass:"Compass", facing:"You are facing",
  compassNone:"This device has no compass. The map is always north-up.",
  compassDenied:"Compass access was not granted. The map is always north-up.",
@@ -2662,9 +2750,9 @@ en:{
  routeFail:"Could not build the route", routeFailHelp:"Check the place name or your internet connection.",
  km:"km", m:"m", min:"min", steps:"Route steps", speak:"Read the route aloud", stopSpeak:"Stop",
  warnStairs:"Steps found on the route: ", warnTunnel:"Underpasses and footbridges: ", warnSlope:"Maximum slope ≈ ",
- noRamp:"without a ramp", okNoStairs:"No steps found in OpenStreetMap data", noElev:"Elevation data unavailable",
+ noRamp:"without a ramp", okNoStairs:"No steps are marked in OpenStreetMap data; the information may be incomplete", noElev:"Elevation data unavailable",
  slopeHard:"steep climb, hard in a manual wheelchair", slopeOk:"slope is manageable",
- layerEmpty:"Nothing found in the visible area — pan or zoom out",
+ layerEmpty:"Nothing is marked in OpenStreetMap in the visible area — data may be incomplete. Move the map or report a place.",
  layerFail:"The OpenStreetMap servers are busy right now. Tap the layer button again in a few seconds.",
  zoomIn:"Zoom in to load places", searchHere:"Search this area",
  found:"Places found: ", verify:"Confirm", verified:"Confirmations: ", thanks:"Thank you!",
@@ -2745,10 +2833,12 @@ const LAYERS = [
 ];
 
 // Перебираем зеркала: занятый сервер отвечает 429/504, это не повод показывать ошибку
-async function overpassQuery(body, timeoutMs){
+async function overpassQuery(body, timeoutMs, outerSignal){
   // Зеркала Overpass часто перегружены (504) или молчат: спрашиваем два сразу и берём первый ответ,
   // если оба не смогли — по очереди остальные. Раньше ждали каждое по 18 с.
+  if(outerSignal&&outerSignal.aborted) throw new DOMException("aborted","AbortError");
   const ask=(url,ms)=>{ const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(), ms);
+    if(outerSignal) outerSignal.addEventListener("abort",()=>ctl.abort(),{once:true});   // «Отмена» обрывает все зеркала сразу
     const p=fetch(url,{method:"POST", body, signal:ctl.signal}).then(async res=>{ clearTimeout(tm);
       if(!res.ok) throw new Error("HTTP "+res.status);
       const d=await res.json(); if(!d||!Array.isArray(d.elements)) throw new Error("bad payload"); return d; })
@@ -2758,7 +2848,7 @@ async function overpassQuery(body, timeoutMs){
   const first=OVERPASS_MIRRORS.slice(0,2).map(u=>ask(u,ms));
   try{ const d=await Promise.any(first); first.forEach(p=>p.ctl.abort()); return d; }catch(e){}
   let lastErr=null;
-  for(const url of OVERPASS_MIRRORS.slice(2)){ try{ return await ask(url, Math.min(ms,12000)); }catch(e){ lastErr=e; } }
+  for(const url of OVERPASS_MIRRORS.slice(2)){ if(outerSignal&&outerSignal.aborted) break; try{ return await ask(url, Math.min(ms,12000)); }catch(e){ lastErr=e; } }
   throw lastErr || new Error("overpass unavailable");
 }
 const overpassRace=(body,ms)=>overpassQuery(body,ms);
@@ -3702,13 +3792,15 @@ function setLang(v){
   relabelGL(); updateImgInfo();   // названия улиц на карте — на новом языке
   // маршрут пересобираем из сохранённого разбора, ничего не запрашивая заново
   if(lastRoute && lastAnalysis){
-    const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
+    const mins=lastRoute.mins || Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
     renderRouteCard(lastRoute.rt, mins, lastAnalysis.ob, lastAnalysis.slope);
     renderRouteList(lastRoute.rt, mins, lastAnalysis.ob, lastAnalysis.slope);
   }
 }
 function setProfile(v){
-  const wasBlind=S.profile==="blind";
+  const wasBlind=S.profile==="blind", prevProfile=S.profile;
+  // открытый маршрут пересчитываем под новый профиль — время и предупреждения должны ему соответствовать
+  if(prevProfile!==v && lastRoute && !lastRoute.ride && document.getElementById("destination") && document.getElementById("destination").value.trim()) setTimeout(()=>{ try{ buildRoute(); }catch(e){} },60);
   S.profile=v; store("profile",v);
   if(v==="blind" && !wasBlind && read("hints","")===""){ setHints("on",true); setTimeout(()=>{ toast(t("hintsBlindAuto")); sayNow(t("hintsBlindAuto")); },300); }
   const p=PROFILES[v];
@@ -3982,7 +4074,7 @@ function updatePeek(){
   }
   { const pr=document.getElementById("peekRoute"); if(pr){ const on=!!(lastRoute && lastAnalysis && !modePeek); if(pr.hidden===on){ pr.hidden=!on; requestAnimationFrame(()=>{ try{ syncPeekHeight(); }catch(e){} }); } } }
   if(lastRoute && lastAnalysis){
-    const mins=Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
+    const mins=lastRoute.mins || Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
     const km=(lastRoute.rt.distance/1000).toFixed(1);
     const n = countBarriers(lastAnalysis);
     tl.textContent = `${mins} ${t("min")} · ${km} ${t("km")}`;
@@ -4208,7 +4300,7 @@ function terrChoose(pl){
   if(!CITIES[key]){ terrRegister(pl); }
   if(CITIES[key].small) terrRemember(Object.assign({},pl,{key}));
   closeModal("terrModal");
-  const was=S.firstRun; S.firstRun=false;
+  const was=S.firstRun; S.firstRun=false; document.body.classList.remove("first-run");
   if(key===S.city && !was){ if(mapReady) map.setView(city().c, city().z, {animate:S.motion!=="off"}); return; }
   if(was) S.city="";   // первое открытие: город ещё не был выбран — setCity загрузит всё для нового места
   setCity(key);
@@ -4292,6 +4384,7 @@ function initMap(){
   map.on("moveend zoomend",()=>{ updateSearchHere(); checkImageryZoom(); updateImgInfo(); follow3D();
     const wp=document.getElementById("wbPanel"); if(wp && !wp.hidden){ clearTimeout(wbTimer); wbTimer=setTimeout(refreshWayback,700); } });
   mapReady=true;
+  if(window.ResizeObserver){ let rzT=0; new ResizeObserver(()=>{ clearTimeout(rzT); rzT=setTimeout(()=>{ try{ map.invalidateSize({pan:false}); }catch(e){} },80); }).observe(map.getContainer()); }
   if(read("sideOff","0")==="1" && innerWidth>860) toggleSide(true);
   try{ if(lmOn() && !S.firstRun) lmLoad(); }catch(e){}
 }
@@ -4318,15 +4411,14 @@ function onMapClick(e){
     pickMode=null; toast(t("geoOk"));
     // вместо «Точка на карте» — адрес
     reverseGeo(e.latlng.lat,e.latlng.lng).then(rv=>{ const ad=rv&&revAddr(rv); if(ad && ds.value===t("mapPoint")){ ds.value=ad; SELECTED.destination={text:ad, ll:[e.latlng.lat,e.latlng.lng]}; } }).catch(()=>{});
-  } else if(pickMode==="report"){
-    reportLatLng=e.latlng;
-    const rp=document.getElementById("reportPlace"); rp.value=`${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
-    pickMode=null; openModal("reportModal");
-    reverseGeo(e.latlng.lat,e.latlng.lng).then(rv=>{ const ad=rv&&revAddr(rv); if(ad) rp.value=ad; }).catch(()=>{});
+  } else if(pickMode==="report" || String(pickMode).startsWith("pt:")){
+    const form=pickMode==="report"?"report":pickMode.slice(3); pickMode=null;
+    ptSet(form, e.latlng.lat, e.latlng.lng, "map");
+    openModal(PT_MODAL[form]);
   }
 }
 function setPickMode(m){ pickMode=m; setView("map"); toast(t("pickDest")); }
-function setReportPick(){ closeModal("reportModal"); pickMode="report"; setView("map"); toast(t("pickBarrier")); }
+function setReportPick(){ ptPick("report"); }
 
 /* ============ Панель слоёв ============ */
 // Слои по смыслу: доступность, препятствия, город. Сверху — сколько включено и «Сбросить».
@@ -4461,7 +4553,7 @@ async function toggleLayer(key){
   if(mapReady && map.getZoom() < MIN_LAYER_ZOOM){
     // в текстовом режиме карту не видно — сами приближаемся к вам (или к центру города), а не просим «приблизьте карту»
     if(document.body.classList.contains("view-list") || S.view==="list") map.setView(userLatLng||city().c, 15, {animate:false});
-    else { toast(t("zoomIn")); return; }
+    else { map.setView(map.getCenter(), MIN_LAYER_ZOOM+2, {animate:false}); toast(t("layZoomed")); }
   }
   if(chip) chip.classList.add("loading");
   const res=await loadLayer(key);
@@ -4790,9 +4882,8 @@ function placeRoute(){
 function placeBarrier(){
   if(!placeNow) return;
   const p=placeNow;
-  reportLatLng=L.latLng(p.lat,p.lon);
-  const rp=document.getElementById("reportPlace"); if(rp) rp.value=p.addr || p.name || `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
-  closePlace(); openModal("reportModal");
+  closePlace(); ptSet("report", p.lat, p.lon, "place", p.addr || p.name || "");
+  repTiles(); openModal("reportModal");
 }
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && placeNow) closePlace(); });
 
@@ -5372,20 +5463,25 @@ function hpForm(){
     <div class="hp-kinds" role="radiogroup">${HP_KINDS.map(k=>`<button type="button" role="radio" aria-pressed="${k===hpKind}" aria-checked="${k===hpKind}" onclick="hpKind='${k}';hpForm()">${esc(t("hp_"+k))}</button>`).join("")}</div>
     <label class="field" for="hpText">${esc(t("hpText"))}</label><input type="text" id="hpText" maxlength="300">
     <label class="field" for="hpName">${esc(t("hpYourName"))}</label><input type="text" id="hpName" maxlength="40" value="${esc(read("myName",""))}">
-    <label class="field" for="hpPhone">${esc(t("hpContact"))}</label><input type="tel" id="hpPhone" maxlength="20" value="${esc(read("myPhone",""))}" autocomplete="tel">
-    <p class="taxi-src">${esc(t("hpPrivacy"))}</p>
+    <label class="field" for="hpPhone">${esc(t("hpContact"))} <span class="req" aria-hidden="true">*</span></label><input type="tel" id="hpPhone" maxlength="20" required aria-required="true" value="${esc(read("myPhone",""))}" autocomplete="tel" oninput="formCheck('help')">
+    <p class="field" id="helpPtL">${esc(t("ptWhere"))} <span class="req" aria-hidden="true">*</span></p>
+    <div class="pt-box" id="helpPt" role="group" aria-labelledby="helpPtL"></div>
+    <div class="send-what"><b>${esc(t("hpWhoSees"))}</b><p>${esc(t("hpSeeAll"))}</p><p>${esc(t("hpPrivacy"))}</p></div>
+    <p class="form-need" id="helpNeed" aria-live="polite"></p>
     <button type="button" class="btn-primary" style="width:100%;margin-top:8px" id="hpSendBtn" onclick="hpSend()">${esc(t("hpSend"))}</button>
     <button type="button" class="btn-ghost" style="width:100%;margin-top:14px" onclick="hpVolunteer()">${svgI("user")} ${esc(t("hpVol"))}</button>`;
+  ptRender("help"); formCheck("help");
 }
 async function hpSend(){
-  const btn=document.getElementById("hpSendBtn"); btn.disabled=true;
-  const ll=await hpGeo(); if(!ll){ toast(t("hpNeedGeo")); btn.disabled=false; return; }
+  const btn=document.getElementById("hpSendBtn"); if(!formCheck("help") || btn.dataset.busy) return;
+  btn.dataset.busy="1"; btn.disabled=true;
+  const ll=[PT.help.lat, PT.help.lng];
   const name=document.getElementById("hpName").value.trim(), phone=document.getElementById("hpPhone").value.trim();
   if(name) store("myName",name); if(phone) store("myPhone",phone);
   try{ const r=await fetch("/api/help",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lat:ll[0],lng:ll[1],kind:hpKind,text:document.getElementById("hpText").value,name,contact:phone,profile:S.profile})});
     const d=await r.json(); if(!r.ok) throw new Error(d.error||r.status);
-    store("help",JSON.stringify({id:d.id,token:d.token,at:Date.now(),kind:hpKind})); hpStatus(); askNotify();
-  }catch(e){ toast(t("rvFail")+e.message); btn.disabled=false; }
+    store("help",JSON.stringify({id:d.id,token:d.token,at:Date.now(),kind:hpKind})); ptClear("help"); hpStatus(); askNotify();
+  }catch(e){ toast(t("rvFail")+e.message); delete btn.dataset.busy; formCheck("help"); }
 }
 async function hpStatus(){
   const mine=myHelp(), b=document.getElementById("hpBody"); if(!mine||!b) return;
@@ -5480,33 +5576,32 @@ async function openMyReports(){
 }
 
 /* ============ Ближайший доступный туалет — в один тап ============ */
-async function nearestToilet(){
-  toast(t("wcSearch"));
-  const here=await hpGeo() || (mapReady?[map.getCenter().lat,map.getCenter().lng]:city().c);
-  const R=0.02, bb=`${(here[0]-R).toFixed(4)},${(here[1]-R*1.5).toFixed(4)},${(here[0]+R).toFixed(4)},${(here[1]+R*1.5).toFixed(4)}`;
-  const def=LAYERS.find(d=>d.key==="toilet");
-  let items=null;
-  try{ const d=await overpassQuery(`[out:json][timeout:20];(${def.q(bb)});out center tags 60;`);
-    items=(d.elements||[]).map(e=>({lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}, osm:e.type&&e.id?e.type+'/'+e.id:null})).filter(x=>x.lat&&x.lon);
-  }catch(e){ items=await offlineLayer("toilet", bb); }
-  if(!items||!items.length){ toast(t("wcNone")); return; }
-  items.sort((a,b)=>haversine(here,[a.lat,a.lon])-haversine(here,[b.lat,b.lon]));
-  const it=items[0], dist=haversine(here,[it.lat,it.lon]);
-  toast(tf("wcFound",{d:fmtDist(Math.round(dist/10)*10)}));
-  if(mapReady) map.setView([it.lat,it.lon],17);
-  openPlace(def,it);
-}
+function nearestToilet(){ pfCategory("toilet"); }
 /* ============ Поделиться поездкой с близкими ============ */
-async function shareTrip(mins){
+let SH=null;
+function shareTrip(mins){
   const to=(document.getElementById("destination").value||"").trim() || t("finish");
   const here=userLatLng || (lastRoute&&lastRoute.a);
   if(mins==null && NAV.on && userLatLng && NAV.b){ mins=Math.max(1,Math.round(mDist(userLatLng,NAV.b)/1000/navKmh()*60)); }
   mins=mins||15;
-  const at=new Date(Date.now()+mins*60000).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"});
-  const link=here?`https://www.openstreetmap.org/?mlat=${here[0].toFixed(5)}&mlon=${here[1].toFixed(5)}#map=17/${here[0].toFixed(5)}/${here[1].toFixed(5)}`:"";
-  const text=tf("shText",{to,t:at,m:mins,here:link});
-  try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
-  try{ await navigator.clipboard.writeText(text); toast(t("shCopied")); }catch(e){ prompt("", text); }
+  SH={to, here, mins, at:new Date(Date.now()+mins*60000).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"})};
+  const cb=document.getElementById("shHere"); cb.checked=false; cb.disabled=!here; cb.parentElement.hidden=!here;
+  shBuild(); openModal("shareModal");
+}
+function shBuild(){
+  if(!SH) return;
+  const withHere=document.getElementById("shHere").checked && SH.here;
+  const link=withHere?`https://www.openstreetmap.org/?mlat=${SH.here[0].toFixed(5)}&mlon=${SH.here[1].toFixed(5)}#map=17/${SH.here[0].toFixed(5)}/${SH.here[1].toFixed(5)}`:"";
+  SH.text=withHere?tf("shText",{to:SH.to,t:SH.at,m:SH.mins,here:link}):tf("shTextNoHere",{to:SH.to,t:SH.at,m:SH.mins});
+  document.getElementById("shText").value=SH.text;
+  document.getElementById("shWhat").innerHTML=`<b>${esc(t("shWhatT"))}</b><p>${esc(t("shWhatTo"))}: ${esc(SH.to)}</p><p>${esc(t("shWhatAt"))}: ${esc(SH.at)}</p>
+    <p>${esc(withHere?t("shWhatHere"):t("shWhatNoHere"))}</p><p>${esc(t("shWho"))}</p>`;
+}
+async function shSend(){
+  if(!SH) return; const text=SH.text;
+  try{ if(navigator.share){ await navigator.share({text}); closeModal("shareModal"); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+  try{ await navigator.clipboard.writeText(text); toast(t("shCopied")); closeModal("shareModal"); }
+  catch(e){ const ta=document.getElementById("shText"); ta.removeAttribute("readonly"); ta.select(); toast(t("shSelect")); }
 }
 /* ============ Ярлыки приложения (долгое нажатие на иконку) ============ */
 function runShortcut(){
@@ -5570,8 +5665,18 @@ function toggleMapMenu(open){
   const m=document.getElementById("mapMenu"), b=document.getElementById("mapMenuBtn"); if(!m) return;
   if(open===undefined) open=m.hidden;
   m.hidden=!open; b.setAttribute("aria-expanded",String(open));
-  if(open){ const f=m.querySelector(".chip"); if(f) f.focus(); }
+  if(open){ const f=m.querySelector("button,input,select,[tabindex]:not([tabindex='-1'])"); if(f) f.focus({preventScroll:true}); }
+  else if(m.contains(document.activeElement)) b.focus({preventScroll:true});
 }
+// Клавиатура в меню слоёв: Esc — закрыть и вернуть фокус на кнопку, Tab не уходит за пределы меню, ↑/↓ — по переключателям
+document.addEventListener("keydown",e=>{
+  const m=document.getElementById("mapMenu"); if(!m || m.hidden || !m.contains(document.activeElement) && e.key!=="Escape") return;
+  if(e.key==="Escape"){ if(document.querySelector(".modal.open")) return; e.preventDefault(); toggleMapMenu(false); document.getElementById("mapMenuBtn").focus(); return; }
+  const f=[...m.querySelectorAll("button,input,select,a[href]")].filter(x=>!x.disabled && x.offsetParent);
+  if(!f.length) return; const i=f.indexOf(document.activeElement);
+  if(e.key==="Tab"){ if(e.shiftKey && i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey && i===f.length-1){ e.preventDefault(); f[0].focus(); } }
+  else if((e.key==="ArrowDown"||e.key==="ArrowUp") && i>=0){ e.preventDefault(); const n=f[(i+(e.key==="ArrowDown"?1:-1)+f.length)%f.length]; n.focus(); n.scrollIntoView({block:"nearest"}); }
+});
 function updateMapMenuBadge(){ const n=(typeof activeLayers==="function")?activeLayers().length:0, el=document.getElementById("mmbBadge"); if(el){ el.hidden=!n; el.textContent=n; } }
 function peekExpand(on){
   const p=document.getElementById("sheetPeek"); if(!p) return;
@@ -5584,7 +5689,9 @@ function navMapTab(){
   if(typeof closePeekSearch==="function") try{ closePeekSearch(); }catch(e){}
   peekExpand(false);
 }
+// «Мои места»: открывает список всех сохранённых мест (дом, работа, места, маршруты); нажатие на место — маршрут туда
 function navPlacesTab(){
+  if(typeof openSheet==="function" && sheetMode()){ openSheet(); setTimeout(()=>{ openPlPanel(true,true); const pl=document.getElementById("plPanel"); if(pl) pl.scrollIntoView({block:"nearest"}); },250); return; }
   peekExpand(true);
   const box=document.getElementById("peekPlaces");
   if(box && box.animate && S.motion!=="off") box.animate([{transform:"scale(1)"},{transform:"scale(1.03)"},{transform:"scale(1)"}],{duration:420});
@@ -5731,7 +5838,9 @@ const PF_CATS=[
  {k:"bus", c:"#0b7285", ic:"bus", q:'node["highway"="bus_stop"]'},
  {k:"mall", c:"#e67700", ic:"bag", q:'nwr["shop"="mall"]'},
  {k:"park", c:"#2b8a3e", ic:"tree", q:'nwr["leisure"="park"]["name"]'}];
-let pfLayer=null, pfSeq=0;
+// не в сетке категорий, но тем же поиском: кнопка «Туалет» в шторке
+const PF_EXTRA=[{k:"toilet", c:"#7b4bc9", ic:"wc", q:'nwr["amenity"="toilets"]'}];
+let pfLayer=null, pfSeq=0, pfCtl=null;
 function renderPfCats(){
   const box=document.getElementById("pfCats"); if(!box) return;
   box.innerHTML=PF_CATS.map(c=>`<button type="button" class="pf-cat" onclick="pfCategory('${c.k}')"><span class="ci" style="background:${c.c}">${svgI(c.ic)}</span><span>${esc(t("c_"+c.k))}</span></button>`).join("");
@@ -5762,41 +5871,64 @@ async function pfEnter(){
   try{ const ll=await findPlace(v); if(ll) pfPick({title:v, ll}); else toast(t("psNotFound")); }catch(e){ toast(t("psNotFound")); }
 }
 function wcClass(tg){ const w=(tg&&tg.wheelchair)||""; return w==="yes"?"yes":w==="limited"?"limited":w==="no"?"no":"unk"; }
+/* Быстрый поиск рядом. Всегда заканчивается одним из состояний: результаты, «ничего не нашли» или ошибка с «Повторить».
+   Ищем вокруг вашего места, если оно уже известно, иначе — вокруг центра карты (геопозицию сами не запрашиваем). */
+let PF_MAX_MS=30000;
 async function pfCategory(k){
-  const c=PF_CATS.find(x=>x.k===k); if(!c) return;
+  const c=PF_CATS.concat(PF_EXTRA).find(x=>x.k===k); if(!c) return;
   closePeekSearch();
-  const center=mapReady?[map.getCenter().lat,map.getCenter().lng]:(userLatLng||city().c);
-  const res=document.getElementById("peekRes"), seq=++pfSeq;
-  res.hidden=false; res.innerHTML=`<div class="pr-head"><span>${esc(t("pfLoading"))}</span></div>`; syncPeekHeight();
+  if(pfCtl){ try{ pfCtl.abort(); }catch(e){} }
+  const ctl=new AbortController(); pfCtl=ctl;
+  const mc=mapReady?[map.getCenter().lat,map.getCenter().lng]:city().c;
+  const useMe=!!(userLatLng && haversine(userLatLng,mc)<5000);
+  const center=useMe?userLatLng:mc, where=t(useMe?"pfAroundMe":"pfAroundMap");
+  const res=document.getElementById("peekRes"), seq=++pfSeq, label=t("c_"+k);
+  const head=(txt,btns)=>`<div class="pr-head" role="status"><span>${txt}</span><span class="pr-btns">${btns||""}</span></div>`;
+  const clearBtn=`<button type="button" onclick="pfClear()">${esc(t("pfClear"))}</button>`;
+  res.hidden=false;
+  res.innerHTML=head(`<span class="terr-spin" aria-hidden="true"></span>${esc(tf("pfLoadingC",{c:label}))} <span class="pr-where">${esc(where)}</span>`,`<button type="button" onclick="pfCancel()">${esc(t("pfCancel"))}</button>`);
+  syncPeekHeight(); if(!sheetMode()) toast(`${tf("pfLoadingC",{c:label})} · ${where}`);
   let items=[];
+  // общий предел ожидания: сколько бы зеркал ни перебиралось, через 30 с — ошибка с кнопкой «Повторить», а не вечное «Ищем…»
+  let timedOut=false; const capT=setTimeout(()=>{ timedOut=true; ctl.abort(); }, PF_MAX_MS);
   try{
-    const d=await overpassQuery(`[out:json][timeout:20];(${c.q}(around:1600,${center[0].toFixed(5)},${center[1].toFixed(5)}););out center tags 60;`);
+    const d=await overpassQuery(`[out:json][timeout:20];(${c.q}(around:1600,${center[0].toFixed(5)},${center[1].toFixed(5)}););out center tags 60;`, 20000, ctl.signal);
     items=(d.elements||[]).map(e=>({lat:e.lat||(e.center&&e.center.lat), lon:e.lon||(e.center&&e.center.lon), tags:e.tags||{}, osm:e.type&&e.id?e.type+'/'+e.id:null})).filter(x=>x.lat&&x.lon);
-  }catch(e){ if(seq===pfSeq){ res.innerHTML=`<div class="pr-head"><span>${esc(t("pfFail"))}</span><button type="button" onclick="pfClear()">${esc(t("pfClear"))}</button></div>`; syncPeekHeight(); } return; }
+  }catch(e){
+    clearTimeout(capT);
+    if(seq!==pfSeq) return;
+    if(ctl.signal.aborted && !timedOut){ pfClear(); return; }
+    pfCtl=null;
+    res.innerHTML=head(esc(t("pfFail")),`<button type="button" onclick="pfCategory('${k}')">${esc(t("terrRetry"))}</button>${clearBtn}`); syncPeekHeight(); if(!sheetMode()) toast(t("pfFail")); return;
+  }
+  clearTimeout(capT);
   if(seq!==pfSeq) return;
+  pfCtl=null;
   items.forEach(it=>it.d=haversine(center,[it.lat,it.lon]));
   items.sort((a,b)=>a.d-b.d);
   if(pfLayer) pfLayer.clearLayers(); else if(mapReady) pfLayer=L.layerGroup().addTo(map);
   window.__pfItems=items;
   items.forEach((it,i)=>{ if(!mapReady) return;
-    L.marker([it.lat,it.lon],{icon:L.divIcon({className:"",html:`<div class="cat-pin ${wcClass(it.tags)}" style="background:${c.c}">${svgI(c.ic)}</div>`,iconSize:[30,30],iconAnchor:[15,15]}),alt:poiName(it.tags,t("c_"+k)),keyboard:true})
+    L.marker([it.lat,it.lon],{icon:L.divIcon({className:"",html:`<div class="cat-pin ${wcClass(it.tags)}" style="background:${c.c}">${svgI(c.ic)}</div>`,iconSize:[30,30],iconAnchor:[15,15]}),alt:poiName(it.tags,label),keyboard:true})
       .on("click",()=>pfOpen(i)).addTo(pfLayer); });
-  if(!items.length){ res.innerHTML=`<div class="pr-head"><span>${esc(t("pfNone"))}</span><button type="button" onclick="pfClear()">${esc(t("pfClear"))}</button></div>`; syncPeekHeight(); return; }
-  if(mapReady){ const b=L.latLngBounds(items.slice(0,15).map(x=>[x.lat,x.lon])).extend(center); map.fitBounds(b,{paddingTopLeft:[30,80],paddingBottomRight:[30,(document.getElementById("sheetPeek").offsetHeight||200)+40],maxZoom:17}); }
+  if(!items.length){ res.innerHTML=head(esc(tf("pfNoneC",{c:label}))+` <span class="pr-where">${esc(where)}</span>`,clearBtn); syncPeekHeight(); if(!sheetMode()) toast(tf("pfNoneC",{c:label})); return; }
+  if(mapReady){ const b=L.latLngBounds(items.slice(0,15).map(x=>[x.lat,x.lon])).extend(center); map.fitBounds(b,{paddingTopLeft:[30,80],paddingBottomRight:[30,(document.getElementById("sheetPeek").offsetHeight||200)+40],maxZoom:17,animate:S.motion!=="off"}); }
   const wcT={yes:"wcYes",limited:"wcLim",no:"wcNo",unk:"wcUnk"};
-  res.innerHTML=`<div class="pr-head"><span>${esc(tf("pfNear",{c:t("c_"+k),n:items.length}))}</span><button type="button" onclick="pfClear()">${esc(t("pfClear"))}</button></div>
-    <div class="pr-list">${items.slice(0,30).map((it,i)=>`<button type="button" class="pr-card" onclick="pfOpen(${i})"><b>${esc(poiName(it.tags,t("c_"+k)))}</b>
+  res.innerHTML=head(`${esc(tf("pfNear",{c:label,n:items.length}))} <span class="pr-where">${esc(where)}</span>`,clearBtn)+`
+    <div class="pr-list">${items.slice(0,30).map((it,i)=>`<button type="button" class="pr-card" onclick="pfOpen(${i})"><b>${esc(poiName(it.tags,label))}</b>
       <span class="m">${esc(fmtDist(Math.round(it.d/10)*10))}${it.tags["addr:street"]?" · "+esc(it.tags["addr:street"]+(it.tags["addr:housenumber"]?", "+it.tags["addr:housenumber"]:"")):""}</span>
       <span class="pr-wc ${wcClass(it.tags)}">${esc(t(wcT[wcClass(it.tags)]))}</span></button>`).join("")}</div>`;
   syncPeekHeight();
+  if(!sheetMode()){ toast(`${tf("pfNear",{c:label,n:items.length})} · ${where}`); pfOpen(0); }
 }
+function pfCancel(){ if(pfCtl){ try{ pfCtl.abort(); }catch(e){} pfCtl=null; } pfClear(); toast(t("pfCanceled")); }
 function pfOpen(i){
   const it=(window.__pfItems||[])[i]; if(!it) return;
   if(mapReady) map.setView([it.lat,it.lon], Math.max(map.getZoom(),17), {animate:S.motion!=="off"});
   showPlace({lat:it.lat, lon:it.lon, name:poiName(it.tags,""), tags:it.tags, osm:it.osm,
     addr:[it.tags["addr:street"], it.tags["addr:housenumber"]].filter(Boolean).join(", ")});
 }
-function pfClear(){ pfSeq++; if(pfLayer) pfLayer.clearLayers(); const r=document.getElementById("peekRes"); if(r){ r.hidden=true; r.innerHTML=""; } window.__pfItems=[]; syncPeekHeight(); }
+function pfClear(){ pfSeq++; if(pfCtl){ try{ pfCtl.abort(); }catch(e){} pfCtl=null; } if(pfLayer) pfLayer.clearLayers(); const r=document.getElementById("peekRes"); if(r){ r.hidden=true; r.innerHTML=""; } window.__pfItems=[]; syncPeekHeight(); }
 
 /* ============ Мои места: дом, работа, любимые места и маршруты ============ */
 let PLACES=[]; try{ PLACES=JSON.parse(read("places","[]"))||[]; }catch(e){ PLACES=[]; }
@@ -5868,7 +6000,18 @@ async function frLoad(render){
   }catch(e){ if(e.auth){ FR.me=null; FR.list=[]; frDraw(); } else if(render) toast(t("frErr")); }
   if(render || frpIsOpen()) frRender();
 }
-function frRender(){ frpRender(); }
+function frRender(){ frpRender(); shareChipSync(); }
+// Пока друзья видят ваше место — на карте заметная плашка: кто видит, до какого времени, и кнопка «Выключить»
+function shareChipSync(){
+  let el=document.getElementById("shareChip");
+  const on=sbSession() && frSharing();
+  if(!on){ if(el) el.hidden=true; return; }
+  if(!el){ el=document.createElement("div"); el.id="shareChip"; el.className="share-chip"; el.setAttribute("role","status"); document.querySelector(".stage").appendChild(el); }
+  const sh=FR.me.share, n=FR.list.length;
+  const till=sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:new Date(sh).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"})});
+  el.innerHTML=`<button type="button" class="sc-main" onclick="openFriends()"><span class="sc-dot" aria-hidden="true"></span><span>${esc(tf("scSeen",{n}))} · ${esc(till)}</span></button><button type="button" class="sc-off" onclick="frSetShare('off')">${esc(t("scOff"))}</button>`;
+  el.hidden=false;
+}
 
 // ── Доступы при первом запуске: геопозиция, уведомления, компас (iPhone), контакты — одним окном ──
 const PERM_T={
@@ -5876,19 +6019,19 @@ const PERM_T={
   permGeo:"Геопозиция", permGeoS:"Маршрут от того места, где вы стоите, и друзья рядом", permNot:"Уведомления", permNotS:"Статус ваших жалоб, ответы волонтёров и друзей",
   permCmp:"Компас", permCmpS:"Карта и стрелка поворачиваются туда, куда вы смотрите", permCnt:"Контакты", permCntS:"Спросим, когда будете приглашать друзей из контактов",
   permOk:"✓ Разрешено", permNo:"Запрещено", permAsk:"Разрешить", permLaterS:"Спросим при первом использовании", permNA:"Нет в этом браузере",
-  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", tipLocate:"Показать, где я", tipLocHead:"Нажмите ещё раз — стрелка покажет, куда вы смотрите", locHeadOn:"Стрелка показывает, куда вы смотрите. Нажмите ещё раз, чтобы выключить", locHeadOff:"Режим «куда смотрю» выключен", locHeadLabel:"Куда я смотрю", tipZoomIn:"Приблизить", tipZoomOut:"Отдалить", terrTitle:"Где вы будете?", terrLead:"Выберите область, район и населённый пункт или найдите его по названию.", terrSearch:"Поиск города, посёлка или села", terrSearchPh:"Город, посёлок или село", terrSrc:"Границы и названия — © участники OpenStreetMap (ODbL). Сведения о доступности есть не везде: если их нет, сообщите о барьере или проверьте место.", terrKz:"Казахстан", terrRepCities:"Города республиканского значения", terrRegions:"Области", terrCities:"Города", terrDistricts:"Районы", terrPlaces:"Населённые пункты", terrRecent:"Недавние", terrLoading:"Загружаем список…", terrPending:"Готовим список этой территории — при первом открытии это до минуты. Пока можно найти место по названию.", terrEmpty:"Ничего не нашли. Проверьте название или выберите по списку.", terrErr:"Не удалось загрузить — проверьте интернет и попробуйте ещё раз.", terrRetry:"Повторить", terrChange:"Сменить", terrPickAny:"Область, район, посёлок или село", terrChoose:"Выберите место", terrFilter:"Фильтр по названию", terrPick:"Выбрать", terrFewData:"{n}: данных о доступности пока мало. Знаете барьер или удобное место — отметьте его.", terrNoBus:"Для этого населённого пункта нет данных об автобусных маршрутах. Попробуйте пешком или такси.", pt_city:"город", pt_town:"посёлок", pt_village:"село", pt_hamlet:"аул", pt_district:"район", layReset:"Сбросить", layOn:"Включено: {n}", layGrpAccess:"Доступность", layGrpBarrier:"Препятствия", layGrpCity:"Город",mmGrpCity:"Город", mmGrpEase:"Удобство", mmRouteAB:"Маршрут из точки в точку", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
+  railL:"Разделы", railHelp:"Помощь", railAudit:"Проверить место", railRoute:"Маршрут", railReports:"Жалобы", railAudit2:"Проверить", railText:"Список", fgText:"Сначала выберите город или посёлок — маршруты, слои и жалобы строятся для выбранного места.", frAlwaysQ:"Показывать друзьям ваше место всегда, пока вы сами не выключите? Его будут видеть все ваши друзья в ICity.", plEmptyHow:"Сохраните дом и работу или нажмите «Сохранить» у поля «Куда»", shAddHere:"Добавить ссылку на моё текущее место", shPreview:"Текст сообщения", shSend:"Поделиться…", shWhatT:"Что будет отправлено", shWhatTo:"Куда вы едете", shWhatAt:"Примерное время прибытия", shWhatHere:"Ссылка на ваше текущее место (координаты на карте OpenStreetMap)", shWhatNoHere:"Ваше место не отправляется", shWho:"Кому — выберете сами в окне «Поделиться» телефона или вставите скопированный текст.", shTextNoHere:"Я еду: {to}. Буду примерно в {t} ({m} мин).", shSelect:"Выделите текст и скопируйте его", scSeen:"Ваше место видят друзья: {n}", scWho:"видят все ваши друзья ({n})", scOff:"Выключить", frInvPriv:"Кто откроет ссылку и войдёт в ICity, станет вашим другом. Ваше место он увидит, только когда вы сами включите «Видно друзьям» и только на выбранный срок.", layZoomed:"Приблизили карту: слои показываются с масштаба улиц", pfLoadingC:"Ищем: {c}", pfNoneC:"{c}: рядом ничего не нашли — сдвиньте карту или отдалите", pfAroundMe:"рядом с вами", pfAroundMap:"у центра карты", pfCancel:"Отмена", pfCanceled:"Поиск отменён", c_toilet:"Туалеты", stepsTitle:"Шаги маршрута", routeSrc:"Источники: OpenStreetMap (© участники OSM) и жалобы жителей ICity. Данные могут быть неполными — проверяйте на месте и сообщайте о барьерах.", routeSrcElev:"Источники: OpenStreetMap (© участники OSM), жалобы жителей ICity, высоты — Open-Meteo. Данные могут быть неполными — проверяйте на месте и сообщайте о барьерах.", ptNone:"Точка не выбрана. Без неё отправить нельзя — отметьте место на карте.", ptPick:"Выбрать на карте", ptUseMe:"Моё местоположение", ptUseRoute:"Конец маршрута", ptGeoAsk:"«Моё местоположение»: браузер спросит доступ к геопозиции — она нужна только для этой точки.", ptGeoDenied:"Доступ к геопозиции не дан — выберите точку на карте.", ptGeoFail:"Не удалось определить место — выберите точку на карте.", ptAddrWait:"Адрес уточняется…", ptSrc_map:"выбрано на карте", ptSrc_me:"ваше местоположение", ptSrc_place:"из карточки места", ptSrc_route:"конец маршрута", ptShow:"Показать на карте", ptChange:"Изменить", ptBack:"Вернуться к форме", ptPickHelp:"Нажмите на карту, где вы находитесь", ptWhere:"Где вы", needPt:"точка на карте", needComment:"комментарий", needPhone:"телефон для связи", needPrefix:"Чтобы отправить, заполните:", cmpPoint:"Место барьера", cmpNoText:"Текст появится, когда вы выберете точку", hpWhoSees:"Что увидят и кто", hpSeeAll:"Волонтёры рядом увидят вид помощи, комментарий, имя и примерное место.", tipLocate:"Показать, где я", tipLocHead:"Нажмите ещё раз — стрелка покажет, куда вы смотрите", locHeadOn:"Стрелка показывает, куда вы смотрите. Нажмите ещё раз, чтобы выключить", locHeadOff:"Режим «куда смотрю» выключен", locHeadLabel:"Куда я смотрю", tipZoomIn:"Приблизить", tipZoomOut:"Отдалить", terrTitle:"Где вы будете?", terrLead:"Выберите область, район и населённый пункт или найдите его по названию.", terrSearch:"Поиск города, посёлка или села", terrSearchPh:"Город, посёлок или село", terrSrc:"Границы и названия — © участники OpenStreetMap (ODbL). Сведения о доступности есть не везде: если их нет, сообщите о барьере или проверьте место.", terrKz:"Казахстан", terrRepCities:"Города республиканского значения", terrRegions:"Области", terrCities:"Города", terrDistricts:"Районы", terrPlaces:"Населённые пункты", terrRecent:"Недавние", terrLoading:"Загружаем список…", terrPending:"Готовим список этой территории — при первом открытии это до минуты. Пока можно найти место по названию.", terrEmpty:"Ничего не нашли. Проверьте название или выберите по списку.", terrErr:"Не удалось загрузить — проверьте интернет и попробуйте ещё раз.", terrRetry:"Повторить", terrChange:"Сменить", terrPickAny:"Область, район, посёлок или село", terrChoose:"Выберите место", terrFilter:"Фильтр по названию", terrPick:"Выбрать", terrFewData:"{n}: данных о доступности пока мало. Знаете барьер или удобное место — отметьте его.", terrNoBus:"Для этого населённого пункта нет данных об автобусных маршрутах. Попробуйте пешком или такси.", pt_city:"город", pt_town:"посёлок", pt_village:"село", pt_hamlet:"аул", pt_district:"район", layReset:"Сбросить", layOn:"Включено: {n}", layGrpAccess:"Доступность", layGrpBarrier:"Препятствия", layGrpCity:"Город",mmGrpCity:"Город", mmGrpEase:"Удобство", mmRouteAB:"Маршрут из точки в точку", frpMe:"Вы", frpVisible:"Видно друзьям", frpAdd:"Добавить друга", frpAllMap:"Все друзья на карте", frpOnMap:"На карте", frpRemove:"Удалить из друзей", frpBack:"Назад к списку", frpNoLoc:"Геопозиция скрыта", frpEmptyT:"Здесь будут ваши друзья", frpWhy:"Видите друг друга на карте и стройте доступный маршрут к другу.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Барьер", railSos:"SOS", tipRoute:"Построить доступный маршрут", tipBarrier:"Сообщить о барьере: ступени, бордюр, яма", tipFriends:"Друзья на карте и маршрут к ним", tipPlaces:"Дом, работа и сохранённые места", tipReports:"Мои жалобы и их статус", tipHelp:"Попросить волонтёра о помощи", tipAudit:"Проверить доступность здания — для волонтёров", tipSos:"Экстренная помощь: 112 и близкий человек", tipSerik:"Серік отвечает на вопросы о городе", tipList:"Список вместо карты — удобно с экранным диктором", tipLang:"Сменить язык: русский, қазақша, English", tipSettings:"Шрифт, контраст, тема и профиль передвижения", tipAcct:"Вход и профиль", tipLayers:"Что показать на карте: пандусы, туалеты, барьеры", tipHome:"На главную", railLayers:"Слои", railLang:"Язык", railMore:"Ещё",
   frContacts:"Пригласить из контактов", frContactsH:"Кому отправить приглашение", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Никого не выбрали"},
  kk:{permTitle:"ICity навигатор ретінде жұмыс істеуі үшін", permLead:"Рұқсатты бір рет беріңіз — ICity қайта сұрамайды.", permAll:"Рұқсат ету", permLater:"Кейін", permDone:"Дайын",
   permGeo:"Геолокация", permGeoS:"Тұрған жеріңізден бағыт және жақын достар", permNot:"Хабарламалар", permNotS:"Шағымдарыңыздың күйі, еріктілер мен достардың жауабы",
   permCmp:"Компас", permCmpS:"Карта мен көрсеткі қараған жағыңызға бұрылады", permCnt:"Контактілер", permCntS:"Достарды контактілерден шақырғанда сұраймыз",
   permOk:"✓ Рұқсат", permNo:"Тыйым салынған", permAsk:"Рұқсат ету", permLaterS:"Алғаш қолданғанда сұраймыз", permNA:"Бұл браузерде жоқ",
-  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", tipLocate:"Мен қайдамын", tipLocHead:"Тағы басыңыз — көрсеткі қайда қарап тұрғаныңызды көрсетеді", locHeadOn:"Көрсеткі қайда қарап тұрғаныңызды көрсетеді. Өшіру үшін тағы басыңыз", locHeadOff:"«Қайда қараймын» режимі өшірілді", locHeadLabel:"Қайда қарап тұрмын", tipZoomIn:"Жақындату", tipZoomOut:"Алыстату", terrTitle:"Қай жерде боласыз?", terrLead:"Облысты, ауданды және елді мекенді таңдаңыз немесе атауы бойынша іздеңіз.", terrSearch:"Қала, кент немесе ауылды іздеу", terrSearchPh:"Қала, кент немесе ауыл", terrSrc:"Шекаралар мен атаулар — © OpenStreetMap қатысушылары (ODbL). Қолжетімділік туралы деректер барлық жерде жоқ: болмаса, кедергі туралы хабарлаңыз немесе орынды тексеріңіз.", terrKz:"Қазақстан", terrRepCities:"Республикалық маңызы бар қалалар", terrRegions:"Облыстар", terrCities:"Қалалар", terrDistricts:"Аудандар", terrPlaces:"Елді мекендер", terrRecent:"Соңғылар", terrLoading:"Тізім жүктелуде…", terrPending:"Бұл аумақтың тізімі дайындалуда — алғаш ашқанда бір минутқа дейін. Әзірге атауы бойынша іздеуге болады.", terrEmpty:"Ештеңе табылмады. Атауын тексеріңіз немесе тізімнен таңдаңыз.", terrErr:"Жүктеу мүмкін болмады — интернетті тексеріп, қайталаңыз.", terrRetry:"Қайталау", terrChange:"Өзгерту", terrPickAny:"Облыс, аудан, кент немесе ауыл", terrChoose:"Орынды таңдаңыз", terrFilter:"Атауы бойынша сүзу", terrPick:"Таңдау", terrFewData:"{n}: қолжетімділік деректері әзірге аз. Кедергіні не ыңғайлы орынды білсеңіз — белгілеңіз.", terrNoBus:"Бұл елді мекен үшін автобус бағыттары туралы деректер жоқ. Жаяу немесе таксиді көріңіз.", pt_city:"қала", pt_town:"кент", pt_village:"ауыл", pt_hamlet:"ауыл", pt_district:"аудан", layReset:"Тазалау", layOn:"Қосулы: {n}", layGrpAccess:"Қолжетімділік", layGrpBarrier:"Кедергілер", layGrpCity:"Қала",mmGrpCity:"Қала", mmGrpEase:"Ыңғайлылық", mmRouteAB:"Нүктеден нүктеге бағыт", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
+  railL:"Бөлімдер", railHelp:"Көмек", railAudit:"Орынды тексеру", railRoute:"Бағыт", railReports:"Шағымдар", railAudit2:"Тексеру", railText:"Тізім", fgText:"Алдымен қаланы немесе елді мекенді таңдаңыз — бағыттар, қабаттар мен шағымдар таңдалған орын үшін құрылады.", frAlwaysQ:"Орныңызды достарға өзіңіз өшіргенше үнемі көрсету керек пе? Оны ICity-дегі барлық достарыңыз көреді.", plEmptyHow:"Үй мен жұмысты сақтаңыз немесе «Қайда» өрісінің жанындағы «Сақтау» батырмасын басыңыз", shAddHere:"Қазіргі орныма сілтеме қосу", shPreview:"Хабарлама мәтіні", shSend:"Бөлісу…", shWhatT:"Не жіберіледі", shWhatTo:"Қайда барасыз", shWhatAt:"Шамамен жету уақыты", shWhatHere:"Қазіргі орныңызға сілтеме (OpenStreetMap картасындағы координаттар)", shWhatNoHere:"Орныңыз жіберілмейді", shWho:"Кімге — телефонның «Бөлісу» терезесінде өзіңіз таңдайсыз немесе көшірілген мәтінді қоясыз.", shTextNoHere:"Мен барамын: {to}. Шамамен {t} жетемін ({m} мин).", shSelect:"Мәтінді белгілеп, көшіріңіз", scSeen:"Орныңызды достар көреді: {n}", scWho:"барлық достарыңыз көреді ({n})", scOff:"Өшіру", frInvPriv:"Сілтемені ашып, ICity-ге кірген адам досыңыз болады. Орныңызды ол тек сіз «Достарға көрінеді» қосқанда және таңдалған мерзімге ғана көреді.", layZoomed:"Карта жақындатылды: қабаттар көше масштабынан көрсетіледі", pfLoadingC:"Іздеп жатырмыз: {c}", pfNoneC:"{c}: жақын жерде ештеңе табылмады — картаны жылжытыңыз немесе кішірейтіңіз", pfAroundMe:"сіздің жаныңызда", pfAroundMap:"карта ортасында", pfCancel:"Болдырмау", pfCanceled:"Іздеу тоқтатылды", c_toilet:"Дәретханалар", stepsTitle:"Бағыт қадамдары", routeSrc:"Дереккөздер: OpenStreetMap (© OSM қатысушылары) және ICity тұрғындарының шағымдары. Деректер толық болмауы мүмкін — орнында тексеріп, кедергілер туралы хабарлаңыз.", routeSrcElev:"Дереккөздер: OpenStreetMap (© OSM қатысушылары), ICity тұрғындарының шағымдары, биіктіктер — Open-Meteo. Деректер толық болмауы мүмкін — орнында тексеріп, кедергілер туралы хабарлаңыз.", ptNone:"Нүкте таңдалмаған. Онсыз жіберуге болмайды — картадан орынды белгілеңіз.", ptPick:"Картадан таңдау", ptUseMe:"Менің орным", ptUseRoute:"Бағыттың соңы", ptGeoAsk:"«Менің орным»: браузер геолокацияға рұқсат сұрайды — ол тек осы нүкте үшін керек.", ptGeoDenied:"Геолокацияға рұқсат жоқ — нүктені картадан таңдаңыз.", ptGeoFail:"Орынды анықтау мүмкін болмады — нүктені картадан таңдаңыз.", ptAddrWait:"Мекенжай нақтылануда…", ptSrc_map:"картадан таңдалды", ptSrc_me:"сіздің орныңыз", ptSrc_place:"орын карточкасынан", ptSrc_route:"бағыттың соңы", ptShow:"Картадан көрсету", ptChange:"Өзгерту", ptBack:"Формаға оралу", ptPickHelp:"Картадан өзіңіз тұрған жерді басыңыз", ptWhere:"Қайдасыз", needPt:"картадағы нүкте", needComment:"түсініктеме", needPhone:"байланыс телефоны", needPrefix:"Жіберу үшін толтырыңыз:", cmpPoint:"Кедергі орны", cmpNoText:"Мәтін нүктені таңдағанда пайда болады", hpWhoSees:"Кім не көреді", hpSeeAll:"Жақын маңдағы еріктілер көмек түрін, түсініктемені, атыңызды және шамамен орныңызды көреді.", tipLocate:"Мен қайдамын", tipLocHead:"Тағы басыңыз — көрсеткі қайда қарап тұрғаныңызды көрсетеді", locHeadOn:"Көрсеткі қайда қарап тұрғаныңызды көрсетеді. Өшіру үшін тағы басыңыз", locHeadOff:"«Қайда қараймын» режимі өшірілді", locHeadLabel:"Қайда қарап тұрмын", tipZoomIn:"Жақындату", tipZoomOut:"Алыстату", terrTitle:"Қай жерде боласыз?", terrLead:"Облысты, ауданды және елді мекенді таңдаңыз немесе атауы бойынша іздеңіз.", terrSearch:"Қала, кент немесе ауылды іздеу", terrSearchPh:"Қала, кент немесе ауыл", terrSrc:"Шекаралар мен атаулар — © OpenStreetMap қатысушылары (ODbL). Қолжетімділік туралы деректер барлық жерде жоқ: болмаса, кедергі туралы хабарлаңыз немесе орынды тексеріңіз.", terrKz:"Қазақстан", terrRepCities:"Республикалық маңызы бар қалалар", terrRegions:"Облыстар", terrCities:"Қалалар", terrDistricts:"Аудандар", terrPlaces:"Елді мекендер", terrRecent:"Соңғылар", terrLoading:"Тізім жүктелуде…", terrPending:"Бұл аумақтың тізімі дайындалуда — алғаш ашқанда бір минутқа дейін. Әзірге атауы бойынша іздеуге болады.", terrEmpty:"Ештеңе табылмады. Атауын тексеріңіз немесе тізімнен таңдаңыз.", terrErr:"Жүктеу мүмкін болмады — интернетті тексеріп, қайталаңыз.", terrRetry:"Қайталау", terrChange:"Өзгерту", terrPickAny:"Облыс, аудан, кент немесе ауыл", terrChoose:"Орынды таңдаңыз", terrFilter:"Атауы бойынша сүзу", terrPick:"Таңдау", terrFewData:"{n}: қолжетімділік деректері әзірге аз. Кедергіні не ыңғайлы орынды білсеңіз — белгілеңіз.", terrNoBus:"Бұл елді мекен үшін автобус бағыттары туралы деректер жоқ. Жаяу немесе таксиді көріңіз.", pt_city:"қала", pt_town:"кент", pt_village:"ауыл", pt_hamlet:"ауыл", pt_district:"аудан", layReset:"Тазалау", layOn:"Қосулы: {n}", layGrpAccess:"Қолжетімділік", layGrpBarrier:"Кедергілер", layGrpCity:"Қала",mmGrpCity:"Қала", mmGrpEase:"Ыңғайлылық", mmRouteAB:"Нүктеден нүктеге бағыт", frpMe:"Сіз", frpVisible:"Достарға көрінеді", frpAdd:"Дос қосу", frpAllMap:"Барлық достар картада", frpOnMap:"Картада", frpRemove:"Достардан өшіру", frpBack:"Тізімге оралу", frpNoLoc:"Геолокация жасырын", frpEmptyT:"Мұнда достарыңыз болады", frpWhy:"Бір-біріңізді картада көріп, досқа қолжетімді бағыт құрыңыз.", frpKm:"{d} км", frpM:"{d} м", railBarrier:"Кедергі", railSos:"SOS", tipRoute:"Қолжетімді бағыт құру", tipBarrier:"Кедергі туралы хабарлау: баспалдақ, жиек, шұңқыр", tipFriends:"Достар картада және оларға бағыт", tipPlaces:"Үй, жұмыс және сақталған орындар", tipReports:"Менің шағымдарым және олардың күйі", tipHelp:"Еріктіден көмек сұрау", tipAudit:"Ғимараттың қолжетімділігін тексеру — еріктілерге", tipSos:"Шұғыл көмек: 112 және жақын адам", tipSerik:"Серік қала туралы сұрақтарға жауап береді", tipList:"Карта орнына тізім — экрандық диктормен ыңғайлы", tipLang:"Тілді ауыстыру: русский, қазақша, English", tipSettings:"Қаріп, контраст, тақырып және қозғалыс профилі", tipAcct:"Кіру және профиль", tipLayers:"Картада не көрсету: пандустар, дәретханалар, кедергілер", tipHome:"Басты бетке", railLayers:"Қабаттар", railLang:"Тіл", railMore:"Тағы",
   frContacts:"Контактілерден шақыру", frContactsH:"Шақыруды кімге жіберу", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"Ешкім таңдалмады"},
  en:{permTitle:"Let ICity work as a navigator", permLead:"Allow access once — ICity won't ask again.", permAll:"Allow", permLater:"Later", permDone:"Done",
   permGeo:"Location", permGeoS:"Routes from where you stand and friends nearby", permNot:"Notifications", permNotS:"Updates on your reports, replies from volunteers and friends",
   permCmp:"Compass", permCmpS:"The map and arrow turn the way you face", permCnt:"Contacts", permCntS:"We'll ask when you invite friends from contacts",
   permOk:"✓ Allowed", permNo:"Blocked", permAsk:"Allow", permLaterS:"We'll ask the first time it's needed", permNA:"Not in this browser",
-  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", tipLocate:"Show where I am", tipLocHead:"Tap again — the arrow will show where you are facing", locHeadOn:"The arrow shows where you are facing. Tap again to turn it off", locHeadOff:"Facing mode is off", locHeadLabel:"Where I'm facing", tipZoomIn:"Zoom in", tipZoomOut:"Zoom out", terrTitle:"Where will you be?", terrLead:"Choose a region, district and settlement, or search by name.", terrSearch:"Search a city, town or village", terrSearchPh:"City, town or village", terrSrc:"Boundaries and names — © OpenStreetMap contributors (ODbL). Accessibility data is not available everywhere: if it is missing, report a barrier or check the place.", terrKz:"Kazakhstan", terrRepCities:"Cities of national significance", terrRegions:"Regions", terrCities:"Cities", terrDistricts:"Districts", terrPlaces:"Settlements", terrRecent:"Recent", terrLoading:"Loading the list…", terrPending:"Preparing this area's list — up to a minute the first time. Meanwhile you can search by name.", terrEmpty:"Nothing found. Check the name or pick from the list.", terrErr:"Could not load — check your connection and try again.", terrRetry:"Retry", terrChange:"Change", terrPickAny:"Region, district, town or village", terrChoose:"Choose a place", terrFilter:"Filter by name", terrPick:"Choose", terrFewData:"{n}: little accessibility data yet. Know a barrier or an accessible place? Mark it.", terrNoBus:"There is no bus route data for this settlement. Try walking or a taxi.", pt_city:"city", pt_town:"town", pt_village:"village", pt_hamlet:"hamlet", pt_district:"district", layReset:"Reset", layOn:"On: {n}", layGrpAccess:"Accessibility", layGrpBarrier:"Obstacles", layGrpCity:"City",mmGrpCity:"City", mmGrpEase:"Comfort", mmRouteAB:"Route from A to B", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
+  railL:"Sections", railHelp:"Help", railAudit:"Check a place", railRoute:"Route", railReports:"Reports", railAudit2:"Check", railText:"List", fgText:"First choose a city or village — routes, layers and reports are built for the selected place.", frAlwaysQ:"Show your location to friends at all times until you turn it off? All your ICity friends will see it.", plEmptyHow:"Save home and work, or tap “Save” next to the “To” field", shAddHere:"Add a link to my current location", shPreview:"Message text", shSend:"Share…", shWhatT:"What will be sent", shWhatTo:"Where you are going", shWhatAt:"Approximate arrival time", shWhatHere:"A link to your current location (coordinates on an OpenStreetMap map)", shWhatNoHere:"Your location is not sent", shWho:"To whom — you choose in your phone’s Share window or paste the copied text yourself.", shTextNoHere:"I am heading to: {to}. I will be there at about {t} ({m} min).", shSelect:"Select the text and copy it", scSeen:"Friends who see your location: {n}", scWho:"all your friends see it ({n})", scOff:"Turn off", frInvPriv:"Whoever opens the link and signs in to ICity becomes your friend. They see your location only when you turn on “Visible to friends”, and only for the period you choose.", layZoomed:"Zoomed in: layers are shown at street level", pfLoadingC:"Searching: {c}", pfNoneC:"{c}: nothing found nearby — move or zoom out the map", pfAroundMe:"near you", pfAroundMap:"around the map centre", pfCancel:"Cancel", pfCanceled:"Search cancelled", c_toilet:"Toilets", stepsTitle:"Route steps", routeSrc:"Sources: OpenStreetMap (© OSM contributors) and ICity residents' reports. Data may be incomplete — check on site and report barriers.", routeSrcElev:"Sources: OpenStreetMap (© OSM contributors), ICity residents' reports, elevation — Open-Meteo. Data may be incomplete — check on site and report barriers.", ptNone:"No point selected. It is required — mark the place on the map.", ptPick:"Pick on the map", ptUseMe:"My location", ptUseRoute:"End of route", ptGeoAsk:"“My location”: the browser will ask for location access — it is used only for this point.", ptGeoDenied:"Location access was not given — pick the point on the map.", ptGeoFail:"Could not get your location — pick the point on the map.", ptAddrWait:"Looking up the address…", ptSrc_map:"picked on the map", ptSrc_me:"your location", ptSrc_place:"from the place card", ptSrc_route:"end of route", ptShow:"Show on the map", ptChange:"Change", ptBack:"Back to the form", ptPickHelp:"Tap the map where you are", ptWhere:"Where you are", needPt:"a point on the map", needComment:"a comment", needPhone:"a contact phone", needPrefix:"To send, fill in:", cmpPoint:"Barrier location", cmpNoText:"The text appears once you pick a point", hpWhoSees:"Who sees what", hpSeeAll:"Volunteers nearby will see the kind of help, your comment, name and approximate place.", tipLocate:"Show where I am", tipLocHead:"Tap again — the arrow will show where you are facing", locHeadOn:"The arrow shows where you are facing. Tap again to turn it off", locHeadOff:"Facing mode is off", locHeadLabel:"Where I'm facing", tipZoomIn:"Zoom in", tipZoomOut:"Zoom out", terrTitle:"Where will you be?", terrLead:"Choose a region, district and settlement, or search by name.", terrSearch:"Search a city, town or village", terrSearchPh:"City, town or village", terrSrc:"Boundaries and names — © OpenStreetMap contributors (ODbL). Accessibility data is not available everywhere: if it is missing, report a barrier or check the place.", terrKz:"Kazakhstan", terrRepCities:"Cities of national significance", terrRegions:"Regions", terrCities:"Cities", terrDistricts:"Districts", terrPlaces:"Settlements", terrRecent:"Recent", terrLoading:"Loading the list…", terrPending:"Preparing this area's list — up to a minute the first time. Meanwhile you can search by name.", terrEmpty:"Nothing found. Check the name or pick from the list.", terrErr:"Could not load — check your connection and try again.", terrRetry:"Retry", terrChange:"Change", terrPickAny:"Region, district, town or village", terrChoose:"Choose a place", terrFilter:"Filter by name", terrPick:"Choose", terrFewData:"{n}: little accessibility data yet. Know a barrier or an accessible place? Mark it.", terrNoBus:"There is no bus route data for this settlement. Try walking or a taxi.", pt_city:"city", pt_town:"town", pt_village:"village", pt_hamlet:"hamlet", pt_district:"district", layReset:"Reset", layOn:"On: {n}", layGrpAccess:"Accessibility", layGrpBarrier:"Obstacles", layGrpCity:"City",mmGrpCity:"City", mmGrpEase:"Comfort", mmRouteAB:"Route from A to B", frpMe:"You", frpVisible:"Visible to friends", frpAdd:"Add a friend", frpAllMap:"All friends on the map", frpOnMap:"On map", frpRemove:"Remove from friends", frpBack:"Back to list", frpNoLoc:"Location hidden", frpEmptyT:"Your friends will appear here", frpWhy:"See each other on the map and get an accessible route to a friend.", frpKm:"{d} km", frpM:"{d} m", railBarrier:"Barrier", railSos:"SOS", tipRoute:"Plan an accessible route", tipBarrier:"Report a barrier: steps, curb, pothole", tipFriends:"Friends on the map and routes to them", tipPlaces:"Home, work and saved places", tipReports:"My reports and their status", tipHelp:"Ask a volunteer for help", tipAudit:"Check a building's accessibility — for volunteers", tipSos:"Emergency: 112 and a close person", tipSerik:"Serik answers questions about the city", tipList:"A list instead of the map — handy with a screen reader", tipLang:"Change language: русский, қазақша, English", tipSettings:"Font, contrast, theme and mobility profile", tipAcct:"Sign in and profile", tipLayers:"What to show: ramps, toilets, barriers", tipHome:"Home page", railLayers:"Layers", railLang:"Language", railMore:"More",
   frContacts:"Invite from contacts", frContactsH:"Who to send the invite to", frSms:"SMS", frWa:"WhatsApp", frContactsNone:"No one selected"}};
 ["ru","kk","en"].forEach(l=>Object.assign(I18N[l],PERM_T[l]));
 const PERM={geo:"?",not:"?",cmp:"?"};
@@ -5979,7 +6122,8 @@ async function frCopy(){ const u=frLink(); try{ await navigator.clipboard.writeT
 async function frNewCode(){ if(!confirm(t("frNewCodeQ"))) return; try{ const d=await frApi("/code",{}); FR.me.code=d.code; frRender(); }catch(e){ toast(t("frErr")); } }
 let frShareBusy=false;
 async function frSetShare(v){
-  if(frShareBusy) return; frShareBusy=true;   // быстрые нажатия на переключатель не шлют запросы наперегонки
+  if(frShareBusy) return;
+  if(v==="always" && !(FR.me && FR.me.share===-1) && !confirm(t("frAlwaysQ"))) return;   // «всегда» — только отдельным явным выбором frShareBusy=true;   // быстрые нажатия на переключатель не шлют запросы наперегонки
   try{ await frSetShareNow(v); } finally{ frShareBusy=false; }
 }
 async function frSetShareNow(v){
@@ -6226,7 +6370,7 @@ function frpRender(){
     html=`<ul class="frp-list" aria-busy="true">${[0,1,2].map(()=>`<li class="frp-skel"><span></span><i></i></li>`).join("")}</ul>`;
   } else if(v==="invite"){
     H.textContent=t("frpAdd");
-    html=`<p class="frp-lead">${esc(t("frInviteHint"))}</p>
+    html=`<p class="frp-lead">${esc(t("frInviteHint"))}</p><div class="send-what"><b>${esc(t("hpWhoSees"))}</b><p>${esc(t("frInvPriv"))}</p></div>
       <div class="frp-link"><input type="text" readonly value="${esc(frLink())}" aria-label="${esc(t("frInvite"))}" onfocus="this.select()"><button type="button" class="btn-ghost" onclick="frCopy()">${esc(t("frCopy"))}</button></div>
       <div class="frp-btns"><button type="button" class="btn" onclick="frFromContacts()">${svgI("friends")} ${esc(t("frContacts"))}</button><button type="button" class="btn-ghost" onclick="frShareLink()">${svgI("send")} ${esc(t("frShare"))}</button></div>
       <ul class="fr-contacts" id="frContacts"></ul>
@@ -6251,7 +6395,7 @@ function frpRender(){
     const till=sh>0?new Date(sh).toLocaleTimeString(S.lang==="kk"?"kk-KZ":S.lang==="en"?"en-GB":"ru-RU",{hour:"2-digit",minute:"2-digit"}):"";
     const seg=[["1h","fr1h"],["day","frDay"],["always","frAlways"]].map(([k,l])=>`<button type="button" aria-pressed="${cur===k}" onclick="frSetShare('${k}')">${esc(t(l))}</button>`).join("");
     const rows=frpSorted().map((f,i)=>`<li style="--i:${i}"><button type="button" class="frp-row" onclick="frFocus('${f.id}')">${frAva(f,"frp-ava"+frpLiveCls(f))}<span class="frp-who"><b>${esc(f.name)}</b><small>${esc(frpSub(f))}</small></span><svg class="frp-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></li>`).join("");
-    html=`<div class="frp-me">${frAva(me,"frp-ava")}<span class="frp-who"><b>${esc(t("frpVisible"))}</b><small>${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till})):t("frNotSharing"))}</small></span>
+    html=`<div class="frp-me">${frAva(me,"frp-ava")}<span class="frp-who"><b>${esc(t("frpVisible"))}</b><small>${esc(on?(sh===-1?t("frSharingAlways"):tf("frSharingTill",{t:till}))+" · "+tf("scWho",{n:FR.list.length}):t("frNotSharing"))}</small></span>
         <button type="button" class="frp-switch" role="switch" aria-checked="${on}" aria-label="${esc(t("frpVisible"))}" onclick="frSetShare('${on?"off":"day"}')"><span></span></button></div>
       ${on?`<div class="frp-seg" role="group" aria-label="${esc(t("frMyLoc"))}">${seg}</div>`:""}
       ${FR.list.length?`<ul class="frp-list">${rows}</ul>`:`<div class="frp-empty"><span class="frp-emico">${svgI("friends")}</span><h3>${esc(t("frpEmptyT"))}</h3><p>${esc(t("frpWhy"))}</p></div>`}
@@ -6295,13 +6439,14 @@ async function plCoords(id){
   if(id==="start" && userLatLng && (v===t("myLocation")||v===t("mapPoint"))) return {name:v, ll:userLatLng};
   try{ const ll=await findPlace(v); return ll?{name:v, ll}:null; }catch(e){ return null; }
 }
-function openPlPanel(editOnly){
+function openPlPanel(editOnly, force){
   const pn=document.getElementById("plPanel"); if(!pn) return;
-  if(!pn.hidden && pn.dataset.mode===(editOnly?"edit":"save")){ pn.hidden=true; return; }
+  if(!force && !pn.hidden && pn.dataset.mode===(editOnly?"edit":"save")){ pn.hidden=true; return; }
   pn.dataset.mode=editOnly?"edit":"save"; pn.hidden=false;
   const ds=document.getElementById("destination").value.trim();
   const types=["home","work","place","route"].map(k=>`<button type="button" aria-pressed="${k===plType}" onclick="plType='${k}';openPlPanel();openPlPanel()">${svgI(PL_ICON[k])} ${esc(t("pl"+k[0].toUpperCase()+k.slice(1)))}</button>`).join("");
-  const list=PLACES.length ? `<ul class="pl-list">${PLACES.map(p=>`<li>${svgI(PL_ICON[p.type])}<span>${esc(plLabel(p))}</span><button type="button" onclick="delPlace('${p.id}')" aria-label="${esc(t("plDel"))}: ${esc(plLabel(p))}">✕</button></li>`).join("")}</ul>` : `<p class="small muted">${esc(t("plEmpty"))}</p>`;
+  const list=PLACES.length ? `<ul class="pl-list">${PLACES.map(p=>`<li><button type="button" class="pl-go" onclick="document.getElementById('plPanel').hidden=true;goPlace('${p.id}')">${svgI(PL_ICON[p.type])}<span><b>${esc(plLabel(p))}</b>${p.addr&&p.addr!==plLabel(p)?`<small>${esc(p.addr)}</small>`:""}</span></button><button type="button" class="pl-del" onclick="delPlace('${p.id}')" aria-label="${esc(t("plDel"))}: ${esc(plLabel(p))}">✕</button></li>`).join("")}</ul>`
+    : `<p class="small muted">${esc(t("plEmpty"))}. ${esc(t("plEmptyHow"))}</p><div class="row"><button type="button" class="btn-ghost grow" onclick="openPlaceSet('home')">${svgI("home")} ${esc(t("plHome"))}</button><button type="button" class="btn-ghost grow" onclick="openPlaceSet('work')">${svgI("work")} ${esc(t("plWork"))}</button></div>`;
   pn.innerHTML = editOnly ? `<h3>${esc(t("plTitle"))}</h3>${list}<div class="row" style="margin-top:10px"><button class="btn-ghost grow" onclick="document.getElementById('plPanel').hidden=true">${esc(t("plCancel"))}</button></div>`
    : `<h3>${esc(t("plSaveTitle"))}</h3><div class="pl-types" role="group">${types}</div>
       <p class="small muted" style="margin:0 0 8px">${esc(t(plType==="route"?"plSaveRouteHelp":"plSaveHelp"))}</p>
@@ -6771,10 +6916,13 @@ function showTrip(html, peek){
 }
 // Вписываем поездку в ВИДИМУЮ часть карты: снизу её закрывает шторка или плашка
 function fitTrip(pts){
+  if(!mapReady || !pts || !pts.length) return;
   const side=document.getElementById("sidePanel"), peek=document.getElementById("sheetPeek");
-  let bottom=50;
+  let bottom=50, top=sheetMode()?110:40;
   if(sheetMode()) bottom = (document.body.classList.contains("sheet-open") ? side.offsetHeight : (peek?peek.offsetHeight:0)) + 30;
-  map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[40,110], paddingBottomRight:[40,bottom]});
+  // если шторка закрывает почти всю карту, вписываем в оставшуюся полосу, но не меньше 120 px
+  const h=map.getSize().y; if(h-top-bottom<120) bottom=Math.max(30,h-top-120);
+  map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[40,top], paddingBottomRight:[40,bottom], animate:S.motion!=="off"});
 }
 function tripMarkers(a,b){
   L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
@@ -7483,14 +7631,16 @@ function drawRoute(pts, a, b){
   L.marker(a,{icon:divIcon("pin-start",18),alt:t("start")}).bindPopup(t("start")).addTo(routeLayer);
   clearFieldPins();
   L.marker(b,{icon:divIcon("pin-end",18),alt:t("finish")}).bindPopup(t("finish")).addTo(routeLayer);
-  map.fitBounds(L.latLngBounds(pts),{padding:[50,50]});
+  fitTrip(pts);
+  // высота плашки/шторки меняется, когда в ней появляется маршрут — вписываем ещё раз, когда она устоится
+  clearTimeout(fitTrip._t); fitTrip._t=setTimeout(()=>{ if(lastRoute && lastRoute.pts===pts) fitTrip(pts); },380);
 }
 
 function showVariant(i){
   if(!routeVariants.length) return;
   variantIndex = Math.max(0, Math.min(i, routeVariants.length-1));
   const v = routeVariants[variantIndex];
-  lastRoute={a:v.a, b:v.b, rt:v.rt, pts:v.pts};
+  lastRoute={a:v.a, b:v.b, rt:v.rt, pts:v.pts, mins:v.mins, profile:S.profile};
   lastAnalysis={ob:v.ob, slope:v.slope};
   lastComplaintPoint=v.b;
   lastSteps = (v.rt.legs&&v.rt.legs[0]&&v.rt.legs[0].steps? v.rt.legs[0].steps:[])
@@ -7747,10 +7897,26 @@ function stepText(s,i){
   }
   return n + cap(phrase);
 }
+// Откуда оценка и где её пределы — рядом с самой оценкой
+function routeSrcHtml(slope){
+  const prof=PROFILES[S.profile], pn=prof[S.lang]||prof.ru;
+  return `<p class="route-src">${esc(t("profileLabel"))}: <b>${esc(pn)}</b><br>${esc(t(slope?"routeSrcElev":"routeSrc"))}</p>`;
+}
+// «Шаги»: список настоящих манёвров выбранного варианта; если шагов нет — так и пишем, без перехода в форму
+function openSteps(){
+  const body=document.getElementById("stepsBody"); if(!body) return;
+  if(!lastRoute || !lastSteps.length){ body.innerHTML=`<p class="small muted">${esc(t("navNoSteps"))}</p>`; openModal("stepsModal"); return; }
+  const mins=lastRoute.mins || Math.max(1,Math.round((lastRoute.rt.duration/60)/PROFILES[S.profile].speed));
+  body.innerHTML=`<p class="steps-sum"><b>${(lastRoute.rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</b></p>
+    <ol class="steps">${lastSteps.map((x,i)=>`<li>${esc(stepText(x,i).replace(/^\d+\.\s*/,""))}</li>`).join("")}</ol>
+    ${lastAnalysis?routeSrcHtml(lastAnalysis.slope):""}`;
+  openModal("stepsModal");
+}
 function renderRouteCard(rt,mins,ob,slope){
   document.getElementById("routeCard").innerHTML=`
     <h2>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))} · ~${mins} ${esc(t("min"))}</h2>
     <div class="facts">${obstacleFacts(ob,slope)}</div>
+    ${routeSrcHtml(slope)}
     ${tripWeatherHtml(mins)}
     <button class="btn-primary" style="width:100%;margin-top:12px" onclick="navStart()">${svgI("walk")} ${esc(t("navStart"))}</button>
     <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="shareTrip(${mins})">${svgI("send")} ${esc(t("shTrip"))}</button>
@@ -7765,6 +7931,7 @@ function renderRouteList(rt,mins,ob,slope){
       <h2>${esc(t("steps"))}</h2>
       <p><b>${(rt.distance/1000).toFixed(1)} ${esc(t("km"))}</b> · ~${mins} ${esc(t("min"))}</p>
       <div class="facts">${obstacleFacts(ob,slope)}</div>
+      ${routeSrcHtml(slope)}
       <ol class="steps">${lastSteps.map((s,i)=>`<li>${esc(stepText(s,i).replace(/^\d+\.\s*/,""))}</li>`).join("")}</ol>
       <button class="btn-ghost" onclick="speakRoute()">${svgI("speaker")} ${esc(t("speak"))}</button>
     </div>`;
@@ -8142,9 +8309,8 @@ async function verifyReport(id,btn){ return withBusy(btn, async()=>{
   catch(e){ toast(t("sendFail")); }
 }); }
 function openReport(){
-  // точка по умолчанию — где вы сейчас (если GPS уже известен); иначе просим выбрать на карте
-  if(!reportLatLng && userLatLng){ reportLatLng=L.latLng(userLatLng[0],userLatLng[1]); const rp=document.getElementById("reportPlace"); if(rp) rp.value=t("myLocation"); }
-  repTiles(); openModal("reportModal");
+  // точку человек выбирает сам: на карте или кнопкой «Моё местоположение» — никаких молчаливых подстановок
+  ptRender("report"); formCheck("report"); repTiles(); openModal("reportModal");
 }
 // Фото к жалобе — плиткой, как в отзывах, а не системной кнопкой «Choose file»
 function repTiles(){
@@ -8157,12 +8323,13 @@ function repTiles(){
 }
 async function saveReport(e){
   e.preventDefault();
-  if(!reportLatLng){ setReportPick(); toast(t("needPoint")); return; }
-  const btn=document.getElementById("submitReport");
+  if(!formCheck("report")) return;
+  const pt=PT.report, btn=document.getElementById("submitReport");
+  if(btn.dataset.busy) return; btn.dataset.busy="1";
   btn.disabled=true; btn.textContent=t("sending");
   try{
     const fd=new FormData();
-    fd.append("lat",reportLatLng.lat); fd.append("lng",reportLatLng.lng);
+    fd.append("lat",pt.lat); fd.append("lng",pt.lng);
     fd.append("type",document.getElementById("barrierType").value);
     fd.append("comment",document.getElementById("comment").value);
     fd.append("season",document.getElementById("season").value);
@@ -8173,16 +8340,15 @@ async function saveReport(e){
     try{ const d=await res.clone().json(); if(d&&d.id){ const l=myReports(); l.unshift({id:d.id,type:fd.get("type")||"",at:Date.now(),status:"pending"}); store("myReports",JSON.stringify(l.slice(0,50))); setTimeout(askNotify,1500); } }catch(e){}
     closeModal("reportModal");
     document.getElementById("comment").value=""; ph.value=""; repTiles();
-    document.getElementById("reportPlace").value="";
-    lastComplaintPoint=[reportLatLng.lat,reportLatLng.lng];
-    reportLatLng=null;
+    lastComplaintPoint=[pt.lat,pt.lng];
+    ptClear("report");
     await showReports();
     // маршрут уже на экране — перестраиваем его с учётом нового барьера (пешком и на автобусе)
     const dsv=document.getElementById("destination");
     if(dsv && dsv.value.trim() && (S.mode==="walk"||S.mode==="bus") && (lastRoute||modePeek)){ toast(t("repRerouted")); buildRoute(); }
     else toast(t("sent"));
   }catch(err){ toast(t("sendFail")+err.message); }
-  finally{ btn.disabled=false; btn.textContent=t("repSend"); }
+  finally{ delete btn.dataset.busy; btn.textContent=t("repSend"); formCheck("report"); }
 }
 
 /* ============ SOS ============ */
@@ -8236,18 +8402,89 @@ async function sosCopy(){
 }
 
 /* ============ Обращение в акимат ============ */
-function openComplaint(){
-  const p = lastComplaintPoint || userLatLng || city().c;
-  const link=`https://www.openstreetmap.org/?mlat=${p[0]}&mlon=${p[1]}#map=19/${p[0]}/${p[1]}`;
-  const body = S.lang==="en"
-   ? `To the Akimat of ${cityName()}\n\nI report an accessibility barrier in the public space.\n\nLocation: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${new Date().toLocaleDateString()}`
+/* ===== Точка в форме: координаты + адрес + откуда взята — одна запись, без молчаливых подстановок =====
+   PT[форма] = {lat,lng,addr,src}; src: map (выбрали на карте) | me (моё местоположение) | place (карточка места) | route (конец маршрута).
+   Пока точка не выбрана и не подтверждена человеком, отправить или скопировать форму нельзя. */
+const PT={report:null, complaint:null, help:null};
+const PT_MODAL={report:"reportModal", complaint:"complaintModal", help:"helpModal"};
+let ptMarker=null;
+const fmtDate=d=>new Date(d).toLocaleDateString(locale(),{day:"2-digit",month:"2-digit",year:"numeric"});   // ru: ДД.ММ.ГГГГ
+function ptSet(form, lat, lng, src, addr){
+  lat=+(+lat).toFixed(6); lng=+(+lng).toFixed(6);
+  PT[form]={lat,lng,src,addr:addr||""};
+  if(form==="report") reportLatLng=L.latLng(lat,lng);
+  ptRender(form); formCheck(form);
+  if(!addr) reverseGeo(lat,lng).then(rv=>{ const ad=rv&&revAddr(rv); const cur=PT[form]; if(ad&&cur&&cur.lat===lat&&cur.lng===lng){ cur.addr=ad; ptRender(form); if(form==="complaint") cmpBuild(); } }).catch(()=>{});
+}
+// «Моё местоположение» — только по нажатию; если места ещё нет, браузер спросит разрешение (об этом написано рядом)
+function ptUseMe(form, btn){
+  if(userLatLng) return ptSet(form, userLatLng[0], userLatLng[1], "me");
+  if(!navigator.geolocation){ toast(t("geoOff")); return; }
+  if(btn){ btn.disabled=true; btn.setAttribute("aria-busy","true"); }
+  navigator.geolocation.getCurrentPosition(p=>{ userLatLng=[p.coords.latitude,p.coords.longitude]; ptSet(form,userLatLng[0],userLatLng[1],"me"); },
+    err=>{ if(btn){ btn.disabled=false; btn.removeAttribute("aria-busy"); } toast(t(err&&err.code===1?"ptGeoDenied":"ptGeoFail")); },
+    {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+}
+function ptClear(form){ PT[form]=null; if(form==="report") reportLatLng=null; ptRender(form); formCheck(form); }
+function ptRender(form){
+  const box=document.getElementById(form+"Pt"); if(!box) return;
+  const p=PT[form];
+  if(!p){
+    const alt=[];
+    alt.push(`<button type="button" class="btn-ghost btn-sm" onclick="ptUseMe('${form}',this)">${svgI("pin")} ${esc(t("ptUseMe"))}</button>`);
+    if(form==="complaint" && lastComplaintPoint) alt.push(`<button type="button" class="btn-ghost btn-sm" onclick="ptSet('complaint',lastComplaintPoint[0],lastComplaintPoint[1],'route')">${svgI("flag")} ${esc(t("ptUseRoute"))}</button>`);
+    box.innerHTML=`<p class="pt-empty">${esc(t("ptNone"))}</p>${userLatLng?"":`<p class="pt-note">${esc(t("ptGeoAsk"))}</p>`}
+      <div class="pt-acts"><button type="button" class="btn-primary btn-sm" onclick="ptPick('${form}')">${svgI("map")} ${esc(t("ptPick"))}</button>${alt.join("")}</div>`;
+    return;
+  }
+  box.innerHTML=`<p class="pt-addr">${esc(p.addr||t("ptAddrWait"))}</p>
+    <p class="pt-ll"><span>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span> · <span>${esc(t("ptSrc_"+p.src))}</span></p>
+    <div class="pt-acts"><button type="button" class="btn-ghost btn-sm" onclick="ptShow('${form}')">${svgI("pin")} ${esc(t("ptShow"))}</button>
+      <button type="button" class="btn-ghost btn-sm" onclick="ptPick('${form}')">${esc(t("ptChange"))}</button></div>`;
+}
+// Выбор на карте: окно закрывается, нажатие на карту ставит точку и возвращает в форму
+function ptPick(form){ closeModal(PT_MODAL[form]); pickMode="pt:"+form; setView("map"); if(sheetMode()&&typeof closeSheet==="function") closeSheet(); toast(t(form==="help"?"ptPickHelp":"pickBarrier")); }
+// «Показать точку на карте» — до отправки видно, какое именно место уходит
+function ptShow(form){
+  const p=PT[form]; if(!p||!mapReady) return;
+  closeModal(PT_MODAL[form]); setView("map"); if(sheetMode()&&typeof closeSheet==="function") closeSheet();
+  if(ptMarker) ptMarker.remove();
+  ptMarker=L.marker([p.lat,p.lng],{icon:divIcon("pin-barrier pt-pulse",22),alt:t("ptShow"),keyboard:true}).addTo(map)
+    .bindPopup(`<b>${esc(p.addr||t("ptAddrWait"))}</b><br><span class="small">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span><br>
+      <button type="button" class="btn-primary btn-sm" style="margin-top:8px" onclick="ptBack('${form}')">${esc(t("ptBack"))}</button>`,{autoClose:false,closeOnClick:false}).openPopup();
+  map.setView([p.lat,p.lng], Math.max(map.getZoom(),17), {animate:S.motion!=="off"});
+}
+function ptBack(form){ if(ptMarker){ ptMarker.remove(); ptMarker=null; } openModal(PT_MODAL[form]); ptRender(form); formCheck(form); }
+// Обязательные поля: кнопка отправки активна, только когда всё заполнено; что не хватает — написано под формой
+function formCheck(form){
+  const need=[];
+  if(!PT[form]) need.push(t("needPt"));
+  if(form==="report"){ const c=document.getElementById("comment"); if(!c||!c.value.trim()) need.push(t("needComment")); }
+  if(form==="help"){ const ph=document.getElementById("hpPhone"); if(!ph||String(ph.value).replace(/\D/g,"").length<10) need.push(t("needPhone")); }
+  const ok=!need.length;
+  const btn=document.getElementById(form==="report"?"submitReport":form==="help"?"hpSendBtn":"cmpCopyBtn");
+  if(btn){ btn.disabled=!ok; btn.setAttribute("aria-disabled",String(!ok)); }
+  if(form==="complaint"){ const a=document.getElementById("cmpOpenBtn"); if(a){ a.classList.toggle("is-disabled",!ok); a.setAttribute("aria-disabled",String(!ok)); a.tabIndex=ok?0:-1; } }
+  const el=document.getElementById(form+"Need"); if(el) el.textContent=ok?"":t("needPrefix")+" "+need.join(", ");
+  return ok;
+}
+function cmpBuild(){
+  const p=PT.complaint, ta=document.getElementById("cmpText"); if(!ta) return;
+  if(!p){ ta.value=""; return; }
+  const link=`https://www.openstreetmap.org/?mlat=${p.lat.toFixed(6)}&mlon=${p.lng.toFixed(6)}#map=19/${p.lat.toFixed(6)}/${p.lng.toFixed(6)}`;
+  const where=(p.addr?p.addr+" — ":"")+`${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`, date=fmtDate(Date.now());
+  ta.value = S.lang==="en"
+   ? `To the Akimat of ${cityName()}\n\nI report an accessibility barrier in the public space.\n\nLocation: ${where}\nMap: ${link}\n\nDescription: (describe the barrier — missing ramp, high curb, broken elevator, etc.)\n\nThis barrier prevents free movement for people with disabilities and violates the requirements for an accessible environment.\n\nI ask you to inspect the site and take measures.\n\nDate: ${date}`
    : S.lang==="kk"
-   ? `${cityName()} ${({town:"кентінің",village:"ауылының",hamlet:"ауылының"})[city().kind]||"қаласының"} әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${new Date().toLocaleDateString()}`
-   : `В акимат ${({town:"п. ",village:"с. ",hamlet:"с. "})[city().kind]||"г. "}${cityName()}\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${p[0].toFixed(5)}, ${p[1].toFixed(5)}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${new Date().toLocaleDateString()}`;
-  document.getElementById("cmpText").value=body;
+   ? `${cityName()} ${({town:"кентінің",village:"ауылының",hamlet:"ауылының"})[city().kind]||"қаласының"} әкімдігіне\n\nҚоғамдық кеңістіктегі кедергі туралы хабарлаймын.\n\nОрны: ${where}\nКарта: ${link}\n\nСипаттамасы: (кедергіні сипаттаңыз — пандус жоқ, биік бордюр, лифт істемейді)\n\nБұл кедергі мүгедектігі бар адамдардың еркін жүруіне кедергі келтіреді.\n\nОрында тексеру жүргізіп, шара қолдануыңызды сұраймын.\n\nКүні: ${date}`
+   : `В акимат ${({town:"п. ",village:"с. ",hamlet:"с. "})[city().kind]||"г. "}${cityName()}\n\nСообщаю о барьере доступности в общественном пространстве.\n\nМесто: ${where}\nКарта: ${link}\n\nОписание: (опишите барьер — отсутствует пандус, высокий бордюр, не работает лифт и т.п.)\n\nДанный барьер препятствует свободному передвижению людей с инвалидностью и маломобильных граждан и не соответствует требованиям к доступной среде.\n\nПрошу провести обследование участка и принять меры.\n\nДата: ${date}`;
+}
+function openComplaint(){
+  ptRender("complaint"); cmpBuild(); formCheck("complaint");
   openModal("complaintModal");
 }
 async function copyComplaint(){
+  if(!formCheck("complaint")) return;
   try{ await navigator.clipboard.writeText(document.getElementById("cmpText").value); toast(t("copied")); }
   catch(e){ document.getElementById("cmpText").select(); }
 }
@@ -9075,6 +9312,7 @@ function globeToMap(cityKey){
   { const stored=read("city","");
     // первое открытие без ссылки на место: не открываем всегда Алматы — показываем Казахстан и просим выбрать место
     S.firstRun=!stored && !/[?&](city|at|ll|to|from|lat|friend)=/.test(location.search);
+    document.body.classList.toggle("first-run", S.firstRun);
     S.city=CITIES[stored]?stored:"almaty"; }
   S.mode=read("mode","walk"); if(!["walk","bus","taxi","car","bike","scooter"].includes(S.mode)) S.mode="walk";
   markMode();

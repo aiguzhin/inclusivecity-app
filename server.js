@@ -982,6 +982,9 @@ server.listen(PORT, process.env.HOST || undefined, () => {
   refreshTariffs().catch((e) => console.warn("tariffs:", e.message)).finally(warmBusData);
   setInterval(() => { refreshTariffs().catch(() => {}).finally(warmBusData); }, 864e5);
   if (!process.env.ADMIN_TOKEN || process.env.ADMIN_TOKEN !== ADMIN_TOKEN) {
-    console.warn('ВНИМАНИЕ: ADMIN_TOKEN не задан. Временный токен админки до перезапуска: ' + ADMIN_TOKEN);
+    // сам токен в журнал не пишем: журналы читают многие, а токен открывает админку — он в файле, доступном только владельцу
+    const tokFile = path.join(DATA_DIR, 'admin-token.txt');
+    try { fs.writeFileSync(tokFile, ADMIN_TOKEN + '\n', { mode: 0o600 }); fs.chmodSync(tokFile, 0o600); } catch (e) {}
+    console.warn('ВНИМАНИЕ: ADMIN_TOKEN не задан. Временный токен админки до перезапуска — в файле ' + tokFile + ' (sudo cat).');
   }
 });
